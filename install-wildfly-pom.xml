@@ -1,0 +1,143 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>dk.dma.msinm</groupId>
+    <artifactId>msinm-install-wildfly</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Installs wildfly</name>
+
+    <properties>
+        <maven.min.version>3.0.0</maven.min.version>
+        <org.wildfly>8.0.0.Final</org.wildfly>
+    </properties>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>codehaus-snapshots</id>
+            <name>Codehaus Snapshots</name>
+            <url>http://nexus.codehaus.org/snapshots/</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>true</enabled>
+            </snapshots>
+        </pluginRepository>
+    </pluginRepositories>
+
+
+    <profiles>
+
+        <!--
+        * Installs a new wildfly installation in the project directory
+        -->
+        <profile>
+            <id>install-wildfly</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.wildfly</groupId>
+                                            <artifactId>wildfly-dist</artifactId>
+                                            <version>${org.wildfly}</version>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${basedir}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+        <!--
+        * Installs a mysql driver and configures a data source.
+        * Important: This currently does not work properly
+        * For now, use configure-wildfly.sh instead.
+        -->
+        <profile>
+            <id>configure-wildfly</id>
+            <dependencies>
+                <dependency>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                    <version>5.1.30</version>
+                </dependency>
+            </dependencies>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.wildfly.plugins</groupId>
+                        <artifactId>wildfly-maven-plugin</artifactId>
+                        <version>1.0.1.Final</version>
+
+                        <executions>
+
+                            <!-- Deploy Mysql driver -->
+                            <execution>
+                                <id>deploy-mysql</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>deploy-artifact</goal>
+                                </goals>
+                                <configuration>
+                                    <groupId>mysql</groupId>
+                                    <artifactId>mysql-connector-java</artifactId>
+                                    <name>mysql</name>
+                                </configuration>
+                            </execution>
+
+                            <!-- Init datasource -->
+                            <execution>
+                                <id>add-datasource</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>add-resource</goal>
+                                </goals>
+                                <configuration>
+                                    <address>subsystem=datasources,data-source=java:jboss/datasources/msiDS</address>
+                                    <resources>
+                                        <resource>
+                                            <properties>
+                                                <connection-url>jdbc:mysql://localhost:3306/msi</connection-url>
+                                                <jndi-name>java:jboss/datasources/msiDS</jndi-name>
+                                                <enabled>true</enabled>
+                                                <driver-name>mysql</driver-name>
+                                                <user-name>msi</user-name>
+                                                <password>msi</password>
+                                                <pool-name>msiDS</pool-name>
+                                            </properties>
+                                        </resource>
+                                    </resources>
+                                </configuration>
+                            </execution>
+
+                        </executions>
+
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+
+    <prerequisites>
+        <maven>${maven.min.version}</maven>
+    </prerequisites>
+
+</project>    

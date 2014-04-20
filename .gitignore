@@ -1,0 +1,10 @@
+target/
+wildfly-*
+.settings
+.project
+.classpath
+*~
+/bin
+.DS_Store
+.idea
+*.iml
