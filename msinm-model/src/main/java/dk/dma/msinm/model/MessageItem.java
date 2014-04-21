@@ -17,6 +17,8 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.ManyToOne;
@@ -51,6 +53,26 @@ public class MessageItem extends BaseEntity<Integer> {
 
     public MessageItem() {
     }
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        JsonObjectBuilder json = Json.createObjectBuilder();
+        json.add("keySubject", keySubject);
+        if (amplifyingRemarks != null) {
+            json.add("amplifyingRemarks", amplifyingRemarks);
+        } else {
+            json.addNull("amplifyingRemarks");
+        }
+        // TODO...
+
+        return json;
+    }
+
+
+    /******** Getters and setters *********/
 
     public String getAmplifyingRemarks() {
         return amplifyingRemarks;

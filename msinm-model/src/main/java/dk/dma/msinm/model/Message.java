@@ -17,6 +17,9 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.CascadeType;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
@@ -71,7 +74,29 @@ public abstract class Message extends BaseEntity<Integer> {
      */
     public Message() {
     }
-    
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        JsonArrayBuilder specificLocationJson = Json.createArrayBuilder();
+        specificLocation.forEach(loc -> specificLocationJson.add(loc));
+        JsonArrayBuilder chartNumberJson = Json.createArrayBuilder();
+        chartNumber.forEach(chartNo -> chartNumberJson.add(chartNo));
+        JsonArrayBuilder intChartNumberJson = Json.createArrayBuilder();
+        intChartNumber.forEach(intChartNo -> intChartNumberJson.add(intChartNo));
+
+        return Json.createObjectBuilder()
+                .add("id", getId())
+                .add("generalArea", generalArea)
+                .add("locality", locality)
+                .add("specificLocation", specificLocationJson)
+                .add("chartNumber", chartNumberJson)
+                .add("intChartNumber", intChartNumberJson)
+                .add("issueDate", issueDate.getTime());
+    }
+
     /******** Getters and setters *********/
     
     public MessageSeriesIdentifier getSeriesIdentifier() {

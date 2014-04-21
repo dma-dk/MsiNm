@@ -17,11 +17,9 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
-import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
-import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
@@ -48,10 +46,6 @@ public class MessageSeriesIdentifier extends BaseEntity<Integer> {
     @NotNull
     private Integer year;
     
-    @NotNull
-    @OneToOne(mappedBy = "seriesIdentifier", cascade = CascadeType.ALL)
-    private Message message;
-
     public MessageSeriesIdentifier() {
 
     }
@@ -70,14 +64,6 @@ public class MessageSeriesIdentifier extends BaseEntity<Integer> {
 
     public void setAuthority(String authority) {
         this.authority = authority;
-    }
-
-    public Message getMessage() {
-        return message;
-    }
-
-    public void setMessage(Message message) {
-        this.message = message;
     }
 
     public Integer getNumber() {

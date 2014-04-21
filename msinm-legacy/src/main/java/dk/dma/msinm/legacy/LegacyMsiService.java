@@ -102,10 +102,13 @@ public class LegacyMsiService {
     }
 
     /**
-     * Called every 5 minutes to update the legacy MSI warnings
+     * Called every 5 minutes to import the legacy MSI warnings
+     * @return the number of new or updated warnings
      */
     @Schedule(persistent = false, second = "13", minute = "*/5", hour = "*", dayOfWeek = "*", year = "*")
-    public void updateLegacyWarnings() {
+    public int importWarnings() {
+
+        int newOrUpdatedWarnings = 0;
 
         List<MsiDto> warnings = getActiveWarnings();
         log.info("Fetched " + warnings.size() + " legacy MSI warnings");
@@ -120,10 +123,13 @@ public class LegacyMsiService {
             if (msg == null) {
                 // Create a new message
                 createNewNavwarnMessage(msi);
+                newOrUpdatedWarnings++;
+
             } else {
                 // TODO
             }
         }
+        return newOrUpdatedWarnings;
     }
 
     /**
@@ -143,7 +149,7 @@ public class LegacyMsiService {
 
         // Tie to message
         message.setSeriesIdentifier(identifier);
-        identifier.setMessage(message);
+        //identifier.setMessage(message);
 
         // Message
         message.setGeneralArea(msi.getAreaEnglish());

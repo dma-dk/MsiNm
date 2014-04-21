@@ -15,8 +15,10 @@
  */
 package dk.dma.msinm.model;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
@@ -45,6 +47,23 @@ public class NavwarnMessage extends Message {
     
     public NavwarnMessage() {        
     }
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        JsonArrayBuilder messageItemJson = Json.createArrayBuilder();
+        messageItem.forEach(item -> messageItemJson.add(item.toJson()));
+
+        JsonObjectBuilder json = super.toJson()
+                .add("messageItem", messageItemJson);
+
+        return json;
+    }
+
+    /******** Getters and setters *********/
+
 
     public Date getCancellationDate() {
         return cancellationDate;
