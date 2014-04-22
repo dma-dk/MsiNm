@@ -13,6 +13,12 @@
     <name>MsiNm web application</name>
     <packaging>war</packaging>
 
+    <properties>
+        <!-- persistence.xml properties -->
+        <msinm-model.jar>msinm-model-${project.version}.jar</msinm-model.jar>
+        <msinm-legacy.jar>msinm-legacy-${project.version}.jar</msinm-legacy.jar>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>dk.dma.msinm</groupId>
@@ -32,6 +38,17 @@
     </dependencies>
 
     <build>
+
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/persistence.xml</include>
+                </includes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>

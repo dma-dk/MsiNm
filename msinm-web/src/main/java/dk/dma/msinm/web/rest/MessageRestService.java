@@ -1,6 +1,21 @@
+/* Copyright (c) 2011 Danish Maritime Authority
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this library.  If not, see <http://www.gnu.org/licenses/>.
+ */
 package dk.dma.msinm.web.rest;
 
-import dk.dma.msinm.legacy.LegacyMsiService;
+import dk.dma.msinm.legacy.service.LegacyMsiImportService;
 import dk.dma.msinm.service.MessageService;
 import org.slf4j.Logger;
 
@@ -28,7 +43,7 @@ public class MessageRestService {
     private MessageService messageService;
 
     @EJB
-    private LegacyMsiService legacyMsiService;
+    private LegacyMsiImportService legacyMsiImportService;
 
     public MessageRestService() {
     }
@@ -39,7 +54,7 @@ public class MessageRestService {
         log.info("Importing legacy MSI warnings");
 
         return String.format("Created or updated %d legacy MSI warnings",
-                legacyMsiService.importWarnings());
+                legacyMsiImportService.importWarnings());
     }
 
     @GET
