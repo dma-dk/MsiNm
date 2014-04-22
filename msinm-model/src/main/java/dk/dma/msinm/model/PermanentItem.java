@@ -19,8 +19,11 @@ import dk.dma.msinm.common.model.BaseEntity;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Contains information for permanent NtM messages 
@@ -43,9 +46,9 @@ public class PermanentItem extends BaseEntity<Integer> {
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
     private MessageLocation location;
-    
-    @OneToOne(cascade = CascadeType.ALL)
-    private NoticeElement noticeElement;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<NoticeElement> noticeElement = new ArrayList<>();
 
     public PermanentItem() {
 
@@ -91,11 +94,11 @@ public class PermanentItem extends BaseEntity<Integer> {
         this.location = location;
     }
     
-    public NoticeElement getNoticeElement() {
+    public List<NoticeElement> getNoticeElement() {
         return noticeElement;
     }
     
-    public void setNoticeElement(NoticeElement noticeElement) {
+    public void setNoticeElement(List<NoticeElement> noticeElement) {
         this.noticeElement = noticeElement;
     }
 
