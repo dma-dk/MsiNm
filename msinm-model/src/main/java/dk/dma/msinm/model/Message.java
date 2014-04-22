@@ -81,11 +81,11 @@ public abstract class Message extends BaseEntity<Integer> {
      */
     public JsonObjectBuilder toJson() {
         JsonArrayBuilder specificLocationJson = Json.createArrayBuilder();
-        specificLocation.forEach(loc -> specificLocationJson.add(loc));
+        specificLocation.forEach(specificLocationJson::add);
         JsonArrayBuilder chartNumberJson = Json.createArrayBuilder();
-        chartNumber.forEach(chartNo -> chartNumberJson.add(chartNo));
+        chartNumber.forEach(chartNumberJson::add);
         JsonArrayBuilder intChartNumberJson = Json.createArrayBuilder();
-        intChartNumber.forEach(intChartNo -> intChartNumberJson.add(intChartNo));
+        intChartNumber.forEach(intChartNumberJson::add);
 
         return Json.createObjectBuilder()
                 .add("id", getId())
