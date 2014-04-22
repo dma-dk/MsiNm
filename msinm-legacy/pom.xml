@@ -43,7 +43,7 @@
                 </executions>
                 <configuration>
                     <!--wsdls file directory -->
-                    <wsdlDirectory>src/main/resources/wsdl</wsdlDirectory>
+                    <wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
                     <!-- which wsdl file -->
                     <wsdlFiles>
                         <wsdlFile>warning.wsdl</wsdlFile>
@@ -51,7 +51,7 @@
                     <!-- Keep generated files -->
                     <keep>true</keep>
                     <!-- generated source files destination-->
-                    <sourceDestDir>target/generated</sourceDestDir>
+                    <sourceDestDir>${basedir}/target/generated</sourceDestDir>
                     <sei/>
                 </configuration>
             </plugin>
@@ -68,7 +68,7 @@
                         </goals>
                         <configuration>
                             <sources>
-                                <source>target/generated</source>
+                                <source>${basedir}/target/generated</source>
                             </sources>
                         </configuration>
                     </execution>
