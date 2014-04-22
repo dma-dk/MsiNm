@@ -35,21 +35,25 @@ import java.util.Set;
 public class NavwarnMessage extends Message {
 
     private static final long serialVersionUID = 1L;
-    
+
     private Date cancellationDate;
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<MessageSeriesIdentifier> cancellations = new HashSet<>();
-    
+
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
     private List<MessageItem> messageItem = new ArrayList<>();
-    
-    public NavwarnMessage() {        
+
+    @NotNull
+    private Priority priority = Priority.NONE;
+
+    public NavwarnMessage() {
     }
 
     /**
      * Creates a Json representation of this entity
+     *
      * @return the Json representation
      */
     public JsonObjectBuilder toJson() {
@@ -62,31 +66,40 @@ public class NavwarnMessage extends Message {
         return json;
     }
 
-    /******** Getters and setters *********/
+    /**
+     * ***** Getters and setters ********
+     */
 
 
     public Date getCancellationDate() {
         return cancellationDate;
     }
-    
+
     public void setCancellationDate(Date cancellationDate) {
         this.cancellationDate = cancellationDate;
     }
-    
+
     public Set<MessageSeriesIdentifier> getCancellations() {
         return cancellations;
     }
-    
+
     public void setCancellations(Set<MessageSeriesIdentifier> cancellations) {
         this.cancellations = cancellations;
     }
-    
+
     public List<MessageItem> getMessageItem() {
         return messageItem;
     }
-    
+
     public void setMessageItem(List<MessageItem> messageItem) {
         this.messageItem = messageItem;
     }
-    
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
 }
