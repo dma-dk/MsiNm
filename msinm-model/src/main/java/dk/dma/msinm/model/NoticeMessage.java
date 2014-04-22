@@ -41,13 +41,13 @@ public class NoticeMessage extends Message {
     private String amplifyingRemarks;
     
     @OneToMany(cascade = CascadeType.ALL)
-    private List<PermanentItem> permanentItem = new ArrayList<>();
+    private List<PermanentItem> permanentItems = new ArrayList<>();
     
     @OneToMany(cascade = CascadeType.ALL)
-    private List<TempPreliminaryItem> tempPreliminaryItem = new ArrayList<>();
+    private List<TempPreliminaryItem> tempPreliminaryItems = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<MessageCategory> category = new ArrayList<>();
+    private List<MessageCategory> categories = new ArrayList<>();
 
     
     public NoticeMessage() {
@@ -78,20 +78,27 @@ public class NoticeMessage extends Message {
         this.amplifyingRemarks = amplifyingRemarks;
     }
     
-    public List<PermanentItem> getPermanentItem() {
-        return permanentItem;
+    public List<PermanentItem> getPermanentItems() {
+        return permanentItems;
     }
     
-    public void setPermanentItem(List<PermanentItem> permanentItem) {
-        this.permanentItem = permanentItem;
+    public void setPermanentItems(List<PermanentItem> permanentItems) {
+        this.permanentItems = permanentItems;
     }
     
-    public List<TempPreliminaryItem> getTempPreliminaryItem() {
-        return tempPreliminaryItem;
+    public List<TempPreliminaryItem> getTempPreliminaryItems() {
+        return tempPreliminaryItems;
     }
     
-    public void setTempPreliminaryItem(List<TempPreliminaryItem> tempPreliminaryItem) {
-        this.tempPreliminaryItem = tempPreliminaryItem;
+    public void setTempPreliminaryItems(List<TempPreliminaryItem> tempPreliminaryItems) {
+        this.tempPreliminaryItems = tempPreliminaryItems;
     }
 
+    public List<MessageCategory> getCategories() {
+        return categories;
+    }
+
+    public void setCategories(List<MessageCategory> categories) {
+        this.categories = categories;
+    }
 }

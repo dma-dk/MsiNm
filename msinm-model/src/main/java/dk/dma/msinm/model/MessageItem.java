@@ -46,7 +46,7 @@ public class MessageItem extends BaseEntity<Integer> {
     private MessageCategory category;
     
     @OneToMany(cascade = CascadeType.ALL)
-    private List<MessageLocation> location = new ArrayList<>();
+    private List<MessageLocation> locations = new ArrayList<>();
     
     @ManyToOne
     private NavwarnMessage navwarnMessage;
@@ -98,12 +98,12 @@ public class MessageItem extends BaseEntity<Integer> {
         this.category = category;
     }
     
-    public List<MessageLocation> getLocation() {
-        return location;
+    public List<MessageLocation> getLocations() {
+        return locations;
     }
     
-    public void setLocation(List<MessageLocation> location) {
-        this.location = location;
+    public void setLocations(List<MessageLocation> locations) {
+        this.locations = locations;
     }
 
     public NavwarnMessage getNavwarnMessage() {

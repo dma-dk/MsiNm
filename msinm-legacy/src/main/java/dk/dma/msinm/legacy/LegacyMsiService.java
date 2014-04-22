@@ -177,11 +177,11 @@ public class LegacyMsiService {
             for (PointDto p : msi.getPoints().getPoint()) {
                 loc1.addPoint(new Point(p.getLatitude(), p.getLongitude()));
             }
-            item1.getLocation().add(loc1);
+            item1.getLocations().add(loc1);
         }
 
         // Tie message items to navwarn message
-        message.getMessageItem().add(item1);
+        message.getMessageItems().add(item1);
 
         // Create navwarn message
         try {

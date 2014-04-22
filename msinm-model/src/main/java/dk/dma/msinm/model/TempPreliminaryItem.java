@@ -34,7 +34,7 @@ public class TempPreliminaryItem extends BaseEntity<Integer> {
     private static final long serialVersionUID = 1L;
 
     @ElementCollection
-    private List<String> graphicalRepresentation = new ArrayList<>();
+    private List<String> graphicalRepresentations = new ArrayList<>();
     
     @NotNull
     private String itemDescription;
@@ -46,12 +46,12 @@ public class TempPreliminaryItem extends BaseEntity<Integer> {
 
     }
 
-    public List<String> getGraphicalRepresentation() {
-        return graphicalRepresentation;
+    public List<String> getGraphicalRepresentations() {
+        return graphicalRepresentations;
     }
 
-    public void setGraphicalRepresentation(List<String> graphicalRepresentation) {
-        this.graphicalRepresentation = graphicalRepresentation;
+    public void setGraphicalRepresentations(List<String> graphicalRepresentations) {
+        this.graphicalRepresentations = graphicalRepresentations;
     }
 
     public String getItemDescription() {

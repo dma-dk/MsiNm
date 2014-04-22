@@ -48,7 +48,7 @@ public class PermanentItem extends BaseEntity<Integer> {
     private MessageLocation location;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<NoticeElement> noticeElement = new ArrayList<>();
+    private List<NoticeElement> noticeElements = new ArrayList<>();
 
     public PermanentItem() {
 
@@ -94,12 +94,12 @@ public class PermanentItem extends BaseEntity<Integer> {
         this.location = location;
     }
     
-    public List<NoticeElement> getNoticeElement() {
-        return noticeElement;
+    public List<NoticeElement> getNoticeElements() {
+        return noticeElements;
     }
     
-    public void setNoticeElement(List<NoticeElement> noticeElement) {
-        this.noticeElement = noticeElement;
+    public void setNoticeElements(List<NoticeElement> noticeElements) {
+        this.noticeElements = noticeElements;
     }
 
 }

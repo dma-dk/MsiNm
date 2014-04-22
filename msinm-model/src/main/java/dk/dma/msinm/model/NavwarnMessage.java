@@ -43,7 +43,7 @@ public class NavwarnMessage extends Message {
 
     @NotNull
     @OneToMany(cascade = CascadeType.ALL)
-    private List<MessageItem> messageItem = new ArrayList<>();
+    private List<MessageItem> messageItems = new ArrayList<>();
 
     @NotNull
     private Priority priority = Priority.NONE;
@@ -57,11 +57,11 @@ public class NavwarnMessage extends Message {
      * @return the Json representation
      */
     public JsonObjectBuilder toJson() {
-        JsonArrayBuilder messageItemJson = Json.createArrayBuilder();
-        messageItem.forEach(item -> messageItemJson.add(item.toJson()));
+        JsonArrayBuilder messageItemsJson = Json.createArrayBuilder();
+        messageItems.forEach(item -> messageItemsJson.add(item.toJson()));
 
         JsonObjectBuilder json = super.toJson()
-                .add("messageItem", messageItemJson);
+                .add("messageItems", messageItemsJson);
 
         return json;
     }
@@ -87,12 +87,12 @@ public class NavwarnMessage extends Message {
         this.cancellations = cancellations;
     }
 
-    public List<MessageItem> getMessageItem() {
-        return messageItem;
+    public List<MessageItem> getMessageItems() {
+        return messageItems;
     }
 
-    public void setMessageItem(List<MessageItem> messageItem) {
-        this.messageItem = messageItem;
+    public void setMessageItems(List<MessageItem> messageItems) {
+        this.messageItems = messageItems;
     }
 
     public Priority getPriority() {

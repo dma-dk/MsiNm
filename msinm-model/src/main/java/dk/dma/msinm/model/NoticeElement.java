@@ -42,12 +42,12 @@ public class NoticeElement extends BaseEntity<Integer> {
     private String featureOrCharacteristic;
     
     @ElementCollection
-    private List<String> graphicalRepresentation = new ArrayList<>();
+    private List<String> graphicalRepresentations = new ArrayList<>();
     
     @NotNull
     @Enumerated(EnumType.STRING)
     private NoticeVerb noticeVerb;
-    
+
     @OneToOne(cascade = CascadeType.ALL)
     private MessageLocation location;
 
@@ -71,12 +71,12 @@ public class NoticeElement extends BaseEntity<Integer> {
         this.featureOrCharacteristic = featureOrCharacteristic;
     }
 
-    public List<String> getGraphicalRepresentation() {
-        return graphicalRepresentation;
+    public List<String> getGraphicalRepresentations() {
+        return graphicalRepresentations;
     }
 
-    public void setGraphicalRepresentation(List<String> graphicalRepresentation) {
-        this.graphicalRepresentation = graphicalRepresentation;
+    public void setGraphicalRepresentations(List<String> graphicalRepresentations) {
+        this.graphicalRepresentations = graphicalRepresentations;
     }
 
     public NoticeVerb getNoticeVerb() {

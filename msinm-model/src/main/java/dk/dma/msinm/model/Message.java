@@ -58,13 +58,13 @@ public abstract class Message extends BaseEntity<Integer> {
     private String locality;
     
     @ElementCollection
-    private List<String> specificLocation = new ArrayList<>();
+    private List<String> specificLocations = new ArrayList<>();
     
     @ElementCollection
-    private List<String> chartNumber = new ArrayList<>();
+    private List<String> chartNumbers = new ArrayList<>();
     
     @ElementCollection
-    private List<Integer> intChartNumber = new ArrayList<>();
+    private List<Integer> intChartNumbers = new ArrayList<>();
     
     @NotNull
     private Date issueDate;
@@ -80,20 +80,20 @@ public abstract class Message extends BaseEntity<Integer> {
      * @return the Json representation
      */
     public JsonObjectBuilder toJson() {
-        JsonArrayBuilder specificLocationJson = Json.createArrayBuilder();
-        specificLocation.forEach(specificLocationJson::add);
-        JsonArrayBuilder chartNumberJson = Json.createArrayBuilder();
-        chartNumber.forEach(chartNumberJson::add);
-        JsonArrayBuilder intChartNumberJson = Json.createArrayBuilder();
-        intChartNumber.forEach(intChartNumberJson::add);
+        JsonArrayBuilder specificLocationsJson = Json.createArrayBuilder();
+        specificLocations.forEach(specificLocationsJson::add);
+        JsonArrayBuilder chartNumbersJson = Json.createArrayBuilder();
+        chartNumbers.forEach(chartNumbersJson::add);
+        JsonArrayBuilder intChartNumbersJson = Json.createArrayBuilder();
+        intChartNumbers.forEach(intChartNumbersJson::add);
 
         return Json.createObjectBuilder()
                 .add("id", getId())
                 .add("generalArea", generalArea)
                 .add("locality", locality)
-                .add("specificLocation", specificLocationJson)
-                .add("chartNumber", chartNumberJson)
-                .add("intChartNumber", intChartNumberJson)
+                .add("specificLocations", specificLocationsJson)
+                .add("chartNumbers", chartNumbersJson)
+                .add("intChartNumbers", intChartNumbersJson)
                 .add("issueDate", issueDate.getTime());
     }
 
@@ -123,28 +123,28 @@ public abstract class Message extends BaseEntity<Integer> {
         this.locality = locality;
     }
 
-    public List<String> getSpecificLocation() {
-        return specificLocation;
+    public List<String> getSpecificLocations() {
+        return specificLocations;
     }
     
-    public void setSpecificLocation(List<String> specificLocation) {
-        this.specificLocation = specificLocation;
+    public void setSpecificLocations(List<String> specificLocations) {
+        this.specificLocations = specificLocations;
     }
     
-    public List<String> getChartNumber() {
-        return chartNumber;
+    public List<String> getChartNumbers() {
+        return chartNumbers;
     }
     
-    public void setChartNumber(List<String> chartNumber) {
-        this.chartNumber = chartNumber;
+    public void setChartNumbers(List<String> chartNumbers) {
+        this.chartNumbers = chartNumbers;
     }
     
-    public List<Integer> getIntChartNumber() {
-        return intChartNumber;
+    public List<Integer> getIntChartNumbers() {
+        return intChartNumbers;
     }
     
-    public void setIntChartNumber(List<Integer> intChartNumber) {
-        this.intChartNumber = intChartNumber;
+    public void setIntChartNumbers(List<Integer> intChartNumbers) {
+        this.intChartNumbers = intChartNumbers;
     }
     
     public Date getIssueDate() {
