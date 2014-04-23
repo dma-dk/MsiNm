@@ -21,6 +21,7 @@ import dk.dma.msinm.legacy.model.LegacyMessage;
 import dk.dma.msinm.model.*;
 import dk.frv.msiedit.core.webservice.message.MsiDto;
 import dk.frv.msiedit.core.webservice.message.PointDto;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.EJB;
@@ -51,7 +52,7 @@ public class LegacyMessageService extends BaseService {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public boolean createOrUpdateNavwarnMessage(MsiDto msi) {
 
-        LegacyMessage legacyMessage = null;
+        LegacyMessage legacyMessage;
         try {
             // Look up a  matching LegacyMessage
             legacyMessage = em
@@ -102,11 +103,11 @@ public class LegacyMessageService extends BaseService {
         if (identifier == null) {
             identifier = new MessageSeriesIdentifier();
             message.setSeriesIdentifier(identifier);
+            identifier.setNumber((int) sequenceService.getNextValue(Message.MESSAGE_SEQUENCE));
+            identifier.setAuthority(msi.getOrganisation());
+            identifier.setYear(msi.getCreated().toGregorianCalendar().get(Calendar.YEAR));
+            identifier.setType(MessageType.NAVAREA_WARNING);
         }
-        identifier.setAuthority(msi.getOrganisation());
-        identifier.setYear(msi.getCreated().toGregorianCalendar().get(Calendar.YEAR));
-        identifier.setNumber((int) sequenceService.getNextValue(Message.MESSAGE_SEQUENCE));
-        identifier.setType(MessageType.NAVAREA_WARNING);
 
         // Message
         message.setGeneralArea(msi.getAreaEnglish());
@@ -127,9 +128,9 @@ public class LegacyMessageService extends BaseService {
             message.getMessageItems().add(item1);
 
             MessageCategory cat1 = new MessageCategory();
-            cat1.setGeneralCategory(GeneralCategory.ISOLATED_DANGERS);
-            cat1.setSpecificCategory(SpecificCategory.OBSTRUCTION);
-            cat1.setOtherCategory("");
+            cat1.setGeneralCategory(GeneralCategory.NONE);
+            cat1.setSpecificCategory(SpecificCategory.NONE);
+            cat1.setOtherCategory(StringUtils.defaultString(msi.getEncText()));
             item1.setCategory(cat1);
         } else {
             item1 = message.getMessageItems().get(0);
@@ -139,9 +140,17 @@ public class LegacyMessageService extends BaseService {
 
         item1.getLocations().clear();
         if (msi.getPoints() != null && msi.getPoints().getPoint().size() > 0) {
-            MessageLocation loc1 = new MessageLocation(MessageLocation.LocationType.POLYGON);
+            MessageLocation.LocationType type;
+            switch (msi.getLocationType()) {
+                case "Point":       type = MessageLocation.LocationType.POINT; break;
+                case "Polygon":     type = MessageLocation.LocationType.POLYGON; break;
+                case "Points":      type = MessageLocation.LocationType.POLYLINE; break;
+                case "Polyline":    type = MessageLocation.LocationType.POLYLINE; break;
+                default:            type = MessageLocation.LocationType.POLYLINE;
+            }
+            MessageLocation loc1 = new MessageLocation(type);
             for (PointDto p : msi.getPoints().getPoint()) {
-                loc1.addPoint(new Point(p.getLatitude(), p.getLongitude()));
+                loc1.addPoint(new Point(p.getLatitude(), p.getLongitude(), p.getPtno()));
             }
             item1.getLocations().add(loc1);
         }

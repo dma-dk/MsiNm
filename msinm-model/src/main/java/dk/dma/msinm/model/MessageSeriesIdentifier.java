@@ -17,6 +17,8 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -48,6 +50,18 @@ public class MessageSeriesIdentifier extends BaseEntity<Integer> {
     
     public MessageSeriesIdentifier() {
 
+    }
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        return Json.createObjectBuilder()
+                .add("type", getType().toString())
+                .add("authority", getAuthority())
+                .add("number", getNumber())
+                .add("year", getYear());
     }
 
     public MessageType getType() {

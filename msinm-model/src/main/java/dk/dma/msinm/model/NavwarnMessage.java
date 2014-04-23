@@ -59,8 +59,15 @@ public class NavwarnMessage extends Message {
     public JsonObjectBuilder toJson() {
         JsonArrayBuilder messageItemsJson = Json.createArrayBuilder();
         messageItems.forEach(item -> messageItemsJson.add(item.toJson()));
+        JsonArrayBuilder cancellationsJson = Json.createArrayBuilder();
+        cancellations.forEach(c -> cancellationsJson.add(c.toJson()));
 
-        JsonObjectBuilder json = super.toJson()
+        JsonObjectBuilder json = super.toJson();
+        if (cancellationDate != null) {
+            json.add("cancellationDate", cancellationDate.getTime());
+        }
+        json.add("cancellations", cancellationsJson)
+                .add("priority", priority.toString())
                 .add("messageItems", messageItemsJson);
 
         return json;

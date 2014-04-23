@@ -18,6 +18,7 @@ package dk.dma.msinm.model;
 import dk.dma.msinm.common.model.BaseEntity;
 
 import javax.json.Json;
+import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -59,6 +60,9 @@ public class MessageItem extends BaseEntity<Integer> {
      * @return the Json representation
      */
     public JsonObjectBuilder toJson() {
+        JsonArrayBuilder locationsJson = Json.createArrayBuilder();
+        locations.forEach(l -> locationsJson.add(l.toJson()));
+
         JsonObjectBuilder json = Json.createObjectBuilder();
         json.add("keySubject", keySubject);
         if (amplifyingRemarks != null) {
@@ -66,8 +70,8 @@ public class MessageItem extends BaseEntity<Integer> {
         } else {
             json.addNull("amplifyingRemarks");
         }
-        // TODO...
-
+        json.add("category", category.toJson())
+                .add("locations", locationsJson);
         return json;
     }
 

@@ -15,6 +15,8 @@
  */
 package dk.dma.msinm.model;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.Embeddable;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -41,9 +43,25 @@ public class Point implements Serializable {
     }
     
     public Point(double lat, double lon) {
+        this(lat, lon, 0);
+    }
+
+    public Point(Double lat, Double lon, Integer num) {
         this.lat = lat;
         this.lon = lon;
-    }    
+        this.num = num;
+    }
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        return Json.createObjectBuilder()
+                .add("lat", lat)
+                .add("lon", lon)
+                .add("num", num);
+    }
 
     public Double getLat() {
         return lat;

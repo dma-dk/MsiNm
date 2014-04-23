@@ -17,6 +17,8 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
+import javax.json.Json;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -45,6 +47,17 @@ public class MessageCategory extends BaseEntity<Integer> {
      * Constructor
      */
     public MessageCategory() {
+    }
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        return Json.createObjectBuilder()
+                .add("generalCategory", generalCategory.toString())
+                .add("specificCategory", specificCategory.toString())
+                .add("otherCategory", otherCategory);
     }
 
     /******** Getters and setters *********/

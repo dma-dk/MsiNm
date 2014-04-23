@@ -91,7 +91,7 @@ public abstract class Message extends BaseEntity<Integer> {
         intChartNumbers.forEach(intChartNumbersJson::add);
 
         return Json.createObjectBuilder()
-                .add("id", getId())
+                .add("seriesIdentifier", getSeriesIdentifier().toJson())
                 .add("generalArea", generalArea)
                 .add("locality", locality)
                 .add("specificLocations", specificLocationsJson)

@@ -19,12 +19,13 @@ package dk.dma.msinm.model;
  * The Specific category used for the {@code MessageCategory}.
  */
 public enum SpecificCategory {
+    NONE,
     LIGHT,
     LIGHT_BUOY,
     BUOY, 
     OBSTRUCTION,
     WRECK_AND_GROUNDS,
     DRIFTING_OBJECT,
-    RADIO_NAVIGATION;
+    RADIO_NAVIGATION
     // TODO
 }

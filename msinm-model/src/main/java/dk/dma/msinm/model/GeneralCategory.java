@@ -25,6 +25,7 @@ package dk.dma.msinm.model;
  * </ul>
  */
 public enum GeneralCategory {
+    NONE,
     AIDS_TO_NAVIGATION, 
     DANGEROUS_WRECKS,
     UNWIELDY_TOW,

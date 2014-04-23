@@ -17,6 +17,9 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -52,6 +55,22 @@ public class MessageLocation extends BaseEntity<Integer> {
 
     public MessageLocation() {
 
+    }
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        JsonArrayBuilder pointsJson = Json.createArrayBuilder();
+        points.forEach(p -> pointsJson.add(p.toJson()));
+        JsonObjectBuilder json = Json.createObjectBuilder()
+                .add("type", type.toString())
+                .add("points", pointsJson);
+        if (radius != null) {
+            json.add("radius", radius);
+        }
+        return json;
     }
 
     public MessageLocation(LocationType type) {
