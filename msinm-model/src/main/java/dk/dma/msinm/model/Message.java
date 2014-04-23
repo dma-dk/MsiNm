@@ -16,6 +16,8 @@
 package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
+import dk.dma.msinm.common.model.DefaultSequence;
+import dk.dma.msinm.common.model.Sequence;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -46,6 +48,7 @@ import java.util.List;
 public abstract class Message extends BaseEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
+    public static final Sequence MESSAGE_SEQUENCE = new DefaultSequence("msinm-message-id", 100);
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)

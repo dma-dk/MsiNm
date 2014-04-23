@@ -15,6 +15,7 @@
 
     <properties>
         <!-- persistence.xml properties -->
+        <msinm-common.jar>msinm-common-${project.version}.jar</msinm-common.jar>
         <msinm-model.jar>msinm-model-${project.version}.jar</msinm-model.jar>
         <msinm-legacy.jar>msinm-legacy-${project.version}.jar</msinm-legacy.jar>
     </properties>

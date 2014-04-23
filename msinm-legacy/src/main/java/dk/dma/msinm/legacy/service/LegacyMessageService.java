@@ -16,9 +16,9 @@
 package dk.dma.msinm.legacy.service;
 
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.common.service.SequenceService;
 import dk.dma.msinm.legacy.model.LegacyMessage;
 import dk.dma.msinm.model.*;
-import dk.dma.msinm.service.MessageService;
 import dk.frv.msiedit.core.webservice.message.MsiDto;
 import dk.frv.msiedit.core.webservice.message.PointDto;
 import org.slf4j.Logger;
@@ -40,7 +40,7 @@ public class LegacyMessageService extends BaseService {
     private Logger log;
 
     @EJB
-    MessageService messageService;
+    SequenceService sequenceService;
 
     /**
      * Create and persist a new MSI warning from a legacy warning
@@ -60,7 +60,7 @@ public class LegacyMessageService extends BaseService {
                     .getSingleResult();
         
             // Check if the message has been updated
-            if (legacyMessage.getVersion().intValue() >= msi.getVersion().intValue()) {
+            if (legacyMessage.getVersion() >= msi.getVersion()) {
                 // No further updates...
                 return false;
             }
@@ -105,7 +105,7 @@ public class LegacyMessageService extends BaseService {
         }
         identifier.setAuthority(msi.getOrganisation());
         identifier.setYear(msi.getCreated().toGregorianCalendar().get(Calendar.YEAR));
-        identifier.setNumber(msi.getMessageId());
+        identifier.setNumber((int) sequenceService.getNextValue(Message.MESSAGE_SEQUENCE));
         identifier.setType(MessageType.NAVAREA_WARNING);
 
         // Message
@@ -121,7 +121,7 @@ public class LegacyMessageService extends BaseService {
         }
 
         // MessageItem 's
-        MessageItem item1 = null;
+        MessageItem item1;
         if (message.getMessageItems().size() == 0) {
             item1 = new MessageItem();
             message.getMessageItems().add(item1);

@@ -20,12 +20,13 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import java.io.Serializable;
 
 /**
  * Base class for all entity beans
  */
 @MappedSuperclass
-public abstract class BaseEntity<K> implements IEntity<K> {
+public abstract class BaseEntity<K extends Serializable> implements IEntity<K> {
 
     private static final long serialVersionUID = 1L;
 

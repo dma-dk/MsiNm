@@ -7,6 +7,7 @@
     <persistence-unit name="msi" transaction-type="JTA">
         <jta-data-source>java:jboss/datasources/msiDS</jta-data-source>
 
+        <jar-file>lib/${msinm-common.jar}</jar-file>
         <jar-file>lib/${msinm-model.jar}</jar-file>
         <jar-file>lib/${msinm-legacy.jar}</jar-file>
 
