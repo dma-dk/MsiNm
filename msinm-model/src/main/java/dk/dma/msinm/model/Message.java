@@ -42,13 +42,13 @@ import java.util.List;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NamedQueries({
     @NamedQuery(name="Message.findBySeriesIdentifier",
-                query="SELECT msg FROM Message msg where msg.seriesIdentifier.number = :number " +
-                      " and msg.seriesIdentifier.year = :year and msg.seriesIdentifier.authority = :authority")
+                query="SELECT msg FROM Message msg inner join msg.seriesIdentifier si where si.number = :number " +
+                      " and si.year = :year and si = :authority")
 }) 
 public abstract class Message extends BaseEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
-    public static final Sequence MESSAGE_SEQUENCE = new DefaultSequence("msinm-message-id", 100);
+    public static final Sequence MESSAGE_SEQUENCE = new DefaultSequence("msinm-message-id", 1);
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)

@@ -36,6 +36,14 @@
             <artifactId>msinm-legacy</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+
+        <!-- Only used for executing jpa-ql in Intellij! -->
+        <dependency>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <version>4.3.1.Final</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
@@ -47,6 +55,13 @@
                 <includes>
                     <include>**/persistence.xml</include>
                 </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/persistence.xml</exclude>
+                </excludes>
             </resource>
         </resources>
 
