@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.common.service;
 
+import dk.dma.msinm.common.config.MsiNm;
 import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.common.model.Sequence;
 import org.slf4j.Logger;
@@ -34,6 +35,7 @@ public class SequenceService  {
     private Logger log;
 
     @Inject
+    @MsiNm
     protected EntityManager em;
 
     /**
@@ -47,12 +49,16 @@ public class SequenceService  {
         Objects.requireNonNull(sequence, "No sequence specified");
         Objects.requireNonNull(sequence.getSequenceName(), "Invalid sequence specified");
 
-        // No-group case
         try {
             DbSequence seq = em.createNamedQuery("DbSequence.findByName", DbSequence.class)
                     .setParameter("name", sequence.getSequenceName())
                     .getSingleResult();
-            return getNextValue(seq);
+
+            // Increase the last value
+            seq.setLastValue(seq.getLastValue() + 1);
+            em.merge(seq);
+            return seq.getLastValue();
+
         } catch (NoResultException ex) {
             DbSequence seq = new DbSequence();
             seq.setName(sequence.getSequenceName());
@@ -61,18 +67,6 @@ public class SequenceService  {
             // NB: Return start value - not the next value.
             return seq.getLastValue();
         }
-    }
-
-    /**
-     * Updates the sequence and returns the next value
-     * @param seq the sequence
-     * @return the next value
-     */
-    private long getNextValue(DbSequence seq) {
-        // Increase the last value
-        seq.setLastValue(seq.getLastValue() + 1);
-        em.merge(seq);
-        return seq.getLastValue();
     }
 }
 
@@ -89,6 +83,7 @@ public class SequenceService  {
 class DbSequence  extends BaseEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
+
     String name;
     long lastValue;
 

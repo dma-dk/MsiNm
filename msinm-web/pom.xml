@@ -37,6 +37,11 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.jboss.resteasy</groupId>
+            <artifactId>resteasy-jaxrs</artifactId>
+        </dependency>
+
         <!-- Only used for executing jpa-ql in Intellij! -->
         <dependency>
             <groupId>org.hibernate</groupId>

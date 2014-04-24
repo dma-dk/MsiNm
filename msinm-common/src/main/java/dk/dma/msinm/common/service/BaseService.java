@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.common.service;
 
+import dk.dma.msinm.common.config.MsiNm;
 import dk.dma.msinm.common.model.IEntity;
 
 import javax.inject.Inject;
@@ -30,16 +31,31 @@ import java.util.List;
 public abstract class BaseService {
 
     @Inject
+    @MsiNm
     protected EntityManager em;
 
+    /**
+     * Constructor
+     */
     protected BaseService() {
     }
 
+    /**
+     * Constructor
+     *
+     * @param entityManager the entity manager to use
+     */
     protected BaseService(EntityManager entityManager) {
-
         this.em = entityManager;
     }
 
+    /**
+     * Returns the entity with the given id or {@code null} if none is found
+     *
+     * @param clazz the entity class
+     * @param id the id of the entity
+     * @return the entity with the given id or {@code null} if none is found
+     */
     public <E extends IEntity<?>> E getByPrimaryKey(Class<E> clazz, Object id) {
         try {
             return em.find(clazz, id);
@@ -48,11 +64,22 @@ public abstract class BaseService {
         }
     }
 
+    /**
+     * Removes the given entity from the database
+     *
+     * @param entity the entity to remove
+     */
     public void remove(IEntity<?> entity) {
 
         em.remove(em.merge(entity));
     }
 
+    /**
+     * Persists or updates the given entity
+     *
+     * @param entity the entity to persist or update
+     * @return thed update entity
+     */
     public <E extends IEntity<?>> E saveEntity(E entity) {
         if (entity.isPersisted()) {
             // Update existing
@@ -64,10 +91,22 @@ public abstract class BaseService {
         return entity;
     }
 
+    /**
+     * Returns the first element of the list, or {@code null} if the list is empty or {@code null}
+     *
+     * @param list the list
+     * @return the first element
+     */
     public static <T> T getSingleOrNull(List<T> list) {
         return (list == null || list.size() == 0) ? null : list.get(0);
     }
 
+    /**
+     * Returns all entities with the given class
+     *
+     * @param entityType the class
+     * @return all entities with the given class
+     */
     public <E extends IEntity<?>> List<E> getAll(Class<E> entityType) {
         em.clear();
 

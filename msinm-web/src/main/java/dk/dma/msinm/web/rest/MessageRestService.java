@@ -17,6 +17,8 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.legacy.service.LegacyMsiImportService;
 import dk.dma.msinm.service.MessageService;
+import org.jboss.resteasy.annotations.GZIP;
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
 import javax.ejb.EJB;
@@ -60,13 +62,13 @@ public class MessageRestService {
     @GET
     @Path("/all")
     @Produces("application/json")
+    @GZIP
+    @NoCache
     public JsonArray getAll() {
 
         JsonArrayBuilder result = Json.createArrayBuilder();
         messageService.getAll().forEach(msg -> result.add(msg.toJson()));
         return result.build();
     }
-
-
 
 }

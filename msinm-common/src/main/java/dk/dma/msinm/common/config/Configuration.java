@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.config;
+package dk.dma.msinm.common.config;
 
 import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
@@ -21,14 +21,19 @@ import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
 import javax.persistence.PersistenceUnit;
 
+/**
+ * Produces the MSI-NM entity manager, thus available for CDI injection
+ */
 public class Configuration {
 
     @Produces
     @PersistenceContext(name = "msi")
+    @MsiNm
     EntityManager entityManager;
 
     @Produces
     @PersistenceUnit(name = "msi")
+    @MsiNm
     EntityManagerFactory entityManagerFactory;
 
 }
