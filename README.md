@@ -30,8 +30,10 @@ You can now run the Wildfly app server using:
 
 ## Deploying to Wildfly
 
-Deploy the msinm web application using:
+Build the project and dploy the msinm web application:
 
+    mvn clean install
+    cd msinm-web
     mvn wildfly:deploy
 
 You can now access the web application on: http://localhost:8080/msinm-web
