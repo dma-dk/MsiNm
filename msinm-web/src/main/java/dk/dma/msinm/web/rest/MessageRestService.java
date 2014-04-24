@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.web.rest;
 
+import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.legacy.service.LegacyMsiImportService;
 import dk.dma.msinm.service.MessageService;
 import org.jboss.resteasy.annotations.GZIP;
@@ -41,6 +42,9 @@ public class MessageRestService {
     @Inject
     private Logger log;
 
+    @Inject
+    private Auditor auditor;
+
     @EJB
     private MessageService messageService;
 
@@ -55,8 +59,10 @@ public class MessageRestService {
     public String importLegacyMsiWarnings() {
         log.info("Importing legacy MSI warnings");
 
-        return String.format("Created or updated %d legacy MSI warnings",
-                legacyMsiImportService.importWarnings());
+        int result = legacyMsiImportService.importWarnings();
+        auditor.info("Created or updated %s legacy MSI warnings", String.valueOf(result));
+
+        return String.format("Created or updated %d legacy MSI warnings", result);
     }
 
     @GET

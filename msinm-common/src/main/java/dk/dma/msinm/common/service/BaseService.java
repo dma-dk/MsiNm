@@ -43,7 +43,7 @@ public abstract class BaseService {
     /**
      * Constructor
      *
-     * @param entityManager the entity manager to use
+     * @param entityManager the ent
      */
     protected BaseService(EntityManager entityManager) {
         this.em = entityManager;

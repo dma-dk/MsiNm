@@ -13,11 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.common.service;
+package dk.dma.msinm.common.sequence;
 
 import dk.dma.msinm.common.config.MsiNm;
-import dk.dma.msinm.common.model.BaseEntity;
-import dk.dma.msinm.common.model.Sequence;
 import org.slf4j.Logger;
 
 import javax.ejb.*;
@@ -50,7 +48,7 @@ public class SequenceService  {
         Objects.requireNonNull(sequence.getSequenceName(), "Invalid sequence specified");
 
         try {
-            DbSequence seq = em.createNamedQuery("DbSequence.findByName", DbSequence.class)
+            SequenceEntity seq = em.createNamedQuery("SequenceEntity.findByName", SequenceEntity.class)
                     .setParameter("name", sequence.getSequenceName())
                     .getSingleResult();
 
@@ -60,7 +58,7 @@ public class SequenceService  {
             return seq.getLastValue();
 
         } catch (NoResultException ex) {
-            DbSequence seq = new DbSequence();
+            SequenceEntity seq = new SequenceEntity();
             seq.setName(sequence.getSequenceName());
             seq.setLastValue(sequence.initialValue());
             em.persist(seq);
@@ -68,28 +66,4 @@ public class SequenceService  {
             return seq.getLastValue();
         }
     }
-}
-
-/**
- * Used internally by {@linkplain dk.dma.msinm.common.service.SequenceService} to
- * manage sequences.
- */
-@Entity
-@Table(name="sequence")
-@NamedQueries({
-        @NamedQuery(name= "DbSequence.findByName",
-                query="SELECT s FROM DbSequence as s where s.name = :name")
-})
-class DbSequence  extends BaseEntity<Integer> {
-
-    private static final long serialVersionUID = 1L;
-
-    String name;
-    long lastValue;
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public long getLastValue() { return lastValue; }
-    public void setLastValue(long lastValue) { this.lastValue = lastValue; }
 }

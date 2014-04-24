@@ -16,8 +16,8 @@
 package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
-import dk.dma.msinm.common.model.DefaultSequence;
-import dk.dma.msinm.common.model.Sequence;
+import dk.dma.msinm.common.sequence.DefaultSequence;
+import dk.dma.msinm.common.sequence.Sequence;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;

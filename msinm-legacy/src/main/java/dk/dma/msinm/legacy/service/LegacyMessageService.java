@@ -16,7 +16,7 @@
 package dk.dma.msinm.legacy.service;
 
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.common.service.SequenceService;
+import dk.dma.msinm.common.sequence.SequenceService;
 import dk.dma.msinm.legacy.model.LegacyMessage;
 import dk.dma.msinm.model.*;
 import dk.frv.msiedit.core.webservice.message.MsiDto;
