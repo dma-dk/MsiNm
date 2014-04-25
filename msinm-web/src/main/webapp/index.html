@@ -27,17 +27,17 @@
     <div ng-view></div>
 
     <script type="text/ng-template" id="msinm-index.html">
-        <section id="msinmapp" ng-controller="MsiNmCtrl">
+        <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="loadMsiNm()">
             <header id="header">
                 <h1>Active MSI-NtM list:</h1>
-                <button id="load-msinm-list" ng-click="loadMsiNm()">Load</button>
+                Search <input type="text" ng-change="onEdit()" ng-model="query">
                 <table class='table table-condensed'>
                     <tr>
                         <th><a href="" ng-click="predicate = 'issueDate'; reverse=!reverse">Date</a></th>
                         <th>Type</th>
                         <th><a href="" ng-click="predicate = 'generalArea'; reverse=!reverse">Area</a></th>
                     </tr>
-                    <tr ng-repeat="msi in msinmList | orderBy:predicate:reverse">
+                    <tr ng-repeat="msi in filteredList | orderBy:predicate:reverse">
                         <td style="white-space:nowrap;">{{msi.issueDate | date : 'MM-dd HH:mm'}}</td>
                         <td>{{msi.messageItems[0].keySubject}}</td>
                         <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
