@@ -12,16 +12,31 @@
         <java.min.version>1.8</java.min.version>
         <maven.min.version>3.0.0</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <org.jboss.eap>7.2.0.Final</org.jboss.eap>
+        <version.jboss.bom>8.0.0.Final</version.jboss.bom>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>org.jboss.resteasy</groupId>
-                <artifactId>resteasy-jaxrs</artifactId>
-                <version>3.0.6.Final</version>
-                <scope>provided</scope>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>jboss-javaee-7.0-with-hibernate</artifactId>
+                <version>${version.jboss.bom}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>jboss-javaee-7.0-with-resteasy</artifactId>
+                <version>${version.jboss.bom}</version>
+                <scope>import</scope>
+                <type>pom</type>
+            </dependency>
+            <dependency>
+                <groupId>org.wildfly.bom</groupId>
+                <artifactId>jboss-javaee-7.0-with-infinispan</artifactId>
+                <version>${version.jboss.bom}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>joda-time</groupId>
@@ -46,7 +61,6 @@
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-core</artifactId>
-            <version>4.3.1.Final</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -125,6 +139,7 @@
 
     <modules>
         <module>msinm-common</module>
+        <module>msinm-test</module>
         <module>msinm-model</module>
         <module>msinm-legacy</module>
         <module>msinm-web</module>

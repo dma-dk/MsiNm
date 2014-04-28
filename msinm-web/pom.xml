@@ -40,13 +40,13 @@
         <dependency>
             <groupId>org.jboss.resteasy</groupId>
             <artifactId>resteasy-jaxrs</artifactId>
+            <scope>provided</scope>
         </dependency>
 
         <!-- Only used for executing jpa-ql in Intellij! -->
         <dependency>
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-entitymanager</artifactId>
-            <version>4.3.1.Final</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>

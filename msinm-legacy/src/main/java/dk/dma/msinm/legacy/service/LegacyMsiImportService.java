@@ -48,8 +48,9 @@ public class LegacyMsiImportService {
     @Inject
     LegacyMessageService legacyMessageService;
 
-    //String endpoint = "http://msi-beta.e-navigation.net/msi/ws/warning";
-    String endpoint = "http://msi.dma.dk/msi/ws/warning";
+    @Inject
+    LegacyMsiSettings settings;
+
     String countries = "DK";
 
     private MsiService msiService;
@@ -74,7 +75,10 @@ public class LegacyMsiImportService {
     public List<MsiDto> getActiveWarnings() {
 
         // Update the WS endpoint
-        ((BindingProvider) msiService).getRequestContext().put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
+        //String endpoint = "http://msi-beta.e-navigation.net/msi/ws/warning";
+        String endpoint = settings.getLegacyMsiEndpoint();
+        ((BindingProvider) msiService).getRequestContext()
+                .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
 
         List<MsiDto> result = new ArrayList<>();
 

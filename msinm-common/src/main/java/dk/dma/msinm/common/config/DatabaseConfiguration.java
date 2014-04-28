@@ -17,23 +17,21 @@ package dk.dma.msinm.common.config;
 
 import javax.enterprise.inject.Produces;
 import javax.persistence.EntityManager;
-import javax.persistence.EntityManagerFactory;
 import javax.persistence.PersistenceContext;
-import javax.persistence.PersistenceUnit;
 
 /**
  * Produces the MSI-NM entity manager, thus available for CDI injection
  */
 public class DatabaseConfiguration {
 
-    @Produces
+    public static EntityManager EM;
+
     @PersistenceContext(name = "msi")
-    @MsiNm
     EntityManager entityManager;
 
     @Produces
-    @PersistenceUnit(name = "msi")
     @MsiNm
-    EntityManagerFactory entityManagerFactory;
-
+    public EntityManager getEntityManager() {
+        return (EM != null) ? EM : entityManager;
+    }
 }

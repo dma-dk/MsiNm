@@ -9,22 +9,31 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>msinm-common</artifactId>
+    <artifactId>msinm-test</artifactId>
     <packaging>jar</packaging>
 
     <dependencies>
         <dependency>
-            <groupId>org.infinispan</groupId>
-            <artifactId>infinispan-core</artifactId>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+		
+        <!-- Test -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <version>1.4.177</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
             <scope>compile</scope>
         </dependency>
         <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
+            <groupId>org.hibernate</groupId>
+            <artifactId>hibernate-entitymanager</artifactId>
+            <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>org.jadira.usertype</groupId>
-            <artifactId>usertype.core</artifactId>
-        </dependency>
-    </dependencies>
+   </dependencies>
 </project>

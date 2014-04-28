@@ -17,22 +17,32 @@ package dk.dma.msinm.legacy.service;
 
 import dk.dma.msinm.common.config.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
+import dk.dma.msinm.common.sequence.SequenceEntity;
+import dk.dma.msinm.common.sequence.SequenceService;
+import dk.dma.msinm.common.settings.SettingsEntity;
+import dk.dma.msinm.legacy.model.LegacyMessage;
+import dk.dma.msinm.model.*;
+import dk.dma.msinm.test.MsiNmUnitTest;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
 
 /**
  * Tests the {@linkplain dk.dma.msinm.legacy.service.LegacyMsiImportService} class
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        DatabaseConfiguration.class, LegacyMsiImportService.class, LogConfiguration.class
+        DatabaseConfiguration.class, LegacyMsiImportService.class, LegacyMessageService.class, LegacyMsiSettings.class,
+        SequenceService.class, LogConfiguration.class, EntityManager.class
 })
-public class LegacyMsiServiceTest {
+public class LegacyMsiServiceTest extends MsiNmUnitTest
+{
 
     @Inject
     Logger log;
@@ -40,15 +50,22 @@ public class LegacyMsiServiceTest {
     @Inject
     LegacyMsiImportService msiService;
 
+    @BeforeClass
+    public static void prepareEntityManagerFactory() throws ClassNotFoundException {
+        prepareEntityManagerFactory(
+                SequenceEntity.class, SettingsEntity.class,
+                LegacyMessage.class,
+                Message.class, MessageCategory.class, MessageItem.class, MessageLocation.class,
+                MessageSeriesIdentifier.class, NavwarnMessage.class, NoticeElement.class,
+                NoticeMessage.class, PermanentItem.class, Point.class, TempPreliminaryItem.class
+        );
+    }
+
+
     @Test
     public void test() {
-
-        // Point to the test service
-        msiService.endpoint = "http://msi-beta.e-navigation.net/msi/ws/warning";
-        msiService.countries = "DK";
-
-        log.info(String.format("Fetched %d legacy MSI warnings from endpoint %s and country %s",
-                msiService.getActiveWarnings().size(), msiService.endpoint, msiService.countries));
+        log.info(String.format("Fetched %d legacy MSI warnings",
+                msiService.importWarnings()));
     }
 
 }

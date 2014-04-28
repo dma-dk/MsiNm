@@ -47,18 +47,15 @@ public class SequenceService  {
         Objects.requireNonNull(sequence, "No sequence specified");
         Objects.requireNonNull(sequence.getSequenceName(), "Invalid sequence specified");
 
-        try {
-            SequenceEntity seq = em.createNamedQuery("SequenceEntity.findByName", SequenceEntity.class)
-                    .setParameter("name", sequence.getSequenceName())
-                    .getSingleResult();
-
+        SequenceEntity seq = em.find(SequenceEntity.class, sequence.getSequenceName());
+        if (seq != null) {
             // Increase the last value
             seq.setLastValue(seq.getLastValue() + 1);
             em.merge(seq);
             return seq.getLastValue();
 
-        } catch (NoResultException ex) {
-            SequenceEntity seq = new SequenceEntity();
+        } else {
+            seq = new SequenceEntity();
             seq.setName(sequence.getSequenceName());
             seq.setLastValue(sequence.initialValue());
             em.persist(seq);
