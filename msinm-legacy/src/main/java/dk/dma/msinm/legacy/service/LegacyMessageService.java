@@ -24,7 +24,6 @@ import dk.frv.msiedit.core.webservice.message.PointDto;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -40,7 +39,7 @@ public class LegacyMessageService extends BaseService {
     @Inject
     private Logger log;
 
-    @EJB
+    @Inject
     SequenceService sequenceService;
 
     /**

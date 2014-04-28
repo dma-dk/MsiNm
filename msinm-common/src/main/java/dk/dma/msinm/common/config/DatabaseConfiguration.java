@@ -24,7 +24,7 @@ import javax.persistence.PersistenceUnit;
 /**
  * Produces the MSI-NM entity manager, thus available for CDI injection
  */
-public class Configuration {
+public class DatabaseConfiguration {
 
     @Produces
     @PersistenceContext(name = "msi")

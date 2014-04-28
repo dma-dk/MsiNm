@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.legacy.service;
 
+import dk.dma.msinm.common.config.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
@@ -28,7 +29,9 @@ import javax.inject.Inject;
  * Tests the {@linkplain dk.dma.msinm.legacy.service.LegacyMsiImportService} class
  */
 @RunWith(CdiRunner.class)
-@AdditionalClasses(value = { LegacyMsiImportService.class, LogConfiguration.class })
+@AdditionalClasses(value = {
+        DatabaseConfiguration.class, LegacyMsiImportService.class, LogConfiguration.class
+})
 public class LegacyMsiServiceTest {
 
     @Inject

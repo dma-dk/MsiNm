@@ -15,10 +15,12 @@
  */
 package dk.dma.msinm.legacy.service;
 
+import dk.frv.enav.msi.ws.warning.MsiService;
+import dk.frv.enav.msi.ws.warning.WarningService;
+import dk.frv.msiedit.core.webservice.message.MsiDto;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.EJB;
 import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
@@ -27,10 +29,6 @@ import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import java.util.ArrayList;
 import java.util.List;
-
-import dk.frv.enav.msi.ws.warning.MsiService;
-import dk.frv.enav.msi.ws.warning.WarningService;
-import dk.frv.msiedit.core.webservice.message.MsiDto;
 
 
 /**
@@ -47,7 +45,7 @@ public class LegacyMsiImportService {
     @Inject
     private Logger log;
 
-    @EJB
+    @Inject
     LegacyMessageService legacyMessageService;
 
     //String endpoint = "http://msi-beta.e-navigation.net/msi/ws/warning";
