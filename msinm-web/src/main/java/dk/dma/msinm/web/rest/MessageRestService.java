@@ -22,7 +22,6 @@ import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
-import javax.ejb.EJB;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -45,10 +44,10 @@ public class MessageRestService {
     @Inject
     private Auditor auditor;
 
-    @EJB
+    @Inject
     private MessageService messageService;
 
-    @EJB
+    @Inject
     private LegacyMsiImportService legacyMsiImportService;
 
     public MessageRestService() {
