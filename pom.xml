@@ -141,6 +141,7 @@
         <module>msinm-common</module>
         <module>msinm-test</module>
         <module>msinm-model</module>
+        <module>msinm-lucene</module>
         <module>msinm-legacy</module>
         <module>msinm-web</module>
     </modules>
