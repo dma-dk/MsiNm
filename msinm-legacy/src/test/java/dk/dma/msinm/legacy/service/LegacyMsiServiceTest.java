@@ -18,7 +18,8 @@ package dk.dma.msinm.legacy.service;
 import dk.dma.msinm.common.config.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.sequence.SequenceEntity;
-import dk.dma.msinm.common.sequence.SequenceService;
+import dk.dma.msinm.common.sequence.Sequences;
+import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
 import dk.dma.msinm.legacy.model.LegacyMessage;
 import dk.dma.msinm.model.*;
@@ -38,8 +39,8 @@ import javax.persistence.EntityManager;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        DatabaseConfiguration.class, LegacyMsiImportService.class, LegacyMessageService.class, LegacyMsiSettings.class,
-        SequenceService.class, LogConfiguration.class, EntityManager.class
+        DatabaseConfiguration.class, LegacyMsiImportService.class, LegacyMessageService.class, Settings.class,
+        Sequences.class, LogConfiguration.class, EntityManager.class
 })
 public class LegacyMsiServiceTest extends MsiNmUnitTest
 {

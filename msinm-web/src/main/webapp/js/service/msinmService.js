@@ -12,6 +12,13 @@ angular.module('msinm')
                 $http.get(host + '/rest/message/all')
                     .success(success)
                     .error(error);
+            },
+
+            importMsiNm: function(success, error) {
+                var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
+                $http.get(host + '/rest/message/import-legacy-msi')
+                    .success(success)
+                    .error(error);
             }
         };
     }]);

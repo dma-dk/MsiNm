@@ -15,6 +15,9 @@
  */
 package dk.dma.msinm.legacy.service;
 
+import dk.dma.msinm.common.settings.Settings;
+import dk.dma.msinm.common.settings.DefaultSetting;
+import dk.dma.msinm.common.settings.Setting;
 import dk.frv.enav.msi.ws.warning.MsiService;
 import dk.frv.enav.msi.ws.warning.WarningService;
 import dk.frv.msiedit.core.webservice.message.MsiDto;
@@ -42,6 +45,8 @@ public class LegacyMsiImportService {
 
     private static final String MSI_WSDL = "/wsdl/warning.wsdl";
 
+    private static final Setting LEGACY_MSI_ENDPOINT = new DefaultSetting("legacyMsiEndpoint", "http://msi.dma.dk/msi/ws/warning");
+
     @Inject
     private Logger log;
 
@@ -49,7 +54,7 @@ public class LegacyMsiImportService {
     LegacyMessageService legacyMessageService;
 
     @Inject
-    LegacyMsiSettings settings;
+    Settings settings;
 
     String countries = "DK";
 
@@ -76,7 +81,7 @@ public class LegacyMsiImportService {
 
         // Update the WS endpoint
         //String endpoint = "http://msi-beta.e-navigation.net/msi/ws/warning";
-        String endpoint = settings.getLegacyMsiEndpoint();
+        String endpoint = settings.get(LEGACY_MSI_ENDPOINT);
         ((BindingProvider) msiService).getRequestContext()
                 .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
 

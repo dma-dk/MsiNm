@@ -34,4 +34,14 @@ angular.module('msinm')
                }
             });
         };
-    }]);
+
+        $scope.importMsiNm = function () {
+            MsiNmService.importMsiNm(function(data) {
+                    $scope.loadMsiNm();
+                },
+                function () {
+                    alert("Error");
+                });
+        };
+
+}]);

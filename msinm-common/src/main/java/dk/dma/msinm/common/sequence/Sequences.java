@@ -27,7 +27,7 @@ import java.util.Objects;
  * Provides an interface for managing sequences
  */
 @Singleton
-public class SequenceService  {
+public class Sequences {
 
     @Inject
     private Logger log;

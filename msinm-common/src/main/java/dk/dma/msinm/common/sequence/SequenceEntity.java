@@ -7,7 +7,7 @@ import javax.persistence.Table;
 import java.io.Serializable;
 
 /**
- * Used internally by {@linkplain dk.dma.msinm.common.sequence.SequenceService} to
+ * Used internally by {@linkplain Sequences} to
  * manage sequences.
  */
 @Entity

@@ -15,8 +15,8 @@
  */
 package dk.dma.msinm.legacy.service;
 
+import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.common.sequence.SequenceService;
 import dk.dma.msinm.legacy.model.LegacyMessage;
 import dk.dma.msinm.model.*;
 import dk.frv.msiedit.core.webservice.message.MsiDto;
@@ -40,7 +40,7 @@ public class LegacyMessageService extends BaseService {
     private Logger log;
 
     @Inject
-    SequenceService sequenceService;
+    Sequences sequences;
 
     /**
      * Create and persist a new MSI warning from a legacy warning
@@ -102,7 +102,7 @@ public class LegacyMessageService extends BaseService {
         if (identifier == null) {
             identifier = new MessageSeriesIdentifier();
             message.setSeriesIdentifier(identifier);
-            identifier.setNumber((int) sequenceService.getNextValue(Message.MESSAGE_SEQUENCE));
+            identifier.setNumber((int) sequences.getNextValue(Message.MESSAGE_SEQUENCE));
             identifier.setAuthority(msi.getOrganisation());
             identifier.setYear(msi.getCreated().toGregorianCalendar().get(Calendar.YEAR));
             identifier.setType(MessageType.NAVAREA_WARNING);

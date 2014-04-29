@@ -8,28 +8,24 @@ import javax.annotation.PostConstruct;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import javax.persistence.EntityManager;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
 
+import static dk.dma.msinm.common.settings.Setting.Source.DATABASE;
+
 /**
- * Abstract base class for all settings.
+ * Interface for accessing settings
  * <p>
  * Sub-classes should be annotated as stateless session beans or singletons.
  */
-public class BaseSettings {
+@Singleton
+public class Settings {
 
     private final  static  String SETTINGS_FILE = "/settings.properties";
-
-    /**
-     * The source of the setting can be database or system property
-     */
-    public enum Source {
-        DATABASE,
-        SYSTEM_PROPERTY
-    }
 
     @Inject
     private Logger log;
@@ -47,9 +43,7 @@ public class BaseSettings {
         try {
             properties.load(getClass().getResourceAsStream(SETTINGS_FILE));
             for (String name : properties.stringPropertyNames()) {
-                SettingsEntity result = new SettingsEntity();
-                result.setKey(name);
-                result.setValue(properties.getProperty(name));
+                SettingsEntity result = new SettingsEntity(name, properties.getProperty(name));
                 em.persist(result);
                 log.info(String.format("Loaded property %s=%s from %s", name, properties.getProperty(name), SETTINGS_FILE));
             }
@@ -59,41 +53,37 @@ public class BaseSettings {
     }
 
     /**
-     * Returns the value associated with the key.
+     * Returns the value associated with the setting.
      * If it does not exist, it is created
      *
-     * @param source the source
-     * @param key the key
-     * @param defaultValue the default value
+     * @param setting the source
      * @return the associated value
      */
     @Lock(LockType.READ)
-    protected String get(Source source, String key, String defaultValue) {
-        Objects.requireNonNull(key, "Must specify non-null cache key");
+    public String get(Setting setting) {
+        Objects.requireNonNull(setting, "Must specify valid setting");
 
         // Look for a cached value
-        CacheElement<String> value = settingsCache.getCache().get(key);
+        CacheElement<String> value = settingsCache.getCache().get(setting.getSettingName());
 
         // No cached value
         if (value == null) {
             // Either load from database or System property
-            if (source == Source.DATABASE) {
-                SettingsEntity result = em.find(SettingsEntity.class, key);
+            if (setting.getSource() == DATABASE) {
+                SettingsEntity result = em.find(SettingsEntity.class, setting.getSettingName());
                 if (result == null) {
-                    result = new SettingsEntity();
-                    result.setKey(key);
-                    result.setValue(defaultValue);
+                    result = new SettingsEntity(setting);
                     em.persist(result);
                 }
                 value = new CacheElement<>(result.getValue());
 
             } else {
                 // Tied to a system property
-                value = new CacheElement<>(System.getProperty(key, defaultValue));
+                value = new CacheElement<>(System.getProperty(setting.getSettingName(), setting.defaultValue()));
             }
 
             // Cache it. NB: We cannot cache null, so use a placeholder constant
-            settingsCache.getCache().put(key, value);
+            settingsCache.getCache().put(setting.getSettingName(), value);
         }
 
         return value.getElement();
@@ -102,13 +92,11 @@ public class BaseSettings {
     /**
      * Returns the setting as a boolean
      *
-     * @param source the source
-     * @param key the key
-     * @param defaultValue the default value
+     * @param setting the source
      * @return the associated value
      */
-    protected boolean getBoolean(Source source, String key, boolean defaultValue) {
-        String value = get(source, key, String.valueOf(defaultValue));
+    protected boolean getBoolean(Setting setting) {
+        String value = get(setting);
         switch(value.toLowerCase()) {
             case "true": case "yes": case "t" : case "y":
                 return true;
@@ -119,26 +107,22 @@ public class BaseSettings {
     /**
      * Returns the setting as a long
      *
-     * @param source the source
-     * @param key the key
-     * @param defaultValue the default value
+     * @param setting the source
      * @return the associated value
      */
-    protected long getLong(Source source, String key, long defaultValue) {
-        String value = get(source, key, String.valueOf(defaultValue));
+    protected long getLong(Setting setting) {
+        String value = get(setting);
         return Long.valueOf(value);
     }
 
     /**
      * Returns the setting as a Path
      *
-     * @param source the source
-     * @param key the key
-     * @param defaultValue the default value
+     * @param setting the source
      * @return the associated value
      */
-    protected Path getPath(Source source, String key, String defaultValue) {
-        String value = get(source, key, defaultValue);
+    protected Path getPath(Setting setting) {
+        String value = get(setting);
         return Paths.get(value);
     }
 }

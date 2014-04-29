@@ -17,6 +17,20 @@ public class SettingsEntity implements Serializable {
     String key;
     String value;
 
+    public SettingsEntity() {
+    }
+
+    public SettingsEntity(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    public SettingsEntity(Setting setting) {
+        this.key = setting.getSettingName();
+        this.value = setting.defaultValue();
+    }
+
+
     @Id
     @Column(name="settings_key",unique = true, nullable = false)
     public String getKey() { return key; }
