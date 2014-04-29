@@ -14,6 +14,8 @@ import java.util.Map;
 
 /**
  * Base class for unit tests
+ * <p/>
+ * Sets up a H2 JPA entity manager
  */
 public class MsiNmUnitTest {
 
@@ -21,25 +23,14 @@ public class MsiNmUnitTest {
     protected static EntityManagerFactory entityManagerFactory;
     protected static EntityManager entityManager;
 
+    /**
+     * Should be called in sub-classes with the entity classes used in the test
+     * @param entityClasses the entity classes
+     */
     public static void prepareEntityManagerFactory(Class<?>... entityClasses) throws ClassNotFoundException {
         Class.forName("org.h2.Driver");
 
         Map<Object, Object> props = new HashMap<>();
-        props.put("javax.persistence.provider", "org.hibernate.ejb.HibernatePersistence");
-        props.put("javax.persistence.transactionType", "RESOURCE_LOCAL");
-        props.put("hibernate.connection.username", "sa");
-        props.put("hibernate.connection.password", "");
-        props.put("hibernate.connection.driver_class", "org.h2.Driver");
-        //props.put("hibernate.connection.url", "jdbc:h2:.");
-        props.put("hibernate.connection.url", "jdbc:h2:mem:msi");
-        props.put("hibernate.dialect", "org.hibernate.dialect.H2Dialect");
-        props.put("hibernate.show_sql", "true");
-        props.put("hibernate.format_sql", "true");
-
-        props.put("javax.persistence.schema-generation.database.action", "drop-and-create");
-        props.put("javax.persistence.schema-generation.create-source", "metadata");
-        props.put("javax.persistence.schema-generation.drop-source", "metadata");
-
         props.put(AvailableSettings.LOADED_CLASSES,
                 Arrays.asList(entityClasses));
 

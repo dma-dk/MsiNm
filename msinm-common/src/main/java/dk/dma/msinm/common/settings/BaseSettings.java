@@ -51,7 +51,7 @@ public class BaseSettings {
                 result.setKey(name);
                 result.setValue(properties.getProperty(name));
                 em.persist(result);
-                log.info("Loaded property %s=%s from %s", name, properties.getProperty(name), SETTINGS_FILE);
+                log.info(String.format("Loaded property %s=%s from %s", name, properties.getProperty(name), SETTINGS_FILE));
             }
         } catch (Exception e) {
             // Ignore
