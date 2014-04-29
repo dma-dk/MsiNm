@@ -15,21 +15,14 @@
  */
 package dk.dma.msinm.model;
 
-import dk.dma.msinm.common.model.BaseEntity;
+import dk.dma.msinm.common.model.VersionedEntity;
 import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,7 +38,7 @@ import java.util.List;
                 query="SELECT msg FROM Message msg inner join msg.seriesIdentifier si where si.number = :number " +
                       " and si.year = :year and si = :authority")
 }) 
-public abstract class Message extends BaseEntity<Integer> {
+public abstract class Message extends VersionedEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
     public static final Sequence MESSAGE_SEQUENCE = new DefaultSequence("msinm-message-id", 1);
