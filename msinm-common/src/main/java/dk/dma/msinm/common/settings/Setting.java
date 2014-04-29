@@ -6,14 +6,6 @@ package dk.dma.msinm.common.settings;
 public interface Setting {
 
     /**
-     * The source of the setting can be database or system property
-     */
-    public enum Source {
-        DATABASE,
-        SYSTEM_PROPERTY
-    }
-
-    /**
      * Returns the name of the setting
      * @return the name of the setting
      */

@@ -2,11 +2,14 @@ package dk.dma.msinm.common.settings;
 
 import dk.dma.msinm.common.cache.CacheElement;
 import dk.dma.msinm.common.config.MsiNm;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
+import javax.enterprise.inject.Produces;
+import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.persistence.EntityManager;
@@ -15,12 +18,13 @@ import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
 
-import static dk.dma.msinm.common.settings.Setting.Source.DATABASE;
+import static dk.dma.msinm.common.settings.Source.DATABASE;
 
 /**
- * Interface for accessing settings
- * <p>
- * Sub-classes should be annotated as stateless session beans or singletons.
+ * Interface for accessing settings.
+ * <p/>
+ * This bean can either be injected directly,
+ * or the {@code @Setting} annotation can be used.
  */
 @Singleton
 public class Settings {
@@ -95,7 +99,7 @@ public class Settings {
      * @param setting the source
      * @return the associated value
      */
-    protected boolean getBoolean(Setting setting) {
+    public boolean getBoolean(Setting setting) {
         String value = get(setting);
         switch(value.toLowerCase()) {
             case "true": case "yes": case "t" : case "y":
@@ -110,7 +114,7 @@ public class Settings {
      * @param setting the source
      * @return the associated value
      */
-    protected long getLong(Setting setting) {
+    public long getLong(Setting setting) {
         String value = get(setting);
         return Long.valueOf(value);
     }
@@ -121,8 +125,58 @@ public class Settings {
      * @param setting the source
      * @return the associated value
      */
-    protected Path getPath(Setting setting) {
+    public Path getPath(Setting setting) {
         String value = get(setting);
         return Paths.get(value);
     }
+
+    /**
+     * Injects the setting defined by the {@code @Setting} annotation
+     *
+     * @param ip the injection point
+     * @return the setting value
+     */
+    @Produces
+    @dk.dma.msinm.common.settings.annotation.Setting
+    public String get(InjectionPoint ip) {
+        return get(ip2setting(ip));
+    }
+
+    /**
+     * Injects the boolean setting defined by the {@code @Setting} annotation
+     *
+     * @param ip the injection point
+     * @return the boolean setting value
+     */
+    @Produces
+    @dk.dma.msinm.common.settings.annotation.Setting
+    public boolean getBoolean(InjectionPoint ip) {
+        return getBoolean(ip2setting(ip));
+    }
+
+    /**
+     * Injects the Long setting defined by the {@code @Setting} annotation
+     *
+     * @param ip the injection point
+     * @return the Long setting value
+     */
+    @Produces
+    @dk.dma.msinm.common.settings.annotation.Setting
+    public long getLong(InjectionPoint ip) {
+        return getLong(ip2setting(ip));
+    }
+
+    /**
+     * Converts the injection point into the associated setting
+     *
+     * @param ip the injection point
+     * @return the associated setting
+     */
+    private Setting ip2setting(InjectionPoint ip) {
+        dk.dma.msinm.common.settings.annotation.Setting ann =
+                ip.getAnnotated().getAnnotation(dk.dma.msinm.common.settings.annotation.Setting.class);
+        String name = StringUtils.isBlank(ann.value()) ? ip.getMember().getName() : ann.value();
+        return new DefaultSetting(name, ann.defaultValue(), ann.source());
+    }
+
 }
