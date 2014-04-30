@@ -24,6 +24,7 @@ import org.slf4j.Logger;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -53,6 +54,14 @@ public class MessageService extends BaseService {
         return getByPrimaryKey(Message.class, id);
     }
 
+    /**
+     * Finds the message by the given message series values
+     *
+     * @param messageNumber the message number
+     * @param messageYear the message year
+     * @param messageAuthority the message authority
+     * @return the message or null if not found
+     */
     public Message findByMessageSeriesId(int messageNumber, int messageYear, String messageAuthority) {
         // Execute and return the result
         try {
@@ -67,4 +76,17 @@ public class MessageService extends BaseService {
         }
     }
 
+    /**
+     * Returns all messages updated after the given date
+     * @param date the date
+     * @param maxCount the max number of entries to return
+     * @return all messages updated after the given date
+     */
+    public List<Message> findUpdatedMessages(Date date, int maxCount) {
+        return em
+                .createNamedQuery("Message.findUpdateMessages", Message.class)
+                .setParameter("date", date)
+                .setMaxResults(maxCount)
+                .getResultList();
+    }
 }

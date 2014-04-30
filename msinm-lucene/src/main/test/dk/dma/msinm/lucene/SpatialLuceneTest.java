@@ -16,8 +16,8 @@
 package dk.dma.msinm.lucene;
 
 import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Point;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.config.LogConfiguration;
 import junit.framework.TestCase;
@@ -25,17 +25,8 @@ import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
 import org.apache.lucene.document.StoredField;
-import org.apache.lucene.index.DirectoryReader;
-import org.apache.lucene.index.IndexReader;
-import org.apache.lucene.index.IndexWriter;
-import org.apache.lucene.index.IndexWriterConfig;
-import org.apache.lucene.index.IndexableField;
-import org.apache.lucene.search.Filter;
-import org.apache.lucene.search.IndexSearcher;
-import org.apache.lucene.search.MatchAllDocsQuery;
-import org.apache.lucene.search.Sort;
-import org.apache.lucene.search.SortField;
-import org.apache.lucene.search.TopDocs;
+import org.apache.lucene.index.*;
+import org.apache.lucene.search.*;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
 import org.apache.lucene.spatial.prefix.tree.GeohashPrefixTree;
@@ -87,6 +78,7 @@ public class SpatialLuceneTest extends TestCase {
         indexWriter.addDocument(newSampleDocument(2, ctx.makePoint(-80.93, 33.77)));
         indexWriter.addDocument(newSampleDocument(4, ctx.readShapeFromWkt("POINT(60.9289094 -50.7693246)")));
         indexWriter.addDocument(newSampleDocument(20, ctx.makePoint(0.1,0.1), ctx.makePoint(0, 0)));
+        indexWriter.addDocument(newSampleDocument(30, JtsSpatialContext.GEO.readShapeFromWkt("POLYGON((0 0, -90 0, -90 40, 0 40, 0 0))")));
         indexWriter.close();
 
         IndexReader indexReader = DirectoryReader.open(directory);
@@ -96,9 +88,8 @@ public class SpatialLuceneTest extends TestCase {
         // Search 1
         SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects,
                 ctx.makeCircle(-80.0, 33.0, DistanceUtils.dist2Degrees(200, DistanceUtils.EARTH_MEAN_RADIUS_KM)));
-        Filter filter = strategy.makeFilter(args);
-        TopDocs docs = indexSearcher.search(new MatchAllDocsQuery(), filter, 10, idSort);
-        assertDocMatchedIds(indexSearcher, docs, 2);
+        TopDocs docs = indexSearcher.search(new MatchAllDocsQuery(), strategy.makeFilter(args), 10, idSort);
+        assertDocMatchedIds(indexSearcher, docs, 2, 30);
 
     }
 
@@ -111,8 +102,7 @@ public class SpatialLuceneTest extends TestCase {
                 doc.add(f);
             }
 
-            Point pt = (Point) shape;
-            doc.add(new StoredField(strategy.getFieldName(), pt.getX()+" "+pt.getY()));
+            doc.add(new StoredField(strategy.getFieldName(), shape.toString()));
         }
         return doc;
     }

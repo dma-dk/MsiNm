@@ -35,4 +35,6 @@ public @interface Setting {
     @Nonbinding String value() default "";
     @Nonbinding String defaultValue() default "";
     @Nonbinding Source source() default Source.DATABASE;
+    @Nonbinding long cacheTimeout() default -1;
+    @Nonbinding boolean substituteSystemProperties() default false;
 }

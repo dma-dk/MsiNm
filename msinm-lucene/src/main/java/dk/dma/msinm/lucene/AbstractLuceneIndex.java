@@ -34,11 +34,13 @@ import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.FSDirectory;
 import org.slf4j.Logger;
 
+import javax.ejb.AsyncResult;
 import javax.ejb.Asynchronous;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.Future;
 
 /**
  * Base class for Lucene index beans
@@ -160,29 +162,47 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
      * @throws IOException
      */
     @Asynchronous
-    public void recreateIndex() throws IOException {
+    public Future<Integer> recreateIndexAsync() throws IOException {
+        int updateCount = recreateIndex();
+        return new AsyncResult<>(updateCount);
+    }
+
+    /**
+     * Call this to re-index the entity index completely
+     * @throws IOException
+     */
+    public int recreateIndex() throws IOException {
         // Check if we are already in the middle of re-indexing
         if (locked) {
-            return;
+            return 0;
         }
 
         // Go ahead and re-index all
         locked = true;
         try {
-            // Delete the index
-            IndexWriter writer = null;
-            try {
-                writer = getNewWriter();
-                writer.deleteAll();
-            } finally {
-                closeWriter(writer);
-            }
+            // delete the old index
+            deleteIndex();
 
             // Update all customers
-            updateLuceneIndex(Integer.MAX_VALUE, true);
+            return updateLuceneIndex(Integer.MAX_VALUE, true);
 
         } finally {
             locked = false;
+        }
+    }
+
+    /**
+     * Deletes the current index
+     * @throws IOException
+     */
+    public void deleteIndex() throws IOException {
+        // Delete the index
+        IndexWriter writer = null;
+        try {
+            writer = getNewWriter();
+            writer.deleteAll();
+        } finally {
+            closeWriter(writer);
         }
     }
 
@@ -352,22 +372,28 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
      * @param maxHits the max number of hits to return
      * @return the matching ids
      */
-    protected List<Long> searchIndex(String freeTextSearch, String field, Filter filter, int maxHits) throws IOException, ParseException {
+    public List<Long> searchIndex(String freeTextSearch, String field, Filter filter, int maxHits) throws IOException, ParseException {
 
-        // Normalize query text
-        freeTextSearch = LuceneUtils.normalizeQuery(freeTextSearch);
+        Query query;
+        if (StringUtils.isNotBlank(freeTextSearch) && StringUtils.isNotBlank(field)) {
+            // Normalize query text
+            freeTextSearch = LuceneUtils.normalizeQuery(freeTextSearch);
 
-        // Create a query parser with "and" operator as the default
-        IndexSearcher searcher = new IndexSearcher(getIndexReader());
-        QueryParser parser = new ComplexPhraseQueryParser(
-                LuceneUtils.LUCENE_VERSION,
-                field,
-                new StandardAnalyzer(LuceneUtils.LUCENE_VERSION));
-        parser.setDefaultOperator(QueryParser.AND_OPERATOR);
-        //parser.setAllowLeadingWildcard(true); // NB: Expensive!
-        Query query = parser.parse(freeTextSearch);
+            // Create a query parser with "and" operator as the default
+            QueryParser parser = new ComplexPhraseQueryParser(
+                    LuceneUtils.LUCENE_VERSION,
+                    field,
+                    new StandardAnalyzer(LuceneUtils.LUCENE_VERSION));
+            parser.setDefaultOperator(QueryParser.AND_OPERATOR);
+            //parser.setAllowLeadingWildcard(true); // NB: Expensive!
+            query = parser.parse(freeTextSearch);
+
+        } else {
+            query = new MatchAllDocsQuery();
+        }
 
         // Perform the search and collect the ids
+        IndexSearcher searcher = new IndexSearcher(getIndexReader());
         TopDocs results = (filter == null)
                 ? searcher.search(query, maxHits)
                 : searcher.search(query, filter, maxHits);

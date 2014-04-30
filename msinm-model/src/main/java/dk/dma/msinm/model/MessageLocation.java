@@ -15,20 +15,21 @@
  */
 package dk.dma.msinm.model;
 
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.exception.InvalidShapeException;
+import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.model.BaseEntity;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OrderBy;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Defines a location as either a point, a circle, a polygon or a polyline.
@@ -54,7 +55,56 @@ public class MessageLocation extends BaseEntity<Integer> {
     private Integer radius;
 
     public MessageLocation() {
+    }
 
+    /**
+     * Converts a {@code Point} into a spatial4j {@code Point}
+     * @param point the point to convert
+     * @return the spatial4j point
+     */
+    public com.spatial4j.core.shape.Point toSpatial4jPoint(Point point) {
+        return SpatialContext.GEO.makePoint(point.getLon(), point.getLat());
+    }
+
+    /**
+     * Creates a WKT shape from the location withing the given spatial context
+     * @return the spatial4j shape
+     */
+    public Shape toWkt() throws InvalidShapeException, ParseException {
+        switch(type) {
+            case POINT:
+                if (points.size() != 1) {
+                    throw new InvalidShapeException("Invalid point definition");
+                }
+                return toSpatial4jPoint(points.get(0));
+            case CIRCLE:
+                if (points.size() != 1 || radius == null) {
+                    throw new InvalidShapeException("Invalid circle definition");
+                }
+                return SpatialContext.GEO.makeCircle(toSpatial4jPoint(points.get(0)), radius);
+            case POLYLINE:
+            case POLYGON:
+                if (points.size() == 0) {
+                    throw new InvalidShapeException("Invalid " + type + " definition");
+                }
+                List<Point> shapePoints;
+                String shape;
+                if (type == LocationType.POLYGON) {
+                    shape = "POLYGON ((%s))";
+                    // Polygon needs to end in the start position
+                    shapePoints = new ArrayList<>(points);
+                    shapePoints.add(new Point(shapePoints.get(0).getLat(), shapePoints.get(0).getLon(), shapePoints.size()));
+                } else {
+                    shape = "LINESTRING (%s)";
+                    shapePoints = points;
+                }
+                String coordinates = shapePoints.stream()
+                        .map(p -> String.format("%f %f", p.getLon(), p.getLat()))
+                        .collect(Collectors.joining(", "));
+                return JtsSpatialContext.GEO.readShapeFromWkt(String.format(shape, coordinates));
+            default:
+                throw new InvalidShapeException("Unknown type");
+        }
     }
 
     /**

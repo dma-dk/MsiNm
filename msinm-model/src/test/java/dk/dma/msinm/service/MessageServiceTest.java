@@ -15,6 +15,9 @@
  */
 package dk.dma.msinm.service;
 
+import com.spatial4j.core.context.SpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
+import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.config.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.sequence.SequenceEntity;
@@ -25,6 +28,7 @@ import dk.dma.msinm.model.*;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,10 +36,14 @@ import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Random;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 /**
  * Unit tests for the MessageService
@@ -53,6 +61,9 @@ public class MessageServiceTest extends MsiNmUnitTest {
     @Inject
     MessageService messageService;
 
+    @Inject
+    MessageLuceneIndex messageLuceneIndex;
+
     @BeforeClass
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {
         prepareEntityManagerFactory(
@@ -63,9 +74,49 @@ public class MessageServiceTest extends MsiNmUnitTest {
         );
     }
 
-    @Test
-    public void test() throws ParseException {
+    @After
+    public void deleteIndex() {
+        try {
+            messageLuceneIndex.deleteIndex();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
+    @Test
+    public void testNavwarnMessage() throws Exception {
+
+        NavwarnMessage message = createNavwarnMessage();
+
+        // Create navwarn message
+        message = messageService.create(message);
+        log.info("NavwarnMessage created with id: " + message.getId());
+        assertNotNull(message.getId());
+
+        // Index the message
+        assertEquals(1, messageLuceneIndex.recreateIndex());
+
+        // Search the index
+        assertEquals(1, messageLuceneIndex.searchIndex("Kattegat", null, 100).size());
+
+        // Search on geometry
+        Shape location = SpatialContext.GEO.makeCircle(12.1684, 56.120, DistanceUtils.dist2Degrees(200, DistanceUtils.EARTH_MEAN_RADIUS_KM));
+        assertEquals(1, messageLuceneIndex.searchIndex(null, location, 100).size());
+
+    }
+
+    @Test
+    public void testNoticeMessage() {
+        NoticeMessage message = createNoticeMessage();
+
+        message = messageService.create(message);
+
+        System.out.println("NoticeMessage created with id: " + message.getId());
+
+    }
+
+
+    public static NavwarnMessage createNavwarnMessage() throws ParseException {
         NavwarnMessage message = new NavwarnMessage();
 
         // Message series identifier
@@ -125,16 +176,10 @@ public class MessageServiceTest extends MsiNmUnitTest {
         // Tie message items to navwarn message
         message.getMessageItems().add(item1);
         message.getMessageItems().add(item2);
-
-        // Create navwarn message
-        message = messageService.create(message);
-
-        log.info("NavwarnMessage created with id: " + message.getId());
-
+        return message;
     }
 
-    @Test
-    public void createNoticeMessage() {
+    public static NoticeMessage createNoticeMessage() {
         NoticeMessage message = new NoticeMessage();
 
         // Message series identifier
@@ -189,11 +234,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
         preliminaryItem.setItemDescription("dasdadd");
 
         message.getTempPreliminaryItems().add(preliminaryItem);
-
-        message = messageService.create(message);
-
-        System.out.println("NoticeMessage created with id: " + message.getId());
-
+        return message;
     }
 
 }

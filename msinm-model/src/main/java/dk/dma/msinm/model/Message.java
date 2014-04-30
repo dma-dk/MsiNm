@@ -36,8 +36,10 @@ import java.util.List;
 @NamedQueries({
     @NamedQuery(name="Message.findBySeriesIdentifier",
                 query="SELECT msg FROM Message msg inner join msg.seriesIdentifier si where si.number = :number " +
-                      " and si.year = :year and si = :authority")
-}) 
+                      " and si.year = :year and si = :authority"),
+    @NamedQuery(name="Message.findUpdateMessages",
+            query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
+})
 public abstract class Message extends VersionedEntity<Integer> {
 
     private static final long serialVersionUID = 1L;

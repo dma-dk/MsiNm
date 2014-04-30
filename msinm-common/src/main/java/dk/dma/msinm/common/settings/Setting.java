@@ -41,4 +41,19 @@ public interface Setting {
     public default Source getSource() {
         return Source.DATABASE;
     }
+
+    /**
+     * Returns an optional non-default cache timeout in seconds.
+     * If null is returned, the default value is used.
+     * @return the optional non-default cache timeout in seconds.
+     */
+    public default Long getCacheTimeout() { return null; }
+
+    /**
+     * Returns whether to substitute system properties or not.
+     * If true, segments of the form "${prop}" will be replaced
+     * with the corresponding system property.
+     * @return whether to substitute system properties or not
+     */
+    public default boolean substituteSystemProperties() { return false; }
 }

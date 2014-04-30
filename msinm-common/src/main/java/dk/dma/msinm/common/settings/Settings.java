@@ -32,6 +32,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
 
 import static dk.dma.msinm.common.settings.Source.DATABASE;
 
@@ -102,10 +104,22 @@ public class Settings {
             }
 
             // Cache it. NB: We cannot cache null, so use a placeholder constant
-            settingsCache.getCache().put(setting.getSettingName(), value);
+            if (setting.getCacheTimeout() == null) {
+                settingsCache.getCache().put(setting.getSettingName(), value);
+            } else {
+                settingsCache.getCache().put(setting.getSettingName(), value, setting.getCacheTimeout(), TimeUnit.SECONDS);
+            }
         }
 
-        return value.getElement();
+        // Check if we need to substitute with system properties
+        String result = value.getElement();
+        if (result != null && setting.substituteSystemProperties()) {
+            for (Object key : System.getProperties().keySet()) {
+                result = result.replaceAll("\\$\\{" + key + "\\}", Matcher.quoteReplacement(System.getProperty("" + key)));
+            }
+        }
+
+        return result;
     }
 
     /**
@@ -182,6 +196,18 @@ public class Settings {
     }
 
     /**
+     * Injects the Path setting defined by the {@code @Setting} annotation
+     *
+     * @param ip the injection point
+     * @return the Path setting value
+     */
+    @Produces
+    @dk.dma.msinm.common.settings.annotation.Setting
+    public Path getPath(InjectionPoint ip) {
+        return getPath(ip2setting(ip));
+    }
+
+    /**
      * Converts the injection point into the associated setting
      *
      * @param ip the injection point
@@ -191,7 +217,8 @@ public class Settings {
         dk.dma.msinm.common.settings.annotation.Setting ann =
                 ip.getAnnotated().getAnnotation(dk.dma.msinm.common.settings.annotation.Setting.class);
         String name = StringUtils.isBlank(ann.value()) ? ip.getMember().getName() : ann.value();
-        return new DefaultSetting(name, ann.defaultValue(), ann.source());
+        Long cacheTimeout = ann.cacheTimeout() == -1 ? null : ann.cacheTimeout();
+        return new DefaultSetting(name, ann.defaultValue(), ann.source(), cacheTimeout, ann.substituteSystemProperties());
     }
 
 }
