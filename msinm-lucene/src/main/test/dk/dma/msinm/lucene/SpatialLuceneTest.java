@@ -19,7 +19,6 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Shape;
-import dk.dma.msinm.common.config.LogConfiguration;
 import junit.framework.TestCase;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
@@ -36,13 +35,7 @@ import org.apache.lucene.spatial.query.SpatialOperation;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
-import org.jglue.cdiunit.AdditionalClasses;
-import org.jglue.cdiunit.CdiRunner;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.slf4j.Logger;
 
-import javax.inject.Inject;
 import java.io.IOException;
 import java.text.ParseException;
 
@@ -52,25 +45,18 @@ import static org.junit.Assert.assertArrayEquals;
  * Largely based on extracts from a SpatialExample Lucene test case:
  * https://github.com/apache/lucene-solr/blob/branch_4x/lucene/spatial/src/test/org/apache/lucene/spatial/SpatialExample.java
  */
-@RunWith(CdiRunner.class)
-@AdditionalClasses(value = { LogConfiguration.class })
 public class SpatialLuceneTest extends TestCase {
-
-    @Inject
-    Logger log;
 
     private SpatialStrategy strategy;
     private SpatialContext ctx = SpatialContext.GEO;
-    private Directory directory;
 
-    @Test
-    public void test() throws IOException, ParseException {
+    public void testSpatialSearch() throws IOException, ParseException {
 
         int maxLevels = 11;//results in sub-meter precision for geohash
         SpatialPrefixTree grid = new GeohashPrefixTree(ctx, maxLevels);
 
         strategy = new RecursivePrefixTreeStrategy(grid, "myGeoField");
-        directory = new RAMDirectory();
+        Directory directory = new RAMDirectory();
 
 
         IndexWriterConfig iwConfig = new IndexWriterConfig(Version.LUCENE_47,null);
@@ -91,6 +77,11 @@ public class SpatialLuceneTest extends TestCase {
         TopDocs docs = indexSearcher.search(new MatchAllDocsQuery(), strategy.makeFilter(args), 10, idSort);
         assertDocMatchedIds(indexSearcher, docs, 2, 30);
 
+        // Search 2
+        args = new SpatialArgs(SpatialOperation.Intersects,
+                JtsSpatialContext.GEO.readShapeFromWkt("POLYGON((-10 10, -20 0, -20 20, -10 20, -10 10))"));
+        docs = indexSearcher.search(new MatchAllDocsQuery(), strategy.makeFilter(args), 10, idSort);
+        assertDocMatchedIds(indexSearcher, docs, 30);
     }
 
 

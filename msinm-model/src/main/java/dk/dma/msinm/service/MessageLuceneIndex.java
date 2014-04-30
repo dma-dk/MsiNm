@@ -18,8 +18,11 @@ import org.apache.lucene.spatial.query.SpatialOperation;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,6 +34,7 @@ import java.util.List;
  * Lucene search index for {@code Message} entities
  */
 @Singleton
+@Startup
 public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
 
     final static String SEARCH_FIELD = "message";
@@ -67,6 +71,22 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
         // Initialize the spatial strategy
         SpatialPrefixTree grid = new GeohashPrefixTree(SpatialContext.GEO, maxSpatialLevels.intValue());
         strategy = new RecursivePrefixTreeStrategy(grid, LOCATION_FIELD);
+    }
+
+    /**
+     * Clean up Lucene index
+     */
+    @PreDestroy
+    public void closeIndex() {
+        closeReader();
+    }
+
+    /**
+     * Called every minute to update the Lucene index
+     */
+    @Schedule(persistent=false, second="38", minute="*/1", hour="*", dayOfWeek="*", year="*")
+    public void updateLuceneIndex() {
+        updateLuceneIndex(MAX_INDEX_COUNT, false);
     }
 
     /**
