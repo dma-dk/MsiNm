@@ -38,7 +38,9 @@ import java.util.List;
                 query="SELECT msg FROM Message msg inner join msg.seriesIdentifier si where si.number = :number " +
                       " and si.year = :year and si = :authority"),
     @NamedQuery(name="Message.findUpdateMessages",
-            query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
+                query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
+    @NamedQuery(name="Message.findActive",
+                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.issueDate asc"),
 })
 public abstract class Message extends VersionedEntity<Integer> {
 
@@ -48,7 +50,11 @@ public abstract class Message extends VersionedEntity<Integer> {
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
     private MessageSeriesIdentifier seriesIdentifier;
-    
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    MessageStatus status;
+
     @NotNull
     private String generalArea;
     
@@ -65,6 +71,7 @@ public abstract class Message extends VersionedEntity<Integer> {
     private List<Integer> intChartNumbers = new ArrayList<>();
     
     @NotNull
+    @Temporal(TemporalType.TIMESTAMP)
     private Date issueDate;
 
     /**
@@ -103,6 +110,14 @@ public abstract class Message extends VersionedEntity<Integer> {
     
     public void setSeriesIdentifier(MessageSeriesIdentifier seriesIdentifier) {
         this.seriesIdentifier = seriesIdentifier;
+    }
+
+    public MessageStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(MessageStatus status) {
+        this.status = status;
     }
 
     public String getGeneralArea() {

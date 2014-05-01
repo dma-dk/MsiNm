@@ -73,6 +73,7 @@ public class LegacyMessageService extends BaseService {
             legacyMessage.setVersion(msi.getVersion());
 
             NavwarnMessage message = new NavwarnMessage();
+            message.setStatus(MessageStatus.ACTIVE);
             legacyMessage.setNavwarnMessage(message);
         }
 

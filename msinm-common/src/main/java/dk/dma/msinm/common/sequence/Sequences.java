@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.common.sequence;
 
-import dk.dma.msinm.common.config.MsiNm;
+import dk.dma.msinm.common.db.MsiNm;
 import org.slf4j.Logger;
 
 import javax.ejb.*;

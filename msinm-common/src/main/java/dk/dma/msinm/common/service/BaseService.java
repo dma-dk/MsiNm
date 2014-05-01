@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.common.service;
 
-import dk.dma.msinm.common.config.MsiNm;
+import dk.dma.msinm.common.db.MsiNm;
 import dk.dma.msinm.common.model.IEntity;
 
 import javax.inject.Inject;

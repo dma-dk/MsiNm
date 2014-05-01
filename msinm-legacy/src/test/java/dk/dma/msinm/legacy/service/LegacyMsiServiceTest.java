@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.legacy.service;
 
-import dk.dma.msinm.common.config.DatabaseConfiguration;
+import dk.dma.msinm.common.db.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;

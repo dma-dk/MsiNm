@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.lucene;
 
-import dk.dma.msinm.common.config.DatabaseConfiguration;
+import dk.dma.msinm.common.db.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;

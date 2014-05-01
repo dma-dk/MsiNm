@@ -18,7 +18,7 @@ package dk.dma.msinm.service;
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Shape;
-import dk.dma.msinm.common.config.DatabaseConfiguration;
+import dk.dma.msinm.common.db.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
@@ -94,7 +94,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertNotNull(message.getId());
 
         // Index the message
-        assertEquals(1, messageLuceneIndex.recreateIndex());
+        assertEquals(1, messageLuceneIndex.updateLuceneIndex());
 
         // Search the index
         assertEquals(1, messageLuceneIndex.searchIndex("Kattegat", null, 100).size());
@@ -114,7 +114,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertNotNull(message.getId());
 
         // Index the message
-        assertEquals(1, messageLuceneIndex.recreateIndex());
+        assertEquals(1, messageLuceneIndex.updateLuceneIndex());
 
         // Search the index
         assertEquals(1, messageLuceneIndex.searchIndex("Langebro", null, 100).size());
@@ -127,6 +127,8 @@ public class MessageServiceTest extends MsiNmUnitTest {
 
     public static NavwarnMessage createNavwarnMessage() throws ParseException {
         NavwarnMessage message = new NavwarnMessage();
+
+        message.setStatus(MessageStatus.ACTIVE);
 
         // Message series identifier
         MessageSeriesIdentifier identifier = new MessageSeriesIdentifier();
@@ -190,6 +192,8 @@ public class MessageServiceTest extends MsiNmUnitTest {
 
     public static NoticeMessage createNoticeMessage() {
         NoticeMessage message = new NoticeMessage();
+
+        message.setStatus(MessageStatus.ACTIVE);
 
         // Message series identifier
         MessageSeriesIdentifier identifier = new MessageSeriesIdentifier();

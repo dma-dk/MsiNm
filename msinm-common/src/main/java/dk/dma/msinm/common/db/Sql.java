@@ -13,25 +13,22 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.common.config;
+package dk.dma.msinm.common.db;
 
-import javax.enterprise.inject.Produces;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
+import javax.enterprise.util.Nonbinding;
+import javax.inject.Qualifier;
+import java.lang.annotation.Retention;
+import java.lang.annotation.Target;
+
+import static java.lang.annotation.ElementType.*;
+import static java.lang.annotation.RetentionPolicy.RUNTIME;
 
 /**
- * Produces the MSI-NM entity manager, thus available for CDI injection
+ * Used to inject SQL files from the classpath
  */
-public class DatabaseConfiguration {
-
-    public static EntityManager EM;
-
-    @PersistenceContext(name = "msi")
-    EntityManager entityManager;
-
-    @Produces
-    @MsiNm
-    public EntityManager getEntityManager() {
-        return (EM != null) ? EM : entityManager;
-    }
+@Qualifier
+@Retention(RUNTIME)
+@Target({TYPE, METHOD, FIELD, PARAMETER})
+public @interface Sql {
+    @Nonbinding public String value() default "";
 }

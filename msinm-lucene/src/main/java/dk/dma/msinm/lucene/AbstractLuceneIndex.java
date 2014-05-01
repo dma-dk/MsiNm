@@ -307,7 +307,19 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
         // First delete the entity
         deleteEntityFromIndex(writer, entity);
         // Then add the entity
-        addEntityToIndex(writer, entity);
+        if (shouldAddEntity(entity)) {
+            addEntityToIndex(writer, entity);
+        }
+    }
+
+    /**
+     * By default, add all eligible entities.
+     * Sub-class may want to e.g. check a status flag
+     * @param entity the entity to check
+     * @return whether to add the entity to the index
+     */
+    protected boolean shouldAddEntity(T entity) {
+        return true;
     }
 
     /**

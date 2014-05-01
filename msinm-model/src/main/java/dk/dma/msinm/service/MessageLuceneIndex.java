@@ -40,6 +40,7 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
 
     final static String SEARCH_FIELD = "message";
     final static String LOCATION_FIELD = "location";
+    final static String STATUS_FIELD = "status";
 
     @Inject
     Logger log;
@@ -51,10 +52,13 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
     @Setting(value = "messageIndexDir", defaultValue = "${user.home}/.msinm/msg-index", substituteSystemProperties = true)
     Path indexFolder;
 
-
     @Inject
     @Setting(value = "messageIndexSpatialLevels", defaultValue = "11")
     Long maxSpatialLevels;  // a value of 11 results in sub-meter precision for geohash
+
+    @Inject
+    @Setting(value = "messageIndexDeleteOnStartup", defaultValue = "true")
+    Boolean deleteOnStartup;
 
     SpatialStrategy strategy;
 
@@ -72,6 +76,15 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
         // Initialize the spatial strategy
         SpatialPrefixTree grid = new GeohashPrefixTree(SpatialContext.GEO, maxSpatialLevels.intValue());
         strategy = new RecursivePrefixTreeStrategy(grid, LOCATION_FIELD);
+
+        // Check if we need to delete the old index on start-up
+        if (deleteOnStartup) {
+            try {
+                deleteIndex();
+            } catch (IOException e) {
+                log.error("Failed re-creating the index on startup", e);
+            }
+        }
     }
 
     /**
@@ -86,8 +99,8 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
      * Called every minute to update the Lucene index
      */
     @Schedule(persistent=false, second="38", minute="*/1", hour="*", dayOfWeek="*", year="*")
-    public void updateLuceneIndex() {
-        updateLuceneIndex(MAX_INDEX_COUNT, false);
+    public int updateLuceneIndex() {
+        return updateLuceneIndex(MAX_INDEX_COUNT, false);
     }
 
     /**
@@ -124,7 +137,16 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
      * {@inheritDoc}
      */
     @Override
+    protected boolean shouldAddEntity(Message entity) {
+        return entity.getStatus() != MessageStatus.DELETED;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
     protected void addEntityToDocument(Document doc, Message message) {
+        addStringSearchField(doc, STATUS_FIELD, message.getStatus(), Field.Store.NO);
         addPhraseSearchField(doc, SEARCH_FIELD, message.getGeneralArea());
         addPhraseSearchField(doc, SEARCH_FIELD, message.getLocality());
         addPhraseSearchField(doc, SEARCH_FIELD, message.getSeriesIdentifier().getAuthority());
@@ -158,6 +180,7 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
         for (MessageItem messageItem : message.getMessageItems()) {
             addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getKeySubject());
             addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getAmplifyingRemarks());
+            // TODO: Priority
             for (MessageLocation location : messageItem.getLocations()) {
                 try {
                     addShapeSearchFields(doc, location.toWkt());

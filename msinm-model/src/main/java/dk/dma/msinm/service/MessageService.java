@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.service;
 
+import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.NavwarnMessage;
@@ -36,20 +37,52 @@ public class MessageService extends BaseService {
     @Inject
     private Logger log;
 
+    @Inject
+    @Sql("/sql/active_messages.sql")
+    private String selectActiveSql;
+
+    /**
+     * Creates or updates a NavwarnMessage
+     * @param navwarnMessage the message to create or update
+     * @return the persisted message
+     */
     public NavwarnMessage create(NavwarnMessage navwarnMessage) {
         log.info("Creating navwarn message");
         return saveEntity(navwarnMessage);
     }
 
+    /**
+     * Creates or updates a NoticeMessage
+     * @param noticeMessage the message to create or update
+     * @return the persisted message
+     */
     public NoticeMessage create(NoticeMessage noticeMessage) {
         log.info("Creating notice message");
         return saveEntity(noticeMessage);
     }
 
+    /**
+     * Returns all messages
+     * @return all messages
+     */
     public List<Message> getAll() {
         return getAll(Message.class);
     }
 
+    /**
+     * Returns all messages
+     * @return all messages
+     */
+    public List<Message> getActive() {
+        return em.createQuery(selectActiveSql, Message.class)
+                .getResultList();
+    }
+
+    /**
+     * Returns the message with the given id
+     * @param id the id of the message
+     * @return the message with the given id or null if not found
+     */
     public Message findById(Integer id) {
         return getByPrimaryKey(Message.class, id);
     }

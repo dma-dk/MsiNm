@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.test;
 
-import dk.dma.msinm.common.config.DatabaseConfiguration;
+import dk.dma.msinm.common.db.DatabaseConfiguration;
 import org.hibernate.jpa.AvailableSettings;
 import org.junit.After;
 import org.junit.AfterClass;

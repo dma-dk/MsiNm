@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.common.config;
+package dk.dma.msinm.common.db;
 
 import javax.inject.Qualifier;
 import java.lang.annotation.ElementType;

@@ -72,7 +72,7 @@ public class MessageRestService {
     public JsonArray getAll() {
 
         JsonArrayBuilder result = Json.createArrayBuilder();
-        messageService.getAll().forEach(msg -> result.add(msg.toJson()));
+        messageService.getActive().forEach(msg -> result.add(msg.toJson()));
         return result.build();
     }
 
