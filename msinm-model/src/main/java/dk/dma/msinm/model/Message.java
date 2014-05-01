@@ -40,7 +40,7 @@ import java.util.List;
     @NamedQuery(name="Message.findUpdateMessages",
                 query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
     @NamedQuery(name="Message.findActive",
-                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.issueDate asc"),
+                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.issueDate asc")
 })
 public abstract class Message extends VersionedEntity<Integer> {
 

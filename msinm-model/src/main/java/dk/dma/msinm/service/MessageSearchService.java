@@ -2,6 +2,8 @@ package dk.dma.msinm.service;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
+import dk.dma.msinm.common.db.MsiNm;
+import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
 import dk.dma.msinm.model.*;
@@ -24,6 +26,10 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -36,11 +42,15 @@ import java.util.List;
  */
 @Singleton
 @Startup
-public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
+public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
-    final static String SEARCH_FIELD = "message";
-    final static String LOCATION_FIELD = "location";
-    final static String STATUS_FIELD = "status";
+    final static String SEARCH_FIELD    = "message";
+    final static String LOCATION_FIELD  = "location";
+    final static String STATUS_FIELD    = "status";
+
+    @Inject
+    @MsiNm
+    EntityManager em;
 
     @Inject
     Logger log;
@@ -240,19 +250,49 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
     }
 
     /**
-     * Search the message Lucene index
-     *
-     * @param freeTextSearch the search string
-     * @param location the location to restrict the search to
-     * @param maxHits the max number of hits
-     * @return the search result
+     * Main search method
+     * @param param the search parameters
+     * @return the resulting list of messages
      */
-    public List<Long> searchIndex(String freeTextSearch, Shape location, int maxHits) throws Exception {
-        Filter filter = null;
-        if (location != null) {
-            SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, location);
-            filter = strategy.makeFilter(args);
+    public List<Message> search(MessageSearchParams param) {
+        long t0 = System.currentTimeMillis();
+
+        try {
+
+            CriteriaBuilder cb = em.getCriteriaBuilder();
+            CriteriaQuery<Message> q = cb.createQuery(Message.class);
+
+            // Select messages
+            Root<Message> msg = q.from(Message.class);
+
+            PredicateHelper<Message> predicateBuilder = new PredicateHelper<>(cb, q)
+                    .equals(msg.get("status"), param.getStatus());
+
+            // Search the Lucene index for free text search and location information
+            if (param.requiresLuceneSearch()) {
+                Filter filter = null;
+                if (param.getLocation() != null) {
+                    SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, param.getLocation().toWkt());
+                    filter = strategy.makeFilter(args);
+                }
+                List<Long> ids = searchIndex(param.getQuery(), SEARCH_FIELD, filter, param.getMaxHits());
+                predicateBuilder.in(msg.get("id"), ids);
+            }
+
+            // Complete the query
+            q.select(msg)
+                    .distinct(true)
+                    .where(predicateBuilder.where());
+
+            // Execute the query and return the result
+            List<Message> result = em.createQuery(q).getResultList();
+            log.info("Message search returned " + result.size() + " matches in " +
+                    (System.currentTimeMillis() - t0) + " ms");
+            return result;
+
+        } catch (Exception e) {
+            log.error("Error performing search " + param + ": " + e);
+            return null;
         }
-        return super.searchIndex(freeTextSearch, SEARCH_FIELD, filter, maxHits);
     }
 }

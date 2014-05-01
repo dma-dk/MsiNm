@@ -15,11 +15,8 @@
  */
 package dk.dma.msinm.service;
 
-import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.distance.DistanceUtils;
-import com.spatial4j.core.shape.Shape;
-import dk.dma.msinm.common.db.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
+import dk.dma.msinm.common.db.DatabaseConfiguration;
 import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;
@@ -62,7 +59,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
     MessageService messageService;
 
     @Inject
-    MessageLuceneIndex messageLuceneIndex;
+    MessageSearchService messageSearchService;
 
     @BeforeClass
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {
@@ -77,7 +74,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
     @After
     public void deleteIndex() {
         try {
-            messageLuceneIndex.deleteIndex();
+            messageSearchService.deleteIndex();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -94,14 +91,17 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertNotNull(message.getId());
 
         // Index the message
-        assertEquals(1, messageLuceneIndex.updateLuceneIndex());
+        assertEquals(1, messageSearchService.updateLuceneIndex());
 
         // Search the index
-        assertEquals(1, messageLuceneIndex.searchIndex("Kattegat", null, 100).size());
+        assertEquals(1, messageSearchService.search(new MessageSearchParams("Kattegat", null)).size());
 
         // Search on geometry
-        Shape location = SpatialContext.GEO.makeCircle(12.1684, 56.120, DistanceUtils.dist2Degrees(200, DistanceUtils.EARTH_MEAN_RADIUS_KM));
-        assertEquals(1, messageLuceneIndex.searchIndex(null, location, 100).size());
+        MessageLocation location = new MessageLocation();
+        location.setType(MessageLocation.LocationType.CIRCLE);
+        location.getPoints().add(new Point(56.120, 12.1684));
+        location.setRadius(10);
+        assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).size());
 
     }
 
@@ -114,14 +114,17 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertNotNull(message.getId());
 
         // Index the message
-        assertEquals(1, messageLuceneIndex.updateLuceneIndex());
+        assertEquals(1, messageSearchService.updateLuceneIndex());
 
         // Search the index
-        assertEquals(1, messageLuceneIndex.searchIndex("Langebro", null, 100).size());
+        assertEquals(1, messageSearchService.search(new MessageSearchParams("Langebro", null)).size());
 
         // Search on geometry
-        Shape location = SpatialContext.GEO.makeCircle(12, 57, DistanceUtils.dist2Degrees(200, DistanceUtils.EARTH_MEAN_RADIUS_KM));
-        assertEquals(1, messageLuceneIndex.searchIndex(null, location, 100).size());
+        MessageLocation location = new MessageLocation();
+        location.setType(MessageLocation.LocationType.CIRCLE);
+        location.getPoints().add(new Point(57, 12));
+        location.setRadius(10);
+        assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).size());
     }
 
 

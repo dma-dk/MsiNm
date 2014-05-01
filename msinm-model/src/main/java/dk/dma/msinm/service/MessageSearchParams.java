@@ -17,6 +17,7 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.MessageStatus;
+import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -31,6 +32,46 @@ public class MessageSearchParams implements Serializable {
     Date to;
     MessageLocation location;
     MessageStatus status;
+
+    int maxHits = 100; // For now...
+    int startIndex = 0;
+
+    public MessageSearchParams() {
+    }
+
+    public MessageSearchParams(String query, Date from, Date to, MessageLocation location, MessageStatus status) {
+        this.query = query;
+        this.from = from;
+        this.to = to;
+        this.location = location;
+        this.status = status;
+    }
+
+    public MessageSearchParams(String query, MessageLocation location) {
+        this.query = query;
+        this.location = location;
+    }
+
+    /**
+     * Returns whether or not the search requires a Lucene search
+     * @return whether or not the search requires a Lucene search
+     */
+    public boolean requiresLuceneSearch() {
+        return StringUtils.isNotBlank(query) || location != null;
+    }
+
+    @Override
+    public String toString() {
+        return "MessageSearchParams{" +
+                "query='" + query + '\'' +
+                ", from=" + from +
+                ", to=" + to +
+                ", location=" + location +
+                ", status=" + status +
+                ", maxHits=" + maxHits +
+                ", startIndex=" + startIndex +
+                '}';
+    }
 
     public String getQuery() {
         return query;
@@ -70,5 +111,21 @@ public class MessageSearchParams implements Serializable {
 
     public void setStatus(MessageStatus status) {
         this.status = status;
+    }
+
+    public int getMaxHits() {
+        return maxHits;
+    }
+
+    public void setMaxHits(int maxHits) {
+        this.maxHits = maxHits;
+    }
+
+    public int getStartIndex() {
+        return startIndex;
+    }
+
+    public void setStartIndex(int startIndex) {
+        this.startIndex = startIndex;
     }
 }

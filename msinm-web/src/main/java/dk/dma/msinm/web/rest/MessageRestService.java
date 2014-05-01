@@ -17,7 +17,11 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.legacy.service.LegacyMsiImportService;
+import dk.dma.msinm.model.MessageStatus;
+import dk.dma.msinm.service.MessageSearchParams;
+import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -30,6 +34,7 @@ import javax.json.JsonArrayBuilder;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 
 /**
  * REST interface for accessing MSI-NM messages
@@ -39,16 +44,19 @@ import javax.ws.rs.Produces;
 public class MessageRestService {
 
     @Inject
-    private Logger log;
+    Logger log;
 
     @Inject
-    private Auditor auditor;
+    Auditor auditor;
 
     @Inject
-    private MessageService messageService;
+    MessageService messageService;
 
     @Inject
-    private LegacyMsiImportService legacyMsiImportService;
+    MessageSearchService messageSearchService;
+
+    @Inject
+    LegacyMsiImportService legacyMsiImportService;
 
     public MessageRestService() {
     }
@@ -76,4 +84,25 @@ public class MessageRestService {
         return result.build();
     }
 
+    @GET
+    @Path("/search")
+    @Produces("application/json")
+    @GZIP
+    @NoCache
+    public JsonArray search(
+            @QueryParam("q") String query,
+            @QueryParam("status") String status) {
+
+        MessageSearchParams params = new MessageSearchParams();
+        params.setQuery(query);
+        if (StringUtils.isNotBlank(status)) {
+            params.setStatus(MessageStatus.valueOf(status));
+        }
+
+        JsonArrayBuilder result = Json.createArrayBuilder();
+        messageSearchService
+                .search(params)
+                .forEach(msg -> result.add(msg.toJson()));
+        return result.build();
+    }
 }
