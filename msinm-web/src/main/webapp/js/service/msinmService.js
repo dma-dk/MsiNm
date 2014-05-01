@@ -7,9 +7,9 @@ angular.module('msinm')
         'use strict';
 
         return {
-            list: function(success, error) {
+            search: function(query, success, error) {
                 var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/message/all')
+                $http.get(host + '/rest/message/search?q=' + encodeURIComponent(query))
                     .success(success)
                     .error(error);
             },

@@ -24,31 +24,55 @@
 </head>
 <body ng-app="msinm">
 
-    <div ng-view></div>
+    <div class="container" ng-view></div>
 
     <script type="text/ng-template" id="msinm-index.html">
-        <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="loadMsiNm()">
-            <header id="header">
-                <h1>Active MSI-NtM list:</h1>
-                Search <input type="text" ng-change="onEdit()" ng-model="query">
-                <table class='table table-condensed'>
+        <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="search()">
+            <div class="row">
+                <h1>Active MSI-NtM</h1>
+                <form class="form-horizontal" role="form">
+                    <div class="form-group">
+                        <label for="query" class="col-sm-2 control-label">Search terms</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control input-lg" placeholder="Search" ng-model="query" id="query">
+                            <span class="help-block">Search using e.g. <code>+important</code>, <code>-excluded</code>,
+                                <code>par*ly</code> or <code>"exact match"</code></span>
+                        </div>
+                        <div class="col-sm-1">
+                            <button type="submit" class="btn btn-primary btn-lg" ng-click="search()">
+                                <span class="glyphicon glyphicon-search"></span> Search
+                            </button>
+                        </div>
+                    </div>
+                    <div class="col-sm-offset-2 col-sm-4 btn-group">
+                        <button type="button" class="btn btn-default">Date</button>
+                        <button type="button" class="btn btn-default">Location</button>
+                        <button type="button" class="btn btn-default">Type</button>
+                    </div>
+                </form>
+            </div>
+
+            <div class="row">
+                <h2>Result</h2>
+                <table class='table table-condensed table-hover'>
                     <tr>
-                        <th><a href="" ng-click="predicate = 'issueDate'; reverse=!reverse">Date</a></th>
+                        <th>Date</a></th>
                         <th>Type</th>
-                        <th><a href="" ng-click="predicate = 'generalArea'; reverse=!reverse">Area</a></th>
+                        <th>Area</th>
                     </tr>
-                    <tr ng-repeat="msi in filteredList | orderBy:predicate:reverse">
+                    <tr ng-repeat="msi in msinmList">
                         <td style="white-space:nowrap;">{{msi.issueDate | date : 'MM-dd HH:mm'}}</td>
                         <td>{{msi.messageItems[0].keySubject}}</td>
                         <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
                     </tr>
                 </table>
+            </div>
 
-                Import legacy:
-                <button type="button" class="btn btn-default btn-lg" ng-click="importMsiNm()">
-                    <span class="glyphicon glyphicon-download"></span> Import
+            <div class="row">
+                <button type="button" class="btn" ng-click="importMsiNm()">
+                    <span class="glyphicon glyphicon-download"></span> Import Legacy MSI
                 </button>
-            </header>
+            </div>
         </section>
     </script>
 
