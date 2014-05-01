@@ -6,6 +6,7 @@ import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
 import dk.dma.msinm.model.*;
 import org.apache.lucene.document.Document;
+import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Filter;
@@ -126,7 +127,21 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
     protected void addEntityToDocument(Document doc, Message message) {
         addPhraseSearchField(doc, SEARCH_FIELD, message.getGeneralArea());
         addPhraseSearchField(doc, SEARCH_FIELD, message.getLocality());
+        addPhraseSearchField(doc, SEARCH_FIELD, message.getSeriesIdentifier().getAuthority());
+        addPhraseSearchField(doc, SEARCH_FIELD, String.valueOf(message.getSeriesIdentifier().getYear()));
+        // TODO: Combined series identifier
+        // TODO: Type in separate search field?
+        for (String specificLocation : message.getSpecificLocations()) {
+            addPhraseSearchField(doc, SEARCH_FIELD, specificLocation);
+        }
+        for (String chartNumber : message.getChartNumbers()) {
+            addStringSearchField(doc, SEARCH_FIELD, chartNumber, Field.Store.NO);
+        }
+        for (Integer intChartNumber : message.getIntChartNumbers()) {
+            addStringSearchField(doc, SEARCH_FIELD, String.valueOf(intChartNumber), Field.Store.NO);
+        }
 
+        // Add the MSI/NtM specific fields
         if (message instanceof NavwarnMessage) {
             addNavwarnMessageToDocument(doc, (NavwarnMessage)message);
         } else {
@@ -141,6 +156,8 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
      */
     protected void addNavwarnMessageToDocument(Document doc, NavwarnMessage message) {
         for (MessageItem messageItem : message.getMessageItems()) {
+            addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getKeySubject());
+            addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getAmplifyingRemarks());
             for (MessageLocation location : messageItem.getLocations()) {
                 try {
                     addShapeSearchFields(doc, location.toWkt());
@@ -148,6 +165,7 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
                     log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
                 }
             }
+            // TODO: Category in separate search field?
         }
     }
 
@@ -157,7 +175,45 @@ public class MessageLuceneIndex extends AbstractLuceneIndex<Message> {
      * @param message the NtM message
      */
     protected void addNoticeMessageToDocument(Document doc, NoticeMessage message) {
+        addPhraseSearchField(doc, SEARCH_FIELD, message.getAuthority());
+        addPhraseSearchField(doc, SEARCH_FIELD, message.getAmplifyingRemarks());
+        // TODO: Category in separate search field?
+        for (String lightsListNumber : message.getLightsListNumbers()) {
+            addStringSearchField(doc, SEARCH_FIELD, lightsListNumber, Field.Store.NO);
+        }
 
+        // Add permanent items
+        for (PermanentItem permanentItem : message.getPermanentItems()) {
+            addPhraseSearchField(doc, SEARCH_FIELD, permanentItem.getAmplifyingRemarks());
+            addStringSearchField(doc, SEARCH_FIELD, permanentItem.getChartNumber(), Field.Store.NO);
+            addStringSearchField(doc, SEARCH_FIELD, permanentItem.getHorizontalDatum(), Field.Store.NO);
+            for (NoticeElement noticeElement : permanentItem.getNoticeElements()) {
+                // TODO: Add notice verb in separate field?
+                addPhraseSearchField(doc, SEARCH_FIELD, noticeElement.getFeatureOrCharacteristic());
+                addPhraseSearchField(doc, SEARCH_FIELD, noticeElement.getAmplifyingNote());
+                for (String graphicalRepresentation : noticeElement.getGraphicalRepresentations()) {
+                    addPhraseSearchField(doc, SEARCH_FIELD, graphicalRepresentation);
+                }
+                try {
+                    addShapeSearchFields(doc, noticeElement.getLocation().toWkt());
+                } catch (ParseException e) {
+                    log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
+                }
+            }
+        }
+
+        // Add P & T items
+        for (TempPreliminaryItem tempPreliminaryItem : message.getTempPreliminaryItems()) {
+            addPhraseSearchField(doc, SEARCH_FIELD, tempPreliminaryItem.getItemDescription());
+            for (String graphicalRepresentation : tempPreliminaryItem.getGraphicalRepresentations()) {
+                addPhraseSearchField(doc, SEARCH_FIELD, graphicalRepresentation);
+            }
+            try {
+                addShapeSearchFields(doc, tempPreliminaryItem.getLocation().toWkt());
+            } catch (ParseException e) {
+                log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
+            }
+        }
     }
 
     /**

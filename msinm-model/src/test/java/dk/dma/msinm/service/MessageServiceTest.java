@@ -106,13 +106,22 @@ public class MessageServiceTest extends MsiNmUnitTest {
     }
 
     @Test
-    public void testNoticeMessage() {
+    public void testNoticeMessage() throws Exception {
         NoticeMessage message = createNoticeMessage();
 
         message = messageService.create(message);
+        log.info("NavwarnMessage created with id: " + message.getId());
+        assertNotNull(message.getId());
 
-        System.out.println("NoticeMessage created with id: " + message.getId());
+        // Index the message
+        assertEquals(1, messageLuceneIndex.recreateIndex());
 
+        // Search the index
+        assertEquals(1, messageLuceneIndex.searchIndex("Langebro", null, 100).size());
+
+        // Search on geometry
+        Shape location = SpatialContext.GEO.makeCircle(12, 57, DistanceUtils.dist2Degrees(200, DistanceUtils.EARTH_MEAN_RADIUS_KM));
+        assertEquals(1, messageLuceneIndex.searchIndex(null, location, 100).size());
     }
 
 

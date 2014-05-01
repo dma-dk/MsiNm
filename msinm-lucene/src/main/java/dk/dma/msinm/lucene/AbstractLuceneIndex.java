@@ -364,6 +364,22 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
     }
 
     /**
+     * If the given value is not null, it is added to the search index
+     *
+     * @param doc the document to add the field value to
+     * @param obj the value to add
+     * @param store the store value of the field
+     */
+    protected void addStringSearchField(Document doc, String field, Object obj, Field.Store store) {
+        if (obj != null) {
+            String str = (obj instanceof String) ? (String)obj : obj.toString();
+            if (StringUtils.isNotBlank(str)) {
+                doc.add(new StringField(field, str, store));
+            }
+        }
+    }
+
+    /**
      * Performs a search in the index and returns the ids of matching entities
      *
      * @param freeTextSearch the search string
