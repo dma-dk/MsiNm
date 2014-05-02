@@ -34,6 +34,8 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.ws.rs.*;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 
 /**
  * REST interface for accessing MSI-NM messages
@@ -92,9 +94,13 @@ public class MessageRestService {
             @QueryParam("q") String query,
             @QueryParam("status") @DefaultValue("ACTIVE") String status,
             @QueryParam("type") String type,
-            @QueryParam("loc") String loc) {
+            @QueryParam("loc") String loc,
+            @QueryParam("from") String fromDate,
+            @QueryParam("to") String toDate) throws Exception {
 
-        log.info(String.format("Search with q=%s, status=%s, type=%s, loc=%s", query, status, type, loc));
+        log.info(String.format("Search with q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s",
+                query, status, type, loc, fromDate, toDate));
+
         MessageSearchParams params = new MessageSearchParams();
 
         params.setQuery(query);
@@ -111,6 +117,16 @@ public class MessageRestService {
 
         if (StringUtils.isNotBlank(loc)) {
             params.setLocation(MessageLocation.fromJson(loc));
+        }
+
+        if (StringUtils.isNotBlank(fromDate)) {
+            DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            params.setFrom(sdf.parse(fromDate));
+        }
+
+        if (StringUtils.isNotBlank(toDate)) {
+            DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+            params.setTo(sdf.parse(toDate));
         }
 
         JsonArrayBuilder result = Json.createArrayBuilder();

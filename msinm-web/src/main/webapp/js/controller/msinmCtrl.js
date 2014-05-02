@@ -11,6 +11,8 @@ angular.module('msinm')
         $scope.status = 'ACTIVE';
         $scope.type = '';
         $scope.loc = '';
+        $scope.dateFrom = new Date().ddmmyyyy();
+        $scope.dateTo = '';
 
         $scope.msinmList = [];
 
@@ -20,6 +22,8 @@ angular.module('msinm')
                 $scope.status,
                 $scope.type,
                 $scope.loc,
+                '',
+                '',
                 function(data) {
                     $scope.msinmList = data;
                 },
@@ -55,5 +59,10 @@ angular.module('msinm')
 
         $scope.resetLocation = function () {
             $scope.loc = '';
+        };
+
+        $scope.resetDate = function () {
+            $scope.dateFrom = '';
+            $scope.dateTo = '';
         };
 }]);
