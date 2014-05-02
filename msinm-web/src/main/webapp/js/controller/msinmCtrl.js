@@ -26,7 +26,6 @@ angular.module('msinm')
             );
         };
 
-
         $scope.importMsiNm = function () {
             MsiNmService.importMsiNm(function(data) {
                     $scope.search();
@@ -36,4 +35,9 @@ angular.module('msinm')
                 });
         };
 
+        $scope.resetType = function () {
+            $scope.status = 'ACTIVE';
+            $scope.type = '';
+            $("#messageType").select2('data', null)
+        };
 }]);
