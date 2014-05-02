@@ -98,6 +98,24 @@ public class PredicateHelper<T> {
     }
 
     /**
+     * If value1 is defined the attribute must be greater than or equal to this value.
+     * If value2 is defined the attribute must be less than or equal to this value.
+     *
+     * @param attr the attribute
+     * @param value1 the first value
+     * @param value2 the second value
+     */
+    public <V extends Comparable<? super V>> PredicateHelper<T> between(Expression<V> attr, V value1, V value2) {
+        if (value1 != null) {
+            where.add(cb.greaterThanOrEqualTo(attr, value1));
+        }
+        if (value2 != null) {
+            where.add(cb.lessThanOrEqualTo(attr, value2));
+        }
+        return this;
+    }
+
+    /**
      * Returns the collected list of predicates
      * @return the collected list of predicates
      */
