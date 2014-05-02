@@ -21,11 +21,10 @@ import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.model.BaseEntity;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
+import javax.json.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.io.StringReader;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -121,6 +120,30 @@ public class MessageLocation extends BaseEntity<Integer> {
             json.add("radius", radius);
         }
         return json;
+    }
+
+    /**
+     * Parses Json into a {@code MessageLocation} entity
+     * @param jsonData the Json data
+     * @return the corresponding MessageLocation entity
+     */
+    public static MessageLocation fromJson(String jsonData) {
+        try (JsonReader jsonReader = Json.createReader(new StringReader(jsonData))) {
+            JsonObject jsonObject = jsonReader.readObject();
+            MessageLocation loc = new MessageLocation();
+            loc.setType(LocationType.valueOf(jsonObject.getString("type")));
+            if (jsonObject.containsKey("radius")) {
+                loc.setRadius(jsonObject.getInt("radius"));
+            }
+            for(JsonValue point : jsonObject.getJsonArray("points")) {
+                JsonObject pt = (JsonObject)point;
+                loc.getPoints().add(new Point(
+                        pt.getJsonNumber("lat").doubleValue(),
+                        pt.getJsonNumber("lon").doubleValue(),
+                        pt.getInt("num")));
+            }
+            return loc;
+        }
     }
 
     public MessageLocation(LocationType type) {

@@ -17,6 +17,7 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.legacy.service.LegacyMsiImportService;
+import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.MessageStatus;
 import dk.dma.msinm.model.MessageType;
 import dk.dma.msinm.service.MessageSearchParams;
@@ -90,9 +91,10 @@ public class MessageRestService {
     public JsonArray search(
             @QueryParam("q") String query,
             @QueryParam("status") @DefaultValue("ACTIVE") String status,
-            @QueryParam("type") String type) {
+            @QueryParam("type") String type,
+            @QueryParam("loc") String loc) {
 
-        log.info(String.format("Search with q=%s, status=%s, type=%s", query, status, type));
+        log.info(String.format("Search with q=%s, status=%s, type=%s, loc=%s", query, status, type, loc));
         MessageSearchParams params = new MessageSearchParams();
 
         params.setQuery(query);
@@ -105,6 +107,10 @@ public class MessageRestService {
             for (String msgType : type.split(",")) {
                 params.getTypes().add(MessageType.valueOf(msgType));
             }
+        }
+
+        if (StringUtils.isNotBlank(loc)) {
+            params.setLocation(MessageLocation.fromJson(loc));
         }
 
         JsonArrayBuilder result = Json.createArrayBuilder();

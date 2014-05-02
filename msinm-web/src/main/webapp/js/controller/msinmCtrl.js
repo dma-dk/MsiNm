@@ -10,6 +10,8 @@ angular.module('msinm')
         $scope.query = '';
         $scope.status = 'ACTIVE';
         $scope.type = '';
+        $scope.loc = '';
+
         $scope.msinmList = [];
 
         $scope.search = function () {
@@ -17,6 +19,7 @@ angular.module('msinm')
                 $scope.query,
                 $scope.status,
                 $scope.type,
+                $scope.loc,
                 function(data) {
                     $scope.msinmList = data;
                 },
@@ -35,9 +38,22 @@ angular.module('msinm')
                 });
         };
 
+        $scope.setCurrentLocation = function () {
+            navigator.geolocation.getCurrentPosition(function(pos) {
+                $scope.$apply(function() {
+                    $scope.loc = '{"type":"CIRCLE", "radius":1, "points":[{"lat":' +
+                        pos.coords.latitude + ',"lon":' + pos.coords.longitude + ',"num":1}]}';
+                });
+            });
+        };
+
         $scope.resetType = function () {
             $scope.status = 'ACTIVE';
             $scope.type = '';
             $("#messageType").select2('data', null)
+        };
+
+        $scope.resetLocation = function () {
+            $scope.loc = '';
         };
 }]);

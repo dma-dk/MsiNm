@@ -41,7 +41,7 @@
 
     <script type="text/ng-template" id="msinm-index.html">
         <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="search()">
-                <h1>Active MSI-NtM</h1>
+                <h1>MSI-NtM</h1>
 
                 <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form">
                     <div class="form-group">
@@ -73,7 +73,7 @@
 
                         <div class="row">
                             <label for="messageType" class="col-sm-2 control-label">Type</label>
-                            <div class="select2-bootstrap-prepend col-sm-6">
+                            <div class="col-sm-6">
                                 <select multiple class="form-control select2-multiple" id="messageType" ng-model="type">
                                     <option></option>
                                     <optgroup label="Notices to mariners">
@@ -92,11 +92,23 @@
                         </div>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group row collapse" id="locSearchGroup">
+                        <label for="messageLocation" class="col-sm-2 control-label">Location</label>
+                        <div class="col-sm-6">
+                            <input type="text" class="form-control" placeholder="Location" ng-model="loc"
+                                   id="messageLocation">
+                        </div>
+                        <button type="button" class="btn" ng-click="setCurrentLocation()">
+                            <span class="glyphicon glyphicon-home"></span>
+                        </button>
+                    </div>
+
+                    <div class="form-group row">
                         <label for="filterTypes" class="col-sm-2 control-label">Filters</label>
                         <div class="col-sm-4 btn-group" id="filterTypes">
                             <button type="button" class="btn btn-default">Date</button>
-                            <button type="button" class="btn btn-default">Location</button>
+                            <button type="button" class="btn btn-default" data-toggle="collapse"
+                                    data-target="#locSearchGroup" ng-click="resetLocation()">Location</button>
                             <button type="button" class="btn btn-default" data-toggle="collapse"
                                     data-target="#typeSearchGroup" ng-click="resetType()">Type
                             </button>
