@@ -270,7 +270,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
 
             PredicateHelper<Message> predicateBuilder = new PredicateHelper<>(cb, q)
-                    .equals(msg.get("status"), param.getStatus());
+                    .equals(msg.get("status"), param.getStatus())
+                    .between(msg.get("created"), param.getFrom(), param.getTo());
 
             if (param.getTypes().size() > 0) {
                 predicateBuilder.in(msgId.get("type"), param.getTypes());
