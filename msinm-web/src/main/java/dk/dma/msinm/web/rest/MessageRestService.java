@@ -18,6 +18,7 @@ package dk.dma.msinm.web.rest;
 import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.legacy.service.LegacyMsiImportService;
 import dk.dma.msinm.model.MessageStatus;
+import dk.dma.msinm.model.MessageType;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
@@ -88,13 +89,22 @@ public class MessageRestService {
     @NoCache
     public JsonArray search(
             @QueryParam("q") String query,
-            @QueryParam("status") @DefaultValue("ACTIVE") String status) {
+            @QueryParam("status") @DefaultValue("ACTIVE") String status,
+            @QueryParam("type") String type) {
 
-        log.info(String.format("Search with q=%s, status=%s", query, status));
+        log.info(String.format("Search with q=%s, status=%s, type=%s", query, status, type));
         MessageSearchParams params = new MessageSearchParams();
+
         params.setQuery(query);
+
         if (StringUtils.isNotBlank(status)) {
             params.setStatus(MessageStatus.valueOf(status));
+        }
+
+        if (StringUtils.isNotBlank(type)) {
+            for (String msgType : type.split(",")) {
+                params.getTypes().add(MessageType.valueOf(msgType));
+            }
         }
 
         JsonArrayBuilder result = Json.createArrayBuilder();

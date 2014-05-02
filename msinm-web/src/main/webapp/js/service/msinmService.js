@@ -7,9 +7,13 @@ angular.module('msinm')
         'use strict';
 
         return {
-            search: function(query, success, error) {
+            search: function(query, status, type, success, error) {
                 var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/message/search?q=' + encodeURIComponent(query))
+                $http.get(
+                        host + '/rest/message/search?q=' + encodeURIComponent(query)
+                             + '&status=' + encodeURIComponent(status)
+                             + '&type=' + encodeURIComponent(type)
+                    )
                     .success(success)
                     .error(error);
             },

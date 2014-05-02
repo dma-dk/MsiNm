@@ -17,10 +17,23 @@
     <script src="js/angularjs-1.2.16/angular.js" type="text/javascript"></script>
     <script src="js/angularjs-1.2.16/angular-route.js" type="text/javascript"></script>
 
+    <script src="js/select2-3.4.5/select2.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/select2/3.4.5/select2.css">
+    <link rel="stylesheet" href="css/select2-bootstrap.css">
+
+
     <script src="js/app.js" type="text/javascript"></script>
     <script src="js/controller/msinmCtrl.js" type="text/javascript"></script>
     <script src="js/service/msinmService.js" type="text/javascript"></script>
 
+    <script>
+        $(document).ready(function() {
+            $("#messageType").select2({
+                placeholder: "Select Type",
+                allowClear: true
+            });
+        });
+    </script>
 </head>
 <body ng-app="msinm">
 
@@ -28,13 +41,15 @@
 
     <script type="text/ng-template" id="msinm-index.html">
         <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="search()">
-            <div class="row">
                 <h1>Active MSI-NtM</h1>
-                <form class="form-horizontal" role="form">
+
+                <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form">
                     <div class="form-group">
                         <label for="query" class="col-sm-2 control-label">Search terms</label>
+
                         <div class="col-sm-6">
-                            <input type="text" class="form-control input-lg" placeholder="Search" ng-model="query" id="query">
+                            <input type="text" class="form-control input-lg" placeholder="Search" ng-model="query"
+                                   id="query">
                             <span class="help-block">Search using e.g. <code>+important</code>, <code>-excluded</code>,
                                 <code>par*ly</code> or <code>"exact match"</code></span>
                         </div>
@@ -44,19 +59,55 @@
                             </button>
                         </div>
                     </div>
-                    <div class="col-sm-offset-2 col-sm-4 btn-group">
-                        <button type="button" class="btn btn-default">Date</button>
-                        <button type="button" class="btn btn-default">Location</button>
-                        <button type="button" class="btn btn-default">Type</button>
+
+
+                    <div class="form-group collapse" id="typeSearchGroup">
+                        <div class="row">
+                            <label for="messageStatus" class="col-sm-2 control-label">Status</label>
+                            <div class="select2-bootstrap-prepend col-sm-6">
+                                <input type="radio" value="ACTIVE" id="messageStatus" ng-model="status">Active &nbsp;
+                                <input type="radio" value="DRAFT" ng-model="status">Draft &nbsp;
+                                <input type="radio" value="DELETED" ng-model="status">Deleted &nbsp;
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <label for="messageType" class="col-sm-2 control-label">Type</label>
+                            <div class="select2-bootstrap-prepend col-sm-6">
+                                <select multiple class="form-control select2-multiple" id="messageType" ng-model="type">
+                                    <option></option>
+                                    <optgroup label="Notices to mariners">
+                                        <option value="PERMANENT_NOTICE">Permanent NtM</option>
+                                        <option value="TEMPORARY_NOTICE">Temporary NtM</option>
+                                        <option value="PRELIMINARY_NOTICE">Preliminary NtM</option>
+                                        <option value="MISCELLANEOUS_NOTICE">Miscellaneous NtM</option>
+                                    </optgroup>
+                                    <optgroup label="MSI">
+                                        <option value="COSTAL_WARNING">Coastal Warning</option>
+                                        <option value="SUBAREA_WARNING">Subarea Warning</option>
+                                        <option value="NAVAREA_WARNING">Navarea Warning</option>
+                                    </optgroup>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="filterTypes" class="col-sm-2 control-label">Filters</label>
+                        <div class="col-sm-4 btn-group" id="filterTypes">
+                            <button type="button" class="btn btn-default">Date</button>
+                            <button type="button" class="btn btn-default">Location</button>
+                            <button type="button" class="btn btn-default" data-toggle="collapse"
+                                    data-target="#typeSearchGroup">Type
+                            </button>
+                        </div>
                     </div>
                 </form>
-            </div>
 
-            <div class="row">
                 <h2>Result</h2>
                 <table class='table table-condensed table-hover'>
                     <tr>
-                        <th>Date</a></th>
+                        <th>Date</th>
                         <th>Type</th>
                         <th>Area</th>
                     </tr>
@@ -66,7 +117,7 @@
                         <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
                     </tr>
                 </table>
-            </div>
+
 
             <div class="row">
                 <button type="button" class="btn" ng-click="importMsiNm()">

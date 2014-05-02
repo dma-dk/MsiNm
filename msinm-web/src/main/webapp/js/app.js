@@ -3,7 +3,7 @@
  *
  * @type {angular.Module}
  */
-angular.module('msinm', ['ngRoute'])
+var app = angular.module('msinm', ['ngRoute'])
     .config(function ($routeProvider) {
         'use strict';
 

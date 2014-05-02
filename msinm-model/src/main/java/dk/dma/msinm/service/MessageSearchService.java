@@ -29,6 +29,7 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -264,9 +265,16 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
             // Select messages
             Root<Message> msg = q.from(Message.class);
+            msg.fetch("seriesIdentifier", JoinType.LEFT);
+            javax.persistence.criteria.Path<MessageSeriesIdentifier> msgId = msg.get("seriesIdentifier");
+
 
             PredicateHelper<Message> predicateBuilder = new PredicateHelper<>(cb, q)
                     .equals(msg.get("status"), param.getStatus());
+
+            if (param.getTypes().size() > 0) {
+                predicateBuilder.in(msgId.get("type"), param.getTypes());
+            }
 
             // Search the Lucene index for free text search and location information
             if (param.requiresLuceneSearch()) {

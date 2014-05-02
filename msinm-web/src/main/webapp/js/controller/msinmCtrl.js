@@ -8,11 +8,15 @@ angular.module('msinm')
         'use strict';
 
         $scope.query = '';
+        $scope.status = 'ACTIVE';
+        $scope.type = '';
         $scope.msinmList = [];
 
         $scope.search = function () {
             MsiNmService.search(
                 $scope.query,
+                $scope.status,
+                $scope.type,
                 function(data) {
                     $scope.msinmList = data;
                 },

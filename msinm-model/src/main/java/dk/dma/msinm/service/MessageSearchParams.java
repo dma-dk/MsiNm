@@ -17,10 +17,13 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.MessageStatus;
+import dk.dma.msinm.model.MessageType;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Defines the search parameters
@@ -32,6 +35,7 @@ public class MessageSearchParams implements Serializable {
     Date to;
     MessageLocation location;
     MessageStatus status;
+    Set<MessageType> types = new HashSet<>();
 
     int maxHits = 100; // For now...
     int startIndex = 0;
@@ -127,5 +131,13 @@ public class MessageSearchParams implements Serializable {
 
     public void setStartIndex(int startIndex) {
         this.startIndex = startIndex;
+    }
+
+    public Set<MessageType> getTypes() {
+        return types;
+    }
+
+    public void setTypes(Set<MessageType> types) {
+        this.types = types;
     }
 }
