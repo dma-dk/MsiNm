@@ -17,6 +17,7 @@ package dk.dma.msinm.model;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.model.BaseEntity;
@@ -80,7 +81,7 @@ public class MessageLocation extends BaseEntity<Integer> {
                 if (points.size() != 1 || radius == null) {
                     throw new InvalidShapeException("Invalid circle definition");
                 }
-                return SpatialContext.GEO.makeCircle(toSpatial4jPoint(points.get(0)), radius);
+                return SpatialContext.GEO.makeCircle(toSpatial4jPoint(points.get(0)), DistanceUtils.dist2Degrees(radius, DistanceUtils.EARTH_MEAN_RADIUS_KM));
             case POLYLINE:
             case POLYGON:
                 if (points.size() == 0) {
