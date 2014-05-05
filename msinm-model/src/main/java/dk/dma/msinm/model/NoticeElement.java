@@ -17,12 +17,7 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +30,7 @@ public class NoticeElement extends BaseEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
+    @Column(length = 2000, nullable = false)
     private String amplifyingNote;
     
     @NotNull

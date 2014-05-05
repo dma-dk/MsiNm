@@ -42,6 +42,29 @@ public class LegacyMessageService extends BaseService {
     @Inject
     Sequences sequences;
 
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public LegacyMessage saveLegacyMessage(LegacyMessage legacyMessage) {
+        return saveEntity(legacyMessage);
+    }
+
+    /**
+     * Looks for a LegacyMessage with the given id. Returns null if not found
+     * @param legacyId the id of the LegacyMessage to search for
+     * @return the LegacyMessage or null
+     */
+    public LegacyMessage findByLegacyId(Integer legacyId) {
+        try {
+            // Look up a  matching LegacyMessage
+            return em
+                    .createNamedQuery("LegacyMessage.findByLegacyId", LegacyMessage.class)
+                    .setParameter("legacyId", legacyId)
+                    .getSingleResult();
+
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     /**
      * Create and persist a new MSI warning from a legacy warning
      *
@@ -51,30 +74,21 @@ public class LegacyMessageService extends BaseService {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public boolean createOrUpdateNavwarnMessage(MsiDto msi) {
 
-        LegacyMessage legacyMessage;
-        try {
-            // Look up a  matching LegacyMessage
-            legacyMessage = em
-                    .createNamedQuery("LegacyMessage.findByMessageId", LegacyMessage.class)
-                    .setParameter("messageId", msi.getMessageId())
-                    .getSingleResult();
-        
-            // Check if the message has been updated
-            if (legacyMessage.getVersion() >= msi.getVersion()) {
-                // No further updates...
-                return false;
-            }
+        LegacyMessage legacyMessage = findByLegacyId(msi.getId());
 
-        } catch (Exception e) {
+        if (legacyMessage == null) {
             // No matching LegacyMessage found. Create one
             legacyMessage = new LegacyMessage();
-            legacyMessage.setMessageId(msi.getMessageId());
+            legacyMessage.setLegacyId(msi.getId());
             legacyMessage.setNavtexNo(msi.getNavtexNo());
             legacyMessage.setVersion(msi.getVersion());
 
             NavwarnMessage message = new NavwarnMessage();
             message.setStatus(MessageStatus.ACTIVE);
             legacyMessage.setNavwarnMessage(message);
+        } else if (legacyMessage.getVersion() >= msi.getVersion()) {
+            // No further updates...
+            return false;
         }
 
         // Update the message from the legacy MSI warning

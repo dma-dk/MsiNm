@@ -17,11 +17,7 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.OneToOne;
-import javax.validation.constraints.NotNull;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -35,8 +31,8 @@ public class TempPreliminaryItem extends BaseEntity<Integer> {
 
     @ElementCollection
     private List<String> graphicalRepresentations = new ArrayList<>();
-    
-    @NotNull
+
+    @Column(length = 2000, nullable = false)
     private String itemDescription;
     
     @OneToOne(cascade = CascadeType.ALL)

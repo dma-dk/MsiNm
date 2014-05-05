@@ -15,12 +15,7 @@
  */
 package dk.dma.msinm.model;
 
-import javax.persistence.CascadeType;
-import javax.persistence.ElementCollection;
-import javax.persistence.Entity;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,7 +32,8 @@ public class NoticeMessage extends Message {
     private List<String> lightsListNumbers = new ArrayList<>();
     
     private String authority;
-    
+
+    @Column(length = 2000, nullable = true)
     private String amplifyingRemarks;
     
     @OneToMany(cascade = CascadeType.ALL)

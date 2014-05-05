@@ -25,17 +25,17 @@ import javax.validation.constraints.NotNull;
  * Records various information about the legacy MSI messages imported.
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "messageId"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "legacyId"}))
 @NamedQueries({
-        @NamedQuery(name="LegacyMessage.findByMessageId",
-                query="SELECT msg FROM LegacyMessage msg where msg.messageId = :messageId")
+        @NamedQuery(name= "LegacyMessage.findByLegacyId",
+                query="SELECT msg FROM LegacyMessage msg where msg.legacyId = :legacyId")
 })
 public class LegacyMessage extends BaseEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
 
     @NotNull
-    private Integer messageId;
+    private Integer legacyId;
 
     private String navtexNo;
 
@@ -54,12 +54,12 @@ public class LegacyMessage extends BaseEntity<Integer> {
 
     /************ Getters and setters **************/
 
-    public Integer getMessageId() {
-        return messageId;
+    public Integer getLegacyId() {
+        return legacyId;
     }
 
-    public void setMessageId(Integer messageId) {
-        this.messageId = messageId;
+    public void setLegacyId(Integer legacyId) {
+        this.legacyId = legacyId;
     }
 
     public String getNavtexNo() {

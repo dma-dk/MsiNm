@@ -149,7 +149,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
      */
     @Override
     protected boolean shouldAddEntity(Message entity) {
-        return entity.getStatus() != MessageStatus.DELETED;
+        return true;
+        //return entity.getStatus() != MessageStatus.DELETED;
     }
 
     /**
@@ -195,7 +196,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             for (MessageLocation location : messageItem.getLocations()) {
                 try {
                     addShapeSearchFields(doc, location.toWkt());
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
                 }
             }
@@ -230,7 +231,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 }
                 try {
                     addShapeSearchFields(doc, noticeElement.getLocation().toWkt());
-                } catch (ParseException e) {
+                } catch (Exception e) {
                     log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
                 }
             }

@@ -153,6 +153,7 @@
         <module>msinm-model</module>
         <module>msinm-lucene</module>
         <module>msinm-legacy</module>
+        <module>msinm-cloud</module>
         <module>msinm-web</module>
     </modules>
 

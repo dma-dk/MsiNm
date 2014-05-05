@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html data-framework="angularjs">
 <head>
-    <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -24,10 +23,13 @@
     <script src="js/bootstrap-datepicker/js/bootstrap-datepicker.js" type="text/javascript"></script>
     <link rel="stylesheet" href="js/bootstrap-datepicker/css/datepicker.css">
 
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/openlayers/2.13.1/OpenLayers.js"></script>
+
     <script src="js/util.js" type="text/javascript"></script>
     <script src="js/app.js" type="text/javascript"></script>
     <script src="js/controller/msinmCtrl.js" type="text/javascript"></script>
     <script src="js/service/msinmService.js" type="text/javascript"></script>
+    <script src="js/directive/tabset.js" type="text/javascript"></script>
 
     <script>
         $(document).ready(function() {
@@ -43,125 +45,118 @@
 </head>
 <body ng-app="msinm">
 
-    <div class="container" ng-view></div>
+<div class="container" ng-view></div>
 
-    <script type="text/ng-template" id="msinm-index.html">
-        <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="search()">
-                <h1>MSI-NtM</h1>
+<script type="text/ng-template" id="msinm-index.html">
+    <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="search()">
+        <h1>MSI-NtM</h1>
 
-                <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form">
+        <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form">
 
-                    <!-- Search field -->
-                    <div class="form-group">
-                        <label for="query" class="col-sm-2 control-label">Search terms</label>
+            <!-- Search field -->
+            <div class="form-group">
+                <label for="query" class="col-sm-2 control-label">Search terms</label>
 
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control input-lg" placeholder="Search" ng-model="query"
-                                   id="query">
+                <div class="col-sm-6">
+                    <input type="text" class="form-control input-lg" placeholder="Search" ng-model="query"
+                           id="query">
                             <span class="help-block">Search using e.g. <code>+important</code>, <code>-excluded</code>,
                                 <code>par*ly</code> or <code>"exact match"</code></span>
-                        </div>
-                        <div class="col-sm-1">
-                            <button type="submit" class="btn btn-primary btn-lg" ng-click="search()">
-                                <span class="glyphicon glyphicon-search"></span> Search
-                            </button>
-                        </div>
-                    </div>
+                </div>
+                <div class="col-sm-1">
+                    <button type="submit" class="btn btn-primary btn-lg" ng-click="search()">
+                        <span class="glyphicon glyphicon-search"></span> Search
+                    </button>
+                </div>
+            </div>
 
-                    <!-- Date fields -->
-                    <div class="form-group row collapse" id="dateSearchGroup">
-                        <label for="messageDateFrom" class="col-sm-2 control-label">Created</label>
-                        <div class="col-sm-2">
-                            <input class="form-control" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
-                        </div>
-                        <div class="col-sm-2">
-                            <input class="form-control" placeholder="To Date" type="text" value="" id="messageDateTo" ng-model="dateTo">
-                        </div>
-                    </div>
+            <!-- Date fields -->
+            <div class="form-group row collapse" id="dateSearchGroup">
+                <label for="messageDateFrom" class="col-sm-2 control-label">Created</label>
+                <div class="col-sm-2">
+                    <input class="form-control" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
+                </div>
+                <div class="col-sm-2">
+                    <input class="form-control" placeholder="To Date" type="text" value="" id="messageDateTo" ng-model="dateTo">
+                </div>
+            </div>
 
-                    <!-- Location field -->
-                    <div class="form-group row collapse" id="locSearchGroup">
-                        <label for="messageLocation" class="col-sm-2 control-label">Location</label>
-                        <div class="col-sm-6">
-                            <input type="text" class="form-control" placeholder="Location" ng-model="loc"
-                                   id="messageLocation">
-                        </div>
-                        <button type="button" class="btn" ng-click="setCurrentLocation()">
-                            <span class="glyphicon glyphicon-home"></span>
-                        </button>
-                    </div>
-
-                    <!-- Type fields -->
-                    <div class="form-group collapse" id="typeSearchGroup">
-                        <div class="row">
-                            <label for="messageStatus" class="col-sm-2 control-label">Status</label>
-                            <div class="select2-bootstrap-prepend col-sm-6">
-                                <input type="radio" value="ACTIVE" id="messageStatus" ng-model="status">&nbsp;Active &nbsp;
-                                <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft &nbsp;
-                                <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted &nbsp;
-                            </div>
-                        </div>
-
-                        <div class="row">
-                            <label for="messageType" class="col-sm-2 control-label">Type</label>
-                            <div class="col-sm-6">
-                                <select multiple class="form-control select2-multiple" id="messageType" ng-model="type">
-                                    <option></option>
-                                    <optgroup label="Notices to mariners">
-                                        <option value="PERMANENT_NOTICE">Permanent NtM</option>
-                                        <option value="TEMPORARY_NOTICE">Temporary NtM</option>
-                                        <option value="PRELIMINARY_NOTICE">Preliminary NtM</option>
-                                        <option value="MISCELLANEOUS_NOTICE">Miscellaneous NtM</option>
-                                    </optgroup>
-                                    <optgroup label="MSI">
-                                        <option value="COSTAL_WARNING">Coastal Warning</option>
-                                        <option value="SUBAREA_WARNING">Subarea Warning</option>
-                                        <option value="NAVAREA_WARNING">Navarea Warning</option>
-                                    </optgroup>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Filter selection -->
-                    <div class="form-group row">
-                        <label for="filterTypes" class="col-sm-2 control-label">Filters</label>
-                        <div class="col-sm-4 btn-group" id="filterTypes">
-                            <button type="button" class="btn btn-default" data-toggle="collapse"
-                                    data-target="#dateSearchGroup" ng-click="resetDate()">Date</button>
-                            <button type="button" class="btn btn-default" data-toggle="collapse"
-                                    data-target="#locSearchGroup" ng-click="resetLocation()">Location</button>
-                            <button type="button" class="btn btn-default" data-toggle="collapse"
-                                    data-target="#typeSearchGroup" ng-click="resetType()">Type
-                            </button>
-                        </div>
-                    </div>
-                </form>
-
-                <h2>Result</h2>
-                <table class='table table-condensed table-hover'>
-                    <tr>
-                        <th>Date</th>
-                        <th>Type</th>
-                        <th>Area</th>
-                    </tr>
-                    <tr ng-repeat="msi in msinmList">
-                        <td style="white-space:nowrap;">{{msi.issueDate | date : 'MM-dd HH:mm'}}</td>
-                        <td>{{msi.messageItems[0].keySubject}}</td>
-                        <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
-                    </tr>
-                </table>
-
-
-            <div class="row">
-                <button type="button" class="btn" ng-click="importMsiNm()">
-                    <span class="glyphicon glyphicon-download"></span> Import Legacy MSI
+            <!-- Location field -->
+            <div class="form-group row collapse" id="locSearchGroup">
+                <label for="messageLocation" class="col-sm-2 control-label">Location</label>
+                <div class="col-sm-6">
+                    <input type="text" class="form-control" placeholder="Location" ng-model="loc"
+                           id="messageLocation">
+                </div>
+                <button type="button" class="btn" ng-click="setCurrentLocation()">
+                    <span class="glyphicon glyphicon-home"></span>
                 </button>
             </div>
-        </section>
-    </script>
 
-    <div id="msiOverview"></div>
+            <!-- Type fields -->
+            <div class="form-group collapse" id="typeSearchGroup">
+                <div class="row">
+                    <label for="messageStatus" class="col-sm-2 control-label">Status</label>
+                    <div class="select2-bootstrap-prepend col-sm-6">
+                        <input type="radio" value="ACTIVE" id="messageStatus" ng-model="status">&nbsp;Active &nbsp;
+                        <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft &nbsp;
+                        <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted &nbsp;
+                    </div>
+                </div>
+
+                <div class="row">
+                    <label for="messageType" class="col-sm-2 control-label">Type</label>
+                    <div class="col-sm-6">
+                        <select multiple class="form-control select2-multiple" id="messageType" ng-model="type">
+                            <option></option>
+                            <optgroup label="Notices to mariners">
+                                <option value="PERMANENT_NOTICE">Permanent NtM</option>
+                                <option value="TEMPORARY_NOTICE">Temporary NtM</option>
+                                <option value="PRELIMINARY_NOTICE">Preliminary NtM</option>
+                                <option value="MISCELLANEOUS_NOTICE">Miscellaneous NtM</option>
+                            </optgroup>
+                            <optgroup label="MSI">
+                                <option value="COSTAL_WARNING">Coastal Warning</option>
+                                <option value="SUBAREA_WARNING">Subarea Warning</option>
+                                <option value="NAVAREA_WARNING">Navarea Warning</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Filter selection -->
+            <div class="form-group row">
+                <label for="filterTypes" class="col-sm-2 control-label">Filters</label>
+                <div class="col-sm-4 btn-group" id="filterTypes">
+                    <button type="button" class="btn btn-default" data-toggle="collapse"
+                            data-target="#dateSearchGroup" ng-click="resetDate()">Date</button>
+                    <button type="button" class="btn btn-default" data-toggle="collapse"
+                            data-target="#locSearchGroup" ng-click="resetLocation()">Location</button>
+                    <button type="button" class="btn btn-default" data-toggle="collapse"
+                            data-target="#typeSearchGroup" ng-click="resetType()">Type
+                    </button>
+                </div>
+            </div>
+        </form>
+
+
+        <tabset>
+            <tab title="Table" template-url="partials/msi-table.html"></tab>
+            <tab title="Map" template-url="partials/msi-map.html"></tab>
+        </tabset>
+
+
+        <!-- Import legacy -->
+        <div class="row">
+            <button type="button" class="btn" ng-click="importMsiNm()">
+                <span class="glyphicon glyphicon-download"></span> Import Legacy MSI
+            </button>
+        </div>
+    </section>
+</script>
+
+<div id="msiOverview"></div>
 
 </body>
 </html>

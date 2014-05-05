@@ -32,9 +32,9 @@ import org.slf4j.Logger;
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.ejb.Schedule;
+import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
 
@@ -48,7 +48,7 @@ public class CloudService {
     private final static Setting CLOUD_HOST     = new DefaultSetting("cloudHost", "mms.maritimecloud.net:43234");
     private final static Setting CLOUD_ID       = new DefaultSetting("cloudId", "999000007");
     private final static Setting CLOUD_POS      = new DefaultSetting("cloudLatLonPos", "55.6546523 12.5144583");
-    private final static Setting CLOUD_DEBUG    = new DefaultSetting("cloudDebug", "true");
+    private final static Setting CLOUD_DEBUG    = new DefaultSetting("cloudDebug", "false");
 
     @Inject
     private Logger log;
@@ -91,6 +91,7 @@ public class CloudService {
      */
     @Schedule(persistent=false, second="*/10", minute="*", hour="*", dayOfWeek="*", year="*")
     public void checkCloudStatus() {
+        debug = settings.getBoolean(CLOUD_DEBUG);
         if (connection == null) {
             initCloudConnection();
         }

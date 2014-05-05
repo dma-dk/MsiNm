@@ -3,7 +3,7 @@
  *
  * @type {angular.Module}
  */
-var app = angular.module('msinm', ['ngRoute'])
+var app = angular.module('msinm', ['ngRoute', 'bootstrap.tabset'])
     .config(function ($routeProvider) {
         'use strict';
 

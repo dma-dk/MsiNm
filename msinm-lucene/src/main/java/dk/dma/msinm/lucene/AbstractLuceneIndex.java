@@ -49,8 +49,8 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
 
     protected final static String ID_FIELD				= "id";
     protected final static String LAST_UPDATE   		= "lastUpdate";
-    protected final static int MAX_INDEX_COUNT 			= 100;
-    protected final static int OPTIMIZE_INDEX_COUNT 	= 100;
+    protected final static int MAX_INDEX_COUNT 			= 5000;
+    protected final static int OPTIMIZE_INDEX_COUNT 	= 5000;
     protected final static int MAX_NUM_SEGMENTS	 		= 4;
 
     @Inject
