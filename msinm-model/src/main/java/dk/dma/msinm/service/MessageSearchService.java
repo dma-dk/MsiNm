@@ -27,6 +27,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.JoinType;
@@ -37,6 +38,7 @@ import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Lucene search index for {@code Message} entities
@@ -258,24 +260,36 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
      */
     public MessageSearchResult search(MessageSearchParams param) {
         long t0 = System.currentTimeMillis();
+        MessageSearchResult result = new MessageSearchResult();
+        result.setStartIndex(param.getStartIndex());
 
         try {
+            // For efficiency reasons, two queries are executed:
+            //
+            // Query 1: Since we need to return the total result count, the first
+            // query performs the full query based on the search parameters, but
+            // fetches only the id's of the messages.
+            //
+            // Query 2: Then the messages with the paged set of id's are fetched in full.
 
-            CriteriaBuilder cb = em.getCriteriaBuilder();
-            CriteriaQuery<Message> q = cb.createQuery(Message.class);
+            // **********************************************************************************/
+            // ********** Query 1: Fetch ids of all messages matching search parameters  ********/
+            // **********************************************************************************/
+            CriteriaBuilder builder = em.getCriteriaBuilder();
+            CriteriaQuery<Tuple> tupleQuery = builder.createTupleQuery();
 
             // Select messages
-            Root<Message> msg = q.from(Message.class);
-            msg.fetch("seriesIdentifier", JoinType.LEFT);
-            javax.persistence.criteria.Path<MessageSeriesIdentifier> msgId = msg.get("seriesIdentifier");
+            Root<Message> msgRoot = tupleQuery.from(Message.class);
+            msgRoot.join("seriesIdentifier", JoinType.LEFT);
+            javax.persistence.criteria.Path<MessageSeriesIdentifier> msgId = msgRoot.get("seriesIdentifier");
 
-
-            PredicateHelper<Message> predicateBuilder = new PredicateHelper<>(cb, q)
-                    .equals(msg.get("status"), param.getStatus())
-                    .between(msg.get("created"), param.getFrom(), param.getTo());
+            // Build the predicates based on the search parameters
+            PredicateHelper<Tuple> tuplePredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
+                    .equals(msgRoot.get("status"), param.getStatus())
+                    .between(msgRoot.get("created"), param.getFrom(), param.getTo());
 
             if (param.getTypes().size() > 0) {
-                predicateBuilder.in(msgId.get("type"), param.getTypes());
+                tuplePredicateBuilder.in(msgId.get("type"), param.getTypes());
             }
 
             // Search the Lucene index for free text search and location information
@@ -285,27 +299,51 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                     SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, param.getLocation().toWkt());
                     filter = strategy.makeFilter(args);
                 }
-                List<Long> ids = searchIndex(param.getQuery(), SEARCH_FIELD, filter, param.getMaxHits());
-                predicateBuilder.in(msg.get("id"), ids);
+                List<Long> ids = searchIndex(param.getQuery(), SEARCH_FIELD, filter, Integer.MAX_VALUE);
+                tuplePredicateBuilder.in(msgRoot.get("id"), ids);
             }
 
-            // Complete the query
-            q.select(msg)
+            // Complete the query and fetch the message id's
+            tupleQuery.multiselect(msgRoot.get("id"))
                     .distinct(true)
-                    .where(predicateBuilder.where());
+                    .where(tuplePredicateBuilder.where());
 
-            // Execute the query and return the result
-            List<Message> totalResult = em
-                    .createQuery(q)
+            // Execute the query
+            List<Tuple> totalResult = em
+                    .createQuery(tupleQuery)
                     .getResultList();
 
-            // Pick out the paged result
-            MessageSearchResult result = new MessageSearchResult();
+            // Register the total result and pick out the message ids for the paged result
             result.setTotal(totalResult.size());
-            result.setStartIndex(param.getStartIndex());
-            result.setMessages(totalResult.subList(
-                    Math.min(param.getStartIndex(), totalResult.size()),
-                    Math.min(param.getStartIndex() + param.getMaxHits(), totalResult.size())));
+            List<Integer> msgIds = totalResult
+                    .stream()
+                    .map(t -> (Integer) t.get(0))
+                    .collect(Collectors.toList());
+
+            List<Integer> pagedMsgIds = msgIds.subList(
+                    Math.min(param.getStartIndex(), msgIds.size()),
+                    Math.min(param.getStartIndex() + param.getMaxHits(), msgIds.size()));
+
+            // **********************************************************************************/
+            // ********** Query 2: Fetch messages with the paged set of id's             ********/
+            // **********************************************************************************/
+            CriteriaQuery<Message> msgQuery = builder.createQuery(Message.class);
+            msgRoot = msgQuery.from(Message.class);
+
+            // Build the predicate
+            PredicateHelper<Message> msgPredicateBuilder = new PredicateHelper<>(builder, msgQuery)
+                    .in(msgRoot.get("id"), pagedMsgIds);
+
+            // Complete the query
+            msgQuery.select(msgRoot)
+                    .distinct(true)
+                    .where(msgPredicateBuilder.where());
+
+            // Execute the query and update the search result
+            List<Message> pagedResult = em
+                    .createQuery(msgQuery)
+                    .getResultList();
+            result.setMessages(pagedResult);
 
             log.info("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");
@@ -313,8 +351,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             return result;
 
         } catch (Exception e) {
-            log.error("Error performing search " + param + ": " + e);
-            return null;
+            log.error("Error performing search " + param + ": " + e, e);
+            return result;
         }
     }
 }
