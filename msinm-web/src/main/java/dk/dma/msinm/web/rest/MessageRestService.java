@@ -76,7 +76,7 @@ public class MessageRestService {
 
     @GET
     @Path("/all")
-    @Produces("application/json")
+    @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
     public JsonArray getAll() {
@@ -88,7 +88,7 @@ public class MessageRestService {
 
     @GET
     @Path("/search")
-    @Produces("application/json")
+    @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
     public JsonObject search(
