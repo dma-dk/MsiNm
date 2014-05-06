@@ -255,6 +255,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
     /**
      * Main search method
+     *
      * @param param the search parameters
      * @return the resulting list of messages
      */
@@ -307,6 +308,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             tupleQuery.multiselect(msgRoot.get("id"))
                     .distinct(true)
                     .where(tuplePredicateBuilder.where());
+            sortQuery(param, builder, tupleQuery, msgRoot);
 
             // Execute the query
             List<Tuple> totalResult = em
@@ -338,6 +340,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             msgQuery.select(msgRoot)
                     .distinct(true)
                     .where(msgPredicateBuilder.where());
+            sortQuery(param, builder, msgQuery, msgRoot);
 
             // Execute the query and update the search result
             List<Message> pagedResult = em
@@ -353,6 +356,23 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
         } catch (Exception e) {
             log.error("Error performing search " + param + ": " + e, e);
             return result;
+        }
+    }
+
+    /**
+     * Sorts the criteria query according to the parameters
+     *
+     * @param param the search parameters
+     * @param cq the criteria query
+     * @return the updated criteria query
+     */
+    private <M, T> void sortQuery(MessageSearchParams param, CriteriaBuilder builder, CriteriaQuery<T> cq, Root<M> root) {
+        if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {
+            if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
+                cq.orderBy(builder.asc(root.get("issueDate")));
+            } else {
+                cq.orderBy(builder.desc(root.get("issueDate")));
+            }
         }
     }
 }

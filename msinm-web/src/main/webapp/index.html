@@ -8,6 +8,7 @@
 
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
+    <link rel="stylesheet" href="css/app.css">
 
     <!--script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script-->
     <script src="js/jquery-1.11.0/jquery-1.11.0.js" type="text/javascript"></script>
@@ -157,7 +158,11 @@
         <div style="padding: 10px;">
             <table class='table table-condensed table-hover'>
                 <tr>
-                    <th>Date</th>
+                    <th ng-click="toggleSortOrder()" class="sortable">
+                        Date
+                        <span ng-if="sortDesc"><small>&uarr;</small></span>
+                        <span ng-if="!sortDesc"><small>&darr;</small></span>
+                    </th>
                     <th>Type</th>
                     <th>Area</th>
                 </tr>

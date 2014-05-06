@@ -18,6 +18,9 @@ angular.module('msinm')
         $scope.currentPage = 1;
         $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
 
+        $scope.sortBy = 'DATE';
+        $scope.sortDesc = true;
+
         $scope.newSearch = function () {
             $scope.search();
             $scope.currentPage = 1;
@@ -33,6 +36,8 @@ angular.module('msinm')
                 $("#messageDateTo").val(),
                 $scope.pageSize,
                 ($scope.currentPage - 1) * $scope.pageSize,
+                $scope.sortBy,
+                $scope.sortDesc ? 'DESC' : 'ASC',
                 function(data) {
                     $scope.searchResult = data;
                 },
@@ -78,6 +83,11 @@ angular.module('msinm')
         };
 
         $scope.pageChanged = function() {
+            $scope.search();
+        };
+
+        $scope.toggleSortOrder = function() {
+            $scope.sortDesc = !$scope.sortDesc;
             $scope.search();
         };
 }]);

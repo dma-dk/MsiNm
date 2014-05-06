@@ -30,6 +30,9 @@ import java.util.Set;
  */
 public class MessageSearchParams implements Serializable {
 
+    public enum SortBy { DATE }
+    public enum SortOrder { ASC, DESC }
+
     String query;
     Date from;
     Date to;
@@ -37,8 +40,10 @@ public class MessageSearchParams implements Serializable {
     MessageStatus status;
     Set<MessageType> types = new HashSet<>();
 
-    int maxHits = 100; // For now...
+    int maxHits = 100;
     int startIndex = 0;
+    SortBy sortBy = SortBy.DATE;
+    SortOrder sortOrder = SortOrder.DESC;
 
     public MessageSearchParams() {
     }
@@ -139,5 +144,21 @@ public class MessageSearchParams implements Serializable {
 
     public void setTypes(Set<MessageType> types) {
         this.types = types;
+    }
+
+    public SortBy getSortBy() {
+        return sortBy;
+    }
+
+    public void setSortBy(SortBy sortBy) {
+        this.sortBy = sortBy;
+    }
+
+    public SortOrder getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(SortOrder sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }

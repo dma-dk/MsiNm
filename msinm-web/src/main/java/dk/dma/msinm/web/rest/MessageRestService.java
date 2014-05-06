@@ -99,15 +99,30 @@ public class MessageRestService {
             @QueryParam("from") String fromDate,
             @QueryParam("to") String toDate,
             @QueryParam("maxHits") @DefaultValue("100") int maxHits,
-            @QueryParam("startIndex") @DefaultValue("0") int startIndex
+            @QueryParam("startIndex") @DefaultValue("0") int startIndex,
+            @QueryParam("sortBy") @DefaultValue("issueDate") String sortBy,
+            @QueryParam("sortOrder") @DefaultValue("desc") String sortOrder
     ) throws Exception {
 
-        log.info(String.format("Search with q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s, maxHits=%d, startIndex=%d",
-                query, status, type, loc, fromDate, toDate, maxHits, startIndex));
+        log.info(String.format(
+                "Search with q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s",
+                query, status, type, loc, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder));
 
         MessageSearchParams params = new MessageSearchParams();
         params.setStartIndex(startIndex);
         params.setMaxHits(maxHits);
+
+        try {
+            params.setSortBy(MessageSearchParams.SortBy.valueOf(sortBy));
+        } catch (Exception e) {
+            log.debug("Failed parsing sortBy parameter " + sortBy);
+        }
+
+        try {
+            params.setSortOrder(MessageSearchParams.SortOrder.valueOf(sortOrder));
+        } catch (Exception e) {
+            log.debug("Failed parsing sortOrder parameter " + sortOrder);
+        }
 
         params.setQuery(query);
 
