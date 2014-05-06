@@ -33,6 +33,7 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.ws.rs.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -90,18 +91,23 @@ public class MessageRestService {
     @Produces("application/json")
     @GZIP
     @NoCache
-    public JsonArray search(
+    public JsonObject search(
             @QueryParam("q") String query,
             @QueryParam("status") @DefaultValue("ACTIVE") String status,
             @QueryParam("type") String type,
             @QueryParam("loc") String loc,
             @QueryParam("from") String fromDate,
-            @QueryParam("to") String toDate) throws Exception {
+            @QueryParam("to") String toDate,
+            @QueryParam("maxHits") @DefaultValue("100") int maxHits,
+            @QueryParam("startIndex") @DefaultValue("0") int startIndex
+    ) throws Exception {
 
-        log.info(String.format("Search with q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s",
-                query, status, type, loc, fromDate, toDate));
+        log.info(String.format("Search with q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s, maxHits=%d, startIndex=%d",
+                query, status, type, loc, fromDate, toDate, maxHits, startIndex));
 
         MessageSearchParams params = new MessageSearchParams();
+        params.setStartIndex(startIndex);
+        params.setMaxHits(maxHits);
 
         params.setQuery(query);
 
@@ -129,10 +135,9 @@ public class MessageRestService {
             params.setTo(sdf.parse(toDate));
         }
 
-        JsonArrayBuilder result = Json.createArrayBuilder();
-        messageSearchService
+        return messageSearchService
                 .search(params)
-                .forEach(msg -> result.add(msg.toJson()));
-        return result.build();
+                .toJson()
+                .build();
     }
 }

@@ -6,7 +6,7 @@
             <th>Type</th>
             <th>Area</th>
         </tr>
-        <tr ng-repeat="msi in msinmList">
+        <tr ng-repeat="msi in searchResult.messages">
             <td style="white-space:nowrap;">{{msi.issueDate | date : 'MM-dd HH:mm'}}</td>
             <td>{{msi.messageItems[0].keySubject}}</td>
             <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>

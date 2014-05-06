@@ -7,7 +7,7 @@ angular.module('msinm')
         'use strict';
 
         return {
-            search: function(query, status, type, loc, dateFrom, dateTo, success, error) {
+            search: function(query, status, type, loc, dateFrom, dateTo, maxHits, startIndex, success, error) {
                 var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
                 $http.get(
                         host + '/rest/message/search?q=' + encodeURIComponent(query)
@@ -16,6 +16,8 @@ angular.module('msinm')
                              + '&loc=' + encodeURIComponent(loc)
                              + '&from=' + encodeURIComponent(dateFrom)
                              + '&to=' + encodeURIComponent(dateTo)
+                             + '&maxHits=' + maxHits
+                             + '&startIndex=' + startIndex
                     )
                     .success(success)
                     .error(error);

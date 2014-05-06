@@ -94,14 +94,14 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertEquals(1, messageSearchService.updateLuceneIndex());
 
         // Search the index
-        assertEquals(1, messageSearchService.search(new MessageSearchParams("Kattegat", null)).size());
+        assertEquals(1, messageSearchService.search(new MessageSearchParams("Kattegat", null)).getMessages().size());
 
         // Search on geometry
         MessageLocation location = new MessageLocation();
         location.setType(MessageLocation.LocationType.CIRCLE);
         location.getPoints().add(new Point(56.120, 12.1684));
         location.setRadius(10);
-        assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).size());
+        assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).getMessages().size());
 
     }
 
@@ -117,14 +117,14 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertEquals(1, messageSearchService.updateLuceneIndex());
 
         // Search the index
-        assertEquals(1, messageSearchService.search(new MessageSearchParams("Langebro", null)).size());
+        assertEquals(1, messageSearchService.search(new MessageSearchParams("Langebro", null)).getMessages().size());
 
         // Search on geometry
         MessageLocation location = new MessageLocation();
         location.setType(MessageLocation.LocationType.CIRCLE);
         location.getPoints().add(new Point(57, 12));
         location.setRadius(10);
-        assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).size());
+        assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).getMessages().size());
     }
 
 

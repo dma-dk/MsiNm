@@ -256,7 +256,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
      * @param param the search parameters
      * @return the resulting list of messages
      */
-    public List<Message> search(MessageSearchParams param) {
+    public MessageSearchResult search(MessageSearchParams param) {
         long t0 = System.currentTimeMillis();
 
         try {
@@ -295,9 +295,21 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                     .where(predicateBuilder.where());
 
             // Execute the query and return the result
-            List<Message> result = em.createQuery(q).getResultList();
-            log.info("Message search returned " + result.size() + " matches in " +
+            List<Message> totalResult = em
+                    .createQuery(q)
+                    .getResultList();
+
+            // Pick out the paged result
+            MessageSearchResult result = new MessageSearchResult();
+            result.setTotal(totalResult.size());
+            result.setStartIndex(param.getStartIndex());
+            result.setMessages(totalResult.subList(
+                    Math.min(param.getStartIndex(), totalResult.size()),
+                    Math.min(param.getStartIndex() + param.getMaxHits(), totalResult.size())));
+
+            log.info("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");
+
             return result;
 
         } catch (Exception e) {

@@ -14,7 +14,14 @@ angular.module('msinm')
         $scope.dateFrom = '';
         $scope.dateTo = '';
 
-        $scope.msinmList = [];
+        $scope.pageSize = 50;
+        $scope.currentPage = 1;
+        $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
+
+        $scope.newSearch = function () {
+            $scope.search();
+            $scope.currentPage = 1;
+        };
 
         $scope.search = function () {
             MsiNmService.search(
@@ -24,8 +31,10 @@ angular.module('msinm')
                 $scope.loc,
                 $("#messageDateFrom").val(),
                 $("#messageDateTo").val(),
+                $scope.pageSize,
+                ($scope.currentPage - 1) * $scope.pageSize,
                 function(data) {
-                    $scope.msinmList = data;
+                    $scope.searchResult = data;
                 },
                 function () {
                     //alert("Error");
@@ -66,5 +75,9 @@ angular.module('msinm')
             $scope.dateTo = '';
             $("#messageDateFrom").val('');
             $("#messageDateTo").val('');
+        };
+
+        $scope.pageChanged = function() {
+            $scope.search();
         };
 }]);
