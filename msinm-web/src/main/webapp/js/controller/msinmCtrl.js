@@ -22,8 +22,8 @@ angular.module('msinm')
         $scope.sortDesc = true;
 
         $scope.newSearch = function () {
-            $scope.search();
             $scope.currentPage = 1;
+            $scope.search();
         };
 
         $scope.search = function () {
