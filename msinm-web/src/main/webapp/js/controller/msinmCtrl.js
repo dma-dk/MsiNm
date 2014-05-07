@@ -7,6 +7,10 @@ angular.module('msinm')
         function ($scope, $routeParams, MsiNmService) {
         'use strict';
 
+        $scope.filterOnType = false;
+        $scope.filterOnDate = false;
+        $scope.filterOnLocation = false;
+
         $scope.query = '';
         $scope.status = 'ACTIVE';
         $scope.type = '';
@@ -59,7 +63,7 @@ angular.module('msinm')
         $scope.setCurrentLocation = function () {
             navigator.geolocation.getCurrentPosition(function(pos) {
                 $scope.$apply(function() {
-                    $scope.loc = '{"type":"CIRCLE", "radius":1, "points":[{"lat":' +
+                    $scope.loc = '{"type":"CIRCLE", "radius":10, "points":[{"lat":' +
                         pos.coords.latitude + ',"lon":' + pos.coords.longitude + ',"num":1}]}';
                 });
             });

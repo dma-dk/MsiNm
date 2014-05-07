@@ -52,7 +52,7 @@
 <div class="container" ng-view></div>
 
 <script type="text/ng-template" id="msinm-index.html">
-    <section id="msinmapp" ng-controller="MsiNmCtrl" ng-init="newSearch()">
+    <section id="msinmapp" ng-init="newSearch()">
         <h1>MSI-NtM</h1>
 
         <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form">
@@ -75,7 +75,7 @@
             </div>
 
             <!-- Date fields -->
-            <div class="form-group row collapse" id="dateSearchGroup">
+            <div class="form-group row collapse" collapse="!filterOnDate">
                 <label for="messageDateFrom" class="col-sm-2 control-label">Created</label>
                 <div class="col-sm-2">
                     <input class="form-control" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
@@ -86,7 +86,7 @@
             </div>
 
             <!-- Location field -->
-            <div class="form-group row collapse" id="locSearchGroup">
+            <div class="form-group row collapse" collapse="!filterOnLocation">
                 <label for="messageLocation" class="col-sm-2 control-label">Location</label>
                 <div class="col-sm-6">
                     <input type="text" class="form-control" placeholder="Location" ng-model="loc"
@@ -98,7 +98,7 @@
             </div>
 
             <!-- Type fields -->
-            <div class="form-group collapse" id="typeSearchGroup">
+            <div class="form-group collapse" collapse="!filterOnType">
                 <div class="row">
                     <label for="messageStatus" class="col-sm-2 control-label">Status</label>
                     <div class="select2-bootstrap-prepend col-sm-6">
@@ -133,21 +133,19 @@
             <div class="form-group row">
                 <label for="filterTypes" class="col-sm-2 control-label">Filters</label>
                 <div class="col-sm-4 btn-group" id="filterTypes">
-                    <button type="button" class="btn btn-default" data-toggle="collapse"
-                            data-target="#dateSearchGroup" ng-click="resetDate()">Date</button>
-                    <button type="button" class="btn btn-default" data-toggle="collapse"
-                            data-target="#locSearchGroup" ng-click="resetLocation()">Location</button>
-                    <button type="button" class="btn btn-default" data-toggle="collapse"
-                            data-target="#typeSearchGroup" ng-click="resetType()">Type
-                    </button>
+                    <label class="btn btn-primary btn-sm" ng-model="filterOnDate" ng-click="resetDate()" btn-checkbox>Date</label>
+                    <label class="btn btn-primary btn-sm" ng-model="filterOnLocation" ng-click="resetLocation()" btn-checkbox>Location</label>
+                    <label class="btn btn-primary btn-sm" ng-model="filterOnType" ng-click="resetType()" btn-checkbox>Type</label>
                 </div>
             </div>
+
         </form>
+
 
         <!-- Pagination -->
         <div class="row">
             <div class="col-sm-10">
-                <pagination total-items="searchResult.total" items-per-page="pageSize"
+                <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="10"
                             ng-model="currentPage" ng-change="pageChanged()"
                             class="pagination pagination-sm" previous-text="&lsaquo;"  next-text="&rsaquo;">
                 </pagination>
