@@ -304,8 +304,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 tuplePredicateBuilder.in(msgRoot.get("id"), ids);
             }
 
-            // Complete the query and fetch the message id's
-            tupleQuery.multiselect(msgRoot.get("id"))
+            // Complete the query and fetch the message id's (and issueDate for sorting)
+            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("issueDate"))
                     .distinct(true)
                     .where(tuplePredicateBuilder.where());
             sortQuery(param, builder, tupleQuery, msgRoot);
