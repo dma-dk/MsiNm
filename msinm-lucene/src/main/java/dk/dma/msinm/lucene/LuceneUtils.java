@@ -15,6 +15,9 @@
  */
 package dk.dma.msinm.lucene;
 
+import com.spatial4j.core.context.jts.JtsSpatialContext;
+import com.spatial4j.core.context.jts.JtsSpatialContextFactory;
+import com.spatial4j.core.io.jts.JtsWktShapeParser;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.util.Version;
 
@@ -27,6 +30,19 @@ public class LuceneUtils {
 
     final static String ACCENTED_CHARS = "ÁÀÄÂáàäâÉÈËÊéèëêÍÌÏÎíìïîÓÒÖÔóòöôÚÙÜÛúùüûÝýÑñ";
     final static String REPLACED_CHARS = "AAAAaaaaEEEEeeeeIIIIiiiiOOOOooooUUUUuuuuYyNn";
+
+    /**
+     * Create our own JTS spatial context that does not error
+     * when parsing a self-intersecting polygon from WKT
+     */
+    public final static JtsSpatialContext GEO;
+    static {
+        JtsSpatialContextFactory factory = new JtsSpatialContextFactory();
+        //factory.validationRule = JtsWktShapeParser.ValidationRule.repairBuffer0;
+        factory.validationRule = JtsWktShapeParser.ValidationRule.repairConvexHull;
+        factory.geo = true;
+        GEO = new JtsSpatialContext(factory);
+    }
 
     /**
      * No-access constructor

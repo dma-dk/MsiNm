@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <title>Maritime Message Information and Notices to Mariners</title>
+    <link rel="icon" href="/img/favicon.ico" sizes="16x16 32x32 48x48 64x64" type="image/vnd.microsoft.icon">
 
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
@@ -45,6 +46,163 @@
             $("#messageDateFrom").datepicker({ format: "dd-mm-yyyy" });
             $("#messageDateTo").datepicker({ format: "dd-mm-yyyy" });
         });
+
+        var map;
+        var msiLayer;
+        var locationLayer;
+        var proj4326 = new OpenLayers.Projection("EPSG:4326");
+        var projmerc = new OpenLayers.Projection("EPSG:900913");
+        function createPoint(longitude, latitude) {
+            return new OpenLayers.Geometry.Point(longitude, latitude).transform(proj4326, map.getProjectionObject());
+        }
+
+        function toRad(degree) {
+            return degree / 360 * 2 * Math.PI;
+        }
+
+        function toDegree(rad) {
+            return rad * 360 / 2 / Math.PI;
+        }
+
+        function calculateRing(longitude, latitude, radius, noPoints) {
+            var points = [];
+            var lat1 = toRad(latitude);
+            var lon1 = toRad(longitude);
+            var R = 6371.0087714; // earths mean radius
+            var d = radius;
+            for (var i = 0; i < noPoints; i++) {
+                var brng = Math.PI * 2 * i / noPoints;
+                var lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
+                        Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
+                var lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
+                                Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
+
+                points.push(createPoint(toDegree(lon2), toDegree(lat2)));
+            }
+            return points;
+        }
+
+        function createLocationFeature(loc, attr, features) {
+            if (!loc || !loc.type) {
+                return features;
+            }
+
+            switch (loc.type) {
+                case 'POINT':
+                    for (var j in loc.points) {
+                        features.push(new OpenLayers.Feature.Vector(createPoint(loc.points[j].lon, loc.points[j].lat), attr));
+                    }
+                    break;
+
+                case "POLYGON":
+                case "POLYLINE":
+                    var points = [];
+                    for (var j in loc.points) {
+                        var p = loc.points[j];
+                        points.push(createPoint(p.lon, p.lat));
+                    }
+
+                    features.push(new OpenLayers.Feature.Vector(
+                            (loc.type == 'POLYGON')
+                                    ? new OpenLayers.Geometry.Polygon([new OpenLayers.Geometry.LinearRing(points)])
+                                    : new OpenLayers.Geometry.LineString([new OpenLayers.Geometry.LinearRing(points)]),
+                            attr
+                    ));
+                    break;
+
+                case 'CIRCLE':
+                    var points = calculateRing(loc.points[0].lon, loc.points[0].lat, loc.radius, 40);
+                    features.push(new OpenLayers.Feature.Vector(
+                            new OpenLayers.Geometry.Polygon([new OpenLayers.Geometry.LinearRing(points)]), attr));
+                    break;
+            }
+            return features;
+        }
+
+        $(document).ready(function() {
+
+            locationLayer = new OpenLayers.Layer.Vector("Location", {
+                styleMap: new OpenLayers.StyleMap({
+                    "default": new OpenLayers.Style({
+                        fillColor: "#080",
+                        fillOpacity: 0.1,
+                        pointRadius: 6,
+                        strokeWidth: 2,
+                        strokeColor: "#080",
+                        strokeOpacity: 0.3
+                    })
+                })
+            });
+
+            msiLayer  = new OpenLayers.Layer.Vector( "Msi-Nm", {
+                styleMap: new OpenLayers.StyleMap({
+                    "default": new OpenLayers.Style({
+                        fillColor: "#ad57a1",
+                        fillOpacity: 0.3,
+                        pointRadius: 8,
+                        strokeWidth: 1,
+                        strokeColor: "#8f2f7b",
+                        strokeOpacity: 0.5
+                    })
+                })
+            });
+
+
+            map = new OpenLayers.Map({
+                div: "map",
+                theme: null,
+                layers: [
+                    new OpenLayers.Layer.OSM("OpenStreetMap"),
+                    msiLayer,
+                    locationLayer
+                ],
+                controls: [
+                    new OpenLayers.Control.EditingToolbar(locationLayer)
+                ],
+                units : "degrees",
+                projection : projmerc,
+                center: new OpenLayers.LonLat(11, 56).transform(proj4326, projmerc),
+                zoom: 6
+            });
+
+
+            locationLayer.events.on({
+                "beforefeatureadded": function(evt) {
+                    locationLayer.destroyFeatures();
+                },
+                "featureadded": function(evt) {
+
+                    if (evt.feature.geometry instanceof OpenLayers.Geometry.Point) {
+                        var pt = evt.feature.geometry.transform(map.getProjectionObject(), proj4326);
+                        $("#messageLocation").val(
+                            '{"type":"POINT", "points":[{"lat":' + pt.y + ',"lon":' + pt.x + ',"num":1}]}'
+                        );
+                        $("#messageLocation").trigger('input');
+                        angular.element('#MsiNmCtrl').scope().showLocation();
+
+                    } else if (evt.feature.geometry instanceof OpenLayers.Geometry.Polygon ||
+                            evt.feature.geometry instanceof OpenLayers.Geometry.LineString) {
+                        var type = (evt.feature.geometry instanceof OpenLayers.Geometry.Polygon) ? "POLYGON" : "POLYLINE";
+                        var loc = '{"type":"' + type + '", "points":[';
+                        var points = evt.feature.geometry.getVertices();
+                        var num = 1;
+                        for (var i in  points) {
+                            if (num > 1) {
+                                loc = loc + ', ';
+                            }
+                            var pt = points[i].transform(map.getProjectionObject(), proj4326);
+                            loc = loc + '{"lat":' + pt.y + ',"lon":' + pt.x + ',"num":' + (num++) + '}'
+                        }
+                        loc += ']}';
+                        $("#messageLocation").val(loc);
+                        $("#messageLocation").trigger('input');
+                        angular.element('#MsiNmCtrl').scope().showLocation();
+                    }
+                }
+            });
+
+        });
+
     </script>
 </head>
 <body ng-app="msinm">
@@ -55,7 +213,7 @@
     <section id="msinmapp" ng-init="newSearch()">
         <h1>MSI-NtM</h1>
 
-        <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form">
+        <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form" ng-controller="MsiNmCtrl" id="MsiNmCtrl">
 
             <!-- Search field -->
             <div class="form-group">
@@ -145,33 +303,46 @@
         <!-- Pagination -->
         <div class="row">
             <div class="col-sm-10">
-                <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="10"
+                <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="20"
                             ng-model="currentPage" ng-change="pageChanged()"
-                            class="pagination pagination-sm" previous-text="&lsaquo;"  next-text="&rsaquo;">
+                            class="pagination pagination-sm" previous-text="&lsaquo;"  next-text="&rsaquo;"
+                            boundary-links="true" first-text="&laquo;" last-text="&raquo;">
                 </pagination>
             </div>
         </div>
 
-        <!-- Search result -->
-        <div style="padding: 10px;">
-            <table class='table table-condensed table-hover'>
-                <tr>
-                    <th ng-click="toggleSortOrder()" class="sortable">
-                        Date
-                        <span ng-if="sortDesc"><small>&uarr;</small></span>
-                        <span ng-if="!sortDesc"><small>&darr;</small></span>
-                    </th>
-                    <th>Type</th>
-                    <th>Area</th>
-                </tr>
-                <tr ng-repeat="msi in searchResult.messages">
-                    <td style="white-space:nowrap;">{{msi.issueDate | date : 'dd/MM/yy HH:mm'}}</td>
-                    <td>{{msi.messageItems[0].keySubject}}</td>
-                    <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
-                </tr>
-            </table>
-        </div>
+        <tabset>
 
+            <!-- Table search result -->
+            <tab heading="Table">
+                <div class="searchResultTab">
+                    <table class='table table-condensed table-hover'>
+                        <tr>
+                            <th ng-click="toggleSortOrder()" class="sortable">
+                                Date
+                                <span ng-if="sortDesc"><small>&uarr;</small></span>
+                                <span ng-if="!sortDesc"><small>&darr;</small></span>
+                            </th>
+                            <th>Type</th>
+                            <th>Area</th>
+                        </tr>
+                        <tr ng-repeat="msi in searchResult.messages">
+                            <td style="white-space:nowrap;">{{msi.issueDate | date : 'dd/MM/yy HH:mm'}}</td>
+                            <td>{{msi.messageItems[0].keySubject}}</td>
+                            <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </tab>
+
+            <!-- Map search result -->
+            <tab heading="Map">
+                <div class="searchResultTab">
+                    <div id="map" style="width: 800px; height: 600px; border:1px solid black;"></div>
+                </div>
+            </tab>
+
+        </tabset>
 
         <!-- Import legacy -->
         <div class="row">

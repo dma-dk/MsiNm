@@ -16,11 +16,11 @@
 package dk.dma.msinm.model;
 
 import com.spatial4j.core.context.SpatialContext;
-import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.model.BaseEntity;
+import dk.dma.msinm.lucene.LuceneUtils;
 
 import javax.json.*;
 import javax.persistence.*;
@@ -101,7 +101,9 @@ public class MessageLocation extends BaseEntity<Integer> {
                 String coordinates = shapePoints.stream()
                         .map(p -> String.format("%f %f", p.getLon(), p.getLat()))
                         .collect(Collectors.joining(", "));
-                return JtsSpatialContext.GEO.readShapeFromWkt(String.format(shape, coordinates));
+
+                return LuceneUtils.GEO.readShapeFromWkt(String.format(shape, coordinates));
+
             default:
                 throw new InvalidShapeException("Unknown type");
         }
