@@ -3,7 +3,10 @@
  *
  * @type {angular.Module}
  */
-var app = angular.module('msinm', ['ngRoute', 'ui.bootstrap'])
+
+angular.module('msinm.map', [ ])
+
+var app = angular.module('msinm', ['ngRoute', 'ui.bootstrap', 'msinm.map'])
     .config(function ($routeProvider) {
         'use strict';
 
