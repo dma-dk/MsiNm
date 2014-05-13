@@ -18,6 +18,9 @@ angular.module('msinm.map')
             var proj4326 = new OpenLayers.Projection("EPSG:4326");
             var projmerc = new OpenLayers.Projection("EPSG:900913");
 
+            /*********************************/
+            /* Layers                        */
+            /*********************************/
             var locLayer = new OpenLayers.Layer.Vector("Location", {
                 styleMap: new OpenLayers.StyleMap({
                     "default": new OpenLayers.Style({
@@ -44,6 +47,9 @@ angular.module('msinm.map')
                 })
             });
 
+            /*********************************/
+            /* Map                           */
+            /*********************************/
             var map = new OpenLayers.Map({
                 div: element[0],
                 theme: null,
@@ -59,6 +65,9 @@ angular.module('msinm.map')
             });
 
 
+            /*********************************/
+            /* Update the location feaure    */
+            /*********************************/
             scope.$watch(attrs.loc, function (value) {
 
                 locLayer.removeAllFeatures();
@@ -80,6 +89,9 @@ angular.module('msinm.map')
             },true);
 
 
+            /*********************************/
+            /* Update MSI and NtM's          */
+            /*********************************/
             scope.$watch(attrs.searchResult, function (value) {
 
                 msiLayer.removeAllFeatures();
@@ -104,6 +116,40 @@ angular.module('msinm.map')
                 }
             });
 
+            /*********************************/
+            /* Pop-ups for the features      */
+            /*********************************/
+            var msiSelect = new OpenLayers.Control.SelectFeature(msiLayer);
+            msiLayer.events.on({
+               "featureselected": onMsiSelect,
+               "featureunselected": onMsiUnselect
+            });
+            map.addControl(msiSelect);
+            msiSelect.activate();
+
+            function onPopupClose(evt) {
+                msiSelect.unselectAll();
+            }
+
+            function onMsiSelect(event) {
+                var popup = new OpenLayers.Popup.FramedCloud("msi",
+                    event.feature.geometry.getBounds().getCenterLonLat(),
+                    new OpenLayers.Size(100,100),
+                    '<p>' + event.feature.attributes.description + '</p>',
+                    null,
+                    true,
+                    onPopupClose);
+                event.feature.popup = popup;
+                map.addPopup(popup);
+            }
+
+            function onMsiUnselect(event) {
+                if(event.feature.popup) {
+                    map.removePopup(event.feature.popup);
+                    event.feature.popup.destroy();
+                    delete event.feature.popup;
+                }
+            }
         }
     }
 }]);
