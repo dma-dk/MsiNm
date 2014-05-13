@@ -97,7 +97,7 @@ angular.module('msinm.map')
                     features.push(new OpenLayers.Feature.Vector(
                         (loc.type == 'POLYGON')
                             ? new OpenLayers.Geometry.Polygon([new OpenLayers.Geometry.LinearRing(points)])
-                            : new OpenLayers.Geometry.LineString([new OpenLayers.Geometry.LinearRing(points)]),
+                            : new OpenLayers.Geometry.LineString(points),
                         attr
                     ));
                     break;

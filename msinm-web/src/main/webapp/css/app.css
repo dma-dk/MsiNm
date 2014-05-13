@@ -11,9 +11,41 @@
     border:1px solid black;
 }
 
+
 .searchResultTab {
     padding: 20px;
 }
+
+.search-form input.ng-invalid.ng-dirty {
+    border:1px solid #f00;
+}
+
+.loc-map {
+    margin-top: 20px;
+    border:1px solid black;
+}
+
+.loc-panel {
+    padding: 10px;
+}
+
+.loc-btn {
+    width: 30px;
+    height: 26px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+.loc-map-position {
+    z-index:1000;
+    position: absolute;
+    bottom: 0px;
+    background:rgba(0,0,0,0.2);
+    color: #ffffff;
+    font-size: 10px;
+    padding: 2px;
+}
+
 
 
 /**

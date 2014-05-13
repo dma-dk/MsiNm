@@ -11,10 +11,12 @@ angular.module('msinm')
         $scope.filterOnDate = false;
         $scope.filterOnLocation = false;
 
+        $scope.locationTool = 'navigation';
+
         $scope.query = '';
         $scope.status = 'ACTIVE';
         $scope.type = '';
-        $scope.loc = '';
+        $scope.loc = {};
         $scope.dateFrom = '';
         $scope.dateTo = '';
 
@@ -35,7 +37,7 @@ angular.module('msinm')
                 $scope.query,
                 $scope.status,
                 $scope.type,
-                $scope.loc,
+                $scope.loc.type ? JSON.stringify($scope.loc) : '',
                 $("#messageDateFrom").val(),
                 $("#messageDateTo").val(),
                 $scope.pageSize,
@@ -44,7 +46,6 @@ angular.module('msinm')
                 $scope.sortDesc ? 'DESC' : 'ASC',
                 function(data) {
                     $scope.searchResult = data;
-                    $scope.updateMap();
                 },
                 function () {
                     //alert("Error");
@@ -61,15 +62,6 @@ angular.module('msinm')
                 });
         };
 
-        $scope.setCurrentLocation = function () {
-            navigator.geolocation.getCurrentPosition(function(pos) {
-                $scope.$apply(function() {
-                    $scope.loc = '{"type":"CIRCLE", "radius":100, "points":[{"lat":' +
-                        pos.coords.latitude + ',"lon":' + pos.coords.longitude + ',"num":1}]}';
-                });
-            });
-        };
-
         $scope.resetType = function () {
             $scope.status = 'ACTIVE';
             $scope.type = '';
@@ -77,7 +69,7 @@ angular.module('msinm')
         };
 
         $scope.resetLocation = function () {
-            $scope.loc = '';
+            $scope.loc = {};
         };
 
         $scope.showLocation = function () {
@@ -103,39 +95,4 @@ angular.module('msinm')
             $scope.search();
         };
 
-        $scope.updateMap = function() {
-            locationLayer.removeAllFeatures();
-            if ($scope.loc != '') {
-                var features = [];
-                var loc = JSON.parse($scope.loc);
-
-                var attr = {
-                    id : 1,
-                    description: "location filter",
-                    type : "loc"
-                }
-
-                createLocationFeature(loc, attr, features);
-                locationLayer.addFeatures(features);
-            }
-
-            msiLayer.removeAllFeatures();
-            var features = [];
-
-            for (var i in $scope.searchResult.messages) {
-                var msg = $scope.searchResult.messages[i];
-                var loc = msg.messageItems[0].locations[0];
-
-                var attr = {
-                    id : i,
-                    description: msg.messageItems[0].keySubject,
-                    type : "msi",
-                    msi : msg
-                }
-
-                createLocationFeature(loc, attr, features);
-
-            }
-            msiLayer.addFeatures(features);
-        }
 }]);

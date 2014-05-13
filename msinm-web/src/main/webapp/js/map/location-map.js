@@ -13,6 +13,7 @@ angular.module('msinm.map')
 
         link: function (scope, element, attrs) {
 
+            var quiescent = false;
             var zoom    = attrs.zoom || 6;
             var lon     = attrs.lon || 11;
             var lat     = attrs.lat || 56;
@@ -46,10 +47,18 @@ angular.module('msinm.map')
                 zoom: zoom
             });
 
+            map.events.register("mousemove", map, function(e) {
+                var point = map.getLonLatFromPixel( this.events.getMousePosition(e) );
+                var pos = new OpenLayers.LonLat(point.lon, point.lat).transform(projmerc, proj4326);
+                scope.$apply(function() {
+                    scope.mousePos = formatLonLat(pos);
+                })
+            });
+
             var drawControls = {
                 point: new OpenLayers.Control.DrawFeature(locLayer,
                     OpenLayers.Handler.Point),
-                line: new OpenLayers.Control.DrawFeature(locLayer,
+                polyline: new OpenLayers.Control.DrawFeature(locLayer,
                     OpenLayers.Handler.Path),
                 polygon: new OpenLayers.Control.DrawFeature(locLayer,
                     OpenLayers.Handler.Polygon),
@@ -67,16 +76,19 @@ angular.module('msinm.map')
                 map.addControl(drawControls[key]);
             }
 
-            drawControls.circle.activate();
-
-
             locLayer.events.on({
+                "beforefeatureadded": function (evt) {
+                    if (locLayer.features.length > 0) {
+                        locLayer.removeAllFeatures();
+                    }
+                },
+
                 "featureadded": function (evt) {
 
                     var loc = '';
                     if (drawControls.point.active) {
                         var pt = evt.feature.geometry.transform(projmerc, proj4326);
-                        loc = '{"type":"POINT", "points":[{"lat":' + pt.y + ',"lon":' + pt.x + ',"num":1}]}';
+                        loc = { type: "POINT", points: [{ lat: pt.y, lon: pt.x, num:1}]};
 
                     } else if (drawControls.circle.active) {
                         var center = evt.feature.geometry.getBounds().getCenterLonLat();
@@ -85,55 +97,61 @@ angular.module('msinm.map')
                             new OpenLayers.Geometry.Point(center.lon, center.lat)]);
                         var radius = Math.round(line.getGeodesicLength(projmerc) / 1000);
                         var pt = center.transform(projmerc, proj4326);
-                        loc = '{"type":"CIRCLE", "radius":' + radius + ', "points":[{"lat":' + pt.lat + ',"lon":' + pt.lon + ',"num":1}]}';
+                        loc = { type: "CIRCLE", radius: radius, points: [{ lat: pt.lat, lon: pt.lon , num:1 }]};
 
                     } else {
-                        var type = (drawControls.line.active) ? "POLYLINE" : "POLYGON";
-                        var loc = '{"type":"' + type + '", "points":[';
+                        var type = (drawControls.polyline.active) ? "POLYLINE" : "POLYGON";
+                        var loc = { "type": type, points: [] };
                         var points = evt.feature.geometry.getVertices();
-                        var num = 1;
+                        var num = 0;
                         for (var i in  points) {
-                            if (num > 1) {
-                                loc = loc + ', ';
-                            }
                             var pt = points[i].transform(projmerc, proj4326);
-                            loc = loc + '{"lat":' + pt.y + ',"lon":' + pt.x + ',"num":' + (num++) + '}'
+                            loc.points[num] = { lat: pt.y, lon: pt.x, num: (num++) };
                         }
-                        loc += ']}';
                     }
-                    console.log("Setting loc " + loc);
-                    $("#messageLocation").val(loc);
-                    $("#messageLocation").trigger('input');
-                    //attrs.loc = loc;
+
+                    if (!quiescent) {
+                        console.log("Setting loc " + loc);
+                        scope.loc = loc;
+                        if(!scope.$$phase) {
+                            scope.$apply();
+                        }
+                    }
                 }
             });
 
 
+            scope.$watch(attrs.tool, function (value) {
+                for(var key in drawControls) {
+                    drawControls[key].deactivate();
+                }
+                if (value == 'point' || value == 'circle' || value == 'polygon' || value == 'polyline') {
+                    drawControls[value].activate();
+                }
+            });
 
-            if (attrs.loc) {
 
-                scope.$watch(attrs.loc, function (value) {
+            scope.$watch(attrs.loc, function (value) {
 
-                    locLayer.removeAllFeatures();
-                    if (value && value != '') {
-                        var features = [];
-                        try {
-                            var loc = JSON.parse(value);
-
-                            var attr = {
-                                id: 1,
-                                description: "location filter",
-                                type: "loc"
-                            }
-
-                            MapService.createLocationFeature(loc, attr, features);
-                            locLayer.addFeatures(features);
-                        } catch (ex) {
-                            console.log("Error: " + ex);
+                locLayer.removeAllFeatures();
+                if (value && value != '') {
+                    var features = [];
+                    quiescent = true;
+                    try {
+                        var attr = {
+                            id: 1,
+                            description: "location filter",
+                            type: "loc"
                         }
+
+                        MapService.createLocationFeature(value, attr, features);
+                        locLayer.addFeatures(features);
+                    } catch (ex) {
+                        console.log("Error: " + ex);
                     }
-                });
-            }
+                    quiescent = false;
+                }
+            }, true);
 
         }
     }

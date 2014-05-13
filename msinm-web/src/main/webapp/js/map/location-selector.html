@@ -1,0 +1,54 @@
+
+
+
+<div class="panel panel-default loc-panel">
+
+    <div class="btn-group">
+        <button class="btn btn-xs loc-btn" ng-model="tool" btn-radio="'navigation'"><img src="/img/map/navigation.png"/></button>
+        <button class="btn btn-xs loc-btn" ng-model="tool" btn-radio="'circle'"><img src="/img/map/circle.png"/></button>
+        <button class="btn btn-xs loc-btn" ng-model="tool" btn-radio="'polygon'"><img src="/img/map/polygon.png"/></button>
+        <button class="btn btn-xs loc-btn" ng-model="tool" btn-radio="'polyline'"><img src="/img/map/polyline.png"/></button>
+        <button class="btn btn-xs loc-btn" ng-model="tool" btn-radio="'point'"><img src="/img/map/point.png"/></button>
+
+        <button class="btn btn-xs loc-btn" ng-click="setCurrentLocation()">
+            <span class="glyphicon glyphicon-home"></span>
+        </button>
+    </div>
+
+    <div ng-if="loc.type">
+        <label for="locType" class="control-label">Type</label>
+        <span id="locType">{{loc.type | lowercase}}</span>
+    </div>
+
+    <div ng-if="loc.type == 'CIRCLE'">
+        <label for="locRadius" class="control-label">Radius</label>
+        <input type="number" ng-model="loc.radius" id="locRadius" class="form-control input-sm" placeholder="KM">
+    </div>
+
+    <table class='table table-condensed table-hover' ng-if="loc.points.length  > 0">
+        <tr>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th></th>
+        </tr>
+        <tr ng-repeat="pt in loc.points">
+            <td><input latitude type="text" ng-model="pt.lat" required  class="form-control input-sm"></td>
+            <td><input longitude type="text" ng-model="pt.lon" required  class="form-control input-sm"></td>
+            <td>
+                <button type="button" class="btn btn-sm" ng-click="deletePoint(pt)" ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'">
+                    <span class="glyphicon glyphicon-minus"></span>
+                </button>
+            </td>
+        </tr>
+        <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'">
+            <td><input latitude type="text" ng-model="newPt.lat"  class="form-control input-sm"></td>
+            <td><input longitude type="text" ng-model="newPt.lon"  class="form-control input-sm"></td>
+            <td>
+                <button type="button" class="btn btn-sm" ng-click="addPoint()">
+                    <span class="glyphicon glyphicon-plus"></span>
+                </button>
+            </td>
+        </tr>
+    </table>
+
+</div>

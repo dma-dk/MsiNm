@@ -26,7 +26,7 @@
     <section id="msinmapp" ng-init="newSearch()">
         <h1>MSI-NtM</h1>
 
-        <form class="form-horizontal panel panel-default" style="padding-top: 20px;" role="form">
+        <form class="search-form form-horizontal panel panel-default" style="padding-top: 20px;" role="form" novalidate>
 
             <!-- Search field -->
             <div class="form-group">
@@ -59,22 +59,14 @@
             <!-- Location field -->
             <div class="form-group collapse" collapse="!filterOnLocation">
                 <div class="row">
-                    <label for="messageLocation" class="col-sm-2 control-label">Location</label>
-                    <div class="col-sm-6">
-                        <input type="text" class="form-control" placeholder="Location" ng-model="loc"
-                               id="messageLocation">
-                    </div>
-                    <button type="button" class="btn" ng-click="setCurrentLocation()">
-                        <span class="glyphicon glyphicon-home"></span>
-                    </button>
-                </div>
-
-                <div class="row">
-                     <div class="col-sm-offset-2 col-sm-6">
-                        <div id="locMap" msi-map loc="loc" style="margin-top: 20px; width: 200px; height: 200px; border:1px solid black;"></div>
+                    <label class="col-sm-2 control-label">Location</label>
+                     <div class="col-sm-3">
+                        <div msi-map loc="loc" tool="locationTool" mousePos="mousePos" id="locMap" class="loc-map" style="width: 260px; height: 240px;">
+                            <span class="loc-map-position" id="mousePos">{{mousePos}}</span>
+                        </div>
                      </div>
+                    <div msi-location-selector loc="loc" tool="locationTool" class="col-sm-3" style="margin-top: 20px;"></div>
                 </div>
-
             </div>
 
             <!-- Type fields -->
@@ -160,7 +152,7 @@
             <!-- Map search result -->
             <tab heading="Map">
                 <div class="searchResultTab">
-                    <div id="map" style="width: 800px; height: 600px; border:1px solid black;"></div>
+                    <div msi-search-result-map search-result="searchResult" loc="loc" style="width: 800px; height: 600px; border:1px solid black;"></div>
                 </div>
             </tab>
 
@@ -197,6 +189,9 @@
 <script src="js/service/msinmService.js" type="text/javascript"></script>
 <script src="js/map/map-service.js" type="text/javascript"></script>
 <script src="js/map/location-map.js" type="text/javascript"></script>
+<script src="js/map/location-selector.js" type="text/javascript"></script>
+<script src="js/map/search-result-map.js" type="text/javascript"></script>
+<script src="js/map/position.js" type="text/javascript"></script>
 
 <script>
     $(document).ready(function() {
@@ -208,160 +203,6 @@
         $("#messageDateFrom").datepicker({ format: "dd-mm-yyyy" });
         $("#messageDateTo").datepicker({ format: "dd-mm-yyyy" });
     });
-
-    var map;
-    var msiLayer;
-    var locationLayer;
-    var proj4326 = new OpenLayers.Projection("EPSG:4326");
-    var projmerc = new OpenLayers.Projection("EPSG:900913");
-    function createPoint(longitude, latitude) {
-        return new OpenLayers.Geometry.Point(longitude, latitude).transform(proj4326, map.getProjectionObject());
-    }
-
-    function toRad(degree) {
-        return degree / 360 * 2 * Math.PI;
-    }
-
-    function toDegree(rad) {
-        return rad * 360 / 2 / Math.PI;
-    }
-
-    function calculateRing(longitude, latitude, radius, noPoints) {
-        var points = [];
-        var lat1 = toRad(latitude);
-        var lon1 = toRad(longitude);
-        var R = 6371.0087714; // earths mean radius
-        var d = radius;
-        for (var i = 0; i < noPoints; i++) {
-            var brng = Math.PI * 2 * i / noPoints;
-            var lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
-                    Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
-            var lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
-                            Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
-
-            points.push(createPoint(toDegree(lon2), toDegree(lat2)));
-        }
-        return points;
-    }
-
-    function createLocationFeature(loc, attr, features) {
-        if (!loc || !loc.type) {
-            return features;
-        }
-
-        switch (loc.type) {
-            case 'POINT':
-                for (var j in loc.points) {
-                    features.push(new OpenLayers.Feature.Vector(createPoint(loc.points[j].lon, loc.points[j].lat), attr));
-                }
-                break;
-
-            case "POLYGON":
-            case "POLYLINE":
-                var points = [];
-                for (var j in loc.points) {
-                    var p = loc.points[j];
-                    points.push(createPoint(p.lon, p.lat));
-                }
-
-                features.push(new OpenLayers.Feature.Vector(
-                        (loc.type == 'POLYGON')
-                                ? new OpenLayers.Geometry.Polygon([new OpenLayers.Geometry.LinearRing(points)])
-                                : new OpenLayers.Geometry.LineString([new OpenLayers.Geometry.LinearRing(points)]),
-                        attr
-                ));
-                break;
-
-            case 'CIRCLE':
-                var points = calculateRing(loc.points[0].lon, loc.points[0].lat, loc.radius, 40);
-                features.push(new OpenLayers.Feature.Vector(
-                        new OpenLayers.Geometry.Polygon([new OpenLayers.Geometry.LinearRing(points)]), attr));
-                break;
-        }
-        return features;
-    }
-
-    $(document).ready(function() {
-
-        locationLayer = new OpenLayers.Layer.Vector("Location", {
-            styleMap: new OpenLayers.StyleMap({
-                "default": new OpenLayers.Style({
-                    fillColor: "#080",
-                    fillOpacity: 0.1,
-                    pointRadius: 6,
-                    strokeWidth: 2,
-                    strokeColor: "#080",
-                    strokeOpacity: 0.3
-                })
-            })
-        });
-
-        msiLayer  = new OpenLayers.Layer.Vector( "Msi-Nm", {
-            styleMap: new OpenLayers.StyleMap({
-                "default": new OpenLayers.Style({
-                    fillColor: "#ad57a1",
-                    fillOpacity: 0.3,
-                    pointRadius: 8,
-                    strokeWidth: 1,
-                    strokeColor: "#8f2f7b",
-                    strokeOpacity: 0.5
-                })
-            })
-        });
-
-
-        map = new OpenLayers.Map({
-            div: "map",
-            theme: null,
-            layers: [
-                new OpenLayers.Layer.OSM("OpenStreetMap"),
-                msiLayer,
-                locationLayer
-            ],
-            controls: [
-                new OpenLayers.Control.EditingToolbar(locationLayer)
-            ],
-            units : "degrees",
-            projection : projmerc,
-            center: new OpenLayers.LonLat(11, 56).transform(proj4326, projmerc),
-            zoom: 6
-        });
-
-
-        locationLayer.events.on({
-            "beforefeatureadded": function(evt) {
-                locationLayer.destroyFeatures();
-            },
-            "featureadded": function(evt) {
-
-                var loc = '';
-                if (evt.feature.geometry instanceof OpenLayers.Geometry.Point) {
-                    var pt = evt.feature.geometry.transform(map.getProjectionObject(), proj4326);
-                    loc = '{"type":"POINT", "points":[{"lat":' + pt.y + ',"lon":' + pt.x + ',"num":1}]}';
-
-                } else if (evt.feature.geometry instanceof OpenLayers.Geometry.Polygon ||
-                        evt.feature.geometry instanceof OpenLayers.Geometry.LineString) {
-                    var type = (evt.feature.geometry instanceof OpenLayers.Geometry.Polygon) ? "POLYGON" : "POLYLINE";
-                    var loc = '{"type":"' + type + '", "points":[';
-                    var points = evt.feature.geometry.getVertices();
-                    var num = 1;
-                    for (var i in  points) {
-                        if (num > 1) {
-                            loc = loc + ', ';
-                        }
-                        var pt = points[i].transform(map.getProjectionObject(), proj4326);
-                        loc = loc + '{"lat":' + pt.y + ',"lon":' + pt.x + ',"num":' + (num++) + '}'
-                    }
-                    loc += ']}';
-                }
-                $("#messageLocation").val(loc);
-                $("#messageLocation").trigger('input');
-                //angular.element('#MsiNmCtrl').scope().showLocation();
-            }
-        });
-
-    });
-
 </script>
 
 </body>
