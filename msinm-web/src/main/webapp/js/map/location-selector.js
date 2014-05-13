@@ -22,12 +22,13 @@ angular.module('msinm.map')
 
             scope.deletePoint = function(pt) {
                 scope.loc.points.splice(scope.loc.points.indexOf(pt), 1);
-            }
+            };
 
             scope.addPoint = function() {
+                scope.newPt.index = scope.loc.points.length + 1;
                 scope.loc.points.push(scope.newPt);
                 scope.newPt = { lat: undefined, lon: undefined };
-            }
+            };
 
             scope.setCurrentLocation = function () {
                 navigator.geolocation.getCurrentPosition(function(pos) {
@@ -42,7 +43,29 @@ angular.module('msinm.map')
                 });
             };
 
-
+            scope.$watch(function() {
+                return scope.tool;
+            }, function (value) {
+                if (value && value != 'navigation' && value != scope.loc.type) {
+                    if (value == 'point') {
+                        scope.loc = {
+                            type:"POINT",
+                            points:[ { lat:undefined, lon:undefined, index: 1} ]
+                        };
+                    } else if (value == 'circle') {
+                        scope.loc = {
+                            type:"CIRCLE",
+                            radius:100,
+                            points:[ { lat:undefined, lon:undefined, index: 1} ]
+                        };
+                    } else if (value == 'polygon' || value == 'polyline') {
+                        scope.loc = {
+                            type: (value == 'polygon') ? "POLYGON" : "POLYLINE",
+                            points:[  ]
+                        };
+                    }
+                }
+            }, true);
         }
     }
 }]);
