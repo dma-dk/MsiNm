@@ -21,6 +21,9 @@ angular.module('msinm.map')
             var proj4326 = new OpenLayers.Projection("EPSG:4326");
             var projmerc = new OpenLayers.Projection("EPSG:900913");
 
+            /*********************************/
+            /* Layers                        */
+            /*********************************/
             var locLayer = new OpenLayers.Layer.Vector("Location", {
                 styleMap: new OpenLayers.StyleMap({
                     "default": new OpenLayers.Style({
@@ -34,6 +37,9 @@ angular.module('msinm.map')
                 })
             });
 
+            /*********************************/
+            /* Map                           */
+            /*********************************/
             var map = new OpenLayers.Map({
                 div: element[0],
                 theme: null,
@@ -47,6 +53,9 @@ angular.module('msinm.map')
                 zoom: zoom
             });
 
+            /*********************************/
+            /* Mouse location label          */
+            /*********************************/
             map.events.register("mousemove", map, function(e) {
                 var point = map.getLonLatFromPixel( this.events.getMousePosition(e) );
                 var pos = new OpenLayers.LonLat(point.lon, point.lat).transform(projmerc, proj4326);
@@ -55,6 +64,9 @@ angular.module('msinm.map')
                 })
             });
 
+            /*********************************/
+            /* Draw controls                 */
+            /*********************************/
             var drawControls = {
                 point: new OpenLayers.Control.DrawFeature(locLayer,
                     OpenLayers.Handler.Point),
@@ -76,6 +88,9 @@ angular.module('msinm.map')
                 map.addControl(drawControls[key]);
             }
 
+            /*********************************/
+            /* Handle feature events         */
+            /*********************************/
             locLayer.events.on({
                 "beforefeatureadded": function (evt) {
                     if (locLayer.features.length > 0) {
@@ -121,6 +136,9 @@ angular.module('msinm.map')
             });
 
 
+            /*********************************/
+            /* Handle changed tool           */
+            /*********************************/
             scope.$watch(attrs.tool, function (value) {
                 for(var key in drawControls) {
                     drawControls[key].deactivate();
@@ -131,6 +149,9 @@ angular.module('msinm.map')
             });
 
 
+            /*********************************/
+            /* Handle changed location       */
+            /*********************************/
             scope.$watch(attrs.loc, function (value) {
 
                 locLayer.removeAllFeatures();
@@ -142,7 +163,7 @@ angular.module('msinm.map')
                             id: 1,
                             description: "location filter",
                             type: "loc"
-                        }
+                        };
 
                         MapService.createLocationFeature(value, attr, features);
                         locLayer.addFeatures(features);
