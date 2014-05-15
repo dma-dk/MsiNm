@@ -1,0 +1,32 @@
+
+<div ng-controller="UserCtrl">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Log In</h2>
+    </div>
+
+    <div class="modal-body e-small-font">
+        <div class="alert alert-danger" ng-show="message">{{message}}</div>
+
+        <form class="form-signin" name="login_form">
+            <div id="credentials" class="form-controls">
+                <div class="form-group">
+                    <label for="usernamefield">User Name</label>
+                    <input type="text" id="usernamefield" name="usernamefield" class="form-control input-sm"
+                           focus="focusMe" ng-model="user.username" autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                </div>
+                <div class="form-group">
+                    <label for="passwordfield">Password</label>
+                    <input type="password" id="passwordfield" name="passwordfield" class="form-control input-sm"
+                           ng-model="user.password" required />
+                </div>
+
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="!(login_form.usernamefield.$valid && login_form.passwordfield.$valid)" ng-click="login()">Log In</button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

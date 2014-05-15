@@ -6,8 +6,8 @@
 
 angular.module('msinm.map', [ ])
 
-var app = angular.module('msinm', ['ngRoute', 'ui.bootstrap', 'msinm.map'])
-    .config(function ($routeProvider) {
+var app = angular.module('msinm', ['ngRoute', 'ui.bootstrap', 'msinm.map', 'msinm.user'])
+    .config(['$routeProvider', function ($routeProvider) {
         'use strict';
 
         $routeProvider.when('/', {
@@ -19,4 +19,19 @@ var app = angular.module('msinm', ['ngRoute', 'ui.bootstrap', 'msinm.map'])
         }).otherwise({
             redirectTo: '/'
         });
-    });
+    }]);
+
+app.config(['$httpProvider', function ($httpProvider) {
+    $httpProvider.interceptors.push('authInterceptor');
+}]);
+
+
+app.directive('focus', ['$timeout', function($timeout) {
+    return function(scope, element, attrs) {
+        scope.$watch(attrs.focus, function(newValue) {
+            $timeout(function() {
+                newValue && element.focus();
+            }, 100);
+        }, true);
+    };
+}]);

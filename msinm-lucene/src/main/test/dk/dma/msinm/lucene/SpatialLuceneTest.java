@@ -19,7 +19,6 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.context.jts.JtsSpatialContext;
 import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.shape.Shape;
-import junit.framework.TestCase;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.IntField;
@@ -35,6 +34,7 @@ import org.apache.lucene.spatial.query.SpatialOperation;
 import org.apache.lucene.store.Directory;
 import org.apache.lucene.store.RAMDirectory;
 import org.apache.lucene.util.Version;
+import org.junit.Test;
 
 import java.io.IOException;
 import java.text.ParseException;
@@ -45,11 +45,12 @@ import static org.junit.Assert.assertArrayEquals;
  * Largely based on extracts from a SpatialExample Lucene test case:
  * https://github.com/apache/lucene-solr/blob/branch_4x/lucene/spatial/src/test/org/apache/lucene/spatial/SpatialExample.java
  */
-public class SpatialLuceneTest extends TestCase {
+public class SpatialLuceneTest  {
 
     private SpatialStrategy strategy;
     private SpatialContext ctx = SpatialContext.GEO;
 
+    @Test
     public void testSpatialSearch() throws IOException, ParseException {
 
         int maxLevels = 11;//results in sub-meter precision for geohash

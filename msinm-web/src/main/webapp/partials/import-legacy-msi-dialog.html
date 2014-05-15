@@ -1,0 +1,27 @@
+
+<div ng-controller="MsiNmCtrl">
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Import legacy MSI messages</h2>
+    </div>
+
+    <div class="modal-body e-small-font">
+        <div class="alert alert-danger" ng-show="message">{{message}}</div>
+
+        <form name="legacy_msi_form">
+            <div id="legacy_msi" class="form-controls">
+                <div class="form-group">
+                    <label for="importCount">Count</label>
+                    <input type="text" id="importCount" name="importCount" class="form-control input-sm"
+                           focus="focusMe" ng-model="importCount" autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                </div>
+
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="!(legacy_msi_form.importCount.$valid)" ng-click="legacyImport()">Import</button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

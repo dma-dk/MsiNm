@@ -3,8 +3,8 @@
  * The main controller for the app.
  */
 angular.module('msinm')
-    .controller('MsiNmCtrl', ['$scope', '$routeParams', 'MsiNmService',
-        function ($scope, $routeParams, MsiNmService) {
+    .controller('MsiNmCtrl', ['$scope', '$routeParams', '$modal', 'MsiNmService',
+        function ($scope, $routeParams, $modal, MsiNmService) {
         'use strict';
 
         $scope.filterOnType = false;
@@ -26,6 +26,8 @@ angular.module('msinm')
 
         $scope.sortBy = 'DATE';
         $scope.sortDesc = true;
+
+        $scope.importCount = 500;
 
         $scope.newSearch = function () {
             $scope.currentPage = 1;
@@ -94,5 +96,27 @@ angular.module('msinm')
             $scope.sortDesc = !$scope.sortDesc;
             $scope.search();
         };
+
+        $scope.legacyImportDlg = function() {
+
+            $scope.importLegacyMsiDialog = $modal.open({
+                templateUrl : "/partials/import-legacy-msi-dialog.html"
+            });
+            return $scope.importLegacyMsiDialog;
+        };
+
+        $scope.legacyImport = function() {
+            MsiNmService.importLegacyMsi(
+                $scope.importCount,
+                function(data) {
+                    $scope.search();
+                },
+                function () {
+                    //alert("Error");
+                });
+
+            $scope.$close();
+        };
+
 
 }]);
