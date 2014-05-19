@@ -7,14 +7,14 @@ angular.module('msinm')
     /**
      * Interceptor that adds a JWT token to the requests as an authorization header.
      */
-    .factory('authInterceptor', ['$rootScope', '$q', '$window', function ($rootScope, $q, $window) {
+    .factory('authInterceptor', ['$rootScope', '$q', function ($rootScope, $q) {
         'use strict';
 
         return {
             request: function (config) {
                 config.headers = config.headers || {};
-                if ($window.sessionStorage.token) {
-                    config.headers.Authorization = 'Bearer ' + $window.sessionStorage.token;
+                if ($rootScope.currentUser) {
+                    config.headers.Authorization = 'Bearer ' + $rootScope.currentUser.token;
                 }
                 return config;
             },
@@ -31,7 +31,7 @@ angular.module('msinm')
     /**
      * Interface for calling the application server
      */
-    .factory('MsiNmService', [ '$http', '$location', '$window', function($http, $location, $window) {
+    .factory('MsiNmService', [ '$http', '$location', 'Auth', function($http, $location, Auth) {
         'use strict';
 
         return {
@@ -72,12 +72,11 @@ angular.module('msinm')
                     .post('/rest/user/auth', user)
                     .success(function (data, status, headers, config) {
                         // Save the JWT token
-                        $window.sessionStorage.token = data.token;
+                        Auth.login(data);
                         success(data);
                     })
                     .error(function (data, status, headers, config) {
                         // Erase the token if the user fails to log in
-                        delete $window.sessionStorage.token;
                         error(data, status);
                     });
             }
