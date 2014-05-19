@@ -25,7 +25,17 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Custom PicketBox login module
+ * Custom login module that handles normal user/password authentication as well as JWT token
+ * authentication.
+ * <p>
+ * The natural solution would be that this module set the {@code User} as the user principal
+ * upon successful authentication.
+ * <br>
+ * However, this tends to cause ClassCastException's when the web-app has been reloaded,
+ * because a different class-loader is used for the login-modules.
+ * <br>
+ * Hence, the login-module sets a {@code SimplePrincipal} as the request user principal, and
+ * leave it up to the web-layer to swap the {@code SimplePrincipal} for a {@code User} principal.
  */
 public class JbossLoginModule implements LoginModule {
 
@@ -39,7 +49,8 @@ public class JbossLoginModule implements LoginModule {
     protected Map options;
 
 
-    private User identity;
+    private User user;
+    private Principal identity;
 
     private Throwable error;
 
@@ -89,29 +100,30 @@ public class JbossLoginModule implements LoginModule {
         /**
         if (sharedState.get("javax.security.auth.login.name") != null &&
                 sharedState.get("javax.security.auth.login.password") != null) {
-            log.info("Using shared state identity " + sharedState.get("javax.security.auth.login.name"));
+            log.info("Using shared state user " + sharedState.get("javax.security.auth.login.name"));
             return true;
         }
          **/
 
 
         String[] credentials = getUsernameAndPassword();
-        String user = credentials[0];
+        String emailOrJwt = credentials[0];
         String password = credentials[1];
 
         // If the password is BEARER_TOKEN_LOGIN, the user should be a JWT token
         if (BEARER_TOKEN_LOGIN.equals(password)) {
             try {
-                JWTService.ParsedJWTInfo jwtInfo = jwtService.parseSignedJWT(user);
+                JWTService.ParsedJWTInfo jwtInfo = jwtService.parseSignedJWT(emailOrJwt);
                 if (jwtInfo != null) {
-                    log.info("Logging in using JWT token for user id " + jwtInfo.getSubject());
-                    identity = userService.findById(Integer.parseInt(jwtInfo.getSubject()));
+                    log.trace("Logging in using JWT token for user id " + jwtInfo.getSubject());
+                    this.user = userService.findById(Integer.parseInt(jwtInfo.getSubject()));
+                    this.identity = new SimplePrincipal(String.valueOf(user.getId()));
                 }
             } catch (Exception ex) {
             }
 
-            if (identity == null) {
-                log.warn("Failed logging in with JWT token");
+            if (this.user == null) {
+                log.trace("Failed logging in with JWT token");
                 LoginException ex = new LoginException("Failed logging in with JWT token");
                 error = ex;
                 throw ex;
@@ -123,27 +135,26 @@ public class JbossLoginModule implements LoginModule {
 
             Exception cause = null;
             try {
-                identity = userService.findByEmail(user);
+                this.user = userService.findByEmail(emailOrJwt);
+                this.identity = new SimplePrincipal(String.valueOf(user.getId()));
             } catch (Exception ex) {
                 cause = ex;
             }
-            if (identity == null) {
-                log.error("Failed resolving identity for " + user);
-                LoginException ex = new LoginException("Failed resolving identity for " + user);
+            if (this.user == null) {
+                log.trace("Failed resolving user for " + emailOrJwt);
+                LoginException ex = new LoginException("Failed resolving user for " + emailOrJwt);
                 ex.initCause(cause);
                 error = ex;
                 throw ex;
             }
 
-            log.info("Resolved identity " + identity);
+            log.trace("Resolved user " + this.user);
 
             // Compare the passwords
-            String encPassword = PasswordUtils.encrypt(password, "SHA-512");
-            if (!encPassword.equals(identity.getPassword().getPasswordHash())) {
-                identity = null;
-                log.error("Incorrect password for user " + user);
-
-                FailedLoginException ex = new FailedLoginException("Incorrect password for user " + user);
+            String encPassword = SecurityUtils.encrypt(password, "SHA-512");
+            if (!encPassword.equals(this.user.getPassword().getPasswordHash())) {
+                log.trace("Incorrect password for user " + emailOrJwt);
+                FailedLoginException ex = new FailedLoginException("Incorrect password for user " + emailOrJwt);
                 error = ex;
                 throw ex;
             }
@@ -151,7 +162,7 @@ public class JbossLoginModule implements LoginModule {
         }
 
         // Add the principal and password to the shared state map
-        //sharedState.put("javax.security.auth.login.name", identity);
+        //sharedState.put("javax.security.auth.login.name", user);
         //sharedState.put("javax.security.auth.login.password", password);
 
         return true;
@@ -163,7 +174,7 @@ public class JbossLoginModule implements LoginModule {
     @Override
     public boolean commit() throws LoginException {
 
-        log.info("Committing " + error);
+        log.trace("Committing " + error);
 
         if (error != null) {
             return false;
@@ -173,7 +184,7 @@ public class JbossLoginModule implements LoginModule {
 
         // Assign the roles to the subject
         Group group = new SimpleGroup("Roles");
-        for (Role role : identity.getRoles()) {
+        for (Role role : user.getRoles()) {
             group.addMember(new SimplePrincipal(role.getName()));
         }
         subject.getPrincipals().add(group);
@@ -186,7 +197,7 @@ public class JbossLoginModule implements LoginModule {
             subject.getPrincipals().add(callerGroup);
         }
 
-        log.info("Added groups");
+        log.trace("Added groups");
 
         return true;
     }
@@ -196,7 +207,7 @@ public class JbossLoginModule implements LoginModule {
      */
     @Override
     public boolean abort() throws LoginException {
-        log.info("Aborting");
+        log.trace("Aborting");
         return true;
     }
 
@@ -205,7 +216,7 @@ public class JbossLoginModule implements LoginModule {
      */
     @Override
     public boolean logout() throws LoginException {
-        log.info("Logout");
+        log.trace("Logout");
         // Remove the user identity
         subject.getPrincipals().remove(identity);
         Group callerGroup = getCallerPrincipalGroup(subject.getPrincipals());

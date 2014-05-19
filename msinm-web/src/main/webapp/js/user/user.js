@@ -9,7 +9,7 @@ angular.module('msinm.user', [ ])
 
         $scope.focusMe = true;
         $scope.message = undefined;
-        $scope.user = { username:undefined, password: undefined };
+        $scope.user = { email:undefined, password: undefined };
 
         $scope.loginDlg = function() {
             $scope.loginDialog = $modal.open({

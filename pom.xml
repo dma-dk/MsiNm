@@ -13,7 +13,6 @@
         <maven.min.version>3.0.0</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jboss.bom>8.0.0.Final</version.jboss.bom>
-        <shiro.version>1.2.2</shiro.version>
     </properties>
 
     <dependencyManagement>
@@ -58,18 +57,6 @@
                 <groupId>com.vividsolutions</groupId>
                 <artifactId>jts</artifactId>
                 <version>1.11</version>
-            </dependency>
-
-            <!-- Shiro security dependencies -->
-            <dependency>
-                <groupId>org.apache.shiro</groupId>
-                <artifactId>shiro-core</artifactId>
-                <version>${shiro.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.apache.shiro</groupId>
-                <artifactId>shiro-web</artifactId>
-                <version>${shiro.version}</version>
             </dependency>
 
         </dependencies>

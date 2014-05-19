@@ -1,7 +1,7 @@
 package dk.dma.msinm.user.security;
 
 
-import org.apache.shiro.web.util.WebUtils;
+import dk.dma.msinm.user.UserService;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -31,6 +31,9 @@ public class SecurityServletFilter implements Filter {
     @Inject
     private JWTService jwtService;
 
+    @Inject
+    private UserService userService;
+
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
     }
@@ -50,8 +53,8 @@ public class SecurityServletFilter implements Filter {
         try {
             String jwt = getBearerToken(request);
             if (jwt != null) {
-                request.login(jwt, JbossLoginModule.BEARER_TOKEN_LOGIN);
-                log.info("Found user " + request.getUserPrincipal().getName());
+                request = SecurityUtils.login(userService, request, jwt, JbossLoginModule.BEARER_TOKEN_LOGIN);
+                log.info("Found JWT user " + request.getUserPrincipal().getName());
             }
         } catch (ServletException ex) {
             log.warn("Failed logging in using bearer token");
@@ -70,7 +73,7 @@ public class SecurityServletFilter implements Filter {
      */
     protected String getBearerToken(ServletRequest request) {
 
-        HttpServletRequest httpRequest = WebUtils.toHttp(request);
+        HttpServletRequest httpRequest = (HttpServletRequest)request;
         String header = httpRequest.getHeader(BEARER_TOKEN_HEADER);
         if (header != null && header.startsWith(BEARER_TOKEN_PREFIX)) {
             return header.substring(BEARER_TOKEN_PREFIX.length()).trim();

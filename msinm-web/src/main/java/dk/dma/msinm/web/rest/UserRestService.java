@@ -16,8 +16,10 @@
 package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.user.User;
+import dk.dma.msinm.user.UserService;
 import dk.dma.msinm.user.security.JWTService;
 import dk.dma.msinm.user.security.JWTToken;
+import dk.dma.msinm.user.security.SecurityUtils;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
@@ -41,6 +43,9 @@ public class UserRestService {
     @Inject
     JWTService jwtService;
 
+    @Inject
+    UserService userService;
+
     /**
      * Authenticates the user and throws an error if the login fails
      *
@@ -53,21 +58,21 @@ public class UserRestService {
     @Produces("application/json")
     @NoCache
     public JWTToken authenticate(@Context HttpServletRequest request, Credentials credentials) {
-        log.info("Login attempt by " + credentials.getUsername());
+        log.info("Login attempt by " + credentials.getEmail());
 
         try {
             // Log out first
             request.logout();
 
             // Force a login
-            request.login(credentials.getUsername(), credentials.getPassword());
+            request = SecurityUtils.login(userService, request, credentials.getEmail(), credentials.getPassword());
 
 
             // Successful login - create a JWT token
             String svr = String.format("%s://%s", request.getScheme(), request.getServerName());
             return jwtService.getSignedJWT(svr, (User)request.getUserPrincipal());
         } catch (Exception e) {
-            log.error("Failed generating JWT for user " + credentials.getUsername(), e);
+            log.error("Failed generating JWT for user " + credentials.getEmail(), e);
         }
 
         throw new WebApplicationException(Response.Status.UNAUTHORIZED);
@@ -85,15 +90,15 @@ public class UserRestService {
      * User credentials
      */
     public static class Credentials {
-        private String username;
+        private String email;
         private String password;
 
-        public String getUsername() {
-            return username;
+        public String getEmail() {
+            return email;
         }
 
-        public void setUsername(String username) {
-            this.username = username;
+        public void setEmail(String email) {
+            this.email = email;
         }
 
         public String getPassword() {

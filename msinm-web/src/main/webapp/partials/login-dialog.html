@@ -11,9 +11,9 @@
         <form class="form-signin" name="login_form">
             <div id="credentials" class="form-controls">
                 <div class="form-group">
-                    <label for="usernamefield">User Name</label>
-                    <input type="text" id="usernamefield" name="usernamefield" class="form-control input-sm"
-                           focus="focusMe" ng-model="user.username" autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="emailfield" class="form-control input-sm"
+                           focus="focusMe" ng-model="user.email" autocapitalize="off" autocorrect="off" autocomplete="off" required />
                 </div>
                 <div class="form-group">
                     <label for="passwordfield">Password</label>
@@ -23,7 +23,7 @@
 
                 <div style="margin-top: 24px">
                     <button type="submit" class="btn btn-sm btn-primary"
-                            ng-disabled="!(login_form.usernamefield.$valid && login_form.passwordfield.$valid)" ng-click="login()">Log In</button>
+                            ng-disabled="!(login_form.emailfield.$valid && login_form.passwordfield.$valid)" ng-click="login()">Log In</button>
                     <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
                 </div>
             </div>
