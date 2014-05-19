@@ -3,13 +3,13 @@
  */
 
 angular.module('msinm.user', [ ])
-    .controller('UserCtrl', ['$scope', '$modal', 'MsiNmService', 'Auth',
-        function ($scope, $modal, MsiNmService, Auth) {
+    .controller('UserCtrl', ['$scope', '$modal', '$cookieStore', 'MsiNmService', 'Auth',
+        function ($scope, $modal, $cookieStore, MsiNmService, Auth) {
         'use strict';
 
         $scope.focusMe = true;
         $scope.message = undefined;
-        $scope.user = { email:undefined, password: undefined };
+        $scope.user = { email:$cookieStore.get('lastLogin'), password: undefined };
 
         $scope.loggedIn = false;
 
@@ -30,6 +30,7 @@ angular.module('msinm.user', [ ])
             MsiNmService.authenticate(
                 $scope.user,
                 function(data) {
+                    $cookieStore.put('lastLogin', $scope.user.email);
                     console.log("SUCCESS");
                     $scope.$close();
                 },
@@ -51,26 +52,29 @@ angular.module('msinm.user', [ ])
     .factory('Auth', ['$rootScope', '$window', function ($rootScope, $window) {
         'use strict';
 
+        var storage =  $window.sessionStorage;
+        //var storage =  $window.localStorage;
+
         return {
             init: function() {
-                if ($window.sessionStorage.jwt) {
-                    $rootScope.currentUser = JSON.parse($window.sessionStorage.jwt);
+                if (storage.jwt) {
+                    $rootScope.currentUser = JSON.parse(storage.jwt);
                 } else {
                     return undefined;
                 }
             },
 
             login: function(jwtToken) {
-                $window.sessionStorage.clear();
+                storage.clear();
                 $rootScope.currentUser = jwtToken;
                 if (jwtToken) {
-                    $window.sessionStorage.jwt = JSON.stringify(jwtToken);
+                    storage.jwt = JSON.stringify(jwtToken);
                 }
             },
 
             logout: function() {
-                $window.sessionStorage.clear();
-                $rootScope.currentUser = undefined;
+                storage.clear();
+                delete $rootScope.currentUser;
             },
 
             isLoggedIn: function() {
