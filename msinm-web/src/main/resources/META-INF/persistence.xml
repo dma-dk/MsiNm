@@ -10,6 +10,7 @@
 
         <jar-file>lib/${msinm-common.jar}</jar-file>
         <jar-file>lib/${msinm-model.jar}</jar-file>
+        <jar-file>lib/${msinm-user.jar}</jar-file>
         <jar-file>lib/${msinm-legacy.jar}</jar-file>
 
         <properties>

@@ -35,8 +35,11 @@ import dk.dma.msinm.model.Priority;
 import dk.dma.msinm.model.SpecificCategory;
 import dk.dma.msinm.service.MessageService;
 import org.apache.commons.lang.StringUtils;
+import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
@@ -57,6 +60,8 @@ import java.util.Date;
  */
 @Path("/import/legacy_msi")
 @Stateless
+@SecurityDomain("msinm-policy")
+@RolesAllowed({ "admin" })
 public class LegacyMsiDbImportService {
 
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";

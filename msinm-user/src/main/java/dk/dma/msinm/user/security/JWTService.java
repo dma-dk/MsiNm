@@ -19,15 +19,21 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.user.Role;
 import dk.dma.msinm.user.User;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Service for handling Json Web Tokens (JWT).
@@ -49,21 +55,20 @@ public class JWTService {
 
     /**
      * Creates a signed JWT for the given user
-     * @param svr the server
+     * @param issuer the issuer
      * @param user the user
      * @return the encrypted JWT
      */
-    public String getSignedJWT(String svr, User user) throws Exception {
+    public JWTToken getSignedJWT(String issuer, User user) throws Exception {
         long t0 = System.currentTimeMillis();
 
 
         // compose the JWT reserved claim names
         JWTClaimsSet jwtClaims = new JWTClaimsSet();
-        jwtClaims.setIssuer(svr);
         jwtClaims.setSubject("" + user.getId());
-        jwtClaims.setAudience(Arrays.asList(svr));
+        jwtClaims.setIssuer(issuer);
+        jwtClaims.setAudience(Arrays.asList(issuer));
         jwtClaims.setExpirationTime(new Date(new Date().getTime() + 1000 * 60 * jwtTimeoutMinutes));
-        jwtClaims.setNotBeforeTime(new Date());
         jwtClaims.setIssueTime(new Date());
         jwtClaims.setJWTID(UUID.randomUUID().toString());
 
@@ -80,8 +85,15 @@ public class JWTService {
         // Sign the JWT
         jwsObject.sign(signer);
 
-        // Serialise to JWT compact form
-        return jwsObject.serialize();
+        // Fill out the resulting JWT token
+        JWTToken token = new JWTToken();
+        token.setToken(jwsObject.serialize());
+        token.setEmail(user.getEmail());
+        token.setName(user.getName());
+        List<String> roles = new ArrayList<>();
+        user.getRoles().forEach(r -> roles.add(r.getName()));
+        token.setRoles(roles.toArray(new String[roles.size()]));
+        return token;
     }
 
     /**
@@ -89,20 +101,62 @@ public class JWTService {
      * @param token the JWT token
      * @return the parsed JWT
      */
-    public String parseSignedJWT(String token) throws Exception {
+    public ParsedJWTInfo parseSignedJWT(String token) throws Exception {
         // Parse back and check signature
-        JWSObject jwsObject = JWSObject.parse(token);
+        SignedJWT signedJWT = SignedJWT.parse(token);
 
         JWSVerifier verifier = new MACVerifier(hmacSharedKey.getBytes());
 
-        boolean verifiedSignature = jwsObject.verify(verifier);
+        boolean verifiedSignature = signedJWT.verify(verifier);
 
-        if (verifiedSignature)
-            System.out.println("Verified JWS signature!");
-        else
-            System.out.println("Bad JWS signature!");
+        if (verifiedSignature) {
+            ReadOnlyJWTClaimsSet claims = signedJWT.getJWTClaimsSet();
 
-        Payload payload = jwsObject.getPayload();
-        return payload.toString();
+            ParsedJWTInfo jwtInfo = new ParsedJWTInfo();
+            jwtInfo.setSubject(claims.getSubject());
+            jwtInfo.setExpirationTime(claims.getExpirationTime());
+            return jwtInfo;
+        }
+
+        return null;
+    }
+
+    public boolean checkValidBearerToken(String token) {
+        try {
+            ParsedJWTInfo jwtInfo = parseSignedJWT(token);
+            // TODO: Proper implementation
+            return jwtInfo != null;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    public String extractBearerTokenUser(String token) {
+        // TODO: Proper implementation
+        return "a@b.dk";
+    }
+
+    /**
+     * Selected information from a parsed JWT token
+     */
+    public static class ParsedJWTInfo {
+        String subject;
+        Date expirationTime;
+
+        public String getSubject() {
+            return subject;
+        }
+
+        public void setSubject(String subject) {
+            this.subject = subject;
+        }
+
+        public Date getExpirationTime() {
+            return expirationTime;
+        }
+
+        public void setExpirationTime(Date expirationTime) {
+            this.expirationTime = expirationTime;
+        }
     }
 }

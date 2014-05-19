@@ -338,6 +338,15 @@
                         <policy-module code="Delegating" flag="required"/>
                     </authorization>
                 </security-domain>
+
+                <security-domain name="msinm-policy" cache-type="default">
+                    <authentication>
+                        <login-module code="dk.dma.msinm.user.security.JbossLoginModule" flag="required">
+                        </login-module>
+                    </authentication>
+                </security-domain>
+
+
             </security-domains>
         </subsystem>
         <subsystem xmlns="urn:jboss:domain:threads:1.1"/>

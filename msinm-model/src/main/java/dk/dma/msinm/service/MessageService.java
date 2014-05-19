@@ -20,8 +20,11 @@ import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.NavwarnMessage;
 import dk.dma.msinm.model.NoticeMessage;
+import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
@@ -32,6 +35,8 @@ import java.util.List;
  * Business interface for accessing MSI-NM messages
  */
 @Stateless
+@SecurityDomain("msinm-policy")
+@PermitAll
 public class MessageService extends BaseService {
 
     @Inject
@@ -65,6 +70,7 @@ public class MessageService extends BaseService {
      * Returns all messages
      * @return all messages
      */
+    @RolesAllowed({ "user" })
     public List<Message> getAll() {
         return getAll(Message.class);
     }
@@ -73,6 +79,7 @@ public class MessageService extends BaseService {
      * Returns all messages
      * @return all messages
      */
+    @RolesAllowed({ "user" })
     public List<Message> getActive() {
         return em.createQuery(selectActiveSql, Message.class)
                 .getResultList();

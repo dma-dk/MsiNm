@@ -1,3 +1,5 @@
 <jboss-web>
     <context-root>/</context-root>
+
+    <security-domain>msinm-policy</security-domain>
 </jboss-web>

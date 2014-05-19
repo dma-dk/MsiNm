@@ -17,6 +17,7 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.security.JWTService;
+import dk.dma.msinm.user.security.JWTToken;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
@@ -52,19 +53,19 @@ public class UserRestService {
     @Produces("application/json")
     @NoCache
     public JWTToken authenticate(@Context HttpServletRequest request, Credentials credentials) {
-        log.info("Login by " + credentials.getUsername());
+        log.info("Login attempt by " + credentials.getUsername());
 
         try {
-            if ("a".equals(credentials.getUsername()) && "a".equals(credentials.getPassword())) {
-                String svr = String.format("%s://%s", request.getScheme(), request.getServerName());
+            // Log out first
+            request.logout();
 
-                JWTToken token = new JWTToken();
-                User user = new User();
-                user.setId(1);
-                token.setToken(jwtService.getSignedJWT(svr, user));
-                token.setRoles(new String[] {"user", "admin"});
-                return token;
-            }
+            // Force a login
+            request.login(credentials.getUsername(), credentials.getPassword());
+
+
+            // Successful login - create a JWT token
+            String svr = String.format("%s://%s", request.getScheme(), request.getServerName());
+            return jwtService.getSignedJWT(svr, (User)request.getUserPrincipal());
         } catch (Exception e) {
             log.error("Failed generating JWT for user " + credentials.getUsername(), e);
         }
@@ -104,27 +105,4 @@ public class UserRestService {
         }
     }
 
-    /**
-     * JWT token
-     */
-    public static class JWTToken {
-        private String token;
-        private String[] roles;
-
-        public String getToken() {
-            return token;
-        }
-
-        public void setToken(String token) {
-            this.token = token;
-        }
-
-        public String[] getRoles() {
-            return roles;
-        }
-
-        public void setRoles(String[] roles) {
-            this.roles = roles;
-        }
-    }
 }

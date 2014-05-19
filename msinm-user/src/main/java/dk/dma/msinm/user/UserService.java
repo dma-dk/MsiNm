@@ -68,5 +68,37 @@ public class UserService extends BaseService {
     }
 
 
+    /**
+     * Looks up the {@code User} with the given id and preloads the roles
+     *
+     * @param id the id
+     * @return the user or null
+     */
+    public User findById(Integer id) {
+        try {
+            return em.createNamedQuery("User.findById", User.class)
+                    .setParameter("id", id)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Looks up the {@code User} with the given email addressand preloads the roles
+     *
+     * @param email the email
+     * @return the user or null
+     */
+    public User findByEmail(String email) {
+        try {
+            return em.createNamedQuery("User.findByEmail", User.class)
+                    .setParameter("email", email)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
 }

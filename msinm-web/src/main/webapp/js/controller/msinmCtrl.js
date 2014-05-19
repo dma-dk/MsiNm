@@ -3,8 +3,8 @@
  * The main controller for the app.
  */
 angular.module('msinm')
-    .controller('MsiNmCtrl', ['$scope', '$routeParams', '$modal', 'MsiNmService',
-        function ($scope, $routeParams, $modal, MsiNmService) {
+    .controller('MsiNmCtrl', ['$scope', '$routeParams', '$modal', 'MsiNmService', '$http',
+        function ($scope, $routeParams, $modal, MsiNmService, $http) {
         'use strict';
 
         $scope.filterOnType = false;
@@ -61,6 +61,13 @@ angular.module('msinm')
                 },
                 function () {
                     //alert("Error");
+                });
+        };
+
+        $scope.test = function () {
+            $http.get('http://localhost:8080/rest/user/test')
+                .success(function (data) {
+                    alert("TEST " + data);
                 });
         };
 

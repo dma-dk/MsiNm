@@ -19,6 +19,7 @@ import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.SignedJWT;
 import org.junit.Test;
 
 import java.text.ParseException;
@@ -67,11 +68,11 @@ public class SignedJWTTest {
         System.out.println(result);
 
         // Parse back and check signature
-        jwsObject = JWSObject.parse(result);
+        SignedJWT signedJWT = SignedJWT.parse(result);
 
         JWSVerifier verifier = new MACVerifier(SHARED_KEY.getBytes());
 
-        boolean verifiedSignature = jwsObject.verify(verifier);
+        boolean verifiedSignature = signedJWT.verify(verifier);
 
         if (verifiedSignature)
             System.out.println("Verified JWS signature!");

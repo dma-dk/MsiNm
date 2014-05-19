@@ -28,6 +28,24 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 
+        <!-- Shiro security dependencies -->
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-core</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.shiro</groupId>
+            <artifactId>shiro-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.picketbox</groupId>
+            <artifactId>picketbox</artifactId>
+            <version>4.0.20.Final</version>
+            <scope>provided</scope>
+        </dependency>
+
         <!-- OAuth and JWT support -->
         <dependency>
             <groupId>com.nimbusds</groupId>
