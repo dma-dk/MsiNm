@@ -2,6 +2,7 @@ package dk.dma.msinm.user.security;
 
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
+import org.apache.commons.lang.StringUtils;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -51,27 +52,50 @@ public class SecurityUtils {
     /**
      * Hashes and Hex'es the password
      * @param pwd the password
+     * @param salt the salt
+     * @param type the digest, e.g. "SHA-512"
+     * @return the hashed and hex'ed password
+     */
+    public static String encrypt(String pwd, String salt, String type) {
+        try {
+            MessageDigest md = MessageDigest.getInstance(type);
+            md.reset();
+            if (StringUtils.isNotBlank(salt)) {
+                md.update(salt.getBytes("UTF-8"));
+            }
+            md.update(pwd.getBytes("UTF-8"));
+            byte[] hash = md.digest();
+
+            return hex(hash);
+        } catch (Exception e) {
+            throw new RuntimeException("Unable to create message digest", e);
+        }
+    }
+
+    /**
+     * Hashes and Hex'es the password
+     * @param pwd the password
      * @param type the digest, e.g. "SHA-512"
      * @return the hashed and hex'ed password
      */
     public static String encrypt(String pwd, String type) {
-        MessageDigest md = null;
-        try {
-            md = MessageDigest.getInstance(type);
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException("Unable to create message digest", e);
-        }
+        return encrypt(pwd, null, type);
 
-        byte[] val = md.digest(pwd.getBytes());
+    }
 
-        StringBuilder sb = new StringBuilder(val.length * 2);
+    /**
+     * Hex the byte buffer
+     * @param bytes the bytes to Hex
+     * @return the result
+     */
+    public static String hex(byte[] bytes) {
+        StringBuilder sb = new StringBuilder(bytes.length * 2);
 
         Formatter formatter = new Formatter(sb);
-        for (byte b : val) {
+        for (byte b : bytes) {
             formatter.format("%02x", b);
         }
 
         return sb.toString();
     }
-
 }

@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.user;
 
+import dk.dma.msinm.user.security.SecurityUtils;
 import org.apache.commons.lang.StringUtils;
 
 import javax.persistence.Column;
@@ -29,6 +30,8 @@ import java.io.Serializable;
 public class SaltedPasswordHash implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    public static final String DIGEST = "SHA-512";
 
     @Column(name="password")
     String passwordHash;
@@ -57,6 +60,26 @@ public class SaltedPasswordHash implements Serializable {
 
     public String getPasswordSalt() { return passwordSalt; }
     public void setPasswordSalt(String passwordSalt) { this.passwordSalt = passwordSalt; }
+
+    /**
+     * Sets the hashed password based on the given password and salt
+     * @param password the clear-text password
+     * @param salt the salt
+     */
+    @Transient
+    public void setPassword(String password, String salt) {
+        setPasswordSalt(salt);
+        setPasswordHash(SecurityUtils.encrypt(password, salt, DIGEST));
+    }
+
+    /**
+     * Returns if the given clear text password matches this password
+     * @param password the clear-text password
+     * @return if it matches this password
+     */
+    public boolean equalsPassword(String password) {
+        return SecurityUtils.encrypt(password, getPasswordSalt(), DIGEST).equals(getPasswordHash());
+    }
 
     /**
      * Returns if the password is defined, i.e. not empty

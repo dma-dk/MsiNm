@@ -151,8 +151,7 @@ public class JbossLoginModule implements LoginModule {
             log.trace("Resolved user " + this.user);
 
             // Compare the passwords
-            String encPassword = SecurityUtils.encrypt(password, "SHA-512");
-            if (!encPassword.equals(this.user.getPassword().getPasswordHash())) {
+            if (!user.getPassword().equalsPassword(password)) {
                 log.trace("Incorrect password for user " + emailOrJwt);
                 FailedLoginException ex = new FailedLoginException("Incorrect password for user " + emailOrJwt);
                 error = ex;
