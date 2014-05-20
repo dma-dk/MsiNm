@@ -152,7 +152,7 @@ public abstract class BaseOAuthServlet extends HttpServlet  {
     }
 
     protected String getCallbackUrl(HttpServletRequest request, String uriKey) {
-        return WebUtils.getBaseUrl(request, request.getServletPath(), "/callback");
+        return WebUtils.getWebAppUrl(request, request.getServletPath(), "/callback");
     }
 
 }

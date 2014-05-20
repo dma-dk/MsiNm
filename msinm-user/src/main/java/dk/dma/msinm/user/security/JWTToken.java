@@ -1,5 +1,9 @@
 package dk.dma.msinm.user.security;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import java.util.Arrays;
+
 /**
  * JWT token as returned to the client as a JSON object.
  * <p>
@@ -42,5 +46,21 @@ public class JWTToken {
 
     public void setRoles(String[] roles) {
         this.roles = roles;
+    }
+
+    /**
+     * Returns a hand-crafted Json representation of the token
+     * @return a hand-crafted Json representation of the token
+     */
+    public String toJson() {
+        JsonArrayBuilder rolesJson = Json.createArrayBuilder();
+        Arrays.asList(roles).forEach(rolesJson::add);
+        return Json.createObjectBuilder()
+                .add("token", getToken())
+                .add("name", name)
+                .add("email", email)
+                .add("roles", rolesJson)
+                .build()
+                .toString();
     }
 }

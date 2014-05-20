@@ -17,6 +17,7 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
+import dk.dma.msinm.user.security.Credentials;
 import dk.dma.msinm.user.security.JWTService;
 import dk.dma.msinm.user.security.JWTToken;
 import dk.dma.msinm.user.security.SecurityUtils;
@@ -51,12 +52,14 @@ public class UserRestService {
      *
      * @param credentials the user credentials
      * @return the user JWT token
+     * @deprecated login via the {@linkplain dk.dma.msinm.user.security.SecurityServletFilter} instead
      */
     @POST
     @Path("/auth")
     @Consumes("application/json")
     @Produces("application/json")
     @NoCache
+    @Deprecated
     public JWTToken authenticate(@Context HttpServletRequest request, Credentials credentials) {
         log.info("Login attempt by " + credentials.getEmail());
 
@@ -84,30 +87,6 @@ public class UserRestService {
     @NoCache
     public String test() {
         return "SUCCESS";
-    }
-
-    /**
-     * User credentials
-     */
-    public static class Credentials {
-        private String email;
-        private String password;
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public void setPassword(String password) {
-            this.password = password;
-        }
     }
 
 }

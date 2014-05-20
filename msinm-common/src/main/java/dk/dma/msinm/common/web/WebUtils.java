@@ -15,6 +15,8 @@
  */
 package dk.dma.msinm.common.web;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -30,7 +32,7 @@ public class WebUtils {
      * @param request the request
      * @return the base URL
      */
-    public static String getBaseUrl(HttpServletRequest request, String... appends) {
+    public static String getWebAppUrl(HttpServletRequest request, String... appends) {
         String result = String.format(
                 "%s://%s%s%s",
                 request.getScheme(),
@@ -41,5 +43,15 @@ public class WebUtils {
             result = result + a;
         }
         return result;
+    }
+
+    /**
+     * Returns the base URL of the request
+     * @param request the request
+     * @return the base URL
+     */
+    public static String getServletUrl(HttpServletRequest request, String... appends) {
+        String[] args = (String[])ArrayUtils.addAll(new String[] { request.getServletPath() }, appends);
+        return getWebAppUrl(request, args);
     }
 }
