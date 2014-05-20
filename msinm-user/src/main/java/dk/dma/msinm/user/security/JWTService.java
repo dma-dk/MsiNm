@@ -46,7 +46,7 @@ public class JWTService {
     Logger log;
 
     @Inject
-    @Setting(value = "jwtTimeoutMinutes", defaultValue = "15")
+    @Setting(value = "jwtTimeoutMinutes", defaultValue = "1") // TODO: Set artificially low for test purposes
     Long jwtTimeoutMinutes;
 
     @Inject
@@ -59,9 +59,7 @@ public class JWTService {
      * @param user the user
      * @return the encrypted JWT
      */
-    public JWTToken getSignedJWT(String issuer, User user) throws Exception {
-        long t0 = System.currentTimeMillis();
-
+    public JWTToken createSignedJWT(String issuer, User user) throws Exception {
 
         // compose the JWT reserved claim names
         JWTClaimsSet jwtClaims = new JWTClaimsSet();
@@ -97,7 +95,8 @@ public class JWTService {
     }
 
     /**
-     * Parses a JWT authorization header
+     * Parses a JWT authorization header. Returns null if the token cannot be parsed
+     *
      * @param token the JWT token
      * @return the parsed JWT
      */
@@ -119,21 +118,6 @@ public class JWTService {
         }
 
         return null;
-    }
-
-    public boolean checkValidBearerToken(String token) {
-        try {
-            ParsedJWTInfo jwtInfo = parseSignedJWT(token);
-            // TODO: Proper implementation
-            return jwtInfo != null;
-        } catch (Exception ex) {
-            return false;
-        }
-    }
-
-    public String extractBearerTokenUser(String token) {
-        // TODO: Proper implementation
-        return "a@b.dk";
     }
 
     /**

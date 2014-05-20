@@ -73,7 +73,7 @@ public class UserRestService {
 
             // Successful login - create a JWT token
             String svr = String.format("%s://%s", request.getScheme(), request.getServerName());
-            return jwtService.getSignedJWT(svr, (User)request.getUserPrincipal());
+            return jwtService.createSignedJWT(svr, (User) request.getUserPrincipal());
         } catch (Exception e) {
             log.error("Failed generating JWT for user " + credentials.getEmail(), e);
         }

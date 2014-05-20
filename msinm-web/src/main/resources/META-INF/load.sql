@@ -11,3 +11,5 @@ insert into msi.user_role (user_id, roles_id) values (0,0);
 insert into msi.user_role (user_id, roles_id) values (0,1);
 insert into msi.user_role (user_id, roles_id) values (1,0);
 
+create index user_email on msi.user (email);
+

@@ -16,11 +16,13 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
+import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import java.security.Principal;
 import java.security.acl.Group;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -115,6 +117,16 @@ public class JbossLoginModule implements LoginModule {
             try {
                 JWTService.ParsedJWTInfo jwtInfo = jwtService.parseSignedJWT(emailOrJwt);
                 if (jwtInfo != null) {
+
+                    // Check if the bearer token has expired
+                    Date now = new Date();
+                    if (now.after(jwtInfo.getExpirationTime())) {
+                        log.trace("JWT token for user %s expired at %s", jwtInfo.getSubject(), jwtInfo.getExpirationTime());
+                        LoginException ex = new CredentialExpiredException("JWT token expired");
+                        error = ex;
+                        throw ex;
+                    }
+
                     log.trace("Logging in using JWT token for user id " + jwtInfo.getSubject());
                     this.user = userService.findById(Integer.parseInt(jwtInfo.getSubject()));
                     this.identity = SecurityUtils.getPrincipal(this.user);

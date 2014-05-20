@@ -80,7 +80,6 @@ public class SecurityServletFilter implements Filter {
             }
         } catch (ServletException ex) {
             log.warn("Failed logging in using bearer token");
-            //ex.printStackTrace();
         }
     }
 
@@ -105,7 +104,7 @@ public class SecurityServletFilter implements Filter {
             try {
                 request = SecurityUtils.login(userService, request, credentials.getEmail(), credentials.getPassword());
 
-                JWTToken jwt = jwtService.getSignedJWT(svr, (User)request.getUserPrincipal());
+                JWTToken jwt = jwtService.createSignedJWT(svr, (User) request.getUserPrincipal());
                 response.setContentType("application/json");
                 response.setHeader("Cache-Control", "no-cache") ;
                 response.setHeader("Expires", "0") ;
