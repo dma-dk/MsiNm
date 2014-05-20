@@ -13,6 +13,7 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Base64;
 
 /**
  * Handles security in the application
@@ -20,8 +21,9 @@ import java.io.IOException;
 @WebFilter(urlPatterns={"*"})
 public class SecurityServletFilter implements Filter {
 
-    private final static String BEARER_TOKEN_HEADER = "Authorization";
-    private final static String BEARER_TOKEN_PREFIX = "Bearer ";
+    private final static String AUTHORIZATION_HEADER = "Authorization";
+    private final static String JWT_TOKEN = "Bearer ";
+    private final static String BASIC_AUTH = "Basic ";
 
     @Inject
     private Logger log;
@@ -57,10 +59,35 @@ public class SecurityServletFilter implements Filter {
         }
 
         // If the request contains a JWT token header, attempt a login on the request
-        attemptJwtLogin(request);
+        attemptJwtAuthLogin(request);
+
+        // If the request contains a Basic authentication header, attempt a login
+        attemptBasicAuthLogin(request);
 
         // Propagate the request
         chain.doFilter(request, response);
+    }
+
+    /**
+     * If the request contains a Basic authentication header, the user will be logged in for this request
+     * using the specified credentials.
+     * <p>
+     * If the authentication fails, this methods does nothing. It is left to the handler of the request,
+     * say a Rest endpoint, to throw an error if security requirements are not met.
+     *
+     * @param request the servlet request
+     */
+    private void attemptBasicAuthLogin(HttpServletRequest request) {
+        try {
+            String token = getAuthHeaderToken(request, BASIC_AUTH);
+            if (token != null) {
+                String[] cred = new String(Base64.getDecoder().decode(token), "UTF-8").split(":");
+                request = SecurityUtils.login(userService, request, cred[0], cred[1]);
+                log.trace("Found Basic Auth user " + request.getUserPrincipal().getName());
+            }
+        } catch (Exception ex) {
+            log.warn("Failed logging in using Basic Authentication");
+        }
     }
 
     /**
@@ -71,9 +98,9 @@ public class SecurityServletFilter implements Filter {
      *
      * @param request the servlet request
      */
-    public void attemptJwtLogin(HttpServletRequest request)  {
+    public void attemptJwtAuthLogin(HttpServletRequest request)  {
         try {
-            String jwt = getJwtBearerToken(request);
+            String jwt = getAuthHeaderToken(request, JWT_TOKEN);
             if (jwt != null) {
                 request = SecurityUtils.login(userService, request, jwt, JbossLoginModule.BEARER_TOKEN_LOGIN);
                 log.trace("Found JWT user " + request.getUserPrincipal().getName());
@@ -121,16 +148,16 @@ public class SecurityServletFilter implements Filter {
     }
 
     /**
-     * Returns the bearer token or null if not present
+     * Returns the Authorization header token or null if not present
      *
      * @param request the servlet request
-     * @return the bearer token or null if not present
+     * @return the Authorization header token or null if not present
      */
-    protected String getJwtBearerToken(HttpServletRequest request) {
+    protected String getAuthHeaderToken(HttpServletRequest request, String autType) {
 
-        String header = request.getHeader(BEARER_TOKEN_HEADER);
-        if (header != null && header.startsWith(BEARER_TOKEN_PREFIX)) {
-            return header.substring(BEARER_TOKEN_PREFIX.length()).trim();
+        String header = request.getHeader(AUTHORIZATION_HEADER);
+        if (header != null && header.startsWith(autType)) {
+            return header.substring(autType.length()).trim();
         }
         return null;
     }
