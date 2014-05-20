@@ -54,7 +54,7 @@ public class SecurityServletFilter implements Filter {
             String jwt = getBearerToken(request);
             if (jwt != null) {
                 request = SecurityUtils.login(userService, request, jwt, JbossLoginModule.BEARER_TOKEN_LOGIN);
-                log.info("Found JWT user " + request.getUserPrincipal().getName());
+                log.trace("Found JWT user " + request.getUserPrincipal().getName());
             }
         } catch (ServletException ex) {
             log.warn("Failed logging in using bearer token");

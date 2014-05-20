@@ -106,7 +106,7 @@ public class JbossLoginModule implements LoginModule {
          **/
 
 
-        String[] credentials = getUsernameAndPassword();
+        String[] credentials = getUserAndPassword();
         String emailOrJwt = credentials[0];
         String password = credentials[1];
 
@@ -117,9 +117,10 @@ public class JbossLoginModule implements LoginModule {
                 if (jwtInfo != null) {
                     log.trace("Logging in using JWT token for user id " + jwtInfo.getSubject());
                     this.user = userService.findById(Integer.parseInt(jwtInfo.getSubject()));
-                    this.identity = new SimplePrincipal(String.valueOf(user.getId()));
+                    this.identity = SecurityUtils.getPrincipal(this.user);
                 }
             } catch (Exception ex) {
+                log.trace("Error parsing JWT token");
             }
 
             if (this.user == null) {
@@ -136,7 +137,7 @@ public class JbossLoginModule implements LoginModule {
             Exception cause = null;
             try {
                 this.user = userService.findByEmail(emailOrJwt);
-                this.identity = new SimplePrincipal(String.valueOf(user.getId()));
+                this.identity = SecurityUtils.getPrincipal(user);
             } catch (Exception ex) {
                 cause = ex;
             }
@@ -227,12 +228,12 @@ public class JbossLoginModule implements LoginModule {
     }
 
 
-    /** Called by login() to acquire the username and password strings for
-     authentication. This method does no validation of either.
-     @return String[], [0] = username, [1] = password
-     @exception LoginException thrown if CallbackHandler is not set or fails.
+    /**
+     * Called by login() to acquire the user and password strings for
+     * authentication. This method does no validation of either.
+     * @return String[], [0] = username, [1] = password
      */
-    protected String[] getUsernameAndPassword() throws LoginException
+    protected String[] getUserAndPassword() throws LoginException
     {
         String[] info = {null, null};
         // prompt for a username and password
@@ -243,7 +244,7 @@ public class JbossLoginModule implements LoginModule {
         NameCallback nc = new NameCallback("Enter email address", "guest");
         PasswordCallback pc = new PasswordCallback("Enter password", false);
         Callback[] callbacks = {nc, pc};
-        String username = null;
+        String username;
         String password = null;
         try  {
             callbackHandler.handle(callbacks);

@@ -3,12 +3,14 @@ package dk.dma.msinm.user.security;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
 import org.apache.commons.lang.StringUtils;
+import org.jboss.security.SimplePrincipal;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.security.Principal;
 import java.util.Formatter;
 
 /**
@@ -39,14 +41,26 @@ public class SecurityUtils {
         // Will throw an exception if the login fails
         request.login(username, password);
 
-        String id = request.getUserPrincipal().getName();
-        final User user = userService.getByPrimaryKey(User.class, Integer.valueOf(id));
+        // The email is used as it is unique for the user
+        String email = request.getUserPrincipal().getName();
+        final User user = userService.findByEmail(email);
         return new HttpServletRequestWrapper(request) {
             @Override
             public java.security.Principal getUserPrincipal() {
                 return user;
             }
         };
+    }
+
+    /**
+     * See the comment for {@code login()}. The {@linkplain JbossLoginModule} returns a {@code SimplePrincipal}
+     * rather than a {@code User}, which is then swapped back by the {@linkplain dk.dma.msinm.user.security.SecurityServletFilter}
+     * @param user the user to return a SimplePrincipal for
+     * @return the principal for the user
+     */
+    public static Principal getPrincipal(User user) {
+        // The email is used as it is unique for the user
+        return new SimplePrincipal(user.getEmail());
     }
 
     /**
