@@ -47,7 +47,7 @@ public class JWTService {
     Long jwtTimeoutMinutes;
 
     @Inject
-    @Setting(value = "jwtReauthMinutes", defaultValue = "10") 
+    @Setting(value = "jwtReauthMinutes", defaultValue = "10")
     Long jwtReauthMinutes;
 
     @Inject

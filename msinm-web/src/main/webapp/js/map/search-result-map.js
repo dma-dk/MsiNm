@@ -21,6 +21,21 @@ angular.module('msinm.map')
             /*********************************/
             /* Layers                        */
             /*********************************/
+            var wmsLayer = new OpenLayers.Layer.WMS("WMS", "/wms/", {
+                layers : 'cells',
+                servicename : 'soe_enc',
+                transparent : 'true',
+                styles : 'default',
+                login : 'StatSofart',
+                password : '114karls'
+            }, {
+
+                isBaseLayer : false,
+                visibility : false,
+                projection : 'EPSG:3857'
+                // ,getURL:get_my_url
+            });
+
             var locLayer = new OpenLayers.Layer.Vector("Location", {
                 styleMap: new OpenLayers.StyleMap({
                     "default": new OpenLayers.Style({
@@ -55,6 +70,7 @@ angular.module('msinm.map')
                 theme: null,
                 layers: [
                     new OpenLayers.Layer.OSM("OpenStreetMap"),
+                    wmsLayer,
                     msiLayer,
                     locLayer
                 ],
@@ -64,9 +80,8 @@ angular.module('msinm.map')
                 zoom: zoom
             });
 
-
             /*********************************/
-            /* Update the location feaure    */
+            /* Update the location feature   */
             /*********************************/
             scope.$watch(attrs.loc, function (value) {
 
@@ -117,6 +132,13 @@ angular.module('msinm.map')
             });
 
             /*********************************/
+            /* Update the location feature   */
+            /*********************************/
+            scope.$watch(attrs.showWms, function (value) {
+                wmsLayer.setVisibility(value);
+            });
+
+            /*********************************/
             /* Pop-ups for the features      */
             /*********************************/
             var msiSelect = new OpenLayers.Control.SelectFeature(msiLayer);
@@ -150,6 +172,17 @@ angular.module('msinm.map')
                     delete event.feature.popup;
                 }
             }
+
+            /*********************************/
+            /* Handle WMS layer events       */
+            /*********************************/
+/*
+            map.events.register('zoomend', map, function(event) {
+                var map = event.object;
+                wmsLayer.setVisibility(map.getZoom() > 8);
+                wmsLayer.setVisibility(map.getZoom() < 9);
+            });
+*/
         }
     }
 }]);

@@ -27,6 +27,8 @@ angular.module('msinm')
         $scope.sortBy = 'DATE';
         $scope.sortDesc = true;
 
+        $scope.showWms = false;
+
         $scope.importCount = 500;
 
         $scope.newSearch = function () {
