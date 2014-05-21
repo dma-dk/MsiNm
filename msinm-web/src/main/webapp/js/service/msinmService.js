@@ -7,23 +7,34 @@ angular.module('msinm')
     /**
      * Interceptor that adds a JWT token to the requests as an authorization header.
      */
-    .factory('authInterceptor', ['$rootScope', '$q', function ($rootScope, $q) {
+    .factory('authInterceptor', ['$rootScope', '$q', '$injector', 'Auth', function ($rootScope, $q, $injector, Auth) {
         'use strict';
 
         return {
             request: function (config) {
                 config.headers = config.headers || {};
+                // If the user is logged using a JWT token, add it as a header
                 if ($rootScope.currentUser) {
                     config.headers.Authorization = 'Bearer ' + $rootScope.currentUser.token;
                 }
                 return config;
             },
+
             response: function (response) {
-                if (response.status === 401) {
-                    console.error("User not authenticated");
-                    // handle the case where the user is not authenticated
+                if (response.status == 200 && response.headers('Reauthorization')) {
+                    Auth.reauthenticate(response.headers('Reauthorization'));
                 }
-                return response || $q.when(response);
+                return response;
+            },
+
+            responseError: function(response) {
+                switch (response.status) {
+                    case 401:
+                    case 419:
+                        Auth.logout();
+                        $rootScope.$broadcast('Login', "Authorization error");
+                }
+                return $q.reject(response);
             }
         };
     }])
@@ -69,7 +80,7 @@ angular.module('msinm')
 
             authenticate: function(user, success, error) {
                 $http
-                    .post('/auth', user)
+                    .post('/auth', user, { ignoreAuthModule : true })
                     .success(function (data, status, headers, config) {
                         // Save the JWT token
                         Auth.login(data);

@@ -16,13 +16,11 @@ import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.NameCallback;
 import javax.security.auth.callback.PasswordCallback;
-import javax.security.auth.login.CredentialExpiredException;
 import javax.security.auth.login.FailedLoginException;
 import javax.security.auth.login.LoginException;
 import javax.security.auth.spi.LoginModule;
 import java.security.Principal;
 import java.security.acl.Group;
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -109,31 +107,16 @@ public class JbossLoginModule implements LoginModule {
 
 
         String[] credentials = getUserAndPassword();
-        String emailOrJwt = credentials[0];
+        String email = credentials[0];
         String password = credentials[1];
 
         // If the password is BEARER_TOKEN_LOGIN, the user should be a JWT token
-        if (BEARER_TOKEN_LOGIN.equals(password)) {
-            try {
-                JWTService.ParsedJWTInfo jwtInfo = jwtService.parseSignedJWT(emailOrJwt);
-                if (jwtInfo != null) {
+        if (password.startsWith(BEARER_TOKEN_LOGIN) &&
+                jwtService.verifyTempJwtPwdToken(password)) {
 
-                    // Check if the bearer token has expired
-                    Date now = new Date();
-                    if (now.after(jwtInfo.getExpirationTime())) {
-                        log.trace("JWT token for user %s expired at %s", jwtInfo.getSubject(), jwtInfo.getExpirationTime());
-                        LoginException ex = new CredentialExpiredException("JWT token expired");
-                        error = ex;
-                        throw ex;
-                    }
-
-                    log.trace("Logging in using JWT token for user id " + jwtInfo.getSubject());
-                    this.user = userService.findById(Integer.parseInt(jwtInfo.getSubject()));
-                    this.identity = SecurityUtils.getPrincipal(this.user);
-                }
-            } catch (Exception ex) {
-                log.trace("Error parsing JWT token");
-            }
+            log.trace("Logging in using JWT token for user id " + email);
+            this.user = userService.findByEmail(email);
+            this.identity = SecurityUtils.getPrincipal(this.user);
 
             if (this.user == null) {
                 log.trace("Failed logging in with JWT token");
@@ -143,19 +126,18 @@ public class JbossLoginModule implements LoginModule {
             }
 
 
-
         } else {
 
             Exception cause = null;
             try {
-                this.user = userService.findByEmail(emailOrJwt);
+                this.user = userService.findByEmail(email);
                 this.identity = SecurityUtils.getPrincipal(user);
             } catch (Exception ex) {
                 cause = ex;
             }
             if (this.user == null) {
-                log.trace("Failed resolving user for " + emailOrJwt);
-                LoginException ex = new LoginException("Failed resolving user for " + emailOrJwt);
+                log.trace("Failed resolving user for " + email);
+                LoginException ex = new LoginException("Failed resolving user for " + email);
                 ex.initCause(cause);
                 error = ex;
                 throw ex;
@@ -165,8 +147,8 @@ public class JbossLoginModule implements LoginModule {
 
             // Compare the passwords
             if (!user.getPassword().equalsPassword(password)) {
-                log.trace("Incorrect password for user " + emailOrJwt);
-                FailedLoginException ex = new FailedLoginException("Incorrect password for user " + emailOrJwt);
+                log.trace("Incorrect password for user " + email);
+                FailedLoginException ex = new FailedLoginException("Incorrect password for user " + email);
                 error = ex;
                 throw ex;
             }

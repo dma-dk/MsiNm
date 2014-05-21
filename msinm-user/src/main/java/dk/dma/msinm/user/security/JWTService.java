@@ -22,18 +22,14 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.ReadOnlyJWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import dk.dma.msinm.common.settings.annotation.Setting;
-import dk.dma.msinm.user.Role;
 import dk.dma.msinm.user.User;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
-import java.util.stream.Collectors;
+import javax.security.auth.login.CredentialExpiredException;
+import java.util.*;
 
 /**
  * Service for handling Json Web Tokens (JWT).
@@ -41,13 +37,18 @@ import java.util.stream.Collectors;
 @Singleton
 public class JWTService {
 
+    private static ThreadLocal<String> THREAD_TEMP_JWT_PWD_TOKEN = new ThreadLocal<>();
 
     @Inject
     Logger log;
 
     @Inject
-    @Setting(value = "jwtTimeoutMinutes", defaultValue = "1") // TODO: Set artificially low for test purposes
+    @Setting(value = "jwtTimeoutMinutes", defaultValue = "30")
     Long jwtTimeoutMinutes;
+
+    @Inject
+    @Setting(value = "jwtReauthMinutes", defaultValue = "10") 
+    Long jwtReauthMinutes;
 
     @Inject
     @Setting(value = "jwtHmacSharedKey", defaultValue = "sdjkfhs-SALKJD-933409_JksdjfkA")
@@ -63,7 +64,7 @@ public class JWTService {
 
         // compose the JWT reserved claim names
         JWTClaimsSet jwtClaims = new JWTClaimsSet();
-        jwtClaims.setSubject("" + user.getId());
+        jwtClaims.setSubject(user.getEmail());
         jwtClaims.setIssuer(issuer);
         jwtClaims.setAudience(Arrays.asList(issuer));
         jwtClaims.setExpirationTime(new Date(new Date().getTime() + 1000 * 60 * jwtTimeoutMinutes));
@@ -95,7 +96,7 @@ public class JWTService {
     }
 
     /**
-     * Parses a JWT authorization header. Returns null if the token cannot be parsed
+     * Parses a JWT authorization header. Throws an exception if the JWT cannot be verified
      *
      * @param token the JWT token
      * @return the parsed JWT
@@ -108,16 +109,53 @@ public class JWTService {
 
         boolean verifiedSignature = signedJWT.verify(verifier);
 
-        if (verifiedSignature) {
-            ReadOnlyJWTClaimsSet claims = signedJWT.getJWTClaimsSet();
-
-            ParsedJWTInfo jwtInfo = new ParsedJWTInfo();
-            jwtInfo.setSubject(claims.getSubject());
-            jwtInfo.setExpirationTime(claims.getExpirationTime());
-            return jwtInfo;
+        if (!verifiedSignature) {
+            throw new CredentialExpiredException("JWT token expired");
         }
 
-        return null;
+        ReadOnlyJWTClaimsSet claims = signedJWT.getJWTClaimsSet();
+
+        // Collect the interesting information in a ParsedJWTInfo and return it
+        ParsedJWTInfo jwtInfo = new ParsedJWTInfo();
+        jwtInfo.setSubject(claims.getSubject());
+        jwtInfo.setExpirationTime(claims.getExpirationTime());
+        jwtInfo.setIssueTime(claims.getIssueTime());
+        return jwtInfo;
+    }
+
+    /**
+     * Checks to see if it is time to issue a new JWT token
+     * @param jwtInfo the current JWT token
+     * @return if it is time to issue a new JWT token
+     */
+    public boolean reauthJWT(ParsedJWTInfo jwtInfo) {
+        double minutesOld = (new Date().getTime() - jwtInfo.getIssueTime().getTime()) / 1000.0 / 60.0;
+        return minutesOld > jwtReauthMinutes.doubleValue();
+    }
+
+    /**
+     * Generates a temporary password token. This is generated in the SecurityServletFilter
+     * and used in the JbossLoginModule in the same synchronous request.
+     * @param prefix a prefix
+     * @return the temporary password token
+     */
+    public String generateTempJwtPwdToken(String prefix) {
+        String pwd = StringUtils.defaultString(prefix) + UUID.randomUUID().toString();
+        THREAD_TEMP_JWT_PWD_TOKEN.set(pwd);
+        return pwd;
+    }
+
+    /**
+     * Verifies that the given password is the one associated with the current thread.
+     * At the same time, it removes the password from the current thread, so, it can
+     * only be called onece.
+     * @param pwd the password to check
+     * @return if the password matches the one of the current thread
+     */
+    public boolean verifyTempJwtPwdToken(String pwd) {
+        String threadPwd = THREAD_TEMP_JWT_PWD_TOKEN.get();
+        THREAD_TEMP_JWT_PWD_TOKEN.remove();
+        return pwd.equals(threadPwd);
     }
 
     /**
@@ -126,6 +164,7 @@ public class JWTService {
     public static class ParsedJWTInfo {
         String subject;
         Date expirationTime;
+        Date issueTime;
 
         public String getSubject() {
             return subject;
@@ -141,6 +180,14 @@ public class JWTService {
 
         public void setExpirationTime(Date expirationTime) {
             this.expirationTime = expirationTime;
+        }
+
+        public Date getIssueTime() {
+            return issueTime;
+        }
+
+        public void setIssueTime(Date issueTime) {
+            this.issueTime = issueTime;
         }
     }
 }

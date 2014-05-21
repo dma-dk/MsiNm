@@ -11,16 +11,14 @@ angular.module('msinm.user', [ ])
         $scope.message = undefined;
         $scope.user = { email:$cookieStore.get('lastLogin'), password: undefined };
 
-        $scope.loggedIn = false;
+        $scope.$on('Login', function (event, message) {
+            $scope.loginDlg();
+            $scope.message = message;
+        });
 
         $scope.loginDlg = function() {
             $scope.loginDialog = $modal.open({
-                templateUrl : "/partials/login-dialog.html",
-                resolve : {
-                    msg : function() {
-                        return typeof config === "object" ? config.msg : null;
-                    }
-                }
+                templateUrl : "/partials/login-dialog.html"
             });
             return $scope.loginDialog;
         };
@@ -70,6 +68,11 @@ angular.module('msinm.user', [ ])
                 if (jwtToken) {
                     storage.jwt = JSON.stringify(jwtToken);
                 }
+            },
+
+            reauthenticate: function(jwtToken) {
+                $rootScope.currentUser.token = jwtToken;
+                storage.jwt = JSON.stringify($rootScope.currentUser);
             },
 
             logout: function() {
