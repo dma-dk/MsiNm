@@ -33,7 +33,6 @@ angular.module('msinm.map')
                 isBaseLayer : false,
                 visibility : false,
                 projection : 'EPSG:3857'
-                // ,getURL:get_my_url
             });
 
             var locLayer = new OpenLayers.Layer.Vector("Location", {
@@ -49,16 +48,39 @@ angular.module('msinm.map')
                 })
             });
 
+            var msiContext = {
+                strokeWidth: function(feature) {
+                    return feature.attributes.bg ? 4 : 2;
+                },
+                strokeColor: function(feature) {
+                    return feature.attributes.bg ? "#ffffff" : "#8f2f7b";
+                },
+                fillColor: function(feature) {
+                    return feature.attributes.bg ? "#ffffff" : "#ad57a1";
+                },
+                graphicSize: function(feature) {
+                    return 20;
+                },
+                graphicOffset: function(feature) {
+                    return -msiContext.graphicSize() / 2;
+                }
+            }
+
             var msiLayer  = new OpenLayers.Layer.Vector( "Msi-Nm", {
                 styleMap: new OpenLayers.StyleMap({
                     "default": new OpenLayers.Style({
-                        fillColor: "#ad57a1",
-                        fillOpacity: 0.5,
+                        externalGraphic : "img/msi.png",
+                        graphicWidth : "${graphicSize}",
+                        graphicHeight : "${graphicSize}",
+                        graphicYOffset : "${graphicOffset}",
+                        graphicXOffset : "${graphicOffset}",
+                        fillColor: "${fillColor}",
+                        fillOpacity: 1.0,
                         pointRadius: 8,
-                        strokeWidth: 2,
-                        strokeColor: "#8f2f7b",
-                        strokeOpacity: 0.8
-                    })
+                        strokeWidth: "${strokeWidth}",
+                        strokeColor: "${strokeColor}",
+                        strokeOpacity: 1.0
+                    }, { context: msiContext })
                 })
             });
 
@@ -117,13 +139,11 @@ angular.module('msinm.map')
                         var msg = value.messages[i];
                         var loc = msg.messageItems[0].locations[0];
 
-                        var attr = {
-                            id : i,
-                            description: msg.messageItems[0].keySubject,
-                            type : "msi",
-                            msi : msg
-                        }
+                        var bgAttr = { id : i, description: msg.messageItems[0].keySubject, type : "msi", msi : msg, bg:true  };
+                        MapService.createLocationFeature(loc, bgAttr, features);
 
+                        // Flick the "showVertices to true to show icons for each vertex
+                        var attr = { id : i, description: msg.messageItems[0].keySubject, type : "msi", msi : msg, showVertices:false  };
                         MapService.createLocationFeature(loc, attr, features);
 
                     }
