@@ -36,6 +36,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -348,7 +349,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                     .getResultList();
             result.setMessages(pagedResult);
 
-            log.info("Message search result: " + result + " in " +
+            log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");
 
             return result;
@@ -358,6 +359,30 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             return result;
         }
     }
+
+    /**
+     * TODO
+     */
+    public List<MessageLocation> searchLocations(MessageSearchParams param) {
+        long t0 = System.currentTimeMillis();
+        List<MessageLocation> result = new ArrayList<>();
+
+        try {
+
+            MessageSearchResult messages = search(param);
+
+            for (Message msg : messages.getMessages()) {
+                MessageItem item = ((NavwarnMessage) msg).getMessageItems().get(0);
+                result.addAll(item.getLocations().stream().filter(loc -> loc.getPoints().size() > 0).collect(Collectors.toList()));
+            }
+            return result;
+
+        } catch (Exception e) {
+            log.error("Error performing search : " + e, e);
+            return result;
+        }
+    }
+
 
     /**
      * Sorts the criteria query according to the parameters

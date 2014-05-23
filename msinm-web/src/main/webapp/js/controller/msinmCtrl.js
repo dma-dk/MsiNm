@@ -20,7 +20,7 @@ angular.module('msinm')
         $scope.dateFrom = '';
         $scope.dateTo = '';
 
-        $scope.pageSize = 50;
+        $scope.pageSize = 100;
         $scope.currentPage = 1;
         $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
 

@@ -87,12 +87,16 @@ angular.module('msinm.map')
             /*********************************/
             /* Map                           */
             /*********************************/
+
+            var testLayer = new OpenLayers.Layer.OSM("MsiLayer", "http://localhost:8080/msi/${z}/${x}/${y}.png", {'isBaseLayer': false});
+
             var map = new OpenLayers.Map({
                 div: element[0],
                 theme: null,
                 layers: [
                     new OpenLayers.Layer.OSM("OpenStreetMap"),
                     wmsLayer,
+                    testLayer,
                     msiLayer,
                     locLayer
                 ],
