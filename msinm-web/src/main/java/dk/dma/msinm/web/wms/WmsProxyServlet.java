@@ -22,6 +22,10 @@ import java.util.stream.Collectors;
 @WebServlet(value = "/wms/*", asyncSupported = true)
 public class WmsProxyServlet extends HttpServlet {
 
+    // The color we want transparent
+    final static Color[] MASKED_COLORS = { Color.WHITE, new Color(221, 241, 239) };
+    final static int COLOR_DIST = 20;
+
     @Inject
     Logger log;
 
@@ -76,19 +80,19 @@ public class WmsProxyServlet extends HttpServlet {
         final int width = image.getWidth();
         int[] imgData = new int[width];
 
-        // The color we want transparent
-        final Color color = Color.WHITE;
-        // the color we are looking for... Alpha bits are set to opaque
-        int markerRGB = color.getRGB() | 0xFF000000;
-
         for (int y = 0; y < dest.getHeight(); y++) {
             // fetch a line of data from each image
             dest.getRGB(0, y, width, 1, imgData, 0, 1);
             // apply the mask
             for (int x = 0; x < width; x++) {
-                if ((imgData[x] | 0xFF000000) == markerRGB) {
-                    // Mark the alpha bits as zero - transparent
-                    imgData[x] = 0x00FFFFFF & imgData[x];
+                for (Color col : MASKED_COLORS) {
+                    int colDist
+                            = Math.abs(col.getRed() - (imgData[x] >> 16 & 0x000000FF))
+                            + Math.abs(col.getGreen() - (imgData[x] >> 8 & 0x000000FF))
+                            + Math.abs(col.getBlue() - (imgData[x] & 0x000000FF));
+                    if (colDist <= COLOR_DIST) {
+                        imgData[x] = 0x00FFFFFF & imgData[x];
+                    }
                 }
             }
             // replace the data

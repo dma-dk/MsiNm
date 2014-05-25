@@ -79,10 +79,20 @@ angular.module('msinm.map')
                 return features;
             }
 
+            // If the attr.bg attribute is set, it signals that the
+            // feature is used to add a background "outilne" with a wider
+            // stroke and different stroke color.
+            // Since Points are shown as icons, ignore them.
+            var isBG = (attr.bg && attr.bg == true);
+
+            attr.locType = loc.type;
+
             switch (loc.type) {
                 case 'POINT':
-                    for (var j in loc.points) {
-                        features.push(new OpenLayers.Feature.Vector(createPoint(loc.points[j].lon, loc.points[j].lat), attr));
+                    if (!isBG) {
+                        for (var j in loc.points) {
+                            features.push(new OpenLayers.Feature.Vector(createPoint(loc.points[j].lon, loc.points[j].lat), attr));
+                        }
                     }
                     break;
 
@@ -100,6 +110,12 @@ angular.module('msinm.map')
                             : new OpenLayers.Geometry.LineString(points),
                         attr
                     ));
+
+                    if (attr.showVertices) {
+                        for (var j in points) {
+                            features.push(new OpenLayers.Feature.Vector(points[j], attr));
+                        }
+                    }
                     break;
 
                 case 'CIRCLE':
