@@ -18,6 +18,7 @@ package dk.dma.msinm.service;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.NavwarnMessage;
 import dk.dma.msinm.model.NoticeMessage;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -28,8 +29,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Business interface for accessing MSI-NM messages
@@ -128,5 +131,17 @@ public class MessageService extends BaseService {
                 .setParameter("date", date)
                 .setMaxResults(maxCount)
                 .getResultList();
+    }
+
+    public List<MessageLocation> getMessageLocations(Integer id) {
+        List<MessageLocation> result = new ArrayList<>();
+        NavwarnMessage msg = (NavwarnMessage)findById(id);
+        if (msg != null) {
+            result.addAll(msg.getMessageItems().get(0).getLocations()
+                    .stream()
+                    .filter(location -> location.getPoints().size() > 0)
+                    .collect(Collectors.toList()));
+        }
+        return result;
     }
 }
