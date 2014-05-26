@@ -101,8 +101,8 @@ public class MsiServlet extends HttpServlet {
         params.setMaxHits(10000);
         params.setLocation(loc);
 
-        Color col = Color.red;
-        Color fillCol = new Color(1f, 0f, 0f, 0.3f);
+        Color col = new Color(143, 47, 123);
+        Color fillCol = new Color(173, 87, 161, 80);
 
         int xy0[] =  mercator.LatLonToPixels(-bounds[0], bounds[1], z);
         java.util.List<MessageLocation> locations = messageSearchService.searchLocations(params);
@@ -115,7 +115,7 @@ public class MsiServlet extends HttpServlet {
                 int xy[] = mercator.LatLonToPixels(pt.getLat(), pt.getLon(), z);
                 double px = xy[0] - xy0[0];
                 double py = -(xy[1] - xy0[1]);
-                double radius = 2.0;
+                double radius = (z < 6) ? 1.0 : 2.0;
 
                 Shape theCircle = new Ellipse2D.Double(px - radius, py - radius, 2.0 * radius, 2.0 * radius);
                 g2.setColor(col);
@@ -148,37 +148,6 @@ public class MsiServlet extends HttpServlet {
 
             }
         });
-
-        /*
-        LonLat[] bounds = CoordUtils.getLonLatBounds(x, y, z);
-
-        MessageLocation loc = new MessageLocation();
-        loc.setType(MessageLocation.LocationType.POLYGON);
-        loc.getPoints().add(new Point(bounds[0].getLat(), bounds[0].getLon()));
-        loc.getPoints().add(new Point(bounds[1].getLat(), bounds[0].getLon()));
-        loc.getPoints().add(new Point(bounds[1].getLat(), bounds[1].getLon()));
-        loc.getPoints().add(new Point(bounds[0].getLat(), bounds[1].getLon()));
-
-        MessageSearchParams params = new MessageSearchParams();
-        params.setMaxHits(10000);
-        params.setLocation(loc);
-
-        g2.setColor(Color.red);
-
-        java.util.List<MessageLocation> locations = messageSearchService.searchLocations(params);
-        locations.stream().filter(location -> location.getType() == MessageLocation.LocationType.POINT).forEach(location -> {
-            Point pt = location.getPoints().get(0);
-            LonLat pos = new LonLat(pt.getLon(), pt.getLat());
-
-            double px = (pos.getLon() - Math.min(bounds[0].getLon(), bounds[1].getLon())) / Math.abs(bounds[0].getLon() - bounds[1].getLon()) * 256.0;
-            double py = 256.0 - (pos.getLat() - Math.min(bounds[0].getLat(), bounds[1].getLat())) / Math.abs(bounds[0].getLat() - bounds[1].getLat()) * 256.0;
-            double radius = 2.0;
-
-            Shape theCircle = new Ellipse2D.Double(px - radius, py - radius, 2.0 * radius, 2.0 * radius);
-            g2.fill(theCircle);
-        });
-
-        */
 
         g2.dispose();
         return image;
