@@ -201,6 +201,8 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
         try {
             writer = getNewWriter();
             writer.deleteAll();
+            writer.setCommitData(new HashMap<>());
+            writer.commit();
         } finally {
             closeWriter(writer);
         }
