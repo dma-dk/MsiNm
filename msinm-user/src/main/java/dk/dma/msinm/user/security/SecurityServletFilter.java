@@ -2,7 +2,7 @@ package dk.dma.msinm.user.security;
 
 
 import dk.dma.msinm.common.audit.Auditor;
-import dk.dma.msinm.common.web.WebUtils;
+import dk.dma.msinm.common.util.WebUtils;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
 import org.slf4j.Logger;

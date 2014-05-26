@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.user.security.oath;
 
-import dk.dma.msinm.common.web.WebUtils;
+import dk.dma.msinm.common.util.WebUtils;
 import dk.dma.msinm.user.UserService;
 import org.slf4j.Logger;
 

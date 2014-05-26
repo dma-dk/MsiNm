@@ -1,5 +1,6 @@
 package dk.dma.msinm.web;
 
+import dk.dma.msinm.common.util.GraphicsUtils;
 import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.MessageSearchParams;
@@ -18,8 +19,6 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -32,8 +31,6 @@ public class MsiServlet extends HttpServlet {
     static final int TILE_SIZE = 256;
     static final Pattern TILE_PATTERN = Pattern.compile("/(\\d+)/(\\d+)/(\\d+)\\.png");
 
-    RenderingHints renderHints;
-
     @Inject
     Logger log;
 
@@ -45,11 +42,6 @@ public class MsiServlet extends HttpServlet {
      */
     public MsiServlet() {
         super();
-        Map<RenderingHints.Key, Object> map = new HashMap<RenderingHints.Key, Object>();
-        map.put(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
-        map.put(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-        map.put(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-        renderHints = new RenderingHints(map);
     }
 
     /**
@@ -93,7 +85,7 @@ public class MsiServlet extends HttpServlet {
 
         BufferedImage image = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = image.createGraphics();
-        g2.setRenderingHints(renderHints);
+        GraphicsUtils.antialias(g2);
 
         GlobalMercator mercator = new GlobalMercator();
         double[] bounds = mercator.TileLatLonBounds(x, y, z);

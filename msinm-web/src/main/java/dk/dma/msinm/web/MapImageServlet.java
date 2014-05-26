@@ -2,6 +2,7 @@ package dk.dma.msinm.web;
 
 import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.common.util.GraphicsUtils;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.NavwarnMessage;
@@ -31,9 +32,9 @@ import static dk.dma.msinm.common.repo.RepositoryService.HashFolderLevels.ONE;
 import static dk.dma.msinm.model.MessageLocation.LocationType;
 
 /**
- * Returns and caches a thumbnail image for a message
- *
- * TODO: Use MD5 hashing folder structure for map image repo
+ * Returns and caches a thumbnail image for a message.
+ * <p></p>
+ * Can be used e.g. for a grid layout in search results.
  */
 @WebServlet(value = "/map-image/*", asyncSupported = true)
 public class MapImageServlet extends HttpServlet  {
@@ -128,6 +129,7 @@ public class MapImageServlet extends HttpServlet  {
             // Only handle one for now
             MessageLocation loc = locations.get(0);
 
+            // Compute the bounds of the location and compute the center
             Point[] bounds = getBounds(loc.getPoints());
             Point centerPt = new Point((bounds[0].getLat() + bounds[1].getLat()) / 2.0, (bounds[0].getLon() + bounds[1].getLon()) / 2.0);
 
@@ -138,25 +140,19 @@ public class MapImageServlet extends HttpServlet  {
                     ? zoomLevel.intValue()
                     : computeZoomLevel(bounds, maxWH, maxWH, 10, 4);
 
+            // Fetch the image
             String url = String.format(STATIC_IMAGE_URL, centerPt.getLat(), centerPt.getLon(), zoom, mapImageSize, mapImageSize);
 
             BufferedImage image = ImageIO.read(new URL(url));
             Graphics2D g2 = image.createGraphics();
-            g2.setRenderingHint(
-                    RenderingHints.KEY_ANTIALIASING,
-                    RenderingHints.VALUE_ANTIALIAS_ON);
-            g2.setRenderingHint(
-                    RenderingHints.KEY_TEXT_ANTIALIASING,
-                    RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-            g2.setRenderingHint(
-                    RenderingHints.KEY_FRACTIONALMETRICS,
-                    RenderingHints.VALUE_FRACTIONALMETRICS_ON);
+            GraphicsUtils.antialias(g2);
 
-            int rx0 = -128, ry0 = -128;
+            int rx0 = - mapImageSize.intValue() / 2, ry0 = -mapImageSize.intValue() / 2;
             int cxy[] =  mercator.LatLonToPixels(centerPt.getLat(), centerPt.getLon(), zoom);
 
             if (loc.getType() == LocationType.POINT) {
-                g2.drawImage(getMsiImage(), 0 - rx0 - 10, 0 - ry0 - 10, 20, 20, null);
+                int msiIconSize = 24;
+                g2.drawImage(getMsiImage(), 0 - rx0 - msiIconSize / 2, 0 - ry0 - msiIconSize / 2, msiIconSize, msiIconSize, null);
 
             } else if (loc.getType() == LocationType.POLYGON || loc.getType() == LocationType.POLYLINE) {
 
