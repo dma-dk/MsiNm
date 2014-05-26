@@ -17,10 +17,7 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageLocation;
-import dk.dma.msinm.model.NavwarnMessage;
-import dk.dma.msinm.model.NoticeMessage;
+import dk.dma.msinm.model.*;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
@@ -29,10 +26,8 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.persistence.NoResultException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * Business interface for accessing MSI-NM messages
@@ -44,6 +39,9 @@ public class MessageService extends BaseService {
 
     @Inject
     private Logger log;
+
+    @Inject
+    private MessageCache messageCache;
 
     @Inject
     @Sql("/sql/active_messages.sql")
@@ -133,15 +131,35 @@ public class MessageService extends BaseService {
                 .getResultList();
     }
 
-    public List<MessageLocation> getMessageLocations(Integer id) {
-        List<MessageLocation> result = new ArrayList<>();
-        NavwarnMessage msg = (NavwarnMessage)findById(id);
-        if (msg != null) {
-            result.addAll(msg.getMessageItems().get(0).getLocations()
-                    .stream()
-                    .filter(location -> location.getPoints().size() > 0)
-                    .collect(Collectors.toList()));
+    /**
+     * Fetches and caches the message with the given id.
+     * Related data structures, such as locations are pre-fetched for the message
+     * @param id the id of the message
+     * @return the cached message
+     */
+    @SuppressWarnings("unused")
+    public Message getCachedMessage(Integer id) {
+        Message message = messageCache.getCache().get(id);
+        if (message == null) {
+            message = findById(id);
+            if (message != null) {
+                // TODO - complete and clean-up
+                if (message instanceof NavwarnMessage) {
+                    // Preload the data before detaching
+                    NavwarnMessage msg = (NavwarnMessage)message;
+                    msg.getSeriesIdentifier();
+                    for (MessageItem item : msg.getMessageItems()) {
+                        for (MessageLocation loc : item.getLocations()) {
+                            for (Point point : loc.getPoints()) {
+                            }
+                        }
+                    }
+                }
+                em.detach(message);
+                messageCache.getCache().put(id, message);
+            }
         }
-        return result;
+        return message;
     }
+
 }

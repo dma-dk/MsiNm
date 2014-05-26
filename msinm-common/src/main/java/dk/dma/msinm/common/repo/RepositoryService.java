@@ -1,6 +1,7 @@
 package dk.dma.msinm.common.repo;
 
 import dk.dma.msinm.common.settings.annotation.Setting;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.activation.MimetypesFileTypeMap;
@@ -26,6 +27,9 @@ import java.util.Date;
 @javax.ws.rs.Path("/repo")
 @Singleton
 public class RepositoryService {
+
+    /** The number of hashed sub-folders to use **/
+    public enum HashFolderLevels { ONE, TWO }
 
     @Inject
     @Setting(value = "repoRootPath", defaultValue = "${user.home}/.msinm/repo", substituteSystemProperties = true)
@@ -61,12 +65,47 @@ public class RepositoryService {
         return repoRoot;
     }
 
+
+    /**
+     * Creates two levels of sub-folders within the {@code rootFolder} based on
+     * a hash of the {@code fileName}.
+     * If the sub-folder does not exist, it is created.
+     *
+     * @param levels the number of hashed sub folder to use
+     * @param rootFolder the root folder within the repository root
+     * @param fileName the file name
+     * @return the sub-folder associated with the file name
+     */
+    public Path getHashedSubfolder(HashFolderLevels levels, String rootFolder, String fileName) throws IOException {
+        int hashCode = fileName.hashCode();
+        int mask = 255;
+
+        Path folder = getRepoRoot();
+
+        // Add the root folder
+        if (StringUtils.isNotBlank(rootFolder)) {
+            folder = folder.resolve(rootFolder);
+        }
+
+        // Add one or two levels of hashed sub-folders
+        folder = folder.resolve(String.format("%03d", hashCode & mask));
+        if (levels == HashFolderLevels.TWO) {
+            folder = folder.resolve(String.format("%03d", (hashCode >> 8) & mask));
+        }
+
+        // Create the folder if it does not exist
+        if (!Files.exists(folder)) {
+            Files.createDirectories(folder);
+        }
+        return folder;
+    }
+
+
     /**
      * Streams the file specified by the path
      * @param path the path
      * @param request the servlet request
-     * @return
-     * @throws IOException
+     * @return the response
      */
     @GET
     @javax.ws.rs.Path("/{file:.+}")
