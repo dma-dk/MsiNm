@@ -13,12 +13,6 @@
     <packaging>jar</packaging>
 
     <dependencies>
-        <dependency>
-            <groupId>dk.dma.msinm</groupId>
-            <artifactId>msinm-common</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency>
-		
         <!-- Test -->
         <dependency>
             <groupId>com.h2database</groupId>

@@ -13,19 +13,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.common.db;
+package dk.dma.msinm.common.db.em;
 
-import javax.inject.Qualifier;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import javax.enterprise.inject.Produces;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 /**
- * Can be used to qualify CDI injections in the MsiNm project
+ * Produces the MSI-NM entity manager, thus available for CDI injection.
+ * <p></p>
+ * The reason it is kept in it's own package is so that the entire package
+ * can be CDI @Vetoed from the test project.
  */
-@Qualifier
-@Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.FIELD, ElementType.TYPE, ElementType.METHOD})
-public @interface MsiNm {
+public class DatabaseConfiguration {
+
+    @PersistenceContext(name = "msi")
+    EntityManager entityManager;
+
+    @Produces
+    public EntityManager getEntityManager() {
+        return entityManager;
+    }
+
 }

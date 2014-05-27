@@ -15,7 +15,6 @@
  */
 package dk.dma.msinm.test;
 
-import dk.dma.msinm.common.db.DatabaseConfiguration;
 import org.hibernate.jpa.AvailableSettings;
 import org.junit.After;
 import org.junit.AfterClass;
@@ -38,11 +37,13 @@ public class MsiNmUnitTest {
     protected static EntityManagerFactory entityManagerFactory;
     protected static EntityManager entityManager;
 
+
     /**
      * Should be called in sub-classes with the entity classes used in the test
      * @param entityClasses the entity classes
      */
     public static void prepareEntityManagerFactory(Class<?>... entityClasses) throws ClassNotFoundException {
+
         Class.forName("org.h2.Driver");
 
         Map<Object, Object> props = new HashMap<>();
@@ -52,7 +53,7 @@ public class MsiNmUnitTest {
         entityManagerFactory = Persistence.createEntityManagerFactory(TEST_UNIT_NAME, props);
         entityManager = entityManagerFactory.createEntityManager();
 
-        DatabaseConfiguration.EM = entityManager;
+        TestDatabaseConfiguration.entityManager = entityManager;
 
         entityManager.getTransaction().begin();
     }

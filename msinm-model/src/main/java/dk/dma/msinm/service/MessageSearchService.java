@@ -2,7 +2,6 @@ package dk.dma.msinm.service;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
-import dk.dma.msinm.common.db.MsiNm;
 import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
@@ -53,7 +52,6 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     final static String STATUS_FIELD    = "status";
 
     @Inject
-    @MsiNm
     EntityManager em;
 
     @Inject
@@ -364,7 +362,6 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
      * TODO
      */
     public List<MessageLocation> searchLocations(MessageSearchParams param) {
-        long t0 = System.currentTimeMillis();
         List<MessageLocation> result = new ArrayList<>();
 
         try {
@@ -389,7 +386,6 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
      *
      * @param param the search parameters
      * @param cq the criteria query
-     * @return the updated criteria query
      */
     private <M, T> void sortQuery(MessageSearchParams param, CriteriaBuilder builder, CriteriaQuery<T> cq, Root<M> root) {
         if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {

@@ -14,7 +14,7 @@
             <property name="hibernate.connection.driver_class" value="org.h2.Driver" />
             <property name="hibernate.connection.password" value="sa" />
             <property name="hibernate.connection.username" value="" />
-            <property name="hibernate.show_sql" value="true" />
+            <property name="hibernate.show_sql" value="false" />
             <property name="hibernate.format_sql" value="true" />
 
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>

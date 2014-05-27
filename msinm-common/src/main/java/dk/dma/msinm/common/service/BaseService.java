@@ -15,7 +15,6 @@
  */
 package dk.dma.msinm.common.service;
 
-import dk.dma.msinm.common.db.MsiNm;
 import dk.dma.msinm.common.model.IEntity;
 
 import javax.inject.Inject;
@@ -31,7 +30,6 @@ import java.util.List;
 public abstract class BaseService {
 
     @Inject
-    @MsiNm
     protected EntityManager em;
 
     /**

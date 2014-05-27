@@ -16,7 +16,6 @@
 package dk.dma.msinm.common.settings;
 
 import dk.dma.msinm.common.cache.CacheElement;
-import dk.dma.msinm.common.db.MsiNm;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -52,7 +51,6 @@ public class Settings {
     private Logger log;
 
     @Inject
-    @MsiNm
     protected EntityManager em;
 
     @Inject

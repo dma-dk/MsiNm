@@ -15,10 +15,11 @@
  */
 package dk.dma.msinm.lucene;
 
-import dk.dma.msinm.common.db.DatabaseConfiguration;
 import dk.dma.msinm.common.config.LogConfiguration;
+import dk.dma.msinm.common.db.SqlProducer;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;
+import dk.dma.msinm.test.TestDatabaseConfiguration;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
@@ -36,13 +37,17 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        DatabaseConfiguration.class, Settings.class,
+        TestDatabaseConfiguration.class, SqlProducer.class, Settings.class,
         Sequences.class, LogConfiguration.class, EntityManager.class
 })
 public class LuceneIndexTest {
 
     @Inject
     TestLuceneIndex testLuceneIndex;
+
+    public LuceneIndexTest() {
+        super();
+    }
 
     @Test
     public void test() throws IOException, ParseException {

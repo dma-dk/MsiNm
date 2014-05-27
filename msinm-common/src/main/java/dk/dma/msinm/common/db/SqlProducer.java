@@ -1,49 +1,18 @@
-/* Copyright (c) 2011 Danish Maritime Authority
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this library.  If not, see <http://www.gnu.org/licenses/>.
- */
 package dk.dma.msinm.common.db;
 
 import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Produces the MSI-NM entity manager, thus available for CDI injection.
- * <p>
- * Also produces the {@code @Sql} injections.
+ * Produces the {@code @Sql} injections.
  */
-public class DatabaseConfiguration {
+public class SqlProducer {
 
     private static Map<String, String> SQL_CACHE = new ConcurrentHashMap<>();
-
-    public static EntityManager EM;
-
-    @PersistenceContext(name = "msi")
-    EntityManager entityManager;
-
-    @Produces
-    @MsiNm
-    public EntityManager getEntityManager() {
-        return (EM != null) ? EM : entityManager;
-    }
-
 
     @Produces
     @Sql

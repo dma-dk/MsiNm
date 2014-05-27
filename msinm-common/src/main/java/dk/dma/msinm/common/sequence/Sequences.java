@@ -15,12 +15,11 @@
  */
 package dk.dma.msinm.common.sequence;
 
-import dk.dma.msinm.common.db.MsiNm;
 import org.slf4j.Logger;
 
 import javax.ejb.*;
 import javax.inject.Inject;
-import javax.persistence.*;
+import javax.persistence.EntityManager;
 import java.util.Objects;
 
 /**
@@ -33,7 +32,6 @@ public class Sequences {
     private Logger log;
 
     @Inject
-    @MsiNm
     protected EntityManager em;
 
     /**
