@@ -103,6 +103,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
         location.setRadius(10);
         assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).getMessages().size());
 
+        messageService.remove(message);
     }
 
     @Test
@@ -125,6 +126,8 @@ public class MessageServiceTest extends MsiNmUnitTest {
         location.getPoints().add(new Point(57, 12));
         location.setRadius(10);
         assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).getMessages().size());
+
+        messageService.remove(message);
     }
 
 
