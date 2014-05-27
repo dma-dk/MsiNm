@@ -146,6 +146,7 @@ public class MapImageServlet extends HttpServlet  {
             BufferedImage image = ImageIO.read(new URL(url));
             Graphics2D g2 = image.createGraphics();
             GraphicsUtils.antialias(g2);
+            g2.setStroke(new BasicStroke(2.0f));
 
             int rx0 = - mapImageSize.intValue() / 2, ry0 = -mapImageSize.intValue() / 2;
             int cxy[] =  mercator.LatLonToPixels(centerPt.getLat(), centerPt.getLon(), zoom);
@@ -156,8 +157,8 @@ public class MapImageServlet extends HttpServlet  {
 
             } else if (loc.getType() == LocationType.POLYGON || loc.getType() == LocationType.POLYLINE) {
 
-                Color col = Color.red;
-                Color fillCol = new Color(1f, 0f, 0f, 0.3f);
+                Color col = new Color(143, 47, 123);
+                Color fillCol = new Color(173, 87, 161, 80);
                 GeneralPath path = new GeneralPath();
                 for (int i = 0; i < loc.getPoints().size(); i++) {
                     Point pt = loc.getPoints().get(i);
