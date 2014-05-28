@@ -86,8 +86,28 @@ angular.module('msinm.user')
         }
     }])
 
-    .run(['Auth', function (Auth) {
+    .run(['$rootScope', '$modal', 'Auth', function ($rootScope, $modal, Auth) {
         Auth.init();
+
+        $rootScope.$on('Login', function (event, message) {
+            if (!$rootScope.loginDialog) {
+                $rootScope.loginDlg();
+                $rootScope.message = message;
+            }
+        });
+
+        $rootScope.loginDlg = function() {
+            $rootScope.loginDialog = $modal.open({
+                controller: "UserCtrl",
+                templateUrl : "/partials/login-dialog.html"
+            });
+            return $rootScope.loginDialog;
+        };
+
+        $rootScope.logout = function() {
+            Auth.logout();
+        }
+
     }])
 
     /**

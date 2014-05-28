@@ -3,25 +3,18 @@
  */
 
 angular.module('msinm.user')
-    .controller('UserCtrl', ['$scope', '$modal', '$cookieStore', 'UserService', 'Auth',
-        function ($scope, $modal, $cookieStore, UserService, Auth) {
+    .controller('UserCtrl', ['$scope', '$rootScope', '$cookieStore', 'UserService', 'Auth',
+        function ($scope, $rootScope, $cookieStore, UserService, Auth) {
         'use strict';
 
         $scope.focusMe = true;
         $scope.message = undefined;
         $scope.user = { email:$cookieStore.get('lastLogin'), password: undefined };
 
-        $scope.$on('Login', function (event, message) {
-            $scope.loginDlg();
-            $scope.message = message;
-        });
 
-        $scope.loginDlg = function() {
-            $scope.loginDialog = $modal.open({
-                templateUrl : "/partials/login-dialog.html"
-            });
-            return $scope.loginDialog;
-        };
+        $scope.$on("$destroy", function() {
+            delete $rootScope.loginDialog;
+        });
 
         $scope.login = function() {
 
@@ -42,10 +35,8 @@ angular.module('msinm.user')
                 });
         };
 
-        $scope.logout = function() {
-            Auth.logout();
-        }
-    }])
+    }]);
+
 
 
 

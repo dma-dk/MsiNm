@@ -23,11 +23,11 @@
         </ul>
 
         <ul class="nav navbar-nav navbar-right" ng-if="!currentUser">
-            <li><a href ng-controller="UserCtrl" ng-click="loginDlg()">Login</a></li>
+            <li><a href ng-click="loginDlg()">Login</a></li>
         </ul>
         <ul class="nav navbar-nav navbar-right" ng-if="currentUser">
             <li><a href >{{currentUser.name}}</a></li>
-            <li><a href ng-controller="UserCtrl" ng-click="logout()">Logout</a></li>
+            <li><a href ng-click="logout()">Logout</a></li>
         </ul>
     </div>
 </div>
