@@ -2,9 +2,9 @@
 /**
  * The main controller for the app.
  */
-angular.module('msinm')
-    .controller('MsiNmCtrl', ['$scope', '$routeParams', '$modal', 'MsiNmService', '$http',
-        function ($scope, $routeParams, $modal, MsiNmService, $http) {
+angular.module('msinm.search')
+    .controller('SearchCtrl', ['$scope', '$routeParams', '$modal', 'SearchService', '$http',
+        function ($scope, $routeParams, $modal, SearchService, $http) {
         'use strict';
 
         $scope.filterOnType = false;
@@ -37,7 +37,7 @@ angular.module('msinm')
         };
 
         $scope.search = function () {
-            MsiNmService.search(
+            SearchService.search(
                 $scope.query,
                 $scope.status,
                 $scope.type,
@@ -58,7 +58,7 @@ angular.module('msinm')
         };
 
         $scope.importMsiNm = function () {
-            MsiNmService.importMsiNm(function(data) {
+            SearchService.importMsiNm(function(data) {
                     $scope.search();
                 },
                 function () {
@@ -115,7 +115,7 @@ angular.module('msinm')
         };
 
         $scope.legacyImport = function() {
-            MsiNmService.importLegacyMsi(
+            SearchService.importLegacyMsi(
                 $scope.importCount,
                 function(data) {
                     $scope.search();

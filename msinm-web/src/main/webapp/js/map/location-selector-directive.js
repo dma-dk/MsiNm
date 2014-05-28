@@ -9,7 +9,7 @@ angular.module('msinm.map')
     return {
         restrict: 'AE',
 
-        templateUrl: '/js/map/location-selector.html',
+        templateUrl: '/partials/location-selector.html',
 
         scope: {
             tool: '=tool',

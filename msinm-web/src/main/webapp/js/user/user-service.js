@@ -1,8 +1,8 @@
 
 /**
- * Services that retrieves MsiNm messages from the backend
+ * Services that handles user information via the backend
  */
-angular.module('msinm')
+angular.module('msinm.user')
 
     /**
      * Interceptor that adds a JWT token to the requests as an authorization header.
@@ -40,43 +40,63 @@ angular.module('msinm')
     }])
 
     /**
+     * Holds the currently logged in user
+     */
+    .factory('Auth', ['$rootScope', '$window', function ($rootScope, $window) {
+        'use strict';
+
+        var storage =  $window.sessionStorage;
+        //var storage =  $window.localStorage;
+
+        return {
+            init: function() {
+                if (storage.jwt) {
+                    $rootScope.currentUser = JSON.parse(storage.jwt);
+                } else {
+                    return undefined;
+                }
+            },
+
+            login: function(jwtToken) {
+                storage.clear();
+                $rootScope.currentUser = jwtToken;
+                if (jwtToken) {
+                    storage.jwt = JSON.stringify(jwtToken);
+                }
+            },
+
+            reauthenticate: function(jwtToken) {
+                $rootScope.currentUser.token = jwtToken;
+                storage.jwt = JSON.stringify($rootScope.currentUser);
+            },
+
+            logout: function() {
+                storage.clear();
+                delete $rootScope.currentUser;
+            },
+
+            isLoggedIn: function() {
+                return ($rootScope.currentUser != undefined);
+            },
+
+            hasRole: function(role) {
+                return $rootScope.currentUser && $rootScope.currentUser.indexOf(role) > -1;
+            }
+
+        }
+    }])
+
+    .run(['Auth', function (Auth) {
+        Auth.init();
+    }])
+
+    /**
      * Interface for calling the application server
      */
-    .factory('MsiNmService', [ '$http', '$location', 'Auth', function($http, $location, Auth) {
+    .factory('UserService', [ '$http', '$location', 'Auth', function($http, $location, Auth) {
         'use strict';
 
         return {
-            search: function(query, status, type, loc, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, success, error) {
-                var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(
-                        host + '/rest/message/search?q=' + encodeURIComponent(query)
-                             + '&status=' + encodeURIComponent(status)
-                             + '&type=' + encodeURIComponent(type)
-                             + '&loc=' + encodeURIComponent(loc)
-                             + '&from=' + encodeURIComponent(dateFrom)
-                             + '&to=' + encodeURIComponent(dateTo)
-                             + '&maxHits=' + maxHits
-                             + '&startIndex=' + startIndex
-                            + '&sortBy=' + sortBy
-                            + '&sortOrder=' + sortOrder
-                    )
-                    .success(success)
-                    .error(error);
-            },
-
-            importMsiNm: function(success, error) {
-                var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/message/import-legacy-msi')
-                    .success(success)
-                    .error(error);
-            },
-
-            importLegacyMsi: function(count, success, error) {
-                var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/import/legacy_msi?limit=' + count)
-                    .success(success)
-                    .error(error);
-            },
 
             authenticate: function(user, success, error) {
                 $http

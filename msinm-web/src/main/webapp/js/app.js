@@ -4,17 +4,20 @@
  * @type {angular.Module}
  */
 
-angular.module('msinm.map', [ ])
+angular.module('msinm.search', []);
+angular.module('msinm.map', []);
+angular.module('msinm.user', []);
 
-var app = angular.module('msinm', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'msinm.map', 'msinm.user'])
+
+var app = angular.module('msinm', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'msinm.search', 'msinm.map', 'msinm.user'])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';
 
         $routeProvider.when('/', {
-            controller: 'MsiNmCtrl',
+            controller: 'SearchCtrl',
             templateUrl: 'msinm-index.html'
         }).when('/:status', {
-            controller: 'MsiNmCtrl',
+            controller: 'SearchCtrl',
             templateUrl: 'msinm-index.html'
         }).otherwise({
             redirectTo: '/'
