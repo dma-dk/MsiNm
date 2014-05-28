@@ -28,12 +28,3 @@ app.config(['$httpProvider', function ($httpProvider) {
     $httpProvider.interceptors.push('authInterceptor');
 }]);
 
-app.directive('focus', ['$timeout', function($timeout) {
-    return function(scope, element, attrs) {
-        scope.$watch(attrs.focus, function(newValue) {
-            $timeout(function() {
-                newValue && element.focus();
-            }, 100);
-        }, true);
-    };
-}]);
