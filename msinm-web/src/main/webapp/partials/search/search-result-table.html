@@ -1,0 +1,24 @@
+<section id="msinmapp" ng-init="newSearch()">
+
+
+
+    <div class="searchResultTab">
+        <table class='table table-condensed table-hover'>
+            <tr>
+                <th ng-click="toggleSortOrder()" class="sortable">
+                    Date
+                    <span ng-if="sortDesc"><small>&uarr;</small></span>
+                    <span ng-if="!sortDesc"><small>&darr;</small></span>
+                </th>
+                <th>Type</th>
+                <th>Area</th>
+            </tr>
+            <tr ng-repeat="msi in searchResult.messages">
+                <td style="white-space:nowrap;">{{msi.issueDate | date : 'dd/MM/yy HH:mm'}}</td>
+                <td>{{msi.messageItems[0].keySubject}}</td>
+                <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
+            </tr>
+        </table>
+    </div>
+
+</section>

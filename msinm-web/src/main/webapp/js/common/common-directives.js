@@ -2,7 +2,7 @@
 /**
  * Common directives.
  */
-angular.module('msinm')
+angular.module('msinm.common')
 
     .directive('focus', ['$timeout', function($timeout) {
         'use strict';

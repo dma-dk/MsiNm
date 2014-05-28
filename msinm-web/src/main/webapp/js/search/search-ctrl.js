@@ -31,6 +31,8 @@ angular.module('msinm.search')
 
         $scope.importCount = 500;
 
+        $scope.viewMode = 'grid';
+
         $scope.newSearch = function () {
             $scope.currentPage = 1;
             $scope.search();

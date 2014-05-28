@@ -86,7 +86,7 @@ angular.module('msinm.user')
         }
     }])
 
-    .run(['$rootScope', '$modal', 'Auth', function ($rootScope, $modal, Auth) {
+    .run(['$rootScope', '$location', '$modal', 'Auth', function ($rootScope, $location, $modal, Auth) {
         Auth.init();
 
         $rootScope.$on('Login', function (event, message) {
@@ -108,6 +108,9 @@ angular.module('msinm.user')
             Auth.logout();
         }
 
+        $rootScope.go = function ( path ) {
+            $location.path( path );
+        };
     }])
 
     /**

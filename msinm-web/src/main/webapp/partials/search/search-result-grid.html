@@ -1,0 +1,20 @@
+
+<section id="msinmapp" ng-init="newSearch()">
+
+
+    <div class="searchResultTab row" style="background-color: #eeeeee;">
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 " ng-repeat="msi in searchResult.messages" style="margin-bottom: 20px;">
+            <div class="grid-item" style="width: 260px; height: 260px;">
+                <img class="map-image" ng-src="/map-image/{{msi.id}}.png" width="256" height="256"/>
+                <div class="map-image-header">
+                    <strong>{{msi.generalArea + ' - ' + msi.locality}}</strong><br/>
+                    <small>{{msi.issueDate | date : 'dd/MM/yy HH:mm'}}</small>
+                </div>
+                <div class="map-image-details">
+                    {{msi.messageItems[0].keySubject}}
+                </div>
+            </div>
+        </div>
+    </div>
+
+</section>
