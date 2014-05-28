@@ -3,8 +3,8 @@
  */
 
 angular.module('msinm.user')
-    .controller('UserCtrl', ['$scope', '$rootScope', '$cookieStore', 'UserService', 'Auth',
-        function ($scope, $rootScope, $cookieStore, UserService, Auth) {
+    .controller('UserCtrl', ['$scope', '$rootScope', '$cookieStore', 'UserService',
+        function ($scope, $rootScope, $cookieStore, UserService) {
         'use strict';
 
         $scope.focusMe = true;
