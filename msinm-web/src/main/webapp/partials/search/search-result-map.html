@@ -1,16 +1,9 @@
 <section id="msinmapp">
 
+    <div id="map" msi-search-result-map search-result="searchResult" loc="loc" show-wms="showWms"></div>
 
-
-    <div class="searchResultTab row">
-        <div class="col-sm-10">
-            <div msi-search-result-map search-result="searchResult" loc="loc" show-wms="showWms" style="width: 800px; height: 600px; border:1px solid black;"></div>
-        </div>
-        <div class="col-sm-2">
-            <button type="button" class="btn btn-sm btn-primary" ng-model="showWms" btn-checkbox>
-                WMS
-            </button>
-        </div>
-    </div>
+    <button type="button" class="btn btn-sm btn-primary wms-btn" ng-model="showWms" btn-checkbox>
+        WMS
+    </button>
 
 </section>

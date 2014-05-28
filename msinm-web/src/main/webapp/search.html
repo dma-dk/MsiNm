@@ -20,9 +20,9 @@
 </head>
 <body ng-app="msinm" ng-controller="SearchCtrl" ng-init="newSearch()">
 
-<div class="container-fluid">
+<div ng-include="'partials/menu.html'"></div>
 
-    <div ng-include="'partials/menu.html'"></div>
+<div class="container-fluid">
 
     <form class="search-form form-horizontal panel panel-default" style="padding-top: 20px;" role="form" novalidate>
 
@@ -31,10 +31,9 @@
             <label for="query" class="col-sm-2 control-label">Search terms</label>
 
             <div class="col-sm-6">
-                <input type="text" class="form-control input-lg" placeholder="Search" ng-model="query"
-                       id="query">
-                            <span class="help-block">Search using e.g. <code>+important</code>, <code>-excluded</code>,
-                                <code>par*ly</code> or <code>"exact match"</code></span>
+                <input id="query" type="text" class="form-control input-lg" placeholder="Search" ng-model="query"
+                       data-content='Search using e.g. <code>+important</code>, <code>-excluded</code>, <code>par*ly</code> or <code>"exact match"</code>'
+                       data-placement="bottom" data-html="true" data-trigger="hover">
             </div>
             <div class="col-sm-1">
                 <button type="submit" class="btn btn-primary btn-lg" ng-click="newSearch()">
@@ -172,6 +171,7 @@
 
         $("#messageDateFrom").datepicker({ format: "dd-mm-yyyy" });
         $("#messageDateTo").datepicker({ format: "dd-mm-yyyy" });
+        $('#query').popover();
     });
 </script>
 
