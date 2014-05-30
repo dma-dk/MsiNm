@@ -4,23 +4,72 @@ html {
 }
 
 body {
-    width: 100%;
-    height: 100%;
     margin: 0;
     padding: 0;
     color: #5A5A5A;
+    background-color: #012c43;
+    font-family: 'Lucida Grande', 'Lucida Sans Unicode', Helvetica, Arial, Verdana, sans-serif;
+    font-size: 12px;
+}
+
+
+h1 {
+    font-size: 24px;
+    text-align: center;
+}
+
+h2 {
+    font-size: 22px;
+}
+
+h3 {
+    font-size: 20px;
+}
+
+/* set a max-width for horizontal fluid layout */
+.container-fluid {
+    margin-right: auto;
+    margin-left: auto;
+    max-width: 1200px;
+    overflow: hidden;
+    padding: 0;
+    background-color: white;
 }
 
 .navbar {
     height: 50px;
     padding-right: 20px;
+    margin-bottom: 0;
     -webkit-box-shadow: 0 0 4px 4px rgba(0, 0, 0, .2);
     -moz-box-shadow: 0 0 4px 4px rgba(0, 0, 0, .2);
     box-shadow: 0 0 4px 4px rgba(0, 0, 0, .2);
 }
 
+.footer {
+    padding: 10px 20px 10px 20px;
+}
+
+.front-page-image {
+    position: relative;
+}
+
+.front-page-teaser {
+    padding: 0 20px 10px 20px;
+    background-color: rgba(1, 44, 67, 0.7);
+    display: block;
+    color: white;
+    border-radius:5px;
+    width: 300px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.front-page-article {
+    padding: 0 20px 10px 20px;
+}
+
 #map {
-    background-color: #d0e4fe;
     width: 100%;
     height: 100%;
     position: fixed;
@@ -33,6 +82,11 @@ body {
     -o-user-select: none;
 }
 
+.map-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+}
 
 .sortable:hover {
     cursor: pointer;
