@@ -23,7 +23,7 @@ h2 {
 }
 
 h3 {
-    font-size: 20px;
+    font-size: 18px;
 }
 
 /* set a max-width for horizontal fluid layout */
@@ -67,6 +67,23 @@ h3 {
 
 .front-page-article {
     padding: 0 20px 10px 20px;
+}
+
+.front-page-msi {
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+.front-page-msi-item {
+    font-size: 10px;
+    padding: 5px 0 5px 0;
+    border-top: 1px solid #dddddd;
+}
+
+.front-page-msi-item div {
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 #map {
