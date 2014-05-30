@@ -1,5 +1,5 @@
 
-<div class="container-fluid">
+<div class="container-fluid" ng-controller="HomeCtrl" ng-init="search();">
 
 
     <div class="front-page-image">
@@ -15,14 +15,47 @@
 
 
     <div class="row">
+
         <div class="front-page-article col-sm-4">
-            <h2>Aktuelle Advarsler</h2>
-            <p>bla bla bla</p>
+            <h2>Current Warnings</h2>
+            <p>
+                For a detailed list of the current MSI warning, please go to the <a href="/search.html">Search</a> section.
+            </p>
+            <div class="front-page-msi">
+                <div ng-repeat="msi in searchResult.messages" class="front-page-msi-item">
+                    <div><strong>{{msi.generalArea + '-' + msi.locality}}</strong></div>
+                    <div><small>{{msi.issueDate | date : 'dd/MM/yy HH:mm'}}</small></div>
+                    <div>{{msi.messageItems[0].keySubject}}</div>
+                </div>
+            </div>
         </div>
 
         <div class="front-page-article col-sm-4">
             <h2>Developer API</h2>
-            <p>bla bla bla</p>
+            <p>
+                You may access the MSI and NM warnings via a JSON-API.
+                The API has a couple of public functions that anybody
+                may use, as exemplified below:
+            </p>
+<pre style="font-size: 10px;">
+$.getJSON(
+    'http://theserver/rest/message/search?status=ACTIVE',
+    function(data) {
+        $('#msiList').html(
+           '&lt;h2&gt;Behold my ' + data.total + ' messages&lt;/h2&gt;'
+         + '&lt;p&gt;' + JSON.stringify(data.messages) + '&lt;/p&gt;');
+    });
+</pre>
+            <p>
+                Furthermore, the API contains functionality that may
+                be used by registered users.
+            </p>
+            <h3>Open Source</h3>
+            <p>The MSI-NM project is Open Source. You can download the entire
+            project and customize it for your own needs.</p>
+            <ul>
+                <li><a href="https://github.com/dma-dk/MsiNm" target="_blank">MsiNm at Github</a></li>
+            </ul>
         </div>
 
         <div class="front-page-article col-sm-4">
@@ -33,5 +66,3 @@
     </div>
 
 </div>
-
-
