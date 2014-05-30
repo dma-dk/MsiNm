@@ -31,8 +31,8 @@ angular.module('msinm.search')
 
         $scope.importCount = 500;
 
-        $scope.viewMode = $location.path().endsWith("/grid") ? "grid" :
-                ($location.path().endsWith("/table") ? "table" : "map");
+        $scope.viewMode = $location.path().endsWith("/map") ? "map" :
+                ($location.path().endsWith("/table") ? "table" : "grid");
 
         $scope.newSearch = function () {
             $scope.currentPage = 1;
