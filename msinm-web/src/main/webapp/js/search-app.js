@@ -10,18 +10,18 @@ angular.module('msinm.map', []);
 angular.module('msinm.user', []);
 
 
-var app = angular.module('msinm', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'msinm.search', 'msinm.map', 'msinm.user'])
+var app = angular.module('msinm', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'msinm.common', 'msinm.search', 'msinm.map', 'msinm.user'])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';
 
-        $routeProvider.when('/grid', {
+        $routeProvider.when('/search/grid', {
             templateUrl: 'partials/search/search-result-grid.html'
-        }).when('/map', {
+        }).when('/search/map', {
             templateUrl: 'partials/search/search-result-map.html'
-        }).when('/table', {
+        }).when('/search/table', {
             templateUrl: 'partials/search/search-result-table.html'
         }).otherwise({
-            redirectTo: '/grid'
+            redirectTo: '/search/grid'
         });
     }]);
 

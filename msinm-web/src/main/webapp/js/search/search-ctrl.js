@@ -3,8 +3,8 @@
  * The main controller for the app.
  */
 angular.module('msinm.search')
-    .controller('SearchCtrl', ['$scope', '$routeParams', '$modal', 'SearchService', '$http',
-        function ($scope, $routeParams, $modal, SearchService, $http) {
+    .controller('SearchCtrl', ['$scope', '$location', '$modal', 'SearchService', '$http',
+        function ($scope, $location, $modal, SearchService, $http) {
         'use strict';
 
         $scope.filterOnType = false;
@@ -31,7 +31,8 @@ angular.module('msinm.search')
 
         $scope.importCount = 500;
 
-        $scope.viewMode = 'grid';
+        $scope.viewMode = $location.path().endsWith("/grid") ? "grid" :
+                ($location.path().endsWith("/table") ? "table" : "map");
 
         $scope.newSearch = function () {
             $scope.currentPage = 1;
