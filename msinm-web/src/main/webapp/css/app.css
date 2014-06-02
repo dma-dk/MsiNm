@@ -204,3 +204,58 @@ h3 {
     margin:0;
     font-size: 10px;
 }
+
+
+/**
+ * Admin CSS styles
+ */
+
+.admin-page {
+    position: relative;
+}
+
+/* Hide for mobile, show later */
+.admin-sidebar {
+    display: none;
+}
+@media (min-width: 768px) {
+    .admin-sidebar {
+        position: absolute;
+        bottom: 0;
+        top: 0;
+        display: block;
+        padding: 20px;
+        background-color: #f5f5f5;
+        border-right: 1px solid #eee;
+    }
+}
+
+/* Sidebar navigation */
+.admin-nav-sidebar {
+    margin-right: -21px; /* 20px padding + 1px border */
+    margin-bottom: 20px;
+    margin-left: -20px;
+}
+.admin-nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 20px;
+}
+.admin-nav-sidebar > .active > a {
+    color: #fff;
+    background-color: #428bca;
+}
+
+.admin-main {
+    padding: 20px;
+}
+@media (min-width: 768px) {
+    .admin-main {
+        padding-right: 40px;
+        padding-left: 40px;
+    }
+}
+.admin-main .page-header {
+    margin-top: 0;
+    text-align: left;
+}
+

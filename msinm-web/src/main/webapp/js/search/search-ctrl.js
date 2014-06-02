@@ -29,8 +29,6 @@ angular.module('msinm.search')
 
         $scope.showWms = false;
 
-        $scope.importCount = 500;
-
         $scope.viewMode = $location.path().endsWith("/map") ? "map" :
                 ($location.path().endsWith("/table") ? "table" : "grid");
 
@@ -58,22 +56,6 @@ angular.module('msinm.search')
                     //alert("Error");
                 }
             );
-        };
-
-        $scope.importMsiNm = function () {
-            SearchService.importMsiNm(function(data) {
-                    $scope.search();
-                },
-                function () {
-                    //alert("Error");
-                });
-        };
-
-        $scope.test = function () {
-            $http.get('http://localhost:8080/rest/user/test')
-                .success(function (data) {
-                    alert("TEST " + data);
-                });
         };
 
         $scope.resetType = function () {
@@ -108,27 +90,5 @@ angular.module('msinm.search')
             $scope.sortDesc = !$scope.sortDesc;
             $scope.search();
         };
-
-        $scope.legacyImportDlg = function() {
-
-            $scope.importLegacyMsiDialog = $modal.open({
-                templateUrl : "/partials/import-legacy-msi-dialog.html"
-            });
-            return $scope.importLegacyMsiDialog;
-        };
-
-        $scope.legacyImport = function() {
-            SearchService.importLegacyMsi(
-                $scope.importCount,
-                function(data) {
-                    $scope.search();
-                },
-                function () {
-                    //alert("Error");
-                });
-
-            $scope.$close();
-        };
-
 
 }]);

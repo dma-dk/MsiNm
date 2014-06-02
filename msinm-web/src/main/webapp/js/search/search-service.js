@@ -27,20 +27,6 @@ angular.module('msinm.search')
                     )
                     .success(success)
                     .error(error);
-            },
-
-            importMsiNm: function(success, error) {
-                var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/message/import-legacy-msi')
-                    .success(success)
-                    .error(error);
-            },
-
-            importLegacyMsi: function(count, success, error) {
-                var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/import/legacy_msi?limit=' + count)
-                    .success(success)
-                    .error(error);
             }
         };
     }]);
