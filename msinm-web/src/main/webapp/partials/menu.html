@@ -15,7 +15,7 @@
 
             <li check-active="/search/*"><a href="search.html">Search</a></li>
 
-            <li check-active="/admin/*"><a href="admin.html">Admin</a></li>
+            <li check-active="/admin/*" ng-if="hasRole('admin')"><a href="admin.html">Admin</a></li>
 
         </ul>
 

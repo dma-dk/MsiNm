@@ -80,7 +80,7 @@ angular.module('msinm.user')
             },
 
             hasRole: function(role) {
-                return $rootScope.currentUser && $rootScope.currentUser.indexOf(role) > -1;
+                return $rootScope.currentUser && $rootScope.currentUser.roles.indexOf(role) > -1;
             }
 
         }
@@ -104,9 +104,17 @@ angular.module('msinm.user')
             return $rootScope.loginDialog;
         };
 
-        $rootScope.logout = function() {
+        $rootScope.logout = function () {
             Auth.logout();
-        }
+        };
+
+        $rootScope.isLoggedIn = function() {
+            return Auth.isLoggedIn();
+        };
+
+        $rootScope.hasRole = function(role) {
+            return Auth.hasRole(role);
+        };
 
         $rootScope.go = function ( path ) {
             $location.path( path );

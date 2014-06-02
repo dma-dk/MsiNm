@@ -245,6 +245,10 @@ h3 {
     background-color: #428bca;
 }
 
+.admin-nav-sidebar > .active > a:hover {
+    background-color: #428bca;
+}
+
 .admin-main {
     padding: 20px;
 }
