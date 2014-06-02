@@ -1,8 +1,7 @@
-
 /**
  * The home controller
  */
-angular.module('msinm.search')
+angular.module('msinm.common')
     .controller('HomeCtrl', ['$scope', 'SearchService',
         function ($scope, SearchService) {
             'use strict';
@@ -21,7 +20,7 @@ angular.module('msinm.search')
                     0,
                     'DATE',
                     'DESC',
-                    function(data) {
+                    function (data) {
                         $scope.searchResult = data;
                     },
                     function () {
@@ -29,5 +28,4 @@ angular.module('msinm.search')
                     }
                 );
             };
-
         }]);

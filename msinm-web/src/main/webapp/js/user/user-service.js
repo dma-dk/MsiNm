@@ -99,7 +99,7 @@ angular.module('msinm.user')
         $rootScope.loginDlg = function() {
             $rootScope.loginDialog = $modal.open({
                 controller: "UserCtrl",
-                templateUrl : "/partials/login-dialog.html"
+                templateUrl : "/partials/user/login-dialog.html"
             });
             return $rootScope.loginDialog;
         };
