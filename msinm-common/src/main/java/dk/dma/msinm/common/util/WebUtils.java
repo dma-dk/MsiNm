@@ -17,6 +17,7 @@ package dk.dma.msinm.common.util;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
 /**
@@ -53,5 +54,31 @@ public class WebUtils {
     public static String getServletUrl(HttpServletRequest request, String... appends) {
         String[] args = (String[])ArrayUtils.addAll(new String[] { request.getServletPath() }, appends);
         return getWebAppUrl(request, args);
+    }
+
+    /**
+     * Returns the cookie with the given name or null if not found
+     * @param request the request
+     * @param name the name
+     * @return the cookie with the given name or null if not found
+     */
+    public static Cookie getCookie(HttpServletRequest request, String name) {
+        for (Cookie c : request.getCookies()) {
+            if (c.getName().equals(name)) {
+                return c;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Returns the value of the cookie with the given name or null if not found
+     * @param request the request
+     * @param name the name
+     * @return the value of the cookie with the given name or null if not found
+     */
+    public static String getCookieValue(HttpServletRequest request, String name) {
+        Cookie c = getCookie(request, name);
+        return (c == null) ? null : c.getValue();
     }
 }

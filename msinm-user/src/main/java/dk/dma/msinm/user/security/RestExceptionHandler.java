@@ -1,6 +1,7 @@
 package dk.dma.msinm.user.security;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.ExceptionMapper;
@@ -18,11 +19,10 @@ public class RestExceptionHandler implements ExceptionMapper<javax.ejb.EJBAccess
 
     @Override
     public Response toResponse(javax.ejb.EJBAccessException exception) {
-        if (request.getAttribute(SecurityServletFilter.AUTH_ERROR_ATTR) != null) {
-            int status = (Integer)request.getAttribute(SecurityServletFilter.AUTH_ERROR_ATTR);
-            return Response.status(status).entity(exception.getMessage()).build();
-        }
-        return Response.status(Response.Status.UNAUTHORIZED).entity(exception.getMessage()).build();
+        return Response
+                .status(SecurityServletFilter.getErrorStatusCode(request, HttpServletResponse.SC_UNAUTHORIZED))
+                .entity(exception.getMessage())
+                .build();
     }
 }
 

@@ -2,9 +2,11 @@ package dk.dma.msinm.user.security;
 
 
 import dk.dma.msinm.common.audit.Auditor;
+import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.common.util.WebUtils;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -13,8 +15,12 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.Base64;
 import java.util.Date;
+
+import static dk.dma.msinm.user.security.SecurityConf.CheckedResource;
 
 /**
  * Handles security in the application
@@ -26,6 +32,12 @@ public class SecurityServletFilter implements Filter {
     private final static String JWT_TOKEN = "Bearer ";
     private final static String BASIC_AUTH = "Basic ";
     public final static String AUTH_ERROR_ATTR = "msinm.auth.error";
+
+    private SecurityConf securityConf;
+
+    @Inject
+    @Setting(value = "securityConfFile", defaultValue = "/WEB-INF/msinm-security.ini")
+    String securityConfFile;
 
     @Inject
     private Logger log;
@@ -39,8 +51,24 @@ public class SecurityServletFilter implements Filter {
     @Inject
     Auditor auditor;
 
+    /**
+     * Initializes the security configuration
+     * @param filterConfig the servlet filter configuration
+     */
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
+        // Initialize the security configuration
+        if (StringUtils.isNotBlank(securityConfFile)) {
+            try {
+                securityConf = new SecurityConf(filterConfig.getServletContext().getResourceAsStream(securityConfFile));
+            } catch (Exception e) {
+                log.error("Error loading security config file " + securityConfFile, e);
+                throw new ServletException("Error loading security config file " + securityConfFile, e);
+            }
+        } else {
+            securityConf = new SecurityConf();
+        }
+        log.info("Loaded security configuration " + securityConf);
     }
 
     @Override
@@ -55,16 +83,40 @@ public class SecurityServletFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
-        // Check if the request is handled as a user-pwd login attempt
-        if (handleUserPasswordAuth(request, response)) {
-            return;
+        // Check if the security filter needs to process this requested resource
+        if (securityConf.checkResource(request)) {
+
+            // Handle JWT
+            if (securityConf.supportsJwtAuth()) {
+
+                // Check if the request is a user-pwd login attempt
+                if (securityConf.isJwtAuthEndpoint(request)) {
+                    handleJwtUserPasswordAuth(request, response);
+                    return;
+                }
+
+                // If the request contains a JWT token header, attempt a login on the request
+                request = attemptJwtAuthLogin(request, response);
+            }
+
+            // Handle Basic Authentication
+            if (securityConf.supportsBasicAuth()) {
+                // If the request contains a Basic authentication header, attempt a login
+                request = attemptBasicAuthLogin(request);
+            }
+
+            // Check if the request resource specifies a required role
+            CheckedResource errorResource = securityConf.lacksRequiredRole(request);
+            if (errorResource != null) {
+                log.error("User must have role " + errorResource.getRequiredRoles() + " for resource " + errorResource.getUri());
+                if (StringUtils.isNotBlank(errorResource.getRedirect())) {
+                    response.sendRedirect(errorResource.getRedirect());
+                } else {
+                    response.setStatus(getErrorStatusCode(request, HttpServletResponse.SC_UNAUTHORIZED));
+                }
+                return;
+            }
         }
-
-        // If the request contains a JWT token header, attempt a login on the request
-        attemptJwtAuthLogin(request, response);
-
-        // If the request contains a Basic authentication header, attempt a login
-        attemptBasicAuthLogin(request);
 
         // Propagate the request
         chain.doFilter(request, response);
@@ -78,8 +130,9 @@ public class SecurityServletFilter implements Filter {
      * say a Rest endpoint, to throw an error if security requirements are not met.
      *
      * @param request the servlet request
+     * @return the request
      */
-    private void attemptBasicAuthLogin(HttpServletRequest request) {
+    private HttpServletRequest attemptBasicAuthLogin(HttpServletRequest request) {
         try {
             String token = getAuthHeaderToken(request, BASIC_AUTH);
             if (token != null) {
@@ -91,6 +144,7 @@ public class SecurityServletFilter implements Filter {
             request.setAttribute(AUTH_ERROR_ATTR, HttpServletResponse.SC_UNAUTHORIZED);
             log.warn("Failed logging in using Basic Authentication");
         }
+        return request;
     }
 
     /**
@@ -100,10 +154,18 @@ public class SecurityServletFilter implements Filter {
      * say a Rest endpoint, to throw an error if security requirements are not met.
      *
      * @param request the servlet request
+     * @return the request
      */
-    public void attemptJwtAuthLogin(HttpServletRequest request, HttpServletResponse response)  {
+    public HttpServletRequest attemptJwtAuthLogin(HttpServletRequest request, HttpServletResponse response)  {
         try {
+            // Get the JWT token from the header
             String jwt = getAuthHeaderToken(request, JWT_TOKEN);
+
+            // Fall back to try cookie
+            if (jwt == null) {
+                jwt = getAuthCookieToken(request, JWT_TOKEN);
+            }
+
             if (jwt != null) {
                 // Parse and verify the JWT token
                 JWTService.ParsedJWTInfo jwtInfo = jwtService.parseSignedJWT(jwt);
@@ -113,7 +175,7 @@ public class SecurityServletFilter implements Filter {
                 if (now.after(jwtInfo.getExpirationTime())) {
                     request.setAttribute(AUTH_ERROR_ATTR, 419); // 419: session timed out
                     log.warn("JWT token expired for user " + jwtInfo.getSubject());
-                    return;
+                    return request;
                 }
 
                 // Before logging in, generate a one-time password token tied to the current thread.
@@ -136,6 +198,7 @@ public class SecurityServletFilter implements Filter {
             request.setAttribute(AUTH_ERROR_ATTR, HttpServletResponse.SC_UNAUTHORIZED);
             log.warn("Failed logging in using bearer token");
         }
+        return request;
     }
 
     /**
@@ -143,12 +206,9 @@ public class SecurityServletFilter implements Filter {
      *
      * @param request the servlet request
      * @param response the servlet response
-     * @return if this request has been handled
+     * @return the request
      */
-    public boolean handleUserPasswordAuth(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        if (!WebUtils.getServletUrl(request).endsWith("/auth")) {
-            return false;
-        }
+    public HttpServletRequest handleJwtUserPasswordAuth(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
         Credentials credentials = Credentials.fromRequest(request);
         if (credentials != null) {
@@ -164,14 +224,14 @@ public class SecurityServletFilter implements Filter {
                 response.setHeader("Expires", "0") ;
                 response.getWriter().write(jwt.toJson());
                 auditor.info("User %s logged in. Issued token %s", credentials.getEmail(), jwt.getToken());
-                return true;
+                return request;
             } catch (Exception ex) {
             }
         }
 
         response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
         log.warn("Failed logging in using email and password");
-        return true;
+        return request;
     }
 
     /**
@@ -196,6 +256,44 @@ public class SecurityServletFilter implements Filter {
             return header.substring(autType.length()).trim();
         }
         return null;
+    }
+
+    /**
+     * Returns the Authorization cookie token or null if not present
+     *
+     * @param request the servlet request
+     * @return the Authorization cookie token or null if not present
+     */
+    protected String getAuthCookieToken(HttpServletRequest request, String autType) {
+
+        String value = WebUtils.getCookieValue(request, AUTHORIZATION_HEADER);
+        if (value != null) {
+            try {
+                value = URLDecoder.decode(value, "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                value = null;
+            }
+        }
+        if (value != null && value.startsWith(autType)) {
+            return value.substring(autType.length()).trim();
+        }
+        return null;
+    }
+
+    /**
+     * Returns the response status code to use for this request.
+     * If the AUTH_ERROR_ATTR request attribute has been set then this is returned,
+     * otherwise, the {@code defaultStatusCode is returned.
+     *
+     * @param defaultStatusCode the default status code to return
+     * @param request the request
+     * @return the status code to use
+     */
+    public static int getErrorStatusCode(HttpServletRequest request, int defaultStatusCode) {
+        if (request.getAttribute(SecurityServletFilter.AUTH_ERROR_ATTR) != null) {
+            return (Integer) request.getAttribute(SecurityServletFilter.AUTH_ERROR_ATTR);
+        }
+        return defaultStatusCode;
     }
 }
 

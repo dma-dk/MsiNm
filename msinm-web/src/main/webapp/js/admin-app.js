@@ -13,9 +13,11 @@ var app = angular.module('msinm.admin', ['ngRoute', 'ngCookies', 'ui.bootstrap',
         'use strict';
 
         $routeProvider.when('/admin/overview', {
-            templateUrl: 'partials/admin/overview.html'
+            templateUrl: 'partials/admin/overview.html',
+            resolve: checkRole('admin')
         }).when('/admin/users', {
-            templateUrl: 'partials/admin/users.html'
+            templateUrl: 'partials/admin/users.html',
+            resolve: checkRole('admin')
         }).otherwise({
             redirectTo: '/admin/overview'
         });

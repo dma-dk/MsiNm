@@ -15,7 +15,7 @@ angular.module('msinm.user')
                 config.headers = config.headers || {};
                 // If the user is logged using a JWT token, add it as a header
                 if ($rootScope.currentUser) {
-                    config.headers.Authorization = 'Bearer ' + $rootScope.currentUser.token;
+                    config.headers.Authorization = Auth.authorizationHeader();
                 }
                 return config;
             },
@@ -42,7 +42,8 @@ angular.module('msinm.user')
     /**
      * Holds the currently logged in user
      */
-    .factory('Auth', ['$rootScope', '$window', function ($rootScope, $window) {
+    .factory('Auth', ['$rootScope', '$window', '$cookies',
+        function ($rootScope, $window, $cookies) {
         'use strict';
 
         var storage =  $window.sessionStorage;
@@ -62,16 +63,26 @@ angular.module('msinm.user')
                 $rootScope.currentUser = jwtToken;
                 if (jwtToken) {
                     storage.jwt = JSON.stringify(jwtToken);
+                    $cookies.Authorization = this.authorizationHeader();
                 }
+            },
+
+            authorizationHeader: function() {
+                if ($rootScope.currentUser) {
+                    return 'Bearer ' + $rootScope.currentUser.token;
+                }
+                return '';
             },
 
             reauthenticate: function(jwtToken) {
                 $rootScope.currentUser.token = jwtToken;
                 storage.jwt = JSON.stringify($rootScope.currentUser);
+                $cookies.Authorization = this.authorizationHeader();
             },
 
             logout: function() {
                 storage.clear();
+                delete $cookies.Authorization;
                 delete $rootScope.currentUser;
             },
 
@@ -144,3 +155,24 @@ angular.module('msinm.user')
             }
         };
     }]);
+
+/**
+ * Checks that the user has the given role. Otherwise, redirects to "/"
+ * @param role the role to check
+ */
+checkRole = function (role) {
+    return {
+        load: function ($q, Auth) {
+
+            if ((role && Auth.hasRole(role))) {
+                var deferred = $q.defer();
+                deferred.resolve();
+                return deferred.promise;
+            } else {
+                console.error("User must have role " + role + ". Redirecting to front page");
+                location.href = "/";
+            }
+        }
+    }
+};
+
