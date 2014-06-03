@@ -52,6 +52,11 @@ public abstract class BaseCache {
     }
 
     /**
+     * Clears the cache
+     */
+    public abstract void clearCache();
+
+    /**
      * Must be implemented by sub-classes to define the local cache configuration
      * @return the local cache configuration
      */

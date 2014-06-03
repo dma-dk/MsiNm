@@ -22,12 +22,6 @@ angular.module('msinm.admin')
                 $http.get(host + '/rest/import/legacy-db-msi?limit=' + count)
                     .success(success)
                     .error(error);
-            },
-
-            recreateSearchIndex: function(success, error) {
-                $http.get(host + '/rest/message/recreate-search-index')
-                    .success(success)
-                    .error(error);
             }
         };
     }])
@@ -44,5 +38,27 @@ angular.module('msinm.admin')
                     .success(success)
                     .error(error);
             }
+        };
+    }])
+
+    .factory('OperationsService', [ '$http', '$location', function($http, $location) {
+        'use strict';
+
+        var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
+
+        return {
+
+            recreateSearchIndex: function(success, error) {
+                $http.get(host + '/rest/message/recreate-search-index')
+                    .success(success)
+                    .error(error);
+            },
+
+            clearCaches: function(cacheId, success, error) {
+                $http.get(host + '/rest/admin/operations/reset-cache/' + cacheId)
+                    .success(success)
+                    .error(error);
+            }
+
         };
     }]);

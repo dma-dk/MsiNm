@@ -8,11 +8,19 @@
             Here you can trigger a rebuild of the underlying message search index.
             It may take a few minutes before the message search functionality works properly again.
         </p>
-        <button type="button" class="btn btn-sm btn-default" ng-controller="LegacyCtrl" ng-click="recreateSearchIndex()">
+        <button type="button" class="btn btn-sm btn-default" ng-controller="OperationsCtrl" ng-click="recreateSearchIndex()">
             Rebuild Index...
         </button>
     </div>
 
     <div class="col-sm-5 col-sm-offset-1">
+        <h2>Clear Caches</h2>
+        <p>
+            Various information gets cached on the server side.
+            You can clear the caches to refresh all cached data.
+        </p>
+        <button type="button" class="btn btn-sm btn-default" ng-controller="OperationsCtrl" ng-click="clearCaches()">
+            Clear Caches...
+        </button>
     </div>
 </div>

@@ -38,9 +38,32 @@ angular.module('msinm.admin')
 
             $scope.$close();
         };
+    }])
+
+    .controller('UserCtrl', ['$scope', '$location', '$modal', 'UserService',
+        function ($scope, $location, $modal, UserService) {
+        'use strict';
+
+        $scope.users = [];
+
+        $scope.listUsers = function () {
+            UserService.listUsers(
+                function(data) {
+                    $scope.users = data;
+                },
+                function () {
+                    console.log("Error loading users");
+                });
+        };
+
+    }])
+
+    .controller('OperationsCtrl', ['$scope', '$location', '$modal', 'OperationsService',
+        function ($scope, $location, $modal, OperationsService) {
+        'use strict';
 
         $scope.recreateSearchIndex = function () {
-            LegacyService.recreateSearchIndex(
+            OperationsService.recreateSearchIndex(
                 function(data) {
                     console.log("Initiated a rebuild of message search index");
                 },
@@ -49,24 +72,15 @@ angular.module('msinm.admin')
                 });
         };
 
+        $scope.clearCaches = function () {
+            OperationsService.clearCaches(
+                "all",
+                function(data) {
+                    console.log("Clear all caches");
+                },
+                function () {
+                    console.log("Error clearing all caches");
+                });
+        };
 
-        }])
-
-    .controller('UserCtrl', ['$scope', '$location', '$modal', 'UserService',
-        function ($scope, $location, $modal, UserService) {
-            'use strict';
-
-            $scope.users = [];
-
-            $scope.listUsers = function () {
-                UserService.listUsers(
-                    function(data) {
-                        $scope.users = data;
-                    },
-                    function () {
-                        console.log("Error loading users");
-                    });
-            };
-
-
-        }]);
+    }]);
