@@ -12,14 +12,14 @@ angular.module('msinm.admin')
 
             importMsiNm: function(success, error) {
                 var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/message/import-legacy-msi')
+                $http.get(host + '/rest/import/legacy-ws-msi')
                     .success(success)
                     .error(error);
             },
 
             importLegacyMsi: function(count, success, error) {
                 var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-                $http.get(host + '/rest/import/legacy_msi?limit=' + count)
+                $http.get(host + '/rest/import/legacy-db-msi?limit=' + count)
                     .success(success)
                     .error(error);
             }

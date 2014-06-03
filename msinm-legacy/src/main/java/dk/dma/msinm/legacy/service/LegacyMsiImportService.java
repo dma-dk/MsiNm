@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.legacy.service;
 
+import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
@@ -28,6 +29,8 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
 import javax.xml.namespace.QName;
 import javax.xml.ws.BindingProvider;
 import java.util.ArrayList;
@@ -41,6 +44,7 @@ import java.util.List;
  */
 @Singleton
 @Startup
+@Path("/import/legacy-ws-msi")
 public class LegacyMsiImportService {
 
     private static final String MSI_WSDL = "/wsdl/warning.wsdl";
@@ -49,6 +53,9 @@ public class LegacyMsiImportService {
 
     @Inject
     private Logger log;
+
+    @Inject
+    Auditor auditor;
 
     @Inject
     LegacyMessageService legacyMessageService;
@@ -71,6 +78,22 @@ public class LegacyMsiImportService {
                 .getMsiServiceBeanPort();
         log.info("Initialized MSI webservice");
     }
+
+
+    /**
+     * Called by clients to import active MSI messages from the legacy webservice
+     * @return the result
+     */
+    @GET
+    public String importMsiWarnings() {
+        log.info("Importing legacy MSI warnings");
+
+        int result = importWarnings();
+        auditor.info("Created or updated %s legacy MSI warnings", String.valueOf(result));
+
+        return String.format("Created or updated %d legacy MSI warnings", result);
+    }
+
 
     /**
      * Returns the current list of active MSI warnings

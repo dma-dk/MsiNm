@@ -15,8 +15,6 @@
  */
 package dk.dma.msinm.web.rest;
 
-import dk.dma.msinm.common.audit.Auditor;
-import dk.dma.msinm.legacy.service.LegacyMsiImportService;
 import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.MessageStatus;
 import dk.dma.msinm.model.MessageType;
@@ -34,11 +32,7 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
+import javax.ws.rs.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -53,29 +47,12 @@ public class MessageRestService {
     Logger log;
 
     @Inject
-    Auditor auditor;
-
-    @Inject
     MessageService messageService;
 
     @Inject
     MessageSearchService messageSearchService;
 
-    @Inject
-    LegacyMsiImportService legacyMsiImportService;
-
     public MessageRestService() {
-    }
-
-    @GET
-    @Path("/import-legacy-msi")
-    public String importLegacyMsiWarnings() {
-        log.info("Importing legacy MSI warnings");
-
-        int result = legacyMsiImportService.importWarnings();
-        auditor.info("Created or updated %s legacy MSI warnings", String.valueOf(result));
-
-        return String.format("Created or updated %d legacy MSI warnings", result);
     }
 
     @GET

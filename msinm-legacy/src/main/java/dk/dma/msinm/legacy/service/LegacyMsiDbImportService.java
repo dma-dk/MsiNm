@@ -21,24 +21,12 @@ import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.legacy.model.LegacyMessage;
-import dk.dma.msinm.model.GeneralCategory;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageCategory;
-import dk.dma.msinm.model.MessageItem;
-import dk.dma.msinm.model.MessageLocation;
-import dk.dma.msinm.model.MessageSeriesIdentifier;
-import dk.dma.msinm.model.MessageStatus;
-import dk.dma.msinm.model.MessageType;
-import dk.dma.msinm.model.NavwarnMessage;
-import dk.dma.msinm.model.Point;
-import dk.dma.msinm.model.Priority;
-import dk.dma.msinm.model.SpecificCategory;
+import dk.dma.msinm.model.*;
 import dk.dma.msinm.service.MessageService;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
-import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
@@ -46,19 +34,14 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.Calendar;
 import java.util.Date;
 
 /**
  * Imports data from a local db dump
  */
-@Path("/import/legacy_msi")
+@Path("/import/legacy-db-msi")
 @Stateless
 @SecurityDomain("msinm-policy")
 @RolesAllowed({ "admin" })
