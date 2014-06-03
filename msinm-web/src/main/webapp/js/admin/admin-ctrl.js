@@ -57,6 +57,10 @@ angular.module('msinm.admin')
                 });
         };
 
+        $scope.editUser = function (userId) {
+            alert("EDIT user " + userId);
+        }
+
     }])
 
     .controller('OperationsCtrl', ['$scope', '$location', '$modal', 'OperationsService',

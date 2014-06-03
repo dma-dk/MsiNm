@@ -3,9 +3,18 @@
 
 <div ng-controller="UserCtrl" ng-init="listUsers()">
 
+    <p>
+        Add, modify and manage users.
+    </p>
+
     <div class="row">
         <div class="col-sm-3">
             <input class="form-control input-sm col-sm-2" ng-model="search" type="text" placeholder="Filter">
+        </div>
+        <div class="col-sm-1">
+            <button type="submit" class="btn btn-primary btn-sm" ng-click="editUser()">
+                <span class="glyphicon glyphicon-plus"></span> Add User
+            </button>
         </div>
     </div>
 
@@ -24,7 +33,7 @@
                     <td>{{user.firstName}}</td>
                     <td>{{user.lastName}}</td>
                     <td>{{user.roles | serialize}}</td>
-                    <td><a href="#/edit/{{user.id}}"><i class="glyphicon glyphicon-pencil"></i></a></td>
+                    <td><a href ng-click="editUser(user.id);" title="Edit User"><i class="glyphicon glyphicon-pencil"></i></a></td>
                 </tr>
             </table>
         </div>
