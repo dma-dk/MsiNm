@@ -45,6 +45,7 @@ angular.module('msinm.admin')
         'use strict';
 
         $scope.users = [];
+        $scope.search = '';
 
         $scope.listUsers = function () {
             UserService.listUsers(
