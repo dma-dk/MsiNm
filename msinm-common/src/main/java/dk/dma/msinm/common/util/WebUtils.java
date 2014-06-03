@@ -63,9 +63,12 @@ public class WebUtils {
      * @return the cookie with the given name or null if not found
      */
     public static Cookie getCookie(HttpServletRequest request, String name) {
-        for (Cookie c : request.getCookies()) {
-            if (c.getName().equals(name)) {
-                return c;
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie c : request.getCookies()) {
+                if (c.getName().equals(name)) {
+                    return c;
+                }
             }
         }
         return null;
