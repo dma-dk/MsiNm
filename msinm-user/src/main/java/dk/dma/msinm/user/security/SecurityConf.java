@@ -32,9 +32,6 @@ import java.util.stream.Collectors;
  * checkedResource=/auth
  * checkedResource=/rest/*
  * checkedResource=/rest/admin/* roles=admin
- * checkedResource=/admin.html roles=admin redirect=/index.html
- * checkedResource=/partials/admin/* roles=admin redirect=/partials/unauthorized.html
- * checkedResource=/js/admin/* roles=admin
  *
  * </pre>
  */
@@ -64,10 +61,8 @@ public class SecurityConf implements Serializable {
         authTypes.add(AuthType.JWT);
         jwtAuthEndpoint = DEFAULT_JWT_AUTH_ENDPOINT;
         checkedResources.add(new CheckedResource("/rest/*"));
+        checkedResources.add(new CheckedResource("/rest/admin/*", "admin"));
         checkedResources.add(new CheckedResource("/auth"));
-        checkedResources.add(new CheckedResource("/admin.html", "admin", "/index.html"));
-        checkedResources.add(new CheckedResource("/partials/admin/*", "admin", "/partials/unauthorized.html"));
-        checkedResources.add(new CheckedResource("/js/admin/*", "admin"));
     }
 
     /**

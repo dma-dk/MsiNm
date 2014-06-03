@@ -3,7 +3,6 @@ package dk.dma.msinm.user.security;
 
 import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.common.settings.annotation.Setting;
-import dk.dma.msinm.common.util.WebUtils;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
 import org.apache.commons.lang.StringUtils;
@@ -15,8 +14,6 @@ import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
 import java.util.Base64;
 import java.util.Date;
 
@@ -161,11 +158,6 @@ public class SecurityServletFilter implements Filter {
             // Get the JWT token from the header
             String jwt = getAuthHeaderToken(request, JWT_TOKEN);
 
-            // Fall back to try cookie
-            if (jwt == null) {
-                jwt = getAuthCookieToken(request, JWT_TOKEN);
-            }
-
             if (jwt != null) {
                 // Parse and verify the JWT token
                 JWTService.ParsedJWTInfo jwtInfo = jwtService.parseSignedJWT(jwt);
@@ -254,28 +246,6 @@ public class SecurityServletFilter implements Filter {
         String header = request.getHeader(AUTHORIZATION_HEADER);
         if (header != null && header.startsWith(autType)) {
             return header.substring(autType.length()).trim();
-        }
-        return null;
-    }
-
-    /**
-     * Returns the Authorization cookie token or null if not present
-     *
-     * @param request the servlet request
-     * @return the Authorization cookie token or null if not present
-     */
-    protected String getAuthCookieToken(HttpServletRequest request, String autType) {
-
-        String value = WebUtils.getCookieValue(request, AUTHORIZATION_HEADER);
-        if (value != null) {
-            try {
-                value = URLDecoder.decode(value, "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                value = null;
-            }
-        }
-        if (value != null && value.startsWith(autType)) {
-            return value.substring(autType.length()).trim();
         }
         return null;
     }

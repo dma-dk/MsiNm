@@ -42,8 +42,8 @@ angular.module('msinm.user')
     /**
      * Holds the currently logged in user
      */
-    .factory('Auth', ['$rootScope', '$window', '$cookies',
-        function ($rootScope, $window, $cookies) {
+    .factory('Auth', ['$rootScope', '$window',
+        function ($rootScope, $window) {
         'use strict';
 
         var storage =  $window.sessionStorage;
@@ -63,7 +63,6 @@ angular.module('msinm.user')
                 $rootScope.currentUser = jwtToken;
                 if (jwtToken) {
                     storage.jwt = JSON.stringify(jwtToken);
-                    $cookies.Authorization = this.authorizationHeader();
                 }
             },
 
@@ -77,12 +76,10 @@ angular.module('msinm.user')
             reauthenticate: function(jwtToken) {
                 $rootScope.currentUser.token = jwtToken;
                 storage.jwt = JSON.stringify($rootScope.currentUser);
-                $cookies.Authorization = this.authorizationHeader();
             },
 
             logout: function() {
                 storage.clear();
-                delete $cookies.Authorization;
                 delete $rootScope.currentUser;
             },
 
