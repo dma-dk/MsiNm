@@ -22,10 +22,13 @@ import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
 import org.apache.commons.lang.StringUtils;
+import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.Json;
@@ -33,6 +36,7 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.ws.rs.*;
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -41,6 +45,8 @@ import java.text.SimpleDateFormat;
  */
 @Path("/message")
 @Stateless
+@SecurityDomain("msinm-policy")
+@PermitAll
 public class MessageRestService {
 
     @Inject
@@ -55,6 +61,11 @@ public class MessageRestService {
     public MessageRestService() {
     }
 
+
+    /**
+     * Test method - returns all message
+     * @return returns all message
+     */
     @GET
     @Path("/all")
     @Produces("application/json;charset=UTF-8")
@@ -67,6 +78,9 @@ public class MessageRestService {
         return result.build();
     }
 
+    /**
+     * Main search method
+     */
     @GET
     @Path("/search")
     @Produces("application/json;charset=UTF-8")
@@ -136,4 +150,20 @@ public class MessageRestService {
                 .toJson()
                 .build();
     }
+
+    /**
+     * Main search method
+     */
+    @GET
+    @Path("/recreate-search-index")
+    @RolesAllowed({ "admin" })
+    public void recreateSearchIndex() {
+        try {
+            log.info("Recreating message search index");
+            messageSearchService.recreateIndex();
+        } catch (IOException e) {
+            log.error("Error recreating message search index");
+        }
+    }
+
 }

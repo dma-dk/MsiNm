@@ -39,5 +39,15 @@ angular.module('msinm.admin')
             $scope.$close();
         };
 
+        $scope.recreateSearchIndex = function () {
+            LegacyService.recreateSearchIndex(
+                function(data) {
+                    console.log("Initiated a rebuild of message search index");
+                },
+                function () {
+                    console.log("Error initiating a rebuild of message search index");
+                });
+        };
 
-    }]);
+
+        }]);
