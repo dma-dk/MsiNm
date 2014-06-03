@@ -31,10 +31,10 @@ public class JbossJaasCacheFlusher {
     /**
      * Called every minute to flush the JAAS cache
      */
-    @Schedule(persistent = false, second = "27", minute = "*/1", hour = "*", dayOfWeek = "*", year = "*")
+    //@Schedule(persistent = false, second = "27", minute = "*/1", hour = "*", dayOfWeek = "*", year = "*")
     private void flushJaasCache() {
         try {
-            log.trace("Flushing Jboss JAAS cache");
+            log.info("Flushing Jboss JAAS cache");
             MBeanServerConnection mbeanServerConnection = ManagementFactory.getPlatformMBeanServer();
             ObjectName mbeanName = new ObjectName(SECURITY_DOMAIN);
             mbeanServerConnection.invoke(mbeanName, "flushCache", null, null);
