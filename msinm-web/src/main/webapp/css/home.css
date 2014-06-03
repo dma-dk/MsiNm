@@ -1,0 +1,43 @@
+
+/**
+ * Search CSS styles
+ */
+
+.front-page-image {
+    position: relative;
+}
+
+.front-page-teaser {
+    padding: 0 20px 10px 20px;
+    background-color: rgba(1, 44, 67, 0.7);
+    display: block;
+    color: white;
+    border-radius:5px;
+    width: 300px;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.front-page-article {
+    padding: 0 20px 10px 20px;
+}
+
+.front-page-msi {
+    max-height: 300px;
+    overflow-y: scroll;
+}
+
+.front-page-msi-item {
+    font-size: 10px;
+    padding: 5px 0 5px 0;
+    border-top: 1px solid #dddddd;
+}
+
+.front-page-msi-item div {
+    white-space:nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+

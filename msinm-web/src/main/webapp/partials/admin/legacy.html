@@ -1,0 +1,33 @@
+
+<h1 class="page-header">Legacy Integration</h1>
+
+<div class="row">
+    <div class="col-sm-5">
+        <h2>MSI</h2>
+        <p>
+            You can either import the active MSI messages via a webservice from dma.dk,
+            or, if MSI-NM has been configured to support it, you can import
+            legacy MSI messages from a copy of the dma.dk database.
+        </p>
+        <div class="btn-group" ng-controller="LegacyCtrl">
+            <button type="button" class="btn btn-sm btn-default dropdown-toggle" data-toggle="dropdown">
+                Import Legacy MSI &nbsp; <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href ng-click="importMsiNm()">Import Active MSI</a></li>
+                <li><a href ng-click="legacyImportDlg()">Import legacy DB MSI...</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="col-sm-5 col-sm-offset-1">
+        <h2>NM</h2>
+        <p>
+            Notices to Mariners can be imported by scraping existing PDF documents, with the format used by
+            <a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/EfterretningerForSoefarende/Sider/Default.aspx" target="_blank">Søfartsstyrelsen</a>.
+        </p>
+        <button type="button" class="btn btn-sm btn-default">
+            Import Legacy NM...
+        </button>
+    </div>
+</div>

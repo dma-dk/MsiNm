@@ -10,6 +10,7 @@
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css">
     <link rel="stylesheet" href="css/app.css">
+    <link rel="stylesheet" href="css/admin.css">
 
 </head>
 <body ng-app="msinm.admin">
@@ -21,7 +22,9 @@
         <div class="col-sm-3 col-md-2 admin-sidebar">
             <ul class="nav admin-nav-sidebar">
                 <li check-active="/admin/overview"><a href ng-click="go('/admin/overview');">Overview</a></li>
+                <li check-active="/admin/operations"><a href ng-click="go('/admin/operations');">Operations</a></li>
                 <li check-active="/admin/users"><a href ng-click="go('/admin/users');">Users and groups</a></li>
+                <li check-active="/admin/legacy"><a href ng-click="go('/admin/legacy');">Legacy Integration</a></li>
                 <li><a href="#">Areas</a></li>
                 <li><a href="#">Categories</a></li>
                 <li><a href="#">WMS</a></li>

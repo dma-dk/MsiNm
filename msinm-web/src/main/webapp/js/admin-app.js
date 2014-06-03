@@ -18,6 +18,12 @@ var app = angular.module('msinm.admin', ['ngRoute', 'ngCookies', 'ui.bootstrap',
         }).when('/admin/users', {
             templateUrl: 'partials/admin/users.html',
             resolve: checkRole('admin')
+        }).when('/admin/legacy', {
+            templateUrl: 'partials/admin/legacy.html',
+            resolve: checkRole('admin')
+        }).when('/admin/operations', {
+            templateUrl: 'partials/admin/operations.html',
+            resolve: checkRole('admin')
         }).otherwise({
             redirectTo: '/admin/overview'
         });
