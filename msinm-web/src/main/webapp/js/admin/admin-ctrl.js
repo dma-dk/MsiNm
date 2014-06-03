@@ -50,4 +50,23 @@ angular.module('msinm.admin')
         };
 
 
+        }])
+
+    .controller('UserCtrl', ['$scope', '$location', '$modal', 'UserService',
+        function ($scope, $location, $modal, UserService) {
+            'use strict';
+
+            $scope.users = [];
+
+            $scope.listUsers = function () {
+                UserService.listUsers(
+                    function(data) {
+                        $scope.users = data;
+                    },
+                    function () {
+                        console.log("Error loading users");
+                    });
+            };
+
+
         }]);

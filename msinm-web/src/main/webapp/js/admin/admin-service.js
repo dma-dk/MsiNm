@@ -30,4 +30,19 @@ angular.module('msinm.admin')
                     .error(error);
             }
         };
+    }])
+
+    .factory('UserService', [ '$http', '$location', function($http, $location) {
+        'use strict';
+
+        var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
+
+        return {
+
+            listUsers: function(success, error) {
+                $http.get(host + '/rest/user/all')
+                    .success(success)
+                    .error(error);
+            }
+        };
     }]);

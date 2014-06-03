@@ -21,11 +21,18 @@ import dk.dma.msinm.user.security.Credentials;
 import dk.dma.msinm.user.security.JWTService;
 import dk.dma.msinm.user.security.JWTToken;
 import dk.dma.msinm.user.security.SecurityUtils;
+import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.json.Json;
+import javax.json.JsonArray;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObject;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.*;
 import javax.ws.rs.core.Context;
@@ -36,57 +43,29 @@ import javax.ws.rs.core.Response;
  */
 @Path("/user")
 @Stateless
+@SecurityDomain("msinm-policy")
+@RolesAllowed({ "admin" })
 public class UserRestService {
 
     @Inject
     Logger log;
 
     @Inject
-    JWTService jwtService;
-
-    @Inject
     UserService userService;
 
     /**
-     * Authenticates the user and throws an error if the login fails
-     *
-     * @param credentials the user credentials
-     * @return the user JWT token
-     * @deprecated login via the {@linkplain dk.dma.msinm.user.security.SecurityServletFilter} instead
+     * Returns all users
      */
-    @POST
-    @Path("/auth")
-    @Consumes("application/json")
-    @Produces("application/json")
-    @NoCache
-    @Deprecated
-    public JWTToken authenticate(@Context HttpServletRequest request, Credentials credentials) {
-        log.info("Login attempt by " + credentials.getEmail());
-
-        try {
-            // Log out first
-            request.logout();
-
-            // Force a login
-            request = SecurityUtils.login(userService, request, credentials.getEmail(), credentials.getPassword());
-
-
-            // Successful login - create a JWT token
-            String svr = String.format("%s://%s", request.getScheme(), request.getServerName());
-            return jwtService.createSignedJWT(svr, (User) request.getUserPrincipal());
-        } catch (Exception e) {
-            log.error("Failed generating JWT for user " + credentials.getEmail(), e);
-        }
-
-        throw new WebApplicationException(Response.Status.UNAUTHORIZED);
-    }
-
     @GET
-    @Path("/test")
-    @Produces("application/json")
+    @Path("/all")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
     @NoCache
-    public String test() {
-        return "SUCCESS";
+    public JsonArray getUsers() {
+
+        JsonArrayBuilder result = Json.createArrayBuilder();
+        userService.getAll(User.class).forEach(user -> result.add(user.toJson()));
+        return result.build();
     }
 
 }

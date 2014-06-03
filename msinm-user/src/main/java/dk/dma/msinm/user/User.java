@@ -19,6 +19,9 @@ import dk.dma.msinm.common.model.VersionedEntity;
 import dk.dma.msinm.user.security.oath.OAuthLogin;
 import org.apache.commons.lang.StringUtils;
 
+import javax.json.Json;
+import javax.json.JsonArrayBuilder;
+import javax.json.JsonObjectBuilder;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Embedded;
@@ -162,6 +165,22 @@ public class User extends VersionedEntity<Integer> implements Principal {
      */
     public boolean hasPassword() {
         return (password != null && password.isDefined());
+    }
+
+    /**
+     * Creates a Json representation of this entity
+     * @return the Json representation
+     */
+    public JsonObjectBuilder toJson() {
+        JsonArrayBuilder rolesJson = Json.createArrayBuilder();
+        getRoles().forEach(role -> rolesJson.add(role.getName()));
+
+        return Json.createObjectBuilder()
+                .add("id", getId())
+                .add("email", email)
+                .add("firstName", firstName)
+                .add("lastName", lastName)
+                .add("roles", rolesJson);
     }
 
 }

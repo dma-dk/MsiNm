@@ -1,7 +1,18 @@
 
 <h1 class="page-header">Users</h1>
 
-list of users
-
-<h2>Mail groups</h2>
+<table class='table table-condensed table-hover' ng-controller="UserCtrl" ng-init="listUsers()">
+    <tr>
+        <th>E-mail</th>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Roles</th>
+    </tr>
+    <tr ng-repeat="user in users">
+        <td>{{user.email}}</td>
+        <td>{{user.firstName}}</td>
+        <td>{{user.lastName}}</td>
+        <td>{{user.roles}}</td>
+    </tr>
+</table>
 
