@@ -15,6 +15,8 @@
  */
 package dk.dma.msinm.legacy.service;
 
+import dk.dma.msinm.common.audit.AuditEntry;
+import dk.dma.msinm.common.audit.AuditorFactory;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.db.SqlProducer;
 import dk.dma.msinm.common.sequence.SequenceEntity;
@@ -41,7 +43,7 @@ import javax.persistence.EntityManager;
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
         TestDatabaseConfiguration.class, SqlProducer.class, LegacyMsiImportService.class, LegacyMessageService.class, Settings.class,
-        Sequences.class, LogConfiguration.class, EntityManager.class
+        Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class
 })
 public class LegacyMsiServiceTest extends MsiNmUnitTest
 {
@@ -55,7 +57,7 @@ public class LegacyMsiServiceTest extends MsiNmUnitTest
     @BeforeClass
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {
         prepareEntityManagerFactory(
-                SequenceEntity.class, SettingsEntity.class,
+                SequenceEntity.class, SettingsEntity.class, AuditEntry.class,
                 LegacyMessage.class,
                 Message.class, MessageCategory.class, MessageItem.class, MessageLocation.class,
                 MessageSeriesIdentifier.class, NavwarnMessage.class, NoticeElement.class,
