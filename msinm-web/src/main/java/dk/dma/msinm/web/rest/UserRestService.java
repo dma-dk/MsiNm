@@ -17,10 +17,6 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
-import dk.dma.msinm.user.security.Credentials;
-import dk.dma.msinm.user.security.JWTService;
-import dk.dma.msinm.user.security.JWTToken;
-import dk.dma.msinm.user.security.SecurityUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -32,14 +28,12 @@ import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 
 /**
- * REST interface for accessing MSI-NM messages
+ * REST interface for accessing MSI-NM users
  */
 @Path("/user")
 @Stateless
@@ -67,5 +61,4 @@ public class UserRestService {
         userService.getAll(User.class).forEach(user -> result.add(user.toJson()));
         return result.build();
     }
-
 }
