@@ -49,4 +49,10 @@ h3 {
     padding: 10px 20px 10px 20px;
 }
 
+input.ng-invalid-pwvalid {
+    color: red;
+}
+input.ng-invalid-pwmatch {
+    border-color: red;
+}
 

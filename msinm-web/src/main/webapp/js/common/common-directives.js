@@ -28,17 +28,17 @@ angular.module('msinm.common')
         };
     }])
 
-/**
- * Show element active/inactive depending on the current location.
- * Usage:
- * <pre>
- *     <li check-active="/search/*"><a href="search.html">Search</a></li>
- * </pre>
- * <p>
- * Inspired by:
- *   http://stackoverflow.com/questions/16199418/how-do-i-implement-the-bootstrap-navbar-active-class-with-angular-js
- * - but changed quite a bit.
- */
+    /**
+     * Show element active/inactive depending on the current location.
+     * Usage:
+     * <pre>
+     *     <li check-active="/search/*"><a href="search.html">Search</a></li>
+     * </pre>
+     * <p>
+     * Inspired by:
+     *   http://stackoverflow.com/questions/16199418/how-do-i-implement-the-bootstrap-navbar-active-class-with-angular-js
+     * - but changed quite a bit.
+     */
     .directive('checkActive', [ '$location', function ($location) {
         'use strict';
 
@@ -68,19 +68,33 @@ angular.module('msinm.common')
     }])
 
     /**
-     * Checks that two password fields match up.
-     * Based on http://blog.brunoscopelliti.com/angularjs-directive-to-check-that-passwords-match
+     * Checks that two password fields match up and that the password is strong
+     * Based on http://jsfiddle.net/EHJq8/
      */
-    .directive('pwCheck', [function () {
+    .directive('pwCheck', ['$parse', function ($parse) {
         return {
             require: 'ngModel',
+            restrict: 'A',
             link: function (scope, elem, attrs, ctrl) {
-                var firstPassword = '#' + attrs.pwCheck;
-                elem.add(firstPassword).on('keyup', function () {
-                    scope.$apply(function () {
-                        var v = elem.val() === $(firstPassword).val();
-                        ctrl.$setValidity('pwmatch', v);
-                    });
+
+                //This part does the matching
+                scope.$watch(function() {
+                    return (ctrl.$pristine && angular.isUndefined(ctrl.$modelValue)) || $parse(attrs.pwCheck)(scope) === ctrl.$modelValue;
+                }, function(currentValue) {
+                    ctrl.$setValidity('pwmatch', currentValue);
+                });
+
+                //This part is supposed to check the strength
+                ctrl.$parsers.unshift(function(viewValue) {
+                    var pwdValidLength, pwdHasLetter, pwdHasNumber;
+
+                    pwdValidLength = (viewValue && viewValue.length >= 6 ? true : false);
+                    pwdHasLetter = (viewValue && /[A-z]/.test(viewValue)) ? true : false;
+                    pwdHasNumber = (viewValue && /\d/.test(viewValue)) ? true : false;
+
+                    ctrl.$setValidity('pwvalid', pwdValidLength && pwdHasLetter && pwdHasNumber);
+
+                    return viewValue;
                 });
             }
         }

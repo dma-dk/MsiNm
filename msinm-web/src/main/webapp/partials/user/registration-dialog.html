@@ -35,15 +35,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="passwordfield">Password</label>
+                    <label for="passwordfield">Password <small style="font-weight: lighter; color: gray;">- at least 6 mixed characters and numbers</small></label>
                     <input type="password" id="passwordfield" name="passwordfield" class="form-control input-sm"
-                           ng-model="newUser.password" required />
+                           pw-check="newUser.password" ng-model="newUser.password" required
+                           ng-class="{'ng-invalid':registration_form.passwordfield.$error.pwmatch}" />
                 </div>
 
                 <div class="form-group">
                     <label for="passwordfield2">Repeat password</label>
                     <input type="password" id="passwordfield2" name="passwordfield2" class="form-control input-sm"
-                           pw-check="passwordfield" ng-model="newUser.password2" required />
+                           pw-check="newUser.password" ng-model="newUser.password2" required
+                           ng-class="{'ng-invalid':registration_form.passwordfield2.$error.pwmatch}"/>
                 </div>
 
                 <div style="margin-top: 24px">
