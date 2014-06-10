@@ -164,10 +164,10 @@
                     <driver name="h2" module="com.h2database.h2">
                         <xa-datasource-class>org.h2.jdbcx.JdbcDataSource</xa-datasource-class>
                     </driver>
+					<driver name="mysql-connector-java-5.1.30-bin.jar" module="com.mysql">
+						<driver-class>com.mysql.jdbc.Driver</driver-class>
+					</driver>
                 </drivers>
-				<driver name="mysql-connector-java-5.1.30-bin.jar" module="com.mysql">
-					<driver-class>com.mysql.jdbc.Driver</driver-class>
-				</driver>
 
             </datasources>
         </subsystem>
