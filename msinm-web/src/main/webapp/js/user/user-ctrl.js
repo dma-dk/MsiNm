@@ -142,8 +142,55 @@ angular.module('msinm.user')
                 });
         }
 
-    }]);
+    }])
 
+
+    /**
+     * The NewPasswordCtrl handles adding or editing a user by an administrator
+     */
+    .controller('AddOrEditUserCtrl', ['$scope', '$location', '$modalInstance', 'UserService', 'user', 'userAction',
+        function ($scope, $location, $modalInstance, UserService, user, userAction) {
+        'use strict';
+
+        $scope.focusMe = true;
+        $scope.message = undefined;
+        $scope.error = undefined;
+        $scope.user = user;
+        $scope.roles = {
+            user: $.inArray('user', user.roles) > -1,
+            admin: $.inArray('admin', user.roles) > -1
+        };
+        $scope.userAction = userAction;
+
+        $scope.$on("$destroy", function() {
+            $location.path("/admin/users");
+        });
+
+        $scope.createOrUpdateUser = function() {
+            var roles = [];
+            if ($scope.roles.user) {
+                roles.push("user");
+            }
+            if ($scope.roles.admin) {
+                roles.push("admin");
+            }
+            UserService.createOrUpdateUser(
+                $scope.user.email,
+                $scope.user.firstName,
+                $scope.user.lastName,
+                roles,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the email address.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        }
+
+    }]);
 
 
 

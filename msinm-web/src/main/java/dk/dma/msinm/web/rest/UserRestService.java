@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.web.rest;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -37,6 +38,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.List;
 
 /**
  * REST interface for accessing MSI-NM users
@@ -111,9 +113,28 @@ public class UserRestService {
         } catch (Exception e) {
             throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
         }
-        return "User " + userVo.getEmail() + " created.";
+        return "User " + userVo.getEmail() + " registered.";
     }
 
+    @POST
+    @Path("/create-or-update-user")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({ "admin" })
+    public String createOrUpdateUser(UserVo userVo) throws Exception {
+        try {
+            log.info(String.format("Create/update user email=%s, firstName=%s, lastName=%s", userVo.getEmail(), userVo.getFirstName(), userVo.getLastName()));
+            User user = new User();
+            user.setEmail(userVo.getEmail());
+            user.setFirstName(userVo.getFirstName());
+            user.setLastName(userVo.getLastName());
+            List<String> roles = userVo.getRoles();
+            userService.createOrUpdateUser(user, roles.toArray(new String[roles.size()]));
+        } catch (Exception e) {
+            throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
+        }
+        return "User " + userVo.getEmail() + " created/updated.";
+    }
 
     /**
      * Helper class used for setting a new password
@@ -152,6 +173,7 @@ public class UserRestService {
      */
     public static class UserVo {
         String email, firstName, lastName, password;
+        List<String> roles;
 
         public String getEmail() {
             return email;
@@ -183,6 +205,15 @@ public class UserRestService {
 
         public void setPassword(String password) {
             this.password = password;
+        }
+
+        public List<String> getRoles() {
+            return roles;
+        }
+
+        @JsonDeserialize(contentAs = String.class)
+        public void setRoles(List<String> roles) {
+            this.roles = roles;
         }
     }
 }

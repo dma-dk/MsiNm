@@ -1,12 +1,12 @@
 <#import "mail-template.ftl" as mail/>
-<@mail.page title="Account Activation">
+<@mail.page title="Welcome to MSI-NM">
 
-<p>Please click the following link in order to activate your account and set a password:</p>
-<ul>
-    <li>
-        <a href="/index.html">MSI-NM</a>
-    </li>
-</ul>
-<h2>test</h2>
+<p>Dear ${name}</p>
+<p>You have been registered as a user for the MSI-NM website.</p>
+<p>Your user ID is <strong>${email}</strong>.</p>
+<p>In order to complete registration and choose your own password, please use the link below:</p>
+<p>
+    <a href="/index.html#/resetPassword/${email}/${token}">${baseUri}/index.html#/resetPassword/${email}/${token}</a></li>
+</p>
 
 </@mail.page>

@@ -26,7 +26,7 @@ angular.module('msinm.admin')
         };
     }])
 
-    .factory('UserService', [ '$http', '$location', function($http, $location) {
+    .factory('AdminUserService', [ '$http', '$location', function($http, $location) {
         'use strict';
 
         var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();

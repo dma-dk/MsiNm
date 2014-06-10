@@ -1,0 +1,62 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2 ng-show="userAction == 'add'">Create User</h2>
+        <h2 ng-show="userAction == 'edit'">Edit User</h2>
+    </div>
+
+    <div class="modal-body">
+        <div class="alert alert-danger" ng-show="error">{{error}}</div>
+
+        <p ng-show="userAction == 'add'">
+          When the new user has been created, an activation email will be sent to the user.<br/>
+          This will allow the user to set a password.
+        </p>
+
+        <form name="edit_form">
+
+            <div class="form-controls">
+                <div class="form-group">
+                    <label for="email">E-mail</label>
+                    <input type="email" id="email" name="emailfield" class="form-control input-sm"
+                           focus="focusMe" ng-model="user.email" ng-disabled="userAction == 'edit'"
+                           autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="firstName">Name</label>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <input type="text" id="firstName" name="firstName" class="form-control input-sm"
+                                   ng-model="user.firstName" placeholder="First Name" required />
+                        </div>
+                        <div class="col-sm-8">
+                            <input type="text" id="lastName" name="lastName" class="form-control input-sm"
+                                   ng-model="user.lastName" placeholder="Last Name" required />
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="roles">Roles</label>
+                    <div class="row" id="roles">
+                        <div class="col-sm-8 btn-group">
+                            <button class="btn btn-sm btn-default" ng-model="roles.user" btn-checkbox>User</button>
+                            <button class="btn btn-sm btn-default" ng-model="roles.admin" btn-checkbox>Admin</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="!(edit_form.emailfield.$valid)"
+                            ng-click="createOrUpdateUser()">Update</button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

@@ -61,7 +61,7 @@ angular.module('msinm.search')
         $scope.resetType = function () {
             $scope.status = 'ACTIVE';
             $scope.type = '';
-            $("#messageType").select2('data', null)
+            $("#roles").select2('data', null);
         };
 
         $scope.resetLocation = function () {

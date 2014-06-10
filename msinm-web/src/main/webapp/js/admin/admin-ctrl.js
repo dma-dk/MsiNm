@@ -40,15 +40,17 @@ angular.module('msinm.admin')
         };
     }])
 
-    .controller('UserCtrl', ['$scope', '$location', '$modal', 'UserService',
-        function ($scope, $location, $modal, UserService) {
+    .controller('AdminUserCtrl', ['$scope', '$location', '$modal', 'AdminUserService',
+        function ($scope, $location, $modal, AdminUserService) {
         'use strict';
 
         $scope.users = [];
         $scope.search = '';
+        $scope.user = undefined;
+        $scope.userAction = undefined;
 
         $scope.listUsers = function () {
-            UserService.listUsers(
+            AdminUserService.listUsers(
                 function(data) {
                     $scope.users = data;
                 },
@@ -57,8 +59,31 @@ angular.module('msinm.admin')
                 });
         };
 
-        $scope.editUser = function (userId) {
-            alert("EDIT user " + userId);
+        $scope.addUser = function () {
+            $scope.userAction = 'add';
+            $scope.user = { email:undefined, firstName: undefined, lastName: undefined, roles: ['user'] };
+            $scope.userDlg();
+        };
+
+        $scope.editUser = function (user) {
+            $scope.userAction = 'edit';
+            $scope.user = user;
+            $scope.userDlg();
+        };
+
+        $scope.userDlg = function () {
+            $modal.open({
+                controller: "AddOrEditUserCtrl",
+                templateUrl : "/partials/user/add-edit-dialog.html",
+                resolve: {
+                    user: function(){
+                        return $scope.user;
+                    },
+                    userAction: function(){
+                        return $scope.userAction;
+                    }
+                }
+            });
         }
 
     }])

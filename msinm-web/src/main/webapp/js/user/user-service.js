@@ -183,6 +183,17 @@ angular.module('msinm.user')
                     .error(function (data) {
                         error(data);
                     });
+            },
+
+            createOrUpdateUser: function(email, firstName, lastName, roles, success, error) {
+                $http
+                    .post('/rest/user/create-or-update-user', { email: email, firstName: firstName, lastName: lastName, roles: roles })
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
             }
         };
     }]);

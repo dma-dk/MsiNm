@@ -18,7 +18,6 @@ package dk.dma.msinm.user;
 import dk.dma.msinm.common.mail.MailService;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.user.security.JbossJaasCacheFlusher;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
@@ -100,11 +99,7 @@ public class UserService extends BaseService {
      * @return if the password is valid or not
      */
     public boolean validatePasswordStrength(String password) {
-        if (password == null) {
-            return false;
-        }
-
-        return PASSWORD_PATTERN.matcher(password).matches();
+        return password != null && PASSWORD_PATTERN.matcher(password).matches();
     }
 
     /**
@@ -139,6 +134,44 @@ public class UserService extends BaseService {
         saveEntity(user);
 
         return user;
+    }
+
+    /**
+     * Called when an administrator creates or edits a user.
+     *
+     * @param user the template user entity
+     * @param roles the list of roles to assign the user
+     * @return the updated user
+     */
+    public User createOrUpdateUser(User user, String[] roles) throws Exception {
+        // Check if the user is already registered
+        User existnigUser = findByEmail(user.getEmail());
+
+        if (existnigUser == null) {
+            // Create a new user
+            user.setResetPasswordToken(UUID.randomUUID().toString());
+            existnigUser = registerUser(user, "G0bbledyg00k");
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", user.getResetPasswordToken());
+            data.put("name", user.getName());
+            data.put("email", user.getEmail());
+
+            mailService.sendMail("user-activation.ftl", data, "Welcome to MSI-NM", user.getEmail());
+
+        } else {
+
+            existnigUser.setFirstName(user.getFirstName());
+            existnigUser.setLastName(user.getLastName());
+            existnigUser.getRoles().clear();
+            for (String role : roles) {
+                existnigUser.getRoles().add(findRoleByName(role));
+            }
+
+            existnigUser = saveEntity(existnigUser);
+        }
+
+        return existnigUser;
     }
 
     /**
