@@ -10,7 +10,7 @@
 
     <properties>
         <maven.min.version>3.0.0</maven.min.version>
-        <org.wildfly>8.0.0.Final</org.wildfly>
+        <org.wildfly>8.1.0.Final</org.wildfly>
     </properties>
 
     <pluginRepositories>
@@ -85,7 +85,7 @@
                     <plugin>
                         <groupId>org.wildfly.plugins</groupId>
                         <artifactId>wildfly-maven-plugin</artifactId>
-                        <version>1.0.1.Final</version>
+                        <version>1.0.2.Final</version>
 
                         <executions>
 

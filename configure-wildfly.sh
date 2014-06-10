@@ -1,6 +1,6 @@
 
 
-WILDFLY=wildfly-8.0.0.Final
+WILDFLY=wildfly-8.1.0.Final
 
 cp conf/standalone.xml $WILDFLY/standalone/configuration/
 mkdir -p $WILDFLY/modules/com/mysql/main
