@@ -29,5 +29,12 @@
             <artifactId>hibernate-entitymanager</artifactId>
             <scope>compile</scope>
         </dependency>
+
+        <dependency>
+            <groupId>org.freemarker</groupId>
+            <artifactId>freemarker</artifactId>
+            <version>2.3.20</version>
+            <scope>compile</scope>
+        </dependency>
    </dependencies>
 </project>

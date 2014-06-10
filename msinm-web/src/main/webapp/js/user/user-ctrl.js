@@ -78,7 +78,26 @@ angular.module('msinm.user')
         };
 
         $scope.register = function() {
-            alert("Register user " + $scope.newUser.email);
+            UserService.registerUser(
+                $scope.newUser.email,
+                $scope.newUser.firstName,
+                $scope.newUser.lastName,
+                $scope.newUser.password,
+                function(data) {
+                    console.log("User " + $scope.newUser.email + " registered");
+                    $scope.viewMode = "info";
+                    $scope.error = undefined;
+                    $scope.message = $scope.newUser.email + " has been registered as a new user.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                },
+                function(data) {
+                    $scope.error = "An error happened: " + data + ".";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
         }
 
 

@@ -1,4 +1,4 @@
-package dk.dma.msinm.common.mail;
+package dk.dma.msinm.common.mail.conf;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -20,6 +20,11 @@ import java.util.Map;
 /**
  * Servlet called to generate HTML mails.
  * As a security precaution, this servlet can only be accessed via port 8080
+ *
+ * <p>
+ * The reason it is kept in it's own package is so that the entire package
+ * can be CDI @Vetoed from the test project.
+ * </p>
  */
 @WebServlet(value = "/mail/*", loadOnStartup = 1)
 public class MailServlet  extends HttpServlet {

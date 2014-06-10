@@ -16,22 +16,12 @@
 package dk.dma.msinm.user;
 
 import dk.dma.msinm.common.model.VersionedEntity;
-import dk.dma.msinm.user.security.oath.OAuthLogin;
 import org.apache.commons.lang.StringUtils;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
-import javax.persistence.CascadeType;
-import javax.persistence.Column;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.FetchType;
-import javax.persistence.ManyToMany;
-import javax.persistence.NamedQueries;
-import javax.persistence.NamedQuery;
-import javax.persistence.OneToMany;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
 import java.util.ArrayList;
@@ -66,9 +56,6 @@ public class User extends VersionedEntity<Integer> implements Principal {
     @NotNull
     @ManyToMany(fetch= FetchType.LAZY, cascade = {CascadeType.PERSIST})
     List<Role> roles = new ArrayList<>();
-
-    @OneToMany(fetch= FetchType.LAZY, mappedBy="user", cascade = {CascadeType.PERSIST})
-    List<OAuthLogin> oauthLogins = new ArrayList<>();
 
     public User() {
     }
@@ -159,14 +146,6 @@ public class User extends VersionedEntity<Integer> implements Principal {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
-    }
-
-    public List<OAuthLogin> getOauthLogins() {
-        return oauthLogins;
-    }
-
-    public void setOauthLogins(List<OAuthLogin> oauthLogins) {
-        this.oauthLogins = oauthLogins;
     }
 
     /**

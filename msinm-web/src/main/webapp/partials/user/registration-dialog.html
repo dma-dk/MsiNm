@@ -8,7 +8,7 @@
     <div class="modal-body">
         <div class="alert alert-danger" ng-show="error">{{error}}</div>
 
-        <form name="registration_form">
+        <form name="registration_form" ng-show="viewMode != 'info'">
             <p>
                 Please fill out the form below, and click Register.
             </p>
@@ -53,6 +53,18 @@
                             ng-disabled="!(registration_form.emailfield.$valid && registration_form.passwordfield.$valid && registration_form.passwordfield2.$valid)"
                             ng-click="register()">Register</button>
                     <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+
+        <!-- Information -->
+        <form name="info_form" ng-show="viewMode == 'info'">
+            <div class="form-controls">
+
+                <div class="alert alert-success">{{message}}</div>
+
+                <div style="margin-top: 24px">
+                    <button class="btn btn-sm" ng-click="$dismiss('closed')">Close</button>
                 </div>
             </div>
         </form>

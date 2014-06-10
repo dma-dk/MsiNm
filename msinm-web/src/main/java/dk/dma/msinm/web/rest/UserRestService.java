@@ -86,22 +86,39 @@ public class UserRestService {
     @Path("/update-password")
     @Consumes("application/json")
     @Produces("application/json")
-    public String updatePassword(UpdatePassword updatePassword) throws Exception {
+    public String updatePassword(UpdatePasswordVo updatePasswordVo) throws Exception {
         try {
-            log.info(String.format("Setting new password for email %s, token %s", updatePassword.getEmail(), updatePassword.getToken()));
-            userService.updatePassword(updatePassword.getEmail(), updatePassword.getPassword(), updatePassword.getToken());
+            log.info(String.format("Setting new password for email %s, token %s", updatePasswordVo.getEmail(), updatePasswordVo.getToken()));
+            userService.updatePassword(updatePasswordVo.getEmail(), updatePasswordVo.getPassword(), updatePasswordVo.getToken());
         } catch (Exception e) {
-            e.printStackTrace();
             throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
         }
         return "Password updated";
+    }
+
+    @POST
+    @Path("/register-user")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String registerUser(UserVo userVo) throws Exception {
+        try {
+            log.info(String.format("Registering user email=%s, firstName=%s, lastName=%s", userVo.getEmail(), userVo.getFirstName(), userVo.getLastName()));
+            User user = new User();
+            user.setEmail(userVo.getEmail());
+            user.setFirstName(userVo.getFirstName());
+            user.setLastName(userVo.getLastName());
+            userService.registerUser(user, userVo.getPassword());
+        } catch (Exception e) {
+            throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
+        }
+        return "User " + userVo.getEmail() + " created.";
     }
 
 
     /**
      * Helper class used for setting a new password
      */
-    public static class UpdatePassword {
+    public static class UpdatePasswordVo {
 
         String email, password, token;
 
@@ -130,4 +147,42 @@ public class UserRestService {
         }
     }
 
+    /**
+     * Helper class used for creating users
+     */
+    public static class UserVo {
+        String email, firstName, lastName, password;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getFirstName() {
+            return firstName;
+        }
+
+        public void setFirstName(String firstName) {
+            this.firstName = firstName;
+        }
+
+        public String getLastName() {
+            return lastName;
+        }
+
+        public void setLastName(String lastName) {
+            this.lastName = lastName;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+    }
 }

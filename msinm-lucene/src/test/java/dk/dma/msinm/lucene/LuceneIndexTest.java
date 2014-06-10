@@ -65,11 +65,10 @@ public class LuceneIndexTest {
         // Test a few searches
         assertEquals(3, testLuceneIndex.searchIndex("world", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
         assertEquals(3, testLuceneIndex.searchIndex("WORLD", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
-        assertEquals(1, testLuceneIndex.searchIndex("'hello world'", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
-        assertEquals(1, testLuceneIndex.searchIndex("hello world", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
+        assertEquals(1, testLuceneIndex.searchIndex("\"hello world\"", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
+        assertEquals(3, testLuceneIndex.searchIndex("hello world", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
         assertEquals(1, testLuceneIndex.searchIndex("world and pancake", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
         assertEquals(4, testLuceneIndex.searchIndex("world or pancake?", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
         assertEquals(2, testLuceneIndex.searchIndex("pan*", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
-        assertEquals(1, testLuceneIndex.searchIndex("pan* and not world", TestLuceneIndex.SEARCH_FIELD, null, 100).size());
     }
 }

@@ -18,7 +18,6 @@ package dk.dma.msinm.user;
 import dk.dma.msinm.common.mail.MailService;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.user.security.JbossJaasCacheFlusher;
-import dk.dma.msinm.user.security.oath.OAuthLogin;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -27,12 +26,16 @@ import javax.inject.Inject;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Pattern;
 
 /**
  * Business interface for managing User entities
  */
 @Stateless
 public class UserService extends BaseService {
+
+    /** Require 6-20 characters, at least 1 digit and 1 character */
+    private static final Pattern PASSWORD_PATTERN = Pattern.compile("((?=.*\\d)(?=.*[a-zA-ZæøåÆØÅ]).{6,20})");
 
     @Inject
     private Logger log;
@@ -42,43 +45,6 @@ public class UserService extends BaseService {
 
     @Inject
     private JbossJaasCacheFlusher jbossJaasCacheFlusher;
-
-    /**
-     * Looks up an {@code OAuthLogin} for the given provider and id
-     *
-     * @param provider the provide
-     * @param id the id
-     * @return the matching entity or null
-     */
-    public OAuthLogin findByProvider(String provider, String id) {
-        try {
-            return em.createNamedQuery("OAuthLogin:findLoginByProvider", OAuthLogin.class)
-                .setParameter("provider", provider)
-                .setParameter("providerId", id)
-                .getSingleResult();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
-    /**
-     * Looks up an {@code OAuthLogin} for the given provider and access token
-     *
-     * @param provider the provide
-     * @param accessToken the access token
-     * @return the matching entity or null
-     */
-    public OAuthLogin findByAccessToken(String provider, String accessToken) {
-        try {
-            return em.createNamedQuery("OAuthLogin:findLoginByAccessToken", OAuthLogin.class)
-                .setParameter("provider", provider)
-                .setParameter("accessToken", accessToken)
-                .getSingleResult();
-        } catch (Exception e) {
-            return null;
-        }
-    }
-
 
     /**
      * Looks up the {@code User} with the given id and preloads the roles
@@ -110,6 +76,69 @@ public class UserService extends BaseService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Finds the role with the given name
+     *
+     * @param name the name of the role
+     * @return the role or null if not found
+     */
+    public Role findRoleByName(String name) {
+        try {
+            return em.createNamedQuery("Role.findByName", Role.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Validates the strength of the password
+     * @param password the password to validate
+     * @return if the password is valid or not
+     */
+    public boolean validatePasswordStrength(String password) {
+        if (password == null) {
+            return false;
+        }
+
+        return PASSWORD_PATTERN.matcher(password).matches();
+    }
+
+    /**
+     * Called when a person registers a new user via the website.
+     * The user will automatically get the "user" role.
+     *
+     * @param user the template user entity
+     * @param password the password of choice
+     * @return the updated user
+     */
+    public User registerUser(User user, String password) throws Exception {
+        // Validate that the email address is not already registered
+        if (findByEmail(user.getEmail()) != null) {
+            throw new Exception("Email " + user.getEmail() + " is already registered");
+        }
+
+        // Validate the password strength
+        if (!validatePasswordStrength(password)) {
+            throw new Exception("Invalid password. Must be at least 6 characters long and contain letters and digits");
+        }
+
+        // E-mail used as salt for now
+        SaltedPasswordHash saltedPassword = new SaltedPasswordHash();
+        saltedPassword.setPassword(password, user.getEmail());
+        user.setPassword(saltedPassword);
+
+        // Associate the user with the "user" role
+        Role userRole = findRoleByName("user");
+        user.getRoles().add(userRole);
+
+        // Persist the user
+        saveEntity(user);
+
+        return user;
     }
 
     /**
@@ -153,12 +182,12 @@ public class UserService extends BaseService {
             throw new Exception("Invalid token " + token);
         }
 
-        // TODO: More rigid password rules
-        if (StringUtils.isBlank(password)) {
-            throw new Exception("Invalid blank password");
+        // Validate the password strength
+        if (!validatePasswordStrength(password)) {
+            throw new Exception("Invalid password. Must be at least 6 characters long and contain letters and digits");
         }
 
-        // TODO: email used as salt for now
+        // E-mail used as salt for now
         user.getPassword().setPassword(password, email);
 
         // Reset the password token, so the same mail cannot be used again...

@@ -172,6 +172,17 @@ angular.module('msinm.user')
                     .error(function (data) {
                         error(data);
                     });
+            },
+
+            registerUser: function(email, firstName, lastName, password, success, error) {
+                $http
+                    .post('/rest/user/register-user', { email: email, firstName: firstName, lastName: lastName, password: password })
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
             }
         };
     }]);
