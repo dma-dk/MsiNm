@@ -3,6 +3,10 @@
  */
 
 angular.module('msinm.user')
+
+    /**
+     * The UserCtrl handles login and registration of new users
+     */
     .controller('UserCtrl', ['$scope', '$rootScope', '$cookieStore', '$modal', 'UserService',
         function ($scope, $rootScope, $cookieStore, $modal, UserService) {
         'use strict';
@@ -50,6 +54,7 @@ angular.module('msinm.user')
             UserService.resetPassword(
                 $scope.user.email,
                 function(data) {
+                    $scope.error = undefined;
                     $scope.message = "An email has been sent to " + $scope.user.email
                         + ". Please follow the instructions to reset your password.";
                     if(!$scope.$$phase) {
@@ -79,8 +84,11 @@ angular.module('msinm.user')
 
     }])
 
-    .controller('NewPasswordCtrl', ['$scope', '$modalInstance', '$location', 'UserService', 'email', 'token',
-        function ($scope, $modalInstance, $location, UserService, email, token) {
+    /**
+     * The NewPasswordCtrl handles setting a new password
+     */
+    .controller('NewPasswordCtrl', ['$scope', '$location', 'UserService', 'email', 'token',
+        function ($scope, $location, UserService, email, token) {
         'use strict';
 
         $scope.focusMe = true;
@@ -88,6 +96,7 @@ angular.module('msinm.user')
         $scope.error = undefined;
         $scope.user = { email:email, password: undefined, password2: undefined };
         $scope.token = token;
+        $scope.viewMode = "new-pwd";
 
         $scope.$on("$destroy", function() {
             $location.path("/");
@@ -99,7 +108,12 @@ angular.module('msinm.user')
                 $scope.user.password,
                 $scope.token,
                 function(data) {
-                    $modalInstance.close("Closed");
+                    $scope.error = undefined;
+                    $scope.message = "The password has been updated.";
+                    $scope.viewMode = "info";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
                 },
                 function(data) {
                     $scope.error = "An error happened. " + data + "Please check the email address.";
