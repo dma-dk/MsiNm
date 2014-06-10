@@ -36,7 +36,7 @@ public class MailService {
     String mailSender;
 
     @Inject
-    @Setting(value = "mailValidRecipients", defaultValue = "peder280370@gmail.com")
+    @Setting(value = "mailValidRecipients", defaultValue = "peder@carolus.dk")
     String validRecipients;
 
     @Inject
