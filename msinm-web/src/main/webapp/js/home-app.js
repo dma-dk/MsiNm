@@ -15,6 +15,8 @@ var app = angular.module('msinm.home', ['ngRoute', 'ngCookies', 'ui.bootstrap', 
 
         $routeProvider.when('/', {
             templateUrl: 'partials/home/home.html'
+        }).when('/resetPassword/:email/:token', {
+            templateUrl: 'partials/home/home.html'
         }).otherwise({
             redirectTo: '/'
         });

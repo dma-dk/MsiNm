@@ -61,6 +61,8 @@ public class User extends VersionedEntity<Integer> implements Principal {
     @Embedded
     SaltedPasswordHash password;
 
+    String resetPasswordToken;
+
     @NotNull
     @ManyToMany(fetch= FetchType.LAZY, cascade = {CascadeType.PERSIST})
     List<Role> roles = new ArrayList<>();
@@ -141,6 +143,14 @@ public class User extends VersionedEntity<Integer> implements Principal {
 
     public void setPassword(SaltedPasswordHash password) {
         this.password = password;
+    }
+
+    public String getResetPasswordToken() {
+        return resetPasswordToken;
+    }
+
+    public void setResetPasswordToken(String resetPasswordToken) {
+        this.resetPasswordToken = resetPasswordToken;
     }
 
     public List<Role> getRoles() {

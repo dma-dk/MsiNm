@@ -2,16 +2,24 @@ package dk.dma.msinm.common.mail;
 
 import com.steadystate.css.parser.CSSOMParser;
 import org.jsoup.Jsoup;
+import org.jsoup.examples.HtmlToPlainText;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.w3c.css.sac.InputSource;
-import org.w3c.dom.css.*;
+import org.w3c.dom.css.CSSRule;
+import org.w3c.dom.css.CSSRuleList;
+import org.w3c.dom.css.CSSStyleDeclaration;
+import org.w3c.dom.css.CSSStyleRule;
+import org.w3c.dom.css.CSSStyleSheet;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -27,23 +35,19 @@ import java.util.stream.Collectors;
  *     This is quite experimental, but may improve the experience in web-based mail-clients such as gmail.</li>
  * </ul>
  */
-public class HtmlMail {
+public class HtmlMail extends Mail {
 
-	private Document doc = null;
-	private Map<String, InlineMailPart> inlineParts = new HashMap<>();
-	private int cidIndex = 0;
-	private String html = null;
-    private boolean inlineStyles;
+    private int cidIndex = 0;
+    private Map<String, InlineMailPart> inlinePartsLookup = new HashMap<>();
 
 	/**
 	 * Constructor
 	 * @param doc the HTML document
      * @param inlineStyles whether to inline CSS styles or not
+     * @param includePlainText whether to include a plain text version or not
 	 */
-	private HtmlMail(Document doc, boolean inlineStyles) throws IOException {
-		this.doc = doc;
-        this.inlineStyles = inlineStyles;
-        transform(doc);
+	private HtmlMail(Document doc, boolean inlineStyles, boolean includePlainText) throws IOException {
+        processHtml(doc, inlineStyles, includePlainText);
 	}
 	
 	/**
@@ -51,11 +55,12 @@ public class HtmlMail {
 	 * 
 	 * @param url the URL of the HTML document
      * @param inlineStyles whether to inline CSS styles or not
+     * @param includePlainText whether to include a plain text version or not
 	 * @return the HTML mail
 	 */
-	public static HtmlMail fromUrl(String url, boolean inlineStyles) throws IOException {
+	public static HtmlMail fromUrl(String url, boolean inlineStyles, boolean includePlainText) throws IOException {
 		Document doc = Jsoup.connect(url).get();
-		return new HtmlMail(doc, inlineStyles);
+		return new HtmlMail(doc, inlineStyles, includePlainText);
 	}
 	
 	/**
@@ -64,57 +69,21 @@ public class HtmlMail {
 	 * @param html the actual HTML
 	 * @param baseUri the base URI of the document
      * @param inlineStyles whether to inline CSS styles or not
+     * @param includePlainText whether to include a plain text version or not
 	 * @return the HTML mail
 	 */
-	public static HtmlMail fromHtml(String html, String baseUri, boolean inlineStyles) throws IOException {
+	public static HtmlMail fromHtml(String html, String baseUri, boolean inlineStyles, boolean includePlainText) throws IOException {
 		Document doc = Jsoup.parse(html, baseUri);
-		return new HtmlMail(doc, inlineStyles);
+		return new HtmlMail(doc, inlineStyles, includePlainText);
 	}
 	
 	/**
-	 * Returns a new HTML mail from a file
-	 * 
-	 * @param file the file
-     * @param inlineStyles whether to inline CSS styles or not
-	 * @return the HTML mail
-	 */
-	public static HtmlMail fromFile(String file, boolean inlineStyles) throws IOException {
-		Document doc = Jsoup.parse(new File(file), "UTF-8");
-		return new HtmlMail(doc, inlineStyles);
-	}
-	
-	/**
-	 * Returns the {@code Mail} filled out with html part
-	 * inline parts and, if requested, a plain text version.
-	 * 
-	 * @param includePlainText whether to include a plain text version or not
-	 * @return the mail template
-	 */
-	public Mail getMail(boolean includePlainText) {
-		Mail mail = new Mail();
-		mail.setHtmlText(html);
-		if (includePlainText) {
-			mail.setPlainText(doc.body().text());
-		}
-		mail.setInlineParts(getInlineMailParts());
-		return mail;
-	}
-	
-	/**
-	 * Returns a string representation of this document
-	 * @return a string representation of this document
-	 */
-	public String toString() {
-		return "[html=" + html + ", inlineMailParts=" + inlineParts + "]";
-	}
-	
-	/**
-	 * Translate the document to be "mailable" and build up a list of
+	 * Transforms the document to be "mailable" and build up a list of
 	 * inline mail parts for images and stylesheets.
 	 * 
 	 * @param doc the DOM of the HTML document
 	 */
-	protected void transform(Document doc) throws IOException {
+	protected void processHtml(Document doc, boolean inlineStyles, boolean includePlainText) throws IOException {
 		
 		// Clean up a bit
 		removeElements(doc, "script", "meta", "base", "iframe");
@@ -136,23 +105,11 @@ public class HtmlMail {
 		absolutizeLinks(doc, "form", "action");
 		
 		// Get the result
-		html = doc.toString();
-	}
-	
-	/**
-	 * Returns the list of inline mail parts
-	 * @return the list of inline mail parts
-	 */
-	public List<InlineMailPart> getInlineMailParts() {
-		return new ArrayList<>(inlineParts.values());
-	}
-	
-	/**
-	 * Returns the resulting html
-	 * @return the resulting html
-	 */
-	public String getHtml() {
-		return html;
+		setHtmlText(doc.toString());
+        setInlineParts(new ArrayList<>(inlinePartsLookup.values()));
+        if (includePlainText) {
+            setPlainText(new HtmlToPlainText().getPlainText(doc.body()));
+        }
 	}
 	
 	/**
@@ -238,9 +195,7 @@ public class HtmlMail {
                     // Skip styles like "a:visited"
                     continue;
                 }
-                Elements elements = doc.select(cssSelector);
-                for (int elementIndex = 0; elementIndex < elements.size(); elementIndex++) {
-                    Element element = elements.get(elementIndex);
+                for (Element element : doc.select(cssSelector)) {
                     Map<String, String> elementStyles = allElementsStyles.get(element);
                     if (elementStyles == null) {
                         elementStyles = new LinkedHashMap<>();
@@ -337,11 +292,11 @@ public class HtmlMail {
 	 */
 	protected InlineMailPart createInlineMailPart(String url, String name) {
 		// Check if this is a known url
-		InlineMailPart mp = inlineParts.get(url);
+		InlineMailPart mp = inlinePartsLookup.get(url);
 		if (mp == null) {
 			String cid = name + (cidIndex++);
 			mp = new InlineMailPart(cid, url);
-			inlineParts.put(url, mp);
+            inlinePartsLookup.put(url, mp);
 		}
 		return mp;
 	}

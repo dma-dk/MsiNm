@@ -1,5 +1,5 @@
 
-<div class="container-fluid" ng-controller="HomeCtrl" ng-init="search();">
+<div class="container-fluid" ng-controller="HomeCtrl" ng-init="init();">
 
 
     <div class="front-page-image">
@@ -38,12 +38,12 @@
             </p>
 <pre style="font-size: 10px;">
 $.getJSON(
-    'http://theserver/rest/message/search?status=ACTIVE',
-    function(data) {
-        $('#msiList').html(
-           '&lt;h2&gt;Behold my ' + data.total + ' messages&lt;/h2&gt;'
-         + '&lt;p&gt;' + JSON.stringify(data.messages) + '&lt;/p&gt;');
-    });
+  'http://theserver/rest/message/search?status=ACTIVE',
+  function(data) {
+    $('#msiList').html(
+       '&lt;h2&gt;Behold my ' + data.total + ' messages&lt;/h2&gt;'
+     + '&lt;p&gt;' + JSON.stringify(data.messages) + '&lt;/p&gt;');
+  });
 </pre>
             <p>
                 Furthermore, the API contains functionality that may

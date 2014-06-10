@@ -43,4 +43,21 @@ public class JbossJaasCacheFlusher {
         }
     }
 
+    /**
+     * Flush the cache for a specific user name
+     * @param jaasUsername the JAAS user name
+     */
+    public void flushJaasCache(String jaasUsername) {
+        try {
+            Object[] params = { jaasUsername };
+            String[] signature = { "java.lang.String" };
+
+            log.info("Flushing Jboss JAAS cache for " + jaasUsername);
+            MBeanServerConnection mbeanServerConnection = ManagementFactory.getPlatformMBeanServer();
+            ObjectName mbeanName = new ObjectName(SECURITY_DOMAIN);
+            mbeanServerConnection.invoke(mbeanName, "flushCache", params, signature);
+        } catch (Exception e) {
+            // Ignore
+        }
+    }
 }

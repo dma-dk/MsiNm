@@ -1,34 +1,52 @@
 package dk.dma.msinm.common.mail;
 
+import dk.dma.msinm.common.settings.annotation.Setting;
+import freemarker.template.Configuration;
+import freemarker.template.Template;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
+import java.io.StringWriter;
+import java.util.Map;
 
 /**
  * Interface for sending emails
  */
-@Singleton
-@Startup
+@Stateless
 public class MailService {
 
     @Resource(name = "java:jboss/mail/MsiNm")
     Session mailSession;
 
     @Inject
+    @Setting(value = "mailBaseUri", defaultValue = "http://localhost:8080")
+    String baseUri;
+
+    @Inject
+    @Setting(value = "mailSender", defaultValue = "peder@carolus.dk")
+    String mailSender;
+
+    @Inject
+    @Setting(value = "mailValidRecipients", defaultValue = "peder280370@gmail.com")
+    String validRecipients;
+
+    @Inject
     Logger log;
 
     @Inject
     MailAttachmentCache mailAttachmentCache;
+
+    @Inject
+    Configuration mailTemplateConfiguration;
 
     @PostConstruct
     public void start() {
@@ -39,23 +57,39 @@ public class MailService {
     }
 
     /**
-     * TEST using:
-     *  mailService.mailify("http://localhost:8080/mail/user-activation.jsp");
-     *  mailService.mailify("http://www.dmi.dk/vejr/til-lands/regionaludsigten/kbhnsjaelland/");
-     * @param url the url to mailify
+     * Sends an email based on a Freemarker template
+     * @param template the template
+     * @param data the email data
+     * @param title the title of the email
+     * @param recipients the list of recipients
      */
-    public void mailify(String url) {
+    public void sendMail(String template, Map<String, Object> data, String title, String... recipients) throws Exception {
+        Template fmTemplate;
         try {
-            HtmlMail doc = HtmlMail.fromUrl(url, true);
-            Mail mail = doc.getMail(false)
-                    .addFrom(new InternetAddress("peder@carolus.dk"))
-                    .addRecipient(Message.RecipientType.TO,	new InternetAddress("peder@carolus.dk"))
-                    .doSetSubject("Hello Peder");
+            fmTemplate = mailTemplateConfiguration.getTemplate(template);
+
+            // Standard data properties
+            data.put("baseUri", baseUri);
+
+            StringWriter html = new StringWriter();
+            fmTemplate.process(data, html);
+
+            Mail mail = HtmlMail.fromHtml(html.toString(), baseUri, true, true)
+                    .doSetSender(new InternetAddress(mailSender))
+                    .addFrom(new InternetAddress(mailSender))
+                    .doSetSubject(title);
+
+            ValidMailRecipients mailRecipientFilter = new ValidMailRecipients(validRecipients);
+            for (String recipient : recipients) {
+                mail.addRecipient(Message.RecipientType.TO,	mailRecipientFilter.filter(recipient));
+            }
 
             sendMail(mail);
 
+
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("error sending email from template " + template, e);
+            throw e;
         }
     }
 
@@ -65,7 +99,7 @@ public class MailService {
      */
     public void sendMail(Mail mail) throws MessagingException {
         try {
-            log.info("Composing mail for " + mail.getFrom());
+            log.info("Composing mail for " + mail.getRecipients());
             Message message = mail.compose(mailSession, mailAttachmentCache.getCache());
             log.info("Sending...");
             Transport.send(message);
@@ -73,7 +107,7 @@ public class MailService {
 
         } catch (MessagingException e) {
             log.error("Failed sending mail for " + mail.getFrom(), e);
-            // For now... throw e;
+            throw e;
         }
     }
 

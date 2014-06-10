@@ -107,7 +107,8 @@ angular.module('msinm.user')
         $rootScope.loginDlg = function() {
             $rootScope.loginDialog = $modal.open({
                 controller: "UserCtrl",
-                templateUrl : "/partials/user/login-dialog.html"
+                templateUrl : "/partials/user/login-dialog.html",
+                size: 'sm'
             });
             return $rootScope.loginDialog;
         };
@@ -139,7 +140,7 @@ angular.module('msinm.user')
 
             authenticate: function(user, success, error) {
                 $http
-                    .post('/auth', user, { ignoreAuthModule : true })
+                    .post('/auth', user)
                     .success(function (data, status, headers, config) {
                         // Save the JWT token
                         Auth.login(data);
@@ -148,6 +149,28 @@ angular.module('msinm.user')
                     .error(function (data, status, headers, config) {
                         // Erase the token if the user fails to log in
                         error(data, status);
+                    });
+            },
+
+            resetPassword: function(email, success, error) {
+                $http
+                    .post('/rest/user/reset-password', email)
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
+            updatePassword: function(email, password, token, success, error) {
+                $http
+                    .post('/rest/user/update-password', { email: email, password: password, token: token })
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
                     });
             }
         };

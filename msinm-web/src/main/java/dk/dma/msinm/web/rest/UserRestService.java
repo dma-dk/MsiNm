@@ -22,15 +22,21 @@ import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
+import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 /**
  * REST interface for accessing MSI-NM users
@@ -38,7 +44,7 @@ import javax.ws.rs.Produces;
 @Path("/user")
 @Stateless
 @SecurityDomain("msinm-policy")
-@RolesAllowed({ "admin" })
+@PermitAll
 public class UserRestService {
 
     @Inject
@@ -55,10 +61,73 @@ public class UserRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
+    @RolesAllowed({ "admin" })
     public JsonArray getUsers() {
 
         JsonArrayBuilder result = Json.createArrayBuilder();
         userService.getAll(User.class).forEach(user -> result.add(user.toJson()));
         return result.build();
     }
+
+    @POST
+    @Path("/reset-password")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String resetPassword(String email) {
+        try {
+            userService.resetPassword(email);
+        } catch (Exception e) {
+            throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
+        }
+        return "A reset email has been sent";
+    }
+
+    @POST
+    @Path("/update-password")
+    @Consumes("application/json")
+    @Produces("application/json")
+    public String updatePassword(UpdatePassword updatePassword) throws Exception {
+        try {
+            log.info(String.format("Setting new password for email %s, token %s", updatePassword.getEmail(), updatePassword.getToken()));
+            userService.updatePassword(updatePassword.getEmail(), updatePassword.getPassword(), updatePassword.getToken());
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
+        }
+        return "Password updated";
+    }
+
+
+    /**
+     * Helper class used for setting a new password
+     */
+    public static class UpdatePassword {
+
+        String email, password, token;
+
+        public String getEmail() {
+            return email;
+        }
+
+        public void setEmail(String email) {
+            this.email = email;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
+    }
+
 }

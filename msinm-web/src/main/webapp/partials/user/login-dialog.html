@@ -6,27 +6,71 @@
     </div>
 
     <div class="modal-body e-small-font">
-        <div class="alert alert-danger" ng-show="message">{{message}}</div>
+        <div class="alert alert-danger" ng-show="error">{{error}}</div>
 
-        <form class="form-signin" name="login_form">
-            <div id="credentials" class="form-controls">
+
+        <!-- Login -->
+        <form name="login_form" ng-show="viewMode == 'login'">
+            <div class="form-controls">
+
                 <div class="form-group">
                     <label for="email">E-mail</label>
                     <input type="email" id="email" name="emailfield" class="form-control input-sm"
                            focus="focusMe" ng-model="user.email" autocapitalize="off" autocorrect="off" autocomplete="off" required />
                 </div>
+
                 <div class="form-group">
                     <label for="passwordfield">Password</label>
                     <input type="password" id="passwordfield" name="passwordfield" class="form-control input-sm"
                            ng-model="user.password" required />
+                    <a href ng-click="setViewMode('reset-pwd')">Forgot password?</a>
+                </div>
+
+                <div style="margin-top: 24px">
+                    <button type="submit"
+                            class="btn btn-sm btn-primary"
+                            ng-disabled="!(login_form.emailfield.$valid && login_form.passwordfield.$valid)"
+                            ng-click="login()">Log In</button>
+                    <button class="btn btn-sm"
+                            ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+
+
+        <!-- Reset Password -->
+        <form name="reset_form" ng-show="viewMode == 'reset-pwd'">
+            <div class="form-controls">
+
+                <div class="form-group">
+                    <label for="resetEmail">E-mail</label>
+                    <input type="email" id="resetEmail" name="emailfield" class="form-control input-sm"
+                           focus="focusMe" ng-model="user.email" autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                    <a href ng-click="setViewMode('login')">Back to log-in</a>
                 </div>
 
                 <div style="margin-top: 24px">
                     <button type="submit" class="btn btn-sm btn-primary"
-                            ng-disabled="!(login_form.emailfield.$valid && login_form.passwordfield.$valid)" ng-click="login()">Log In</button>
-                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                            ng-disabled="!(reset_form.emailfield.$valid)"
+                            ng-click="resetPassword()">Reset Password</button>
+                    <button class="btn btn-sm"
+                            ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+
+
+        <!-- Information -->
+        <form name="info_form" ng-show="viewMode == 'info'">
+            <div class="form-controls">
+
+                <div class="alert alert-success">{{message}}</div>
+
+                <div style="margin-top: 24px">
+                    <button class="btn btn-sm" ng-click="$dismiss('closed')">Close</button>
                 </div>
             </div>
         </form>
     </div>
+
 </div>

@@ -2,13 +2,19 @@
  * The home controller
  */
 angular.module('msinm.common')
-    .controller('HomeCtrl', ['$scope', 'SearchService',
-        function ($scope, SearchService) {
+    .controller('HomeCtrl', ['$scope', '$routeParams', '$modal', 'SearchService',
+        function ($scope, $routeParams, $modal, SearchService) {
             'use strict';
 
             $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
 
-            $scope.search = function () {
+            // Reset password parameters
+            $scope.email = $routeParams.email;
+            $scope.token = $routeParams.token;
+
+
+            $scope.init = function () {
+                // Update the list of active warnings
                 SearchService.search(
                     '', // query
                     'ACTIVE',
@@ -24,8 +30,26 @@ angular.module('msinm.common')
                         $scope.searchResult = data;
                     },
                     function () {
-                        //alert("Error");
+                        // Ignore errors
                     }
                 );
+
+                // Check if a reset password has been issued
+                if ($scope.email && $scope.token) {
+                    $modal.open({
+                        controller: "NewPasswordCtrl",
+                        templateUrl : "/partials/user/new-password.html",
+                        size: 'sm',
+                        resolve: {
+                            email: function () {
+                                return $scope.email;
+                            },
+                            token: function () {
+                                return $scope.token;
+                            }
+                        }
+                    });
+
+                }
             };
         }]);
