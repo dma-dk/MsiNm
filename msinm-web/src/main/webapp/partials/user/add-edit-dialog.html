@@ -10,7 +10,8 @@
         <div class="alert alert-danger" ng-show="error">{{error}}</div>
 
         <p ng-show="userAction == 'add'">
-          When the new user has been created, an activation email will be sent to the user.<br/>
+          The email address must be unique, otherwise the existing user will be updated.<br/>
+          When the new user is created, an activation email will be sent to the user.<br/>
           This will allow the user to set a password.
         </p>
 
@@ -53,7 +54,10 @@
                 <div style="margin-top: 24px">
                     <button type="submit" class="btn btn-sm btn-primary"
                             ng-disabled="!(edit_form.emailfield.$valid)"
-                            ng-click="createOrUpdateUser()">Update</button>
+                            ng-click="createOrUpdateUser()">
+                        <span ng-show="userAction == 'add'">Create</span>
+                        <span ng-show="userAction == 'edit'">Update</span>
+                    </button>
                     <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
                 </div>
             </div>
