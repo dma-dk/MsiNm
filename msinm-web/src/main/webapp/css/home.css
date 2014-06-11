@@ -8,15 +8,38 @@
 }
 
 .front-page-teaser {
-    padding: 0 20px 10px 20px;
+    padding: 0;
     background-color: rgba(1, 44, 67, 0.7);
     display: block;
     color: white;
-    border-radius:5px;
-    width: 300px;
+    width: 100%;
+    height: 100%;
     position: absolute;
-    top: 20px;
-    right: 20px;
+    top: 0;
+    font-size: 10px;
+    text-align: center;
+}
+.front-page-teaser h1 {
+    font-size: 18px;
+}
+
+@media (min-width: 500px) {
+    .front-page-teaser {
+        padding: 0 20px 10px 20px;
+        background-color: rgba(1, 44, 67, 0.7);
+        display: block;
+        color: white;
+        border-radius:5px;
+        width: 300px;
+        height:auto !important;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        text-align: left;
+    }
+    .front-page-teaser h1 {
+        font-size: 24px;
+    }
 }
 
 .front-page-article {

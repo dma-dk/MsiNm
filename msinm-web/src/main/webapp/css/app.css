@@ -49,6 +49,26 @@ h3 {
     padding: 10px 20px 10px 20px;
 }
 
+.footer-left {
+    text-align: center;
+}
+.footer-center {
+    text-align: center;
+}
+.footer-right {
+    text-align: center;
+}
+@media (min-width: 800px) {
+    .footer-left {
+        text-align: left;
+    }
+    .footer-right {
+        text-align: right;
+    }
+}
+
+
+
 input.ng-invalid-pwvalid {
     color: red;
 }
