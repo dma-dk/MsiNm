@@ -129,10 +129,20 @@ angular.module('msinm.admin')
 
         $scope.areas = [];
 
+        $scope.options = {
+            dropped: function(event) {
+                $scope.changes = true;
+                return true;
+            }
+        };
+
+        $scope.changes = false;
+
         $scope.loadAreas = function() {
             AreaService.getAreas(
                 function (data) {
                     $scope.areas = data;
+                    $scope.changes = false;
                 },
                 function () {
                     console.log("Error clearing all caches");
@@ -151,17 +161,17 @@ angular.module('msinm.admin')
             $scope.getRootNodesScope().expandAll();
         };
 
-        $scope.options = { };
+        $scope.toggle = function(scope) {
+            scope.toggle();
+        };
 
         $scope.removeArea = function(scope) {
             scope.remove();
+            $scope.changes = true;
         };
 
         $scope.editArea = function(scope) {
-        };
-
-        $scope.toggle = function(scope) {
-            scope.toggle();
+            $scope.changes = true;
         };
 
         $scope.addChildArea = function(scope) {
@@ -172,6 +182,7 @@ angular.module('msinm.admin')
                 nameDanish: 'N/A',
                 childAreas: []
             });
+            $scope.changes = true;
         };
 
     }]);
