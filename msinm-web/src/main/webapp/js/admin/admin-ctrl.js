@@ -121,4 +121,57 @@ angular.module('msinm.admin')
                 });
         };
 
+    }])
+
+    .controller('AreaCtrl', ['$scope', 'AreaService',
+        function ($scope, AreaService) {
+        'use strict';
+
+        $scope.areas = [];
+
+        $scope.loadAreas = function() {
+            AreaService.getAreas(
+                function (data) {
+                    $scope.areas = data;
+                },
+                function () {
+                    console.log("Error clearing all caches");
+                });
+        };
+
+        $scope.getRootNodesScope = function() {
+            return angular.element(document.getElementById("area-tree-root")).scope();
+        };
+
+        $scope.collapseAll = function() {
+            $scope.getRootNodesScope().collapseAll();
+        };
+
+        $scope.expandAll = function() {
+            $scope.getRootNodesScope().expandAll();
+        };
+
+        $scope.options = { };
+
+        $scope.removeArea = function(scope) {
+            scope.remove();
+        };
+
+        $scope.editArea = function(scope) {
+        };
+
+        $scope.toggle = function(scope) {
+            scope.toggle();
+        };
+
+        $scope.addChildArea = function(scope) {
+            var nodeData = scope.$modelValue;
+            nodeData.childAreas.push({
+                id: nodeData.id * 10 + nodeData.childAreas.length,
+                nameEnglish: nodeData.nameEnglish + '.' + (nodeData.childAreas.length + 1),
+                nameDanish: 'N/A',
+                childAreas: []
+            });
+        };
+
     }]);

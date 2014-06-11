@@ -8,7 +8,7 @@ angular.module('msinm.common', []);
 angular.module('msinm.user', []);
 
 
-var app = angular.module('msinm.admin', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'msinm.user', 'msinm.common' ])
+var app = angular.module('msinm.admin', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'ui.tree', 'msinm.user', 'msinm.common' ])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';
 

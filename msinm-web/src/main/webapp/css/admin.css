@@ -76,3 +76,12 @@
     border: 4px solid #fff;
     margin-right: 20px;
 }
+
+.area-tree {
+    background-color: #eeeeee;
+    padding: 10px;
+}
+
+.area-tree a {
+    cursor: pointer;
+}

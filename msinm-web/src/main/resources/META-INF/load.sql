@@ -11,5 +11,15 @@ insert into msi.user_role (user_id, roles_id) values (0,0);
 insert into msi.user_role (user_id, roles_id) values (0,1);
 insert into msi.user_role (user_id, roles_id) values (1,0);
 
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (0, 'World', 'Jorden', null);
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (1, 'Denmark', 'Danmark', 0);
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (2, 'England', 'England', 0);
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (3, 'The Baltic Sea', 'Østersøen', 1);
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (4, 'Gedser S', 'Gedser S', 3);
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (5, 'Bornholm SW', 'Bornholm SW', 3);
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (6, 'Sundet', 'The Sound', 1);
+insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (7, 'Copenhagen Harbour', 'Københavns Havn', 6);
+update area set version = 1;
+
 create index user_email on msi.user (email);
 

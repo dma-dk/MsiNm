@@ -18,6 +18,7 @@ package dk.dma.msinm.web.rest;
 import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.MessageStatus;
 import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
@@ -57,6 +58,9 @@ public class MessageRestService {
 
     @Inject
     MessageSearchService messageSearchService;
+
+    @Inject
+    AreaService areaService;
 
     public MessageRestService() {
     }
@@ -164,6 +168,22 @@ public class MessageRestService {
         } catch (IOException e) {
             log.error("Error recreating message search index");
         }
+    }
+
+    /**
+     * Returns all areas via a list of hierarchical root areas
+     * @return returns all areas
+     */
+    @GET
+    @Path("/area-roots")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public JsonArray getAreaRoots() {
+
+        JsonArrayBuilder result = Json.createArrayBuilder();
+        areaService.getAreas().forEach(area -> result.add(area.toJson()));
+        return result.build();
     }
 
 }
