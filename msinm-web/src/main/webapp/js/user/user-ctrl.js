@@ -148,8 +148,8 @@ angular.module('msinm.user')
     /**
      * The NewPasswordCtrl handles adding or editing a user by an administrator
      */
-    .controller('AddOrEditUserCtrl', ['$scope', '$location', '$modalInstance', 'UserService', 'user', 'userAction',
-        function ($scope, $location, $modalInstance, UserService, user, userAction) {
+    .controller('AddOrEditUserCtrl', ['$scope', '$modalInstance', 'UserService', 'user', 'userAction',
+        function ($scope, $modalInstance, UserService, user, userAction) {
         'use strict';
 
         $scope.focusMe = true;
@@ -161,10 +161,6 @@ angular.module('msinm.user')
             admin: $.inArray('admin', user.roles) > -1
         };
         $scope.userAction = userAction;
-
-        $scope.$on("$destroy", function() {
-            $location.path("/admin/users");
-        });
 
         $scope.createOrUpdateUser = function() {
             var roles = [];

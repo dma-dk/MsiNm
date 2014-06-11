@@ -67,12 +67,12 @@ angular.module('msinm.admin')
 
         $scope.editUser = function (user) {
             $scope.userAction = 'edit';
-            $scope.user = user;
+            $scope.user = angular.copy(user);
             $scope.userDlg();
         };
 
         $scope.userDlg = function () {
-            $modal.open({
+            $scope.modalInstance = $modal.open({
                 controller: "AddOrEditUserCtrl",
                 templateUrl : "/partials/user/add-edit-dialog.html",
                 resolve: {
@@ -83,6 +83,14 @@ angular.module('msinm.admin')
                         return $scope.userAction;
                     }
                 }
+            });
+
+            $scope.modalInstance.result.then(function() {
+                $scope.listUsers();
+            }, function() {
+                // Cancelled
+            })['finally'](function(){
+                $scope.modalInstance = undefined;
             });
         }
 
