@@ -32,10 +32,6 @@
 }
 
 
-.search-form input.ng-invalid.ng-dirty {
-    border:1px solid #f00;
-}
-
 /**
  * Grid search result
  */

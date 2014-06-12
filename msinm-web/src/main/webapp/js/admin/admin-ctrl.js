@@ -129,6 +129,8 @@ angular.module('msinm.admin')
 
         $scope.areas = [];
 
+        $scope.locations = [];
+
         $scope.options = {
             dropped: function(event) {
                 $scope.changes = true;

@@ -1,0 +1,87 @@
+<div class="location-editor-map">
+
+    <div class="location-editor-panel">
+
+        <div class="location-editor-add-btn btn-group">
+            <button type="button" class="btn btn-primary btn-xs dropdown-toggle" data-toggle="dropdown">
+                Add Location <span class="caret"></span>
+            </button>
+            <ul class="dropdown-menu" role="menu">
+                <li><a href ng-click="addLocationType('point')">Point</a></li>
+                <li><a href ng-click="addLocationType('circle')">Circle</a></li>
+                <li><a href ng-click="addLocationType('polygon')">Polygon</a></li>
+                <li><a href ng-click="addLocationType('polyline')">Polyline</a></li>
+            </ul>
+        </div>
+
+        <div class="location-editor-locations">
+            <div class="location-editor-location" ng-repeat="loc in locations">
+                <table width="100%">
+
+                    <!-- location header -->
+                    <tr>
+                        <td></td>
+                        <td colspan="2" align="center"><strong>{{loc.type}}</strong></td>
+                        <td align="right">
+                            <a ng-click="deleteLocation(loc)"><i class="glyphicon glyphicon-minus-sign"></i></a>
+                            <a ng-click="toggleShowDesc(loc)"><i class="glyphicon glyphicon-info-sign"></i></a>
+                        </td>
+                    </tr>
+                    <tr ng-show="loc.showDesc">
+                        <td></td>
+                        <td colspan="3">
+                            <textarea ng-model="loc.description" placeholder="Location description"></textarea>
+                        </td>
+                    </tr>
+                    <tr><td colspan="4" style="height: 4px; border-top: 1px solid #666666;"></td></tr>
+
+                    <!-- Circle radius -->
+                    <tr ng-if="loc.type == 'CIRCLE'">
+                        <td>R:</td>
+                        <td><input type="text" ng-model="loc.radius"  placeholder="Radius km" required></td>
+                        <td></td>
+                        <td></td>
+                    </tr>
+
+                    <!-- Point list -->
+                    <tr ng-repeat-start="pt in loc.points">
+                        <td>Pt:</td>
+                        <td><input latitude type="text" ng-model="pt.lat"  placeholder="Latitude" required></td>
+                        <td><input longitude type="text" ng-model="pt.lon" placeholder="Longitude" required></td>
+                        <td align="right">
+                            <a ng-click="deletePoint(pt)" ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'"><i class="glyphicon glyphicon-minus-sign"></i></a>
+                            <a ng-click="toggleShowDesc(pt)"><i class="glyphicon glyphicon-info-sign"></i></a>
+                        </td>
+                    </tr>
+                    <tr ng-repeat-end ng-show="pt.showDesc">
+                        <td></td>
+                        <td colspan="3">
+                            <textarea ng-model="pt.description" placeholder="Point description"></textarea>
+                        </td>
+                    </tr>
+
+                    <!-- New point -->
+                    <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'">
+                        <td>Pt:</td>
+                        <td><input latitude type="text" ng-model="newPt.lat" placeholder="Latitude"></td>
+                        <td><input longitude type="text" ng-model="newPt.lon" placeholder="Longitude"></td>
+                        <td align="right">
+                            <a ng-click="addPoint()"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                            <a ng-click="toggleShowDesc(newPt)"><i class="glyphicon glyphicon-info-sign"></i></a>
+                        </td>
+                    </tr>
+                    <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'" ng-show="newPt.showDesc">
+                        <td></td>
+                        <td colspan="3">
+                            <textarea ng-model="newPt.description" placeholder="Point description"></textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="location-editor-position">{{mousePos}}</div>
+
+</div>
