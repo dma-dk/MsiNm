@@ -31,7 +31,7 @@
         <div class="form-group">
             <label for="query" class="col-sm-2 control-label">Search terms</label>
 
-            <div class="col-sm-6">
+            <div class="col-sm-4">
                 <input id="query" type="text" class="form-control input-lg" placeholder="Search" ng-model="query"
                        data-content='Search using e.g. <code>+important</code>, <code>-excluded</code>, <code>par*ly</code> or <code>"exact match"</code>'
                        data-placement="bottom" data-html="true" data-trigger="hover">
@@ -44,7 +44,7 @@
         </div>
 
         <!-- Date fields -->
-        <div class="form-group row collapse" collapse="!filterOnDate">
+        <div class="form-group row" collapse="!filterOnDate">
             <label for="messageDateFrom" class="col-sm-2 control-label">Created</label>
             <div class="col-sm-2">
                 <input class="form-control" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
@@ -55,7 +55,7 @@
         </div>
 
         <!-- Location field -->
-        <div class="form-group collapse" collapse="!filterOnLocation">
+        <div class="form-group" collapse="!filterOnLocation">
             <div class="row">
                 <label class="col-sm-2 control-label">Location</label>
                 <div class="col-sm-3">
@@ -68,7 +68,7 @@
         </div>
 
         <!-- Type fields -->
-        <div class="form-group collapse" collapse="!filterOnType">
+        <div class="form-group" collapse="!filterOnType">
             <div class="row">
                 <label for="messageStatus" class="col-sm-2 control-label">Status</label>
                 <div class="select2-bootstrap-prepend col-sm-6">
@@ -168,7 +168,7 @@
 
 <script>
     $(document).ready(function() {
-        $("#roles").select2({
+        $("#messageType").select2({
             placeholder: "Select Type",
             allowClear: true
         });
