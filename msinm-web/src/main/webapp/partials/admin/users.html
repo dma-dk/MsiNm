@@ -1,41 +1,61 @@
 
-<h1 class="page-header">Users</h1>
+<div class="row admin-breadcrumbs">
+    <ol class="breadcrumb">
+        <li><a href="/index.html"><i class="glyphicon glyphicon-home"></i></a></li>
+        <li><a href="/admin.html">Admin</a></li>
+        <li class="active">Users</li>
+    </ol>
+</div>
 
-<div ng-controller="AdminUserCtrl" ng-init="listUsers()">
+<div class="row admin-content">
 
-    <p>
-        Add, modify and manage users.
-    </p>
+    <div class="col-sm-10 col-md-9">
 
-    <div class="row">
-        <div class="col-xs-6 col-sm-4 col-md-3">
-            <input class="form-control input-sm col-sm-2" ng-model="search" type="text" placeholder="Filter">
+        <h1 class="page-header">Users</h1>
+
+        <div ng-controller="AdminUserCtrl" ng-init="listUsers()">
+
+            <p>
+                Add, modify and manage users.
+            </p>
+
+            <div class="row">
+                <div class="col-xs-8 col-sm-6 col-md-4">
+                    <input class="form-control input-sm col-sm-2" ng-model="search" type="text" placeholder="Filter">
+                </div>
+                <div class="col-sm-1">
+                    <button type="submit" class="btn btn-primary btn-sm" ng-click="addUser()">
+                        <span class="glyphicon glyphicon-plus"></span> Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="row" style="padding-top: 20px;">
+                <div class="col-sm-12 col-md-10">
+                    <table class='table table-condensed table-hover'>
+                        <tr>
+                            <th>E-mail</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Roles</th>
+                            <th>Edit</th>
+                        </tr>
+                        <tr ng-repeat="user in users | filter:search">
+                            <td>{{user.email}}</td>
+                            <td>{{user.firstName}}</td>
+                            <td>{{user.lastName}}</td>
+                            <td>{{user.roles | serialize}}</td>
+                            <td><a href ng-click="editUser(user);" title="Edit User"><i class="glyphicon glyphicon-pencil"></i></a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
         </div>
-        <div class="col-sm-1">
-            <button type="submit" class="btn btn-primary btn-sm" ng-click="addUser()">
-                <span class="glyphicon glyphicon-plus"></span> Add User
-            </button>
-        </div>
+
     </div>
 
-    <div class="row" style="padding-top: 20px;">
-        <div class="col-sm-12 col-md-8">
-            <table class='table table-condensed table-hover'>
-                <tr>
-                    <th>E-mail</th>
-                    <th>First Name</th>
-                    <th>Last Name</th>
-                    <th>Roles</th>
-                    <th>Edit</th>
-                </tr>
-                <tr ng-repeat="user in users | filter:search">
-                    <td>{{user.email}}</td>
-                    <td>{{user.firstName}}</td>
-                    <td>{{user.lastName}}</td>
-                    <td>{{user.roles | serialize}}</td>
-                    <td><a href ng-click="editUser(user);" title="Edit User"><i class="glyphicon glyphicon-pencil"></i></a></td>
-                </tr>
-            </table>
-        </div>
+    <div class="col-sm-2 col-md-3 admin-teaser-image text-right">
+        <img src="/img/admin/users.jpg"/>
     </div>
+
 </div>
