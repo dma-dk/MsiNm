@@ -45,13 +45,21 @@ angular.module('msinm.map')
 
                 scope.showLocationPanel = true;
 
-                scope.toggleFadePanelInOut = function () {
+                scope.toggleShowLocationPanel = function () {
                     if (scope.showLocationPanel) {
-                        $('.location-editor-panel').fadeOut(200);
+                        $('.location-editor-locations').fadeOut(100);
                     } else {
-                        $('.location-editor-panel').fadeIn(200);
+                        $('.location-editor-locations').fadeIn(100);
                     }
                     scope.showLocationPanel = !scope.showLocationPanel;
+                };
+
+                scope.clearLocations = function() {
+                    scope.locations.splice(0, scope.locations.length);
+                };
+
+                scope.importLocations = function() {
+                    console.log("TODO: Import");
                 };
 
                 var quiescent = false;
@@ -210,7 +218,7 @@ angular.module('msinm.map')
                                 MapService.createLocationFeature(loc, attr, features);
                                 locLayer.addFeatures(features);
                             } catch (ex) {
-                                console.log("Error: " + ex);
+                                console.error("Error: " + ex);
                             }
                         }
                     }
