@@ -26,6 +26,8 @@ import dk.dma.msinm.user.User;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.security.auth.login.CredentialExpiredException;
@@ -35,6 +37,7 @@ import java.util.*;
  * Service for handling Json Web Tokens (JWT).
  */
 @Singleton
+@Lock(LockType.READ)
 public class JWTService {
 
     private static ThreadLocal<String> THREAD_TEMP_JWT_PWD_TOKEN = new ThreadLocal<>();

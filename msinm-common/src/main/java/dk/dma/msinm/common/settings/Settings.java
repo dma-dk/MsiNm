@@ -43,6 +43,7 @@ import static dk.dma.msinm.common.settings.Source.DATABASE;
  * or the {@code @Setting} annotation can be used.
  */
 @Singleton
+@Lock(LockType.READ)
 public class Settings {
 
     private final  static  String SETTINGS_FILE = "/settings.properties";
@@ -78,7 +79,6 @@ public class Settings {
      * @param setting the source
      * @return the associated value
      */
-    @Lock(LockType.READ)
     public String get(Setting setting) {
         Objects.requireNonNull(setting, "Must specify valid setting");
 

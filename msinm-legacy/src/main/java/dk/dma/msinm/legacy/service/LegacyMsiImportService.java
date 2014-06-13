@@ -25,9 +25,7 @@ import dk.frv.msiedit.core.webservice.message.MsiDto;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -100,6 +98,7 @@ public class LegacyMsiImportService {
      *
      * @return the current list of active MSI warnings
      */
+    @Lock(LockType.READ)
     public List<MsiDto> getActiveWarnings() {
 
         // Update the WS endpoint

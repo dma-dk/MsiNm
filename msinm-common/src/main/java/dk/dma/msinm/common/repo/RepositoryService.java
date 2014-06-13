@@ -6,6 +6,8 @@ import org.slf4j.Logger;
 
 import javax.activation.MimetypesFileTypeMap;
 import javax.annotation.PostConstruct;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
 import javax.ws.rs.GET;
@@ -26,6 +28,7 @@ import java.util.Date;
  */
 @javax.ws.rs.Path("/repo")
 @Singleton
+@Lock(LockType.READ)
 public class RepositoryService {
 
     /** The number of hashed sub-folders to use **/

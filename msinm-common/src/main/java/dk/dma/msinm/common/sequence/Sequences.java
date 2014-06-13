@@ -26,6 +26,7 @@ import java.util.Objects;
  * Provides an interface for managing sequences
  */
 @Singleton
+@Lock(LockType.READ)
 public class Sequences {
 
     @Inject

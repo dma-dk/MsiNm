@@ -31,9 +31,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.*;
 import javax.inject.Inject;
 import java.net.URI;
 import java.util.concurrent.TimeUnit;
@@ -42,6 +40,7 @@ import java.util.concurrent.TimeUnit;
  * Main interface to the Maritime Cloud service
  */
 @Singleton
+@Lock(LockType.READ)
 @Startup
 public class CloudService {
 
@@ -114,6 +113,7 @@ public class CloudService {
      * Initialize the Maritime Cloud connection
      * @return success or failure
      */
+    @Lock(LockType.WRITE)
     private boolean initCloudConnection() {
         log.info("Connecting to cloud server: " + host + " with maritime id " + maritimeId);
 

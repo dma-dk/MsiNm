@@ -21,9 +21,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -44,6 +42,7 @@ import java.util.stream.Collectors;
  * Lucene search index for {@code Message} entities
  */
 @Singleton
+@Lock(LockType.READ)
 @Startup
 public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
