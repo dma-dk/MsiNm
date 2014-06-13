@@ -92,16 +92,22 @@ angular.module('msinm.map')
                     circle: new OpenLayers.Control.DrawFeature(locLayer,
                         OpenLayers.Handler.RegularPolygon, {
                             handlerOptions: {sides: 40}
-                        })
+                        }),
+                    modify: new OpenLayers.Control.ModifyFeature(locLayer, {
+                        mode: OpenLayers.Control.ModifyFeature.RESHAPE | OpenLayers.Control.ModifyFeature.DRAG
+                    })
                 };
 
                 for (var key in drawControls) {
                     map.addControl(drawControls[key]);
                 }
 
-                scope.deactivateDrawControls = function() {
+                scope.deactivateDrawControls = function(modify) {
                     for(var key in drawControls) {
                         drawControls[key].deactivate();
+                    }
+                    if (modify) {
+                        drawControls.modify.activate();
                     }
                 };
 
@@ -109,43 +115,73 @@ angular.module('msinm.map')
                 /* Handle feature events         */
                 /*********************************/
                 locLayer.events.on({
+                    "featureclick": function (evt) {
+                        // TODO: Can we change modify options for circles to only support drag?
+                        if (evt.feature.data.location) {
+                            scope.location = evt.feature.data.location;
+                        }
+                    },
+
+                    "featuremodified": function (evt) {
+                        if (evt.feature.data && evt.feature.data.location) {
+                            scope.location = evt.feature.data.location;
+                            readFeatureGeometry(evt);
+                            selectLocation(scope.location);
+                        }
+                    },
+
                     "featureadded": function (evt) {
-                        if (quiescent) {
-                            return;
-                        }
-
-                        var points = [];
-                        if (drawControls.point.active) {
-                            var pt = evt.feature.geometry.transform(projmerc, proj4326);
-                            points.push({ lat: pt.y, lon: pt.x, index:1});
-
-                        } else if (drawControls.circle.active) {
-                            var center = evt.feature.geometry.getBounds().getCenterLonLat();
-                            var line = new OpenLayers.Geometry.LineString([
-                                evt.feature.geometry.getVertices()[0],
-                                new OpenLayers.Geometry.Point(center.lon, center.lat)]);
-                            var radius = Math.round(line.getGeodesicLength(projmerc) / 1000);
-                            var pt = center.transform(projmerc, proj4326);
-                            scope.location.radius = radius;
-                            points.push({ lat: pt.lat, lon: pt.lon , index:1 });
-
-                        } else {
-                            var vertices = evt.feature.geometry.getVertices();
-                            var pt, num = 0;
-                            for (var i in  vertices) {
-                                pt = vertices[i].transform(projmerc, proj4326);
-                                points.push({ lat: pt.y, lon: pt.x , index:num++ });
-                            }
-                        }
-                        scope.location.points = points;
-
-                        scope.deactivateDrawControls();
-
-                        if(!scope.$$phase) {
-                            scope.$apply();
+                        readFeatureGeometry(evt);
+                        if (!quiescent) {
+                            scope.deactivateDrawControls(true);
                         }
                     }
                 });
+
+                function selectLocation(loc) {
+                    if (loc) {
+                        for (var i = 0; i < locLayer.features.length; ++i) {
+                            if (locLayer.features[i].data.location == loc) {
+                                drawControls.modify.selectFeature(locLayer.features[i]);
+                            }
+                        }
+                    }
+                }
+
+                function readFeatureGeometry(evt) {
+                    if (quiescent) {
+                        return;
+                    }
+
+                    var points = [];
+                    if (scope.location.type == 'POINT') {
+                        var pt = evt.feature.geometry.transform(projmerc, proj4326);
+                        points.push({ lat: pt.y, lon: pt.x, index:1});
+
+                    } else if (scope.location.type == 'CIRCLE') {
+                        var center = evt.feature.geometry.getBounds().getCenterLonLat();
+                        var line = new OpenLayers.Geometry.LineString([
+                            evt.feature.geometry.getVertices()[0],
+                            new OpenLayers.Geometry.Point(center.lon, center.lat)]);
+                        var radius = Math.round(line.getGeodesicLength(projmerc) / 1000);
+                        var pt = center.transform(projmerc, proj4326);
+                        scope.location.radius = radius;
+                        points.push({ lat: pt.lat, lon: pt.lon , index:1 });
+
+                    } else {
+                        var vertices = evt.feature.geometry.getVertices();
+                        var pt, num = 0;
+                        for (var i in  vertices) {
+                            pt = vertices[i].transform(projmerc, proj4326);
+                            points.push({ lat: pt.y, lon: pt.x , index:num++ });
+                        }
+                    }
+                    scope.location.points = points;
+
+                    if(!scope.$$phase) {
+                        scope.$apply();
+                    }
+                }
 
 
                 /*********************************/
@@ -163,7 +199,8 @@ angular.module('msinm.map')
                                 var attr = {
                                     id: 1,
                                     description: "location filter",
-                                    type: "loc"
+                                    type: "loc",
+                                    location: loc
                                 };
 
                                 MapService.createLocationFeature(loc, attr, features);
@@ -210,7 +247,7 @@ angular.module('msinm.map')
                     }
                     scope.locations.push(scope.location);
 
-                    scope.deactivateDrawControls();
+                    scope.deactivateDrawControls(false);
                     drawControls[value].activate();
                 };
 
