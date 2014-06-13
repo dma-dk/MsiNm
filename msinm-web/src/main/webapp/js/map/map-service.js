@@ -3,7 +3,7 @@
  * MapService factory
  */
 angular.module('msinm.map')
-       .factory('MapService', function ($rootScope) {
+       .factory('MapService', ['$rootScope', '$http', function ($rootScope, $http) {
         "use strict";
 
     var proj4326 = new OpenLayers.Projection("EPSG:4326");
@@ -125,7 +125,25 @@ angular.module('msinm.map')
                     break;
             }
             return features;
+        },
+
+        /**
+         * Calls the back-end to parse a KML text
+         * @param kml the kml text
+         * @param success the success function
+         * @param error the error function
+         */
+        parseKml: function(kml, success, error) {
+            $http
+                .post('/rest/location/parse-kml', kml)
+                .success(function (data) {
+                    success(data);
+                })
+                .error(function (data) {
+                    error(data);
+                });
         }
     }
-});
+}]);
+
 

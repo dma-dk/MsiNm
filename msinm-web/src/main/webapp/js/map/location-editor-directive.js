@@ -265,10 +265,23 @@ angular.module('msinm.map')
                 };
 
                 scope.importLocations = function() {
-                    console.log("TODO: Import");
+                    var kml = window.prompt("Please paste KML");
+                    if (kml) {
+                        MapService.parseKml(
+                            kml,
+                            function (data) {
+                                scope.clearLocations();
+                                for (var i in data) {
+                                    scope.locations.push(data[i]);
+                                }
+                                scope.deactivateDrawControls(true);
+                            },
+                            function (data) {
+                                console.error("Error: " + data);
+                            }
+                        );
+                    }
                 };
-
-
             }
         }
     }]);
