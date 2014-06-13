@@ -96,6 +96,10 @@ input.ng-invalid-pwmatch {
     right: 0;
 }
 
+.location-editor-component a {
+    font-size: 10px;
+}
+
 .location-editor-buttons {
     z-index: 1001;
     top: 0;
