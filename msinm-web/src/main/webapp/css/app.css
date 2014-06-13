@@ -125,8 +125,8 @@ input.ng-invalid-pwmatch {
 }
 
 .location-editor-location textarea {
-    height: 30px;
     width: 100%;
+    resize: vertical;
 }
 
 .location-editor-position {

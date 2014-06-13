@@ -22,45 +22,7 @@ angular.module('msinm.map')
 
                 scope.location = undefined;
 
-                scope.deleteLocation = function(loc) {
-                    scope.locations.splice(scope.locations.indexOf(loc), 1);
-                };
-
-                scope.deletePoint = function (pt) {
-                    scope.location.points.splice(scope.location.points.indexOf(pt), 1);
-                };
-
-                scope.addPoint = function () {
-                    if (!scope.newPt.lat || !scope.newPt.lon) {
-                        return;
-                    }
-                    scope.newPt.index = scope.location.points.length + 1;
-                    scope.location.points.push(angular.copy(scope.newPt));
-                    scope.newPt = { lat: undefined, lon: undefined, description:undefined };
-                };
-
-                scope.toggleShowDesc = function (pt) {
-                    pt.showDesc = !pt.showDesc;
-                };
-
                 scope.showLocationPanel = true;
-
-                scope.toggleShowLocationPanel = function () {
-                    if (scope.showLocationPanel) {
-                        $('.location-editor-locations').fadeOut(100);
-                    } else {
-                        $('.location-editor-locations').fadeIn(100);
-                    }
-                    scope.showLocationPanel = !scope.showLocationPanel;
-                };
-
-                scope.clearLocations = function() {
-                    scope.locations.splice(0, scope.locations.length);
-                };
-
-                scope.importLocations = function() {
-                    console.log("TODO: Import");
-                };
 
                 var quiescent = false;
                 var zoom = attrs.zoom || 6;
@@ -143,17 +105,6 @@ angular.module('msinm.map')
                     }
                 };
 
-                scope.addLocationType = function(value) {
-                    scope.location = { type: value.toUpperCase(), points: [], description: '' };
-                    if (value == 'point' || value == 'circle') {
-                        scope.location.points.push({ lat: undefined, lon: undefined, index:1});
-                    }
-                    scope.locations.push(scope.location);
-
-                    scope.deactivateDrawControls();
-                    drawControls[value].activate();
-                };
-
                 /*********************************/
                 /* Handle feature events         */
                 /*********************************/
@@ -224,6 +175,63 @@ angular.module('msinm.map')
                     }
                     quiescent = false;
                 }, true);
+
+                /*********************************/
+                /* Location actions              */
+                /*********************************/
+                scope.deleteLocation = function(loc) {
+                    scope.locations.splice(scope.locations.indexOf(loc), 1);
+                };
+
+                scope.deletePoint = function (pt) {
+                    scope.location.points.splice(scope.location.points.indexOf(pt), 1);
+                };
+
+                scope.addPoint = function () {
+                    if (!scope.newPt.lat || !scope.newPt.lon) {
+                        return;
+                    }
+                    scope.newPt.index = scope.location.points.length + 1;
+                    scope.location.points.push(angular.copy(scope.newPt));
+                    scope.newPt = { lat: undefined, lon: undefined, description:undefined };
+                };
+
+                /*********************************/
+                /* Button panel actions          */
+                /*********************************/
+                scope.toggleShowDesc = function (pt) {
+                    pt.showDesc = !pt.showDesc;
+                };
+
+                scope.addLocationType = function(value) {
+                    scope.location = { type: value.toUpperCase(), points: [], description: '' };
+                    if (value == 'point' || value == 'circle') {
+                        scope.location.points.push({ lat: undefined, lon: undefined, index:1});
+                    }
+                    scope.locations.push(scope.location);
+
+                    scope.deactivateDrawControls();
+                    drawControls[value].activate();
+                };
+
+                scope.toggleShowLocationPanel = function () {
+                    if (scope.showLocationPanel) {
+                        $('.location-editor-locations').fadeOut(100);
+                    } else {
+                        $('.location-editor-locations').fadeIn(100);
+                    }
+                    scope.showLocationPanel = !scope.showLocationPanel;
+                };
+
+                scope.clearLocations = function() {
+                    scope.locations.splice(0, scope.locations.length);
+                };
+
+                scope.importLocations = function() {
+                    console.log("TODO: Import");
+                };
+
+
             }
         }
     }]);
