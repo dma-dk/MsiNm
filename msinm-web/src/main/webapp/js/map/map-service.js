@@ -142,6 +142,29 @@ angular.module('msinm.map')
                 .error(function (data) {
                     error(data);
                 });
+        },
+
+        /**
+         * Zooms the map the the extent of the given layer
+         */
+        zoomToExtent : function(map, layer) {
+            var extent = new OpenLayers.Bounds();
+
+            var e = layer.getDataExtent();
+            extent.bottom = Math.min(9999999, e.bottom);
+            extent.left = Math.min(9999999, e.left);
+            extent.top = Math.max(-9999999, e.top);
+            extent.right = Math.max(-9999999, e.right);
+
+            var deltaV = extent.top - extent.bottom;
+            var deltaH = extent.right - extent.left;
+
+            extent.bottom -= deltaV * 0.1;
+            extent.left -= deltaH * 0.1;
+            extent.right += deltaH * 0.1;
+            extent.top += deltaV * 0.1;
+
+            map.zoomToExtent(extent);
         }
     }
 }]);

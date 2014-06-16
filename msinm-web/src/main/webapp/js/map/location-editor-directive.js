@@ -264,6 +264,10 @@ angular.module('msinm.map')
                     scope.locations.splice(0, scope.locations.length);
                 };
 
+                scope.zoomToExtent = function() {
+                    MapService.zoomToExtent(map, locLayer);
+                };
+
                 // Open modal dialog to import via KML by pasting it into a text area
                 // or upload a .kmz file.
                 scope.importLocations = function() {
