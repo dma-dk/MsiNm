@@ -4,7 +4,7 @@
  * Editor for creating and editing an list locations
  */
 angular.module('msinm.map')
-    .directive('msiLocationEditor', ['MapService', function (MapService) {
+    .directive('msiLocationEditor', ['$modal', 'MapService', function ($modal, MapService) {
         'use strict';
 
         return {
@@ -264,23 +264,52 @@ angular.module('msinm.map')
                     scope.locations.splice(0, scope.locations.length);
                 };
 
+                // Open modal dialog to import via KML by pasting it into a text area
+                // or upload a .kmz file.
                 scope.importLocations = function() {
-                    var kml = window.prompt("Please paste KML");
-                    if (kml) {
-                        MapService.parseKml(
-                            kml,
-                            function (data) {
+
+                    scope.modalInstance = $modal.open({
+                        templateUrl : "/partials/common/location-editor-import.html",
+                        controller: function ($scope) {
+                            // Callback for when a .kmz has been uploaded
+                            $scope.kmzFileUploaded = function(result) {
+                                $scope.$close();
+
                                 scope.clearLocations();
-                                for (var i in data) {
-                                    scope.locations.push(data[i]);
+                                for (var i in result) {
+                                    scope.locations.push(result[i]);
                                 }
                                 scope.deactivateDrawControls(true);
-                            },
-                            function (data) {
-                                console.error("Error: " + data);
-                            }
-                        );
-                    }
+                                if(!scope.$$phase) {
+                                    scope.$apply();
+                                }
+                            };
+                        }
+                    });
+
+                    // Get the KML pasted into a textarea
+                    scope.modalInstance.result.then(function(result) {
+                        var kml = result;
+                        if (kml) {
+                            MapService.parseKml(
+                                kml,
+                                function (data) {
+                                    scope.clearLocations();
+                                    for (var i in data) {
+                                        scope.locations.push(data[i]);
+                                    }
+                                    scope.deactivateDrawControls(true);
+                                },
+                                function (data) {
+                                    console.error("Error: " + data);
+                                }
+                            );
+                        }
+                    }, function() {
+                        // Cancelled
+                    })['finally'](function(){
+                        scope.modalInstance = undefined;
+                    });
                 };
             }
         }

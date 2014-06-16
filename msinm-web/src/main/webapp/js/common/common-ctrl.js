@@ -19,4 +19,33 @@ angular.module('msinm.common')
                     size: 'lg'
                 });
             }
+        }])
+
+    /**
+     * File upload controller, based on:
+     * https://github.com/nervgh/angular-file-upload
+     */
+    .controller('UploadCtrlXXX', ['$scope', '$fileUploader', 'Auth',
+        function ($scope, $fileUploader, Auth) {
+            'use strict';
+
+            // create a uploader with options
+            var uploader = $scope.uploader = $fileUploader.create({
+                scope: $scope,
+                url: '/rest/repo/upload'
+            });
+
+            // Handle authenticaiton
+            if (Auth.isLoggedIn()) {
+                uploader.headers.Authorization = Auth.authorizationHeader();
+            }
+
+            $scope.cancelOrRemove = function(item) {
+                if (item.isUploading) {
+                    item.cancel();
+                } else {
+                    item.remove();
+                }
+            }
+
         }]);

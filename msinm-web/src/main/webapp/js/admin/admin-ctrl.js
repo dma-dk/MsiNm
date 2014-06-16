@@ -129,7 +129,14 @@ angular.module('msinm.admin')
 
         $scope.areas = [];
 
+        // TODO: TEST - REMOVE
         $scope.locations = [];
+        $scope.fileUploaded = function(result) {
+            console.log("******* FILE UPLOADED " + result[0]);
+        };
+        $scope.fileError = function(status, statusText) {
+            console.error("******* FILE ERROR " + status + ", " + statusText);
+        };
 
         $scope.options = {
             dropped: function(event) {

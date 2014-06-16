@@ -26,6 +26,23 @@ h3 {
     font-size: 18px;
 }
 
+.white, .white a {
+    color: #fff;
+}
+
+.green, .green a {
+    color: rgb(65, 150, 65);
+}
+
+.red, .red a {
+    color: rgb(193, 46, 42);
+}
+
+.blue, .blue a {
+    color: rgb(42, 100, 150);
+}
+
+
 /* set a max-width for horizontal fluid layout */
 .container-fluid {
     margin-right: auto;
@@ -41,6 +58,11 @@ h3 {
     padding-right: 20px;
     margin-bottom: 0;
     box-shadow: 0 0 4px 4px rgba(0, 0, 0, .2);
+}
+
+.progress {
+    height: 8px;
+    margin-bottom: 2px;
 }
 
 .footer {
@@ -76,6 +98,56 @@ input.ng-invalid-pwvalid {
 input.ng-invalid-pwmatch {
     border-color: red;
 }
+
+.btn-file {
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-file input[type=file] {
+    position: absolute;
+    top: 0;
+    right: 0;
+    min-width: 100%;
+    min-height: 100%;
+    font-size: 999px;
+    text-align: right;
+    filter: alpha(opacity=0);
+    opacity: 0;
+    background: red;
+    cursor: inherit;
+    display: block;
+}
+
+.file-upload-drop-zone {
+    border: dotted 2px lightgray;
+}
+
+.file-upload-file-over {
+    border: dotted 2px red;
+}
+
+.file-upload-table {
+    table-layout: fixed;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.file-upload-table td {
+    height: 16px;
+    font-size: 10px;
+    padding: 2px;
+    overflow: hidden;
+    border-bottom: 1px solid rgb(221, 221, 221);
+}
+
+
+input[readonly] {
+    background-color: white !important;
+    cursor: text !important;
+}
+
 
 /**
  * Location editor styles

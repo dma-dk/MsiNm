@@ -72,6 +72,8 @@ angular.module('msinm.common')
      * Based on http://jsfiddle.net/EHJq8/
      */
     .directive('pwCheck', ['$parse', function ($parse) {
+        'use strict';
+
         return {
             require: 'ngModel',
             restrict: 'A',
@@ -98,7 +100,101 @@ angular.module('msinm.common')
                 });
             }
         }
+    }])
+
+
+    /**
+     * File upload, based on:
+     * https://github.com/nervgh/angular-file-upload
+     * <p>
+     * The directive takes the following attributes:
+     * <ul>
+     *   <li>repo-folder: The folder wihtin the repo. Mandatory.</li>
+     *   <li>multiple: Support single or multiple file upload. Defaults to false.</li>
+     *   <li>auto-upload: Automatically start upload. Defaults to false.</li>
+     *   <li>remove-after-upload: Remove file from queue once uploaded. Defaults to false.</li>
+     *   <li>success(result): Success callback function. Optional.</li>
+     *   <li>error(status, statusText): Error callback function. Optional.</li>
+     * </ul>
+     */
+    .directive('msiFileUpload', ['$fileUploader', 'Auth', function ($fileUploader, Auth) {
+        'use strict';
+
+        return {
+            restrict: 'AE',
+
+            templateUrl: '/partials/common/file-upload.html',
+
+            scope: {
+                repoFolder:         '=repoFolder',
+                multiple:           '=multiple',
+                dropText:           '@dropText',
+                autoUpload:         '=autoUpload',
+                removeAfterUpload:  '=removeAfterUpload',
+                success:            '&success',
+                error:              '&error'
+            },
+
+            compile: function(element, attrs) {
+                if (attrs.dropText == undefined) {
+                    attrs.$set("dropText", (attrs.multiple) ? 'or drop files here' : 'or drop file here');
+                }
+
+                return function (scope, element, attrs) {
+                    // create a uploader with options
+                    var uploader = scope.uploader = $fileUploader.create({
+                        scope: scope,
+                        url: scope.repoFolder
+                    });
+
+                    // Auto-upload
+                    if (scope.autoUpload) {
+                        uploader.autoUpload = scope.autoUpload;
+                    }
+
+                    // Remove after upload
+                    if (scope.removeAfterUpload) {
+                        uploader.removeAfterUpload = scope.removeAfterUpload;
+                    }
+
+                    // Handle authenticaiton
+                    if (Auth.isLoggedIn()) {
+                        uploader.headers.Authorization = Auth.authorizationHeader();
+                    }
+
+                    scope.cancelOrRemove = function(item) {
+                        if (item.isUploading) {
+                            item.cancel();
+                        } else {
+                            item.remove();
+                        }
+                    };
+
+                    scope.$watch(attrs.repoFolder, function (value) {
+                        uploader.url = value;
+                    }, true);
+
+                    // Success call-back
+                    if (scope.success) {
+                        uploader.bind('success', function (event, xhr, item, response) {
+                            scope.success({ result: response});
+                        });
+                    }
+
+                    // Error call-back
+                    if (scope.error) {
+                        uploader.bind('error', function (event, xhr, item, response) {
+                            scope.error({ status: xhr.status, statusText: xhr.statusText });
+                        });
+                    }
+                }
+
+            }
+
+        }
     }]);
+
+
 
 
 
