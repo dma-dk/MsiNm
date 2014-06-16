@@ -16,3 +16,7 @@ String.prototype.endsWith = function (s) {
 String.prototype.contains = function (s) {
     return this.indexOf(s) > -1;
 };
+
+String.prototype.extension = function () {
+    return this.substr((~-this.lastIndexOf(".") >>> 0) + 2);
+};

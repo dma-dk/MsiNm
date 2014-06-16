@@ -129,6 +129,7 @@ angular.module('msinm.common')
                 repoFolder:         '=repoFolder',
                 multiple:           '=multiple',
                 dropText:           '@dropText',
+                fileTypes:          '=fileTypes',
                 autoUpload:         '=autoUpload',
                 removeAfterUpload:  '=removeAfterUpload',
                 success:            '&success',
@@ -140,12 +141,21 @@ angular.module('msinm.common')
                     attrs.$set("dropText", (attrs.multiple) ? 'or drop files here' : 'or drop file here');
                 }
 
+                // Return link function
                 return function (scope, element, attrs) {
                     // create a uploader with options
                     var uploader = scope.uploader = $fileUploader.create({
                         scope: scope,
-                        url: scope.repoFolder
+                        url: scope.repoFolder,
+                        filters: []
                     });
+
+                    // Check if file-types are defined
+                    if (scope.fileTypes) {
+                        uploader.filters.push(function(item) {
+                            return $.inArray(item.name.extension(), scope.fileTypes.split(",")) > -1;
+                        });
+                    }
 
                     // Auto-upload
                     if (scope.autoUpload) {
