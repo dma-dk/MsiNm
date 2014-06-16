@@ -39,11 +39,11 @@ angular.module('msinm.map')
                     styleMap: new OpenLayers.StyleMap({
                         "default": new OpenLayers.Style({
                             fillColor: "#080",
-                            fillOpacity: 0.1,
+                            fillOpacity: 0.2,
                             pointRadius: 6,
                             strokeWidth: 2,
                             strokeColor: "#080",
-                            strokeOpacity: 0.3
+                            strokeOpacity: 0.6
                         })
                     })
                 });
