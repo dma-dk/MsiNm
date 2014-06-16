@@ -7,6 +7,7 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -132,16 +133,16 @@ public class LocationRestService {
     }
 
     /**
-     * Parse the KML file of the uploaded .kmz file and returns a JSON list of locations
+     * Parse the KML file of the uploaded .kmz or .kml file and returns a JSON list of locations
      *
      * @param request the servlet request
      * @return the corresponding list of locations
      */
     @POST
-    @javax.ws.rs.Path("/parse-kmz")
+    @javax.ws.rs.Path("/upload-kml")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces("application/json")
-    public JsonArray uploadKmz(@Context HttpServletRequest request) throws FileUploadException, IOException {
+    public JsonArray uploadKml(@Context HttpServletRequest request) throws FileUploadException, IOException {
         FileItemFactory factory = RepositoryService.newDiskFileItemFactory(servletContext);
         ServletFileUpload upload = new ServletFileUpload(factory);
         List<FileItem> items = upload.parseRequest(request);
@@ -149,28 +150,37 @@ public class LocationRestService {
         for (FileItem item : items) {
             if (!item.isFormField()) {
                 try {
-                    // Parse the .kmz file as a zip file
-                    ZipInputStream zis = new ZipInputStream(new BufferedInputStream(item.getInputStream()));
-                    ZipEntry entry;
-
-                    // Look for the first zip entry with a .kml extension
-                    while ((entry = zis.getNextEntry()) != null) {
-                        if (!entry.getName().toLowerCase().endsWith(".kml")) {
-                            continue;
-                        }
-
-                        log.info("Unzipping: " + entry.getName());
-                        int size;
-                        byte[] buffer = new byte[2048];
-                        ByteArrayOutputStream bytes = new ByteArrayOutputStream();
-                        while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
-                            bytes.write(buffer, 0, size);
-                        }
-                        bytes.flush();
-                        zis.close();
-
+                    // .kml file
+                    if (item.getName().toLowerCase().endsWith(".kml")) {
                         // Parse the KML and return the corresponding locations
-                        return parseKml(new String(bytes.toByteArray(), "UTF-8"));
+                        return parseKml(IOUtils.toString(item.getInputStream()));
+                    }
+
+                    // .kmz file
+                    else if (item.getName().toLowerCase().endsWith(".kmz")) {
+                        // Parse the .kmz file as a zip file
+                        ZipInputStream zis = new ZipInputStream(new BufferedInputStream(item.getInputStream()));
+                        ZipEntry entry;
+
+                        // Look for the first zip entry with a .kml extension
+                        while ((entry = zis.getNextEntry()) != null) {
+                            if (!entry.getName().toLowerCase().endsWith(".kml")) {
+                                continue;
+                            }
+
+                            log.info("Unzipping: " + entry.getName());
+                            int size;
+                            byte[] buffer = new byte[2048];
+                            ByteArrayOutputStream bytes = new ByteArrayOutputStream();
+                            while ((size = zis.read(buffer, 0, buffer.length)) != -1) {
+                                bytes.write(buffer, 0, size);
+                            }
+                            bytes.flush();
+                            zis.close();
+
+                            // Parse the KML and return the corresponding locations
+                            return parseKml(new String(bytes.toByteArray(), "UTF-8"));
+                        }
                     }
 
                 } catch (Exception ex) {
