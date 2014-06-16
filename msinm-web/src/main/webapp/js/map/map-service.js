@@ -167,6 +167,21 @@ angular.module('msinm.map')
 
                 map.zoomToExtent(extent);
             }
+        },
+
+        zoomToFeature : function(map, feature) {
+            // If the feature is a point (or clost to it), select a greated extent
+            var min = 10000;
+            var extent = feature.geometry.getBounds();
+            if (Math.abs(extent.bottom - extent.top) < 100 && Math.abs(extent.right - extent.left) < 100) {
+                var size = 20000;
+                extent.bottom -= size;
+                extent.left -= size;
+                extent.right += size;
+                extent.top += size;
+            }
+
+            map.zoomToExtent(extent);
         }
     }
 }]);

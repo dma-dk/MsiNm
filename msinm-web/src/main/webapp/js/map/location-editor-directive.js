@@ -138,13 +138,21 @@ angular.module('msinm.map')
                     }
                 });
 
-                function selectLocation(loc) {
+                function getLocationFeature(loc) {
                     if (loc) {
                         for (var i = 0; i < locLayer.features.length; ++i) {
                             if (locLayer.features[i].data.location == loc) {
-                                drawControls.modify.selectFeature(locLayer.features[i]);
+                                return locLayer.features[i];
                             }
                         }
+                    }
+                    return null;
+                }
+
+                function selectLocation(loc) {
+                    var feature = getLocationFeature(loc);
+                    if (feature) {
+                        drawControls.modify.selectFeature(feature);
                     }
                 }
 
@@ -216,6 +224,15 @@ angular.module('msinm.map')
                 /*********************************/
                 /* Location actions              */
                 /*********************************/
+
+                scope.zoomToLocation = function(loc) {
+                    var feature = getLocationFeature(loc);
+                    if (feature) {
+                        MapService.zoomToFeature(map, feature);
+                        drawControls.modify.selectFeature(feature);
+                    }
+                };
+
                 scope.deleteLocation = function(loc) {
                     scope.locations.splice(scope.locations.indexOf(loc), 1);
                 };
