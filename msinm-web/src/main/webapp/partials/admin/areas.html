@@ -23,21 +23,15 @@
             <div class="row">
                 <div class="col-md-6">
                     <a href class="btn btn-primary btn-sm" ng-click="loadAreas()">Reload areas</a>
-                    <a href class="btn btn-primary btn-sm" ng-click="saveChanges()" ng-disabled="!changes">Save changes</a>
-                    <a href class="btn btn-primary btn-sm" ng-click="collapseAll()">Collapse all</a>
-                    <a href class="btn btn-primary btn-sm" ng-click="expandAll()">Expand all</a>
                 </div>
             </div>
 
             <div>
-                <input type="text" ng-model="areaFilter" />
-                <div id="tree" style="margin: 5px; border: 1px solid #ff0000;"></div>
-            </div>
-
-
-            <div>
                 <h2>Location Editor</h2>
-                <div msi-location-editor locations="locations" style="width:100%; height: 600px"></div>
+                <div msi-location-editor locations="locations" style="width:100%; height: 600px">
+                    <input type="text" ng-model="areaFilter" />
+                    <div msi-area-tree areas="$parent.areas" filter="areaFilter" style="margin: 5px; border: 1px solid green;"></div>
+                </div>
             </div>
         </div>
 

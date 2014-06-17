@@ -202,6 +202,125 @@ angular.module('msinm.common')
             }
 
         }
+    }])
+
+    /**
+     * Directive that wraps the fancytree jQuery plugin
+     */
+    .directive('msiAreaTree', [ function () {
+        'use strict';
+
+        return {
+            restrict: 'AE',
+            scope: {
+                areas: '=',
+                filter: '='
+            },
+
+            link: function (scope, element, attrs, ngModel) {
+
+                // Initialize the tree
+                element.fancytree({
+                    source: [],
+                    keyboard: true,
+                    extensions: ["filter", "dnd"],
+                    filter: {
+                        mode: "hide"
+                    },
+                    dnd: {
+                        autoExpandMS: 400,
+                        draggable: {
+                            zIndex: 1000,
+                            scroll: false
+                        },
+                        preventVoidMoves: true,
+                        preventRecursiveMoves: true,
+                        dragStart: function(node, data) {
+                            return true;
+                        },
+                        dragEnter: function(node, data) {
+                            return true;
+                        },
+                        dragOver: function(node, data) {
+                        },
+                        dragLeave: function(node, data) {
+                        },
+                        dragStop: function(node, data) {
+                        },
+                        dragDrop: function(node, data) {
+                            data.otherNode.moveTo(node, data.hitMode);
+                        }
+                    },
+                    activate: function(event, data){
+                        var node = data.node;
+                        console.log("Selected " + node.title)
+                    }
+                });
+
+                var tree = element.fancytree("getTree");
+
+                /**
+                 * Convert the list of areas into the tree structure used by
+                 * https://github.com/mar10/fancytree/
+                 */
+                function toTreeData(areas, treeData, level) {
+                    for (var i in areas) {
+                        var area = areas[i];
+                        var node = { key: area.id, title: area.nameEnglish, folder: true, children: [], level: level };
+                        treeData.push(node);
+                        if (area.childAreas && area.childAreas.length > 0) {
+                            toTreeData(area.childAreas, node.children, level + 1);
+                        }
+                    }
+                }
+
+                // Watch areas
+                scope.$watchCollection(function () {
+                    return scope.areas;
+                }, function (newValue) {
+                    console.log("Loading " + newValue);
+                    var treeData = [];
+                    if (newValue) {
+                        toTreeData(newValue, treeData, 0);
+                    }
+                    tree.options.source = treeData;
+                    tree.reload();
+                    tree.clearFilter();
+                    scope.collapseAll();
+                });
+
+                // Watch the filter
+                if (attrs.filter) {
+                    scope.$watch(function () {
+                        return scope.filter
+                    }, function (newValue) {
+                        var val = newValue || '';
+                        tree.filterNodes(val);
+                        if (val != '') {
+                            scope.expandAll();
+                        } else {
+                            scope.collapseAll();
+                        }
+                    }, true);
+                };
+
+                scope.collapseAll = function() {
+                    // Collapse all nodes except the root node
+                    tree.visit(function(node){
+                        node.setExpanded(node.data.level == 0);
+                    });
+
+                };
+
+                scope.expandAll = function() {
+                    tree.visit(function(node){
+                        node.setExpanded(true);
+                    });
+                };
+
+            }
+
+        };
     }]);
 
 

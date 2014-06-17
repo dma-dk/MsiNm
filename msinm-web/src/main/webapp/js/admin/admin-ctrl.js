@@ -128,147 +128,25 @@ angular.module('msinm.admin')
         'use strict';
 
         $scope.areas = [];
-        $scope.treeData = [];
 
         // TODO: TEST - REMOVE
         $scope.locations = [];
-        $scope.fileUploaded = function(result) {
-            console.log("******* FILE UPLOADED " + result[0]);
-        };
-        $scope.fileError = function(status, statusText) {
-            console.error("******* FILE ERROR " + status + ", " + statusText);
-        };
-
-        $scope.options = {
-            dropped: function(event) {
-                $scope.changes = true;
-                return true;
-            }
-        };
 
         $scope.changes = false;
 
 
-        $scope.areaFilter = '';
-
-        $("#tree").fancytree({
-            source: [],
-            checkbox: false,
-            extensions: ["filter", "dnd"],
-            filter: {
-                mode: "hide"
-            },
-            dnd: {
-                autoExpandMS: 400,
-                draggable: {
-                    zIndex: 1000,
-                    scroll: false
-                },
-                preventVoidMoves: true,
-                preventRecursiveMoves: true,
-                dragStart: function(node, data) {
-                    return true;
-                },
-                dragEnter: function(node, data) {
-                    return true;
-                },
-                dragOver: function(node, data) {
-                },
-                dragLeave: function(node, data) {
-                },
-                dragStop: function(node, data) {
-                },
-                dragDrop: function(node, data) {
-                    data.otherNode.moveTo(node, data.hitMode);
-                }
-            },
-            activate: function(event, data){
-                var node = data.node;
-                console.log("Selected " + node.title)
-            }
-        });
-        var tree = $("#tree").fancytree("getTree");
-
-
-        $scope.$watch(function () {
-                return $scope.areaFilter;
-            }, function (newValue) {
-                tree.filterNodes(newValue);
-                if (newValue && newValue != '') {
-                    $scope.expandAll();
-                } else {
-                    $scope.collapseAll();
-                }
-            }, true);
-
-        /**
-         * Convert the list of areas into the tree structure used by
-         * https://github.com/mar10/fancytree/
-         */
-        function toTreeData(areas, treeData, level) {
-           for (var i in areas) {
-               var area = areas[i];
-               var node = { key: area.id, title: area.nameEnglish, folder: true, children: [], level: level };
-               treeData.push(node);
-               toTreeData(area.childAreas, node.children, level + 1);
-           }
-        }
-
         $scope.loadAreas = function() {
             AreaService.getAreas(
                 function (data) {
-                    $scope.areas = data;
-                    $scope.treeData = [];
-
-                    toTreeData($scope.areas, $scope.treeData, 0);
-                    tree.options.source = $scope.treeData;
-                    tree.reload();
-                    tree.clearFilter();
-                    $scope.collapseAll();
+                    while($scope.areas.length > 0) $scope.areas.pop();
+                    for (var i in data) $scope.areas.push(data[i]);
+                    console.log("RELAOD " + $scope.areas);
 
                     $scope.changes = false;
                 },
                 function () {
                     console.log("Error clearing all caches");
                 });
-        };
-
-        $scope.collapseAll = function() {
-            // Collapse all nodes except the root node
-            tree.visit(function(node){
-                node.setExpanded(node.data.level == 0);
-            });
-
-        };
-
-        $scope.expandAll = function() {
-            tree.visit(function(node){
-                node.setExpanded(true);
-            });
-        };
-
-        $scope.toggle = function(scope) {
-            scope.toggle();
-        };
-
-        $scope.removeArea = function(scope) {
-            scope.remove();
-            $scope.changes = true;
-        };
-
-        $scope.editArea = function(scope) {
-            $scope.changes = true;
-        };
-
-        $scope.addChildArea = function(scope) {
-            var nodeData = scope.$modelValue;
-            nodeData.childAreas.push({
-                id: nodeData.id * 10 + nodeData.childAreas.length,
-                nameEnglish: nodeData.nameEnglish + '.' + (nodeData.childAreas.length + 1),
-                nameDanish: 'N/A',
-                childAreas: []
-            });
-            $scope.changes = true;
         };
 
     }]);

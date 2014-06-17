@@ -10,6 +10,8 @@ angular.module('msinm.map')
         return {
             restrict: 'A',
 
+            transclude: true,
+
             templateUrl: '/partials/common/location-editor.html',
 
             scope: {
