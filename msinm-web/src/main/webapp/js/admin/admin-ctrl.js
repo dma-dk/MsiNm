@@ -128,6 +128,7 @@ angular.module('msinm.admin')
         'use strict';
 
         $scope.areas = [];
+        $scope.treeData = [];
 
         // TODO: TEST - REMOVE
         $scope.locations = [];
@@ -147,10 +148,84 @@ angular.module('msinm.admin')
 
         $scope.changes = false;
 
+
+        $scope.areaFilter = '';
+
+        $("#tree").fancytree({
+            source: [],
+            checkbox: false,
+            extensions: ["filter", "dnd"],
+            filter: {
+                mode: "hide"
+            },
+            dnd: {
+                autoExpandMS: 400,
+                draggable: {
+                    zIndex: 1000,
+                    scroll: false
+                },
+                preventVoidMoves: true,
+                preventRecursiveMoves: true,
+                dragStart: function(node, data) {
+                    return true;
+                },
+                dragEnter: function(node, data) {
+                    return true;
+                },
+                dragOver: function(node, data) {
+                },
+                dragLeave: function(node, data) {
+                },
+                dragStop: function(node, data) {
+                },
+                dragDrop: function(node, data) {
+                    data.otherNode.moveTo(node, data.hitMode);
+                }
+            },
+            activate: function(event, data){
+                var node = data.node;
+                console.log("Selected " + node.title)
+            }
+        });
+        var tree = $("#tree").fancytree("getTree");
+
+
+        $scope.$watch(function () {
+                return $scope.areaFilter;
+            }, function (newValue) {
+                tree.filterNodes(newValue);
+                if (newValue && newValue != '') {
+                    $scope.expandAll();
+                } else {
+                    $scope.collapseAll();
+                }
+            }, true);
+
+        /**
+         * Convert the list of areas into the tree structure used by
+         * https://github.com/mar10/fancytree/
+         */
+        function toTreeData(areas, treeData, level) {
+           for (var i in areas) {
+               var area = areas[i];
+               var node = { key: area.id, title: area.nameEnglish, folder: true, children: [], level: level };
+               treeData.push(node);
+               toTreeData(area.childAreas, node.children, level + 1);
+           }
+        }
+
         $scope.loadAreas = function() {
             AreaService.getAreas(
                 function (data) {
                     $scope.areas = data;
+                    $scope.treeData = [];
+
+                    toTreeData($scope.areas, $scope.treeData, 0);
+                    tree.options.source = $scope.treeData;
+                    tree.reload();
+                    tree.clearFilter();
+                    $scope.collapseAll();
+
                     $scope.changes = false;
                 },
                 function () {
@@ -158,16 +233,18 @@ angular.module('msinm.admin')
                 });
         };
 
-        $scope.getRootNodesScope = function() {
-            return angular.element(document.getElementById("area-tree-root")).scope();
-        };
-
         $scope.collapseAll = function() {
-            $scope.getRootNodesScope().collapseAll();
+            // Collapse all nodes except the root node
+            tree.visit(function(node){
+                node.setExpanded(node.data.level == 0);
+            });
+
         };
 
         $scope.expandAll = function() {
-            $scope.getRootNodesScope().expandAll();
+            tree.visit(function(node){
+                node.setExpanded(true);
+            });
         };
 
         $scope.toggle = function(scope) {

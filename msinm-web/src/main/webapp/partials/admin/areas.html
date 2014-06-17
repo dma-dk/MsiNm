@@ -29,30 +29,11 @@
                 </div>
             </div>
 
-            <div class="row" style="padding-top: 20px;">
-                <div class="col-md-6">
-                    <!-- Nested list template -->
-                    <script type="text/ng-template" id="area_renderer.html">
-                        <div ui-tree-handle>
-                            <a data-nodrag ng-click="toggle(this)"><span class="glyphicon" ng-class="{'glyphicon-chevron-right': collapsed, 'glyphicon-chevron-down': !collapsed}"></span></a>
-                            {{area.nameEnglish}}
-                            <a class="pull-right" data-nodrag ng-click="removeArea(this)"><i class="glyphicon glyphicon-minus-sign"></i></a>
-                            <a class="pull-right" data-nodrag ng-click="addChildArea(this)" style="margin-right: 8px;"><i class="glyphicon glyphicon-plus-sign"></i></a>
-                            <a class="pull-right" data-nodrag ng-click="editArea(this)" style="margin-right: 8px;"><i class="glyphicon glyphicon-pencil"></i></a>
-                        </div>
-                        <ol ui-tree-nodes="options" ng-model="area.childAreas" ng-class="{hidden: collapsed}">
-                            <li ng-repeat="area in area.childAreas" ui-tree-node ng-include="'area_renderer.html'">
-                            </li>
-                        </ol>
-                    </script>
-
-                    <div ui-tree="options" id="area-tree-root" class="area-tree">
-                        <ol ui-tree-nodes ng-model="areas" >
-                            <li ng-repeat="area in areas" ui-tree-node ng-include="'area_renderer.html'"></li>
-                        </ol>
-                    </div>
-                </div>
+            <div>
+                <input type="text" ng-model="areaFilter" />
+                <div id="tree" style="margin: 5px; border: 1px solid #ff0000;"></div>
             </div>
+
 
             <div>
                 <h2>Location Editor</h2>
