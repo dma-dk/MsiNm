@@ -28,6 +28,16 @@ angular.module('msinm.common')
         };
     }])
 
+    .directive('flag', [function () {
+        return {
+            restrict: 'E',
+            template: "<img src='/img/flags/{{country}}.png' height='16'/>",
+            scope: {
+                country: "@"
+            }
+        };
+    }])
+
     /**
      * Show element active/inactive depending on the current location.
      * Usage:
@@ -214,7 +224,8 @@ angular.module('msinm.common')
             restrict: 'AE',
             scope: {
                 areas: '=',
-                filter: '='
+                filter: '=',
+                areaSelected : '&'
             },
 
             link: function (scope, element, attrs, ngModel) {
@@ -253,7 +264,9 @@ angular.module('msinm.common')
                     },
                     activate: function(event, data){
                         var node = data.node;
-                        console.log("Selected " + node.title)
+                        if (scope.areaSelected) {
+                            scope.areaSelected({ area: node.data.area });
+                        }
                     }
                 });
 
@@ -266,7 +279,7 @@ angular.module('msinm.common')
                 function toTreeData(areas, treeData, level) {
                     for (var i in areas) {
                         var area = areas[i];
-                        var node = { key: area.id, title: area.nameEnglish, folder: true, children: [], level: level };
+                        var node = { key: area.id, title: area.nameEnglish, folder: true, children: [], level: level, area: area };
                         treeData.push(node);
                         if (area.childAreas && area.childAreas.length > 0) {
                             toTreeData(area.childAreas, node.children, level + 1);

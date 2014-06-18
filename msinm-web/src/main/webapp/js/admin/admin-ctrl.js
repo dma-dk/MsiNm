@@ -128,6 +128,7 @@ angular.module('msinm.admin')
         'use strict';
 
         $scope.areas = [];
+        $scope.area = undefined;
 
         // TODO: TEST - REMOVE
         $scope.locations = [];
@@ -148,5 +149,12 @@ angular.module('msinm.admin')
                     console.log("Error clearing all caches");
                 });
         };
+
+        $scope.selectArea = function (area) {
+            $scope.area = area;
+            if(!$scope.$$phase) {
+                $scope.$apply();
+            }
+        }
 
     }]);

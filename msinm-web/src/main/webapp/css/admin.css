@@ -91,11 +91,19 @@
     margin-right: 20px;
 }
 
-.area-tree {
-    background-color: #eeeeee;
-    padding: 10px;
+.area-panel {
+    margin: 10px;
+    padding: 20px;
 }
 
-.area-tree a {
-    cursor: pointer;
+.area-tree {
+    margin-top: 10px;
+    max-height: 800px;
+    min-height: 200px;
+    overflow-y: scroll;
+    border: 1px solid lightgray;
+}
+
+ul.fancytree-container {
+    border: none;
 }
