@@ -15,9 +15,13 @@
  */
 package dk.dma.msinm.web.rest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.MessageStatus;
 import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchService;
@@ -36,10 +40,20 @@ import javax.json.Json;
 import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DefaultValue;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import java.io.IOException;
+import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * REST interface for accessing MSI-NM messages
@@ -186,4 +200,173 @@ public class MessageRestService {
         return result.build();
     }
 
+    @POST
+    @Path("/area")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({ "admin" })
+    public String createArea(AreaVo areaVo) throws Exception {
+        Area area = areaVo.toArea();
+        areaService.createArea(area, null);
+        return "OK";
+    }
+
+    @PUT
+    @Path("/area")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({ "admin" })
+    public String updateArea(AreaVo areaVo) throws Exception {
+        Area area = areaVo.toArea();
+        areaService.updateAreaData(area);
+        return "OK";
+    }
+
+
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class PointVo implements Serializable {
+        double lat, lon;
+        int index;
+        String description;
+
+        public Point toPoint() {
+            Point point = new Point();
+            point.setLat(lat);
+            point.setLon(lon);
+            point.setNum(index);
+            // TODO: Description
+            return point;
+        }
+
+        public double getLat() {
+            return lat;
+        }
+
+        public void setLat(double lat) {
+            this.lat = lat;
+        }
+
+        public double getLon() {
+            return lon;
+        }
+
+        public void setLon(double lon) {
+            this.lon = lon;
+        }
+
+        public int getIndex() {
+            return index;
+        }
+
+        public void setIndex(int index) {
+            this.index = index;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class LocationVo implements Serializable {
+        String type;
+        String description;
+        int radius;
+        List<PointVo> points = new ArrayList<>();
+
+        public MessageLocation toLocation() {
+            MessageLocation location = new MessageLocation();
+            location.setType(MessageLocation.LocationType.valueOf(type));
+            location.setRadius(radius);
+            points.forEach(pt -> location.getPoints().add(pt.toPoint()));
+            // TODO: Description
+            return location;
+        }
+
+        public String getType() {
+            return type;
+        }
+
+        public void setType(String type) {
+            this.type = type;
+        }
+
+        public String getDescription() {
+            return description;
+        }
+
+        public void setDescription(String description) {
+            this.description = description;
+        }
+
+        public int getRadius() {
+            return radius;
+        }
+
+        public void setRadius(int radius) {
+            this.radius = radius;
+        }
+
+        public List<PointVo> getPoints() {
+            return points;
+        }
+
+        @JsonDeserialize(contentAs = PointVo.class)
+        public void setPoints(List<PointVo> points) {
+            this.points = points;
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class AreaVo implements Serializable {
+        Integer id;
+        String nameLocal, nameEnglish;
+        List<LocationVo> locations = new ArrayList<>();
+
+        public Area toArea() {
+            Area area = new Area();
+            area.setId(id);
+            area.setNameLocal(nameLocal);
+            area.setNameEnglish(nameEnglish);
+            locations.forEach(loc -> area.getLocations().add(loc.toLocation()));
+            return area;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public String getNameLocal() {
+            return nameLocal;
+        }
+
+        public void setNameLocal(String nameLocal) {
+            this.nameLocal = nameLocal;
+        }
+
+        public String getNameEnglish() {
+            return nameEnglish;
+        }
+
+        public void setNameEnglish(String nameEnglish) {
+            this.nameEnglish = nameEnglish;
+        }
+
+        public List<LocationVo> getLocations() {
+            return locations;
+        }
+
+        @JsonDeserialize(contentAs = LocationVo.class)
+        public void setLocations(List<LocationVo> locations) {
+            this.locations = locations;
+        }
+    }
 }

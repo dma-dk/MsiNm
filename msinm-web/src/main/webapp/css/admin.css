@@ -93,7 +93,7 @@
 
 .area-panel {
     margin: 10px;
-    padding: 20px;
+    padding: 10px 30px 0 30px;
 }
 
 .area-tree {
@@ -128,7 +128,7 @@ ul.fancytree-container {
 }
 
 .area-locations-panel {
-    background-color: rgba(255,255,255,0.3);
+    background-color: rgba(255,255,255,0.6);
     border-radius:5px;
     padding: 10px;
     margin: 10px;

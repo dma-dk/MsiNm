@@ -295,7 +295,6 @@ angular.module('msinm.common')
                 scope.$watchCollection(function () {
                     return scope.areas;
                 }, function (newValue) {
-                    console.log("Loading " + newValue);
                     var treeData = [];
                     if (newValue) {
                         toTreeData(newValue, treeData, 0);

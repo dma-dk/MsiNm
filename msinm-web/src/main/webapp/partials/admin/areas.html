@@ -26,40 +26,41 @@
                 </div>
             </div>
 
-            <form class="row form-horizontal" role="form">
+            <div class="row">
 
                 <!-- Area tree -->
                 <div class="col-md-5 panel panel-default area-panel">
-                    <input type="text" class="form-control input-sm" placeholder="Filter" ng-model="areaFilter" />
-                    <div msi-area-tree areas="areas" filter="areaFilter" area-selected="selectArea(area)" class="area-tree"></div>
+                    <div class="form-group">
+                        <input type="text" class="form-control input-sm" placeholder="Filter" ng-model="areaFilter" />
+                        <div msi-area-tree areas="areas" filter="areaFilter" area-selected="selectArea(area)" class="area-tree"></div>
+                    </div>
                 </div>
 
                 <!-- Area editor -->
-                <div class="col-md-5 panel panel-default area-panel">
+                <form name="areaForm" class="col-md-5 panel panel-default area-panel" role="form">
                     <fieldset  ng-disabled="area == undefined">
-
                         <div class="form-group">
                             <label class="control-label" for="nameEnglish">Name</label>
                             <div class="input-group input-group-sm">
-                                <input class="form-control" placeholder="English name" type="text" id="nameEnglish" ng-model="area.nameEnglish">
+                                <input class="form-control" placeholder="English name" type="text" id="nameEnglish" ng-model="editArea.nameEnglish">
                                 <span class="input-group-addon"><flag country="en"/></span>
                             </div>
                             <div class="input-group input-group-sm">
-                                <input class="form-control" placeholder="Danish name" type="text" id="nameLocal" ng-model="area.nameLocal">
+                                <input class="form-control" placeholder="Danish name" type="text" id="nameLocal" ng-model="editArea.nameLocal">
                                 <span class="input-group-addon"><flag country="da"/></span>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <button href class="btn btn-primary btn-sm" ng-click="showLocations(true)">Edit locations...</button>
+                            <button href class="btn btn-primary btn-sm" ng-click="saveArea()" ng-disabled="areaForm.$pristine">Save</button>
                         </div>
-
                     </fieldset>
-                </div>
-            </form>
+                </form>
+            </div>
 
             <div class="area-locations">
-                <div msi-location-editor locations="locations" visible="locationsVisible" style="width:100%; height: 100%">
+                <div msi-location-editor locations="editArea.locations" visible="locationsVisible" style="width:100%; height: 100%">
                     <div class="area-locations-panel">
                         <p>Edit locations for<br>
                         <strong>{{area.nameEnglish}}</strong></p>

@@ -66,11 +66,21 @@ angular.module('msinm.admin')
     .factory('AreaService', [ '$http', '$location', function($http, $location) {
         'use strict';
 
-        var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
-
         return {
             getAreas: function(success, error) {
-                $http.get(host + '/rest/message/area-roots')
+                $http.get('/rest/message/area-roots')
+                    .success(success)
+                    .error(error);
+            },
+
+            createArea: function(area, success, error) {
+                $http.post('/rest/message/area', area)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateArea: function(area, success, error) {
+                $http.put('/rest/message/area', area)
                     .success(success)
                     .error(error);
             }

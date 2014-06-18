@@ -129,22 +129,21 @@ angular.module('msinm.admin')
 
         $scope.areas = [];
         $scope.area = undefined;
-        $scope.locations = undefined;
+        $scope.editArea = undefined;
 
-        $scope.changes = false;
         $scope.locationsVisible = false;
 
 
         $scope.loadAreas = function() {
             AreaService.getAreas(
                 function (data) {
-                    while($scope.areas.length > 0) $scope.areas.pop();
-                    for (var i in data) $scope.areas.push(data[i]);
-                    console.log("RELAOD " + $scope.areas);
+                    //while($scope.areas.length > 0) $scope.areas.pop();
+                    //for (var i in data) $scope.areas.push(data[i]);
+                    $scope.areas = data;
 
-                    $scope.changes = false;
                     $scope.area = undefined;
-                    $scope.locations = undefined;
+                    $scope.editArea = undefined;
+                    $scope.areaForm.$setPristine()
                 },
                 function () {
                     console.log("Error clearing all caches");
@@ -152,8 +151,10 @@ angular.module('msinm.admin')
         };
 
         $scope.selectArea = function (area) {
+            // We do not want to copy the entire childarea-tree
             $scope.area = area;
-            $scope.locations = angular.copy(area.locations);
+            $scope.editArea = angular.copy($scope.area);
+            $scope.areaForm.$setPristine()
             if(!$scope.$$phase) {
                 $scope.$apply();
             }
@@ -172,8 +173,24 @@ angular.module('msinm.admin')
         $scope.updateLocations = function (save) {
             $scope.showLocations(false);
             if (save) {
-                $scope.area.locations = $scope.locations;
+                $scope.areaForm.$setDirty();
+            } else {
+                angular.copy($scope.area.locations, $scope.editArea.locations);
             }
-            $scope.locations = angular.copy($scope.area.locations);
+        };
+
+        $scope.saveArea = function () {
+            angular.copy($scope.editArea, $scope.area);
+            $scope.areaForm.$setPristine();
+
+            AreaService.updateArea(
+                $scope.area,
+                function (data) {
+                    console.log("SUCCESS");
+                },
+                function (data) {
+                    console.error("ERROR " + data);
+                }
+            )
         }
     }]);
