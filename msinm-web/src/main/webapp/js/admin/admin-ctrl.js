@@ -129,6 +129,7 @@ angular.module('msinm.admin')
 
         $scope.areas = [];
         $scope.area = undefined;
+        $scope.locations = undefined;
 
         $scope.changes = false;
         $scope.locationsVisible = false;
@@ -142,6 +143,8 @@ angular.module('msinm.admin')
                     console.log("RELAOD " + $scope.areas);
 
                     $scope.changes = false;
+                    $scope.area = undefined;
+                    $scope.locations = undefined;
                 },
                 function () {
                     console.log("Error clearing all caches");
@@ -150,10 +153,11 @@ angular.module('msinm.admin')
 
         $scope.selectArea = function (area) {
             $scope.area = area;
+            $scope.locations = angular.copy(area.locations);
             if(!$scope.$$phase) {
                 $scope.$apply();
             }
-        }
+        };
 
         $scope.showLocations = function (show) {
             if (show) {
@@ -165,4 +169,11 @@ angular.module('msinm.admin')
             }
         };
 
+        $scope.updateLocations = function (save) {
+            $scope.showLocations(false);
+            if (save) {
+                $scope.area.locations = $scope.locations;
+            }
+            $scope.locations = angular.copy($scope.area.locations);
+        }
     }]);

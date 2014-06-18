@@ -141,7 +141,7 @@ public class LocationRestService {
     @POST
     @javax.ws.rs.Path("/upload-kml")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    @Produces("application/json")
+    @Produces("application/json;charset=UTF-8")
     public JsonArray uploadKml(@Context HttpServletRequest request) throws FileUploadException, IOException {
         FileItemFactory factory = RepositoryService.newDiskFileItemFactory(servletContext);
         ServletFileUpload upload = new ServletFileUpload(factory);
