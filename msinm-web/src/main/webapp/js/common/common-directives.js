@@ -31,9 +31,13 @@ angular.module('msinm.common')
     .directive('flag', [function () {
         return {
             restrict: 'E',
-            template: "<img src='/img/flags/{{country}}.png' height='16'/>",
+            template: "<img height='16'/>",
+            replace: true,
             scope: {
                 country: "@"
+            },
+            link: function(scope, element, attrs) {
+                element.attr('src', '/img/flags/' + scope.country + '.png');
             }
         };
     }])

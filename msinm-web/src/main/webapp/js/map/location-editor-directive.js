@@ -15,7 +15,8 @@ angular.module('msinm.map')
             templateUrl: '/partials/common/location-editor.html',
 
             scope: {
-                locations: '=locations'
+                locations: '=locations',
+                visible: '=visible'
             },
 
             link: function (scope, element, attrs) {
@@ -197,8 +198,9 @@ angular.module('msinm.map')
                 /*********************************/
                 /* Handle changed location       */
                 /*********************************/
-                scope.$watch(attrs.locations, function (value) {
-
+                scope.$watch(function () {
+                    return scope.locations;
+                }, function (value) {
                     locLayer.removeAllFeatures();
                     quiescent = true;
                     if (value) {
@@ -222,6 +224,19 @@ angular.module('msinm.map')
                     }
                     quiescent = false;
                 }, true);
+
+                /*********************************/
+                /* Handle changed visibility     */
+                /*********************************/
+                if (attrs.visible) {
+                    scope.$watch(function () {
+                        return scope.visible;
+                    }, function (newValue) {
+                        if (newValue) {
+                            map.updateSize();
+                        }
+                    }, true);
+                }
 
                 /*********************************/
                 /* Location actions              */

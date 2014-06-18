@@ -130,10 +130,8 @@ angular.module('msinm.admin')
         $scope.areas = [];
         $scope.area = undefined;
 
-        // TODO: TEST - REMOVE
-        $scope.locations = [];
-
         $scope.changes = false;
+        $scope.locationsVisible = false;
 
 
         $scope.loadAreas = function() {
@@ -156,5 +154,15 @@ angular.module('msinm.admin')
                 $scope.$apply();
             }
         }
+
+        $scope.showLocations = function (show) {
+            if (show) {
+                $('.area-locations').fadeIn(0);
+                $scope.locationsVisible = true;
+            } else {
+                $('.area-locations').fadeOut(0);
+                $scope.locationsVisible = false;
+            }
+        };
 
     }]);

@@ -1,8 +1,8 @@
-<div class="location-editor-map" style="width: 100%; height: 100%;">
+<div class="location-editor-map" id="location-editor-map" style="width: 100%; height: 100%;">
 
-    <div ng-transclude style="z-index: 1000; position: absolute; top: 20px; left: 10px;"></div>
+    <div ng-transclude class="location-editor-body"></div>
 
-    <div class="location-editor-buttons location-editor-component">
+    <div class="location-editor-buttons location-editor-component" ng-if="locations != undefined">
 
         <button type="button" class="btn btn-primary btn-xs" ng-click="toggleShowLocationPanel()">
             <span class="glyphicon" ng-class="{'glyphicon-chevron-up': showLocationPanel, 'glyphicon-chevron-down': !showLocationPanel}"></span>
@@ -33,7 +33,7 @@
         </div>
     </div>
 
-    <div class="location-editor-locations location-editor-component">
+    <div class="location-editor-locations location-editor-component"  ng-if="locations != undefined">
         <div class="location-editor-location" ng-repeat="loc in locations">
             <table width="100%">
 

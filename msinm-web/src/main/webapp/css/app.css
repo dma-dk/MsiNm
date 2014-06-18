@@ -159,6 +159,11 @@ input[readonly] {
     position: relative;
 }
 
+.location-editor-body {
+    z-index: 1000;
+    position: absolute;
+}
+
 .location-editor-component {
     z-index: 1000;
     position: absolute;

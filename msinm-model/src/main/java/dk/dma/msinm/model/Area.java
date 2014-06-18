@@ -32,6 +32,9 @@ public class Area extends VersionedEntity<Integer> {
     @OneToMany(mappedBy = "parentArea")
     private List<Area> childAreas = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<MessageLocation> locations = new ArrayList<>();
+
     /**
      * Adds a child area, and ensures that all references are properly updated
      *
@@ -59,12 +62,15 @@ public class Area extends VersionedEntity<Integer> {
     public JsonObjectBuilder toJson() {
         JsonArrayBuilder childAreasJson = Json.createArrayBuilder();
         childAreas.forEach(area -> childAreasJson.add(area.toJson()));
+        JsonArrayBuilder locationsJson = Json.createArrayBuilder();
+        locations.forEach(l -> locationsJson.add(l.toJson()));
 
         return Json.createObjectBuilder()
                 .add("id", getId())
                 .add("nameEnglish", getNameEnglish())
                 .add("nameLocal", getNameLocal())
-                .add("childAreas", childAreasJson);
+                .add("childAreas", childAreasJson)
+                .add("locations", locationsJson);
     }
 
     public String getNameEnglish() {
@@ -98,5 +104,14 @@ public class Area extends VersionedEntity<Integer> {
     public void setChildAreas(List<Area> childAreas) {
         this.childAreas = childAreas;
     }
+
+    public List<MessageLocation> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<MessageLocation> locations) {
+        this.locations = locations;
+    }
+
 }
 
