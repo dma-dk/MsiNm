@@ -183,7 +183,6 @@ input[readonly] {
     top: 0;
     height: 30px;
     padding: 5px;
-    text-align: center;
 }
 
 .location-editor-locations {
