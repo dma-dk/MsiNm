@@ -31,13 +31,21 @@ angular.module('msinm.common')
     .directive('flag', [function () {
         return {
             restrict: 'E',
-            template: "<img height='16'/>",
+            template: "<img height='16' ng-click='copyText()'/>",
             replace: true,
             scope: {
-                country: "@"
+                country: "@",
+                copyFrom: "@",
+                copyTo: "@"
             },
             link: function(scope, element, attrs) {
                 element.attr('src', '/img/flags/' + scope.country + '.png');
+
+                scope.copyText = function() {
+                    if (scope.copyFrom && scope.copyTo) {
+                        $('#' + scope.copyTo).val($('#' + scope.copyFrom).val());
+                    }
+                }
             }
         };
     }])
@@ -229,7 +237,8 @@ angular.module('msinm.common')
             scope: {
                 areas: '=',
                 filter: '=',
-                areaSelected : '&'
+                areaSelected : '&',
+                areaMoved : '&'
             },
 
             link: function (scope, element, attrs, ngModel) {
@@ -250,20 +259,18 @@ angular.module('msinm.common')
                         },
                         preventVoidMoves: true,
                         preventRecursiveMoves: true,
-                        dragStart: function(node, data) {
-                            return true;
-                        },
+                        dragStart: function(node, data) { return true; },
                         dragEnter: function(node, data) {
+                            if (node.parent === data.otherNode.parent) {
+                                return ['over'];
+                            }
                             return true;
                         },
-                        dragOver: function(node, data) {
-                        },
-                        dragLeave: function(node, data) {
-                        },
-                        dragStop: function(node, data) {
-                        },
+                        dragOver: function(node, data) {},
+                        dragLeave: function(node, data) {},
+                        dragStop: function(node, data) {},
                         dragDrop: function(node, data) {
-                            data.otherNode.moveTo(node, data.hitMode);
+                            handleDragDrop(node, data);
                         }
                     },
                     activate: function(event, data){
@@ -291,18 +298,42 @@ angular.module('msinm.common')
                     }
                 }
 
+                function handleDragDrop(node, data) {
+                    if (scope.areaMoved) {
+                        var area = data.otherNode.data.area;
+                        var parent = undefined;
+                        if (data.hitMode == 'before' || data.hitMode == 'after') {
+                            parent = (node.parent.data.area) ? node.parent.data.area : undefined;
+                        } else if (data.hitMode == 'over') {
+                            parent = node.data.area;
+                        }
+                        scope.areaMoved({ area: area, parent: parent });
+
+                    } else {
+                        data.otherNode.moveTo(node, data.hitMode);
+                    }
+                }
+
                 // Watch areas
                 scope.$watchCollection(function () {
                     return scope.areas;
                 }, function (newValue) {
+                    if (tree.options.source && tree.options.source.length > 0) {
+                        scope.storeState();
+                    }
                     var treeData = [];
                     if (newValue) {
                         toTreeData(newValue, treeData, 0);
                     }
                     tree.options.source = treeData;
                     tree.reload();
+                    tree.rootNode.sortChildren(null, true);
                     tree.clearFilter();
                     scope.collapseAll();
+                    scope.restoreState();
+                    if (scope.filter) {
+                        tree.filterNodes(scope.filter);
+                    }
                 });
 
                 // Watch the filter
@@ -318,6 +349,27 @@ angular.module('msinm.common')
                             scope.collapseAll();
                         }
                     }, true);
+                }
+
+                scope.storeState = function() {
+                    scope.expandedIds = [];
+                    scope.activeKey = tree.getActiveNode() ? tree.getActiveNode().key : undefined;
+                    tree.visit(function(node){
+                        if (node.expanded) {
+                            scope.expandedIds.push(node.key);
+                        }
+                    });
+                };
+
+                scope.restoreState = function() {
+                    if (scope.expandedIds) {
+                        tree.visit(function(node){
+                            node.setExpanded($.inArray(node.key, scope.expandedIds) > -1);
+                        });
+                    }
+                    if (scope.activeKey) {
+                        tree.activateKey(scope.activeKey);
+                    }
                 };
 
                 scope.collapseAll = function() {

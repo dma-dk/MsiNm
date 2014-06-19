@@ -83,6 +83,12 @@ angular.module('msinm.admin')
                 $http.put('/rest/message/area', area)
                     .success(success)
                     .error(error);
+            },
+
+            moveArea: function(areaId, parentId, success, error) {
+                $http.put('/rest/message/move-area', { areaId: areaId, parentId: parentId })
+                    .success(success)
+                    .error(error);
             }
         };
     }]);

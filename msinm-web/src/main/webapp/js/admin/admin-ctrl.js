@@ -171,6 +171,22 @@ angular.module('msinm.admin')
             }
         };
 
+        $scope.moveArea = function (area, parent) {
+            // Get confirmation
+            if (confirm("Move " + area.nameEnglish + " to " + ((parent) ? parent.nameEnglish : "the root") + "?")) {
+                AreaService.moveArea(
+                    area.id,
+                    (parent) ? parent.id : undefined,
+                    function (data) {
+                        $scope.loadAreas();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+            }
+        };
+
         $scope.showLocations = function (show) {
             if (show) {
                 $('.area-locations').fadeIn(0);
@@ -195,7 +211,6 @@ angular.module('msinm.admin')
                 AreaService.createArea(
                     $scope.editArea,
                     function (data) {
-                        console.log("SUCCESS");
                         $scope.loadAreas();
                     },
                     function (data) {
@@ -204,13 +219,10 @@ angular.module('msinm.admin')
                 )
 
             } else {
-                angular.copy($scope.editArea, $scope.area);
-                $scope.areaForm.$setPristine();
-
                 AreaService.updateArea(
                     $scope.editArea,
                     function (data) {
-                        console.log("SUCCESS");
+                        $scope.loadAreas();
                     },
                     function (data) {
                         console.error("ERROR " + data);

@@ -104,6 +104,7 @@ angular.module('msinm.map')
                 for (var key in drawControls) {
                     map.addControl(drawControls[key]);
                 }
+                drawControls.modify.activate();
 
                 scope.deactivateDrawControls = function(modify) {
                     for(var key in drawControls) {

@@ -81,6 +81,7 @@ public class AreaService extends BaseService {
             area.setParentArea(null);
         } else {
             Area parent = getByPrimaryKey(Area.class, parentId);
+            area.setParentArea(parent);
             parent.getChildAreas().add(area);
         }
 

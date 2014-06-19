@@ -207,6 +207,7 @@ public class MessageRestService {
     @RolesAllowed({ "admin" })
     public String createArea(AreaVo areaVo) throws Exception {
         Area area = areaVo.toArea();
+        log.info("Creating area " + area);
         areaService.createArea(area, areaVo.getParentId());
         return "OK";
     }
@@ -218,8 +219,45 @@ public class MessageRestService {
     @RolesAllowed({ "admin" })
     public String updateArea(AreaVo areaVo) throws Exception {
         Area area = areaVo.toArea();
+        log.info("Updating area " + area);
         areaService.updateAreaData(area);
         return "OK";
+    }
+
+    @PUT
+    @Path("/move-area")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({ "admin" })
+    public String moveArea(MoveAreaVo moveAreaVo) throws Exception {
+        log.info("Moving area " + moveAreaVo.getAreaId() + " to " + moveAreaVo.getParentId());
+        areaService.moveArea(moveAreaVo.getAreaId(), moveAreaVo.getParentId());
+        return "OK";
+    }
+
+
+    /*********************
+     * Helper classes
+     *********************/
+
+    public static class MoveAreaVo implements Serializable {
+        Integer areaId, parentId;
+
+        public Integer getAreaId() {
+            return areaId;
+        }
+
+        public void setAreaId(Integer areaId) {
+            this.areaId = areaId;
+        }
+
+        public Integer getParentId() {
+            return parentId;
+        }
+
+        public void setParentId(Integer parentId) {
+            this.parentId = parentId;
+        }
     }
 
 
