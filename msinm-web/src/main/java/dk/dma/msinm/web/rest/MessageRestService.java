@@ -207,7 +207,7 @@ public class MessageRestService {
     @RolesAllowed({ "admin" })
     public String createArea(AreaVo areaVo) throws Exception {
         Area area = areaVo.toArea();
-        areaService.createArea(area, null);
+        areaService.createArea(area, areaVo.getParentId());
         return "OK";
     }
 
@@ -324,6 +324,7 @@ public class MessageRestService {
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class AreaVo implements Serializable {
         Integer id;
+        Integer parentId;
         String nameLocal, nameEnglish;
         List<LocationVo> locations = new ArrayList<>();
 
@@ -342,6 +343,15 @@ public class MessageRestService {
 
         public void setId(Integer id) {
             this.id = id;
+        }
+
+
+        public Integer getParentId() {
+            return parentId;
+        }
+
+        public void setParentId(Integer parentId) {
+            this.parentId = parentId;
         }
 
         public String getNameLocal() {

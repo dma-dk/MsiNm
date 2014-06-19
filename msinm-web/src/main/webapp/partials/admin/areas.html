@@ -16,13 +16,10 @@
 
         <div ng-controller="AreaCtrl" ng-init="loadAreas()">
 
-            <p>
-                Add, modify and organize areas.
-            </p>
-
             <div class="row">
                 <div class="col-md-6">
-                    <a href class="btn btn-primary btn-sm" ng-click="loadAreas()">Reload areas</a>
+                    <button href class="btn btn-primary btn-sm" ng-click="loadAreas()">Reload</button>
+                    <button href class="btn btn-primary btn-sm" ng-click="newArea()">New</button>
                 </div>
             </div>
 
@@ -31,18 +28,25 @@
                 <!-- Area tree -->
                 <div class="col-md-5 panel panel-default area-panel">
                     <div class="form-group">
-                        <input type="text" class="form-control input-sm" placeholder="Filter" ng-model="areaFilter" />
+                        <input type="text" class="form-control input-sm" placeholder="Filter Areas" ng-model="areaFilter" />
                         <div msi-area-tree areas="areas" filter="areaFilter" area-selected="selectArea(area)" class="area-tree"></div>
                     </div>
                 </div>
 
                 <!-- Area editor -->
                 <form name="areaForm" class="col-md-5 panel panel-default area-panel" role="form">
-                    <fieldset  ng-disabled="area == undefined">
+                    <fieldset  ng-disabled="editArea == undefined">
+                        <div class="form-group" ng-if="action == 'add'">
+                            <label class="control-label" for="parent">Parent Area</label>
+                            <div class="input-group input-group-sm">
+                                <input class="form-control" type="text" id="parent" ng-model="area.nameEnglish" disabled>
+                            </div>
+                        </div>
+
                         <div class="form-group">
                             <label class="control-label" for="nameEnglish">Name</label>
                             <div class="input-group input-group-sm">
-                                <input class="form-control" placeholder="English name" type="text" id="nameEnglish" ng-model="editArea.nameEnglish">
+                                <input class="form-control" placeholder="English name" type="text" id="nameEnglish" ng-model="editArea.nameEnglish" required>
                                 <span class="input-group-addon"><flag country="en"/></span>
                             </div>
                             <div class="input-group input-group-sm">

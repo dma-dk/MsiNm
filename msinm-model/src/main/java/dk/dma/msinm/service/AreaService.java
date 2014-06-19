@@ -55,18 +55,13 @@ public class AreaService extends BaseService {
      */
     public Area createArea(Area area, Integer parentId) {
 
-        area = saveEntity(area);
-
         if (parentId != null) {
             Area parent = getByPrimaryKey(Area.class, parentId);
-            if (!parent.getChildAreas().contains(area)) {
-                parent.getChildAreas().add(area);
-                area.setParentArea(parent);
-            }
-            saveEntity(parent);
+            parent.getChildAreas().add(area);
+            area.setParentArea(parent);
         }
 
-        return area;
+        return saveEntity(area);
     }
 
     /**

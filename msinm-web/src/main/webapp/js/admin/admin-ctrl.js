@@ -130,6 +130,7 @@ angular.module('msinm.admin')
         $scope.areas = [];
         $scope.area = undefined;
         $scope.editArea = undefined;
+        $scope.action = "edit";
 
         $scope.locationsVisible = false;
 
@@ -150,8 +151,18 @@ angular.module('msinm.admin')
                 });
         };
 
+        $scope.newArea = function() {
+            $scope.action = "add";
+            $scope.editArea = { nameEnglish: '', nameLocal: '', locations: [] };
+            if ($scope.area) {
+                $scope.editArea.parentId = $scope.area.id;
+            }
+            $scope.areaForm.$setPristine()
+        };
+
         $scope.selectArea = function (area) {
             // We do not want to copy the entire childarea-tree
+            $scope.action = "edit";
             $scope.area = area;
             $scope.editArea = angular.copy($scope.area);
             $scope.areaForm.$setPristine()
@@ -180,17 +191,31 @@ angular.module('msinm.admin')
         };
 
         $scope.saveArea = function () {
-            angular.copy($scope.editArea, $scope.area);
-            $scope.areaForm.$setPristine();
+            if ($scope.action == 'add') {
+                AreaService.createArea(
+                    $scope.editArea,
+                    function (data) {
+                        console.log("SUCCESS");
+                        $scope.loadAreas();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
 
-            AreaService.updateArea(
-                $scope.area,
-                function (data) {
-                    console.log("SUCCESS");
-                },
-                function (data) {
-                    console.error("ERROR " + data);
-                }
-            )
+            } else {
+                angular.copy($scope.editArea, $scope.area);
+                $scope.areaForm.$setPristine();
+
+                AreaService.updateArea(
+                    $scope.editArea,
+                    function (data) {
+                        console.log("SUCCESS");
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+            }
         }
     }]);
