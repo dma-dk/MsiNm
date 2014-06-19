@@ -88,5 +88,21 @@ public class AreaService extends BaseService {
         return saveEntity(area);
     }
 
+    /**
+     * Deletes the area and sub-areas
+     * @param areaId the id of the area to delete
+     */
+    public boolean deleteArea(Integer areaId) {
+
+        Area area = getByPrimaryKey(Area.class, areaId);
+        if (area != null) {
+            area.setParentArea(null);
+            saveEntity(area);
+            remove(area);
+            return true;
+        }
+        return false;
+    }
+
 
 }

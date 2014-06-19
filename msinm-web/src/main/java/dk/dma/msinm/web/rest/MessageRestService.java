@@ -41,11 +41,13 @@ import javax.json.JsonArray;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.io.IOException;
@@ -224,6 +226,16 @@ public class MessageRestService {
         return "OK";
     }
 
+    @DELETE
+    @Path("/area/{areaId}")
+    @Produces("application/json")
+    @RolesAllowed({ "admin" })
+    public String deleteArea(@PathParam("areaId") Integer areaId) throws Exception {
+        log.info("Deleting area " + areaId);
+        areaService.deleteArea(areaId);
+        return "OK";
+    }
+
     @PUT
     @Path("/move-area")
     @Consumes("application/json")
@@ -234,7 +246,6 @@ public class MessageRestService {
         areaService.moveArea(moveAreaVo.getAreaId(), moveAreaVo.getParentId());
         return "OK";
     }
-
 
     /*********************
      * Helper classes

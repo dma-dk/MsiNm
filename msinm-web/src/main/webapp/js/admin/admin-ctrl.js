@@ -229,5 +229,21 @@ angular.module('msinm.admin')
                     }
                 )
             }
+        };
+
+        $scope.deleteArea = function () {
+            if (confirm("Delete area " + $scope.area.nameEnglish + "?")) {
+                AreaService.deleteArea(
+                    $scope.editArea,
+                    function (data) {
+                        $scope.loadAreas();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+            }
         }
+
+
     }]);

@@ -85,6 +85,12 @@ angular.module('msinm.admin')
                     .error(error);
             },
 
+            deleteArea: function(area, success, error) {
+                $http.delete('/rest/message/area/' + area.id)
+                    .success(success)
+                    .error(error);
+            },
+
             moveArea: function(areaId, parentId, success, error) {
                 $http.put('/rest/message/move-area', { areaId: areaId, parentId: parentId })
                     .success(success)
