@@ -26,10 +26,10 @@ public class Area extends VersionedEntity<Integer> {
     @NotNull
     private String nameLocal;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Area parentArea;
 
-    @OneToMany(mappedBy = "parentArea")
+    @OneToMany(mappedBy = "parentArea", cascade = CascadeType.ALL)
     private List<Area> childAreas = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
