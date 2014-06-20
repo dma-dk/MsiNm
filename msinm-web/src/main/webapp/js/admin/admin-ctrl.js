@@ -139,8 +139,8 @@ angular.module('msinm.admin')
     /**
      * Area Controller
      */
-    .controller('AreaCtrl', ['$scope', 'AreaService',
-        function ($scope, AreaService) {
+    .controller('AreaCtrl', ['$scope', 'AreaService', 'DialogService',
+        function ($scope, AreaService, DialogService) {
         'use strict';
 
         $scope.areas = [];
@@ -188,19 +188,22 @@ angular.module('msinm.admin')
         };
 
         $scope.moveArea = function (area, parent) {
+
             // Get confirmation
-            if (confirm("Move " + area.nameEnglish + " to " + ((parent) ? parent.nameEnglish : "the root") + "?")) {
-                AreaService.moveArea(
-                    area.id,
-                    (parent) ? parent.id : undefined,
-                    function (data) {
-                        $scope.loadAreas();
-                    },
-                    function (data) {
-                        console.error("ERROR " + data);
-                    }
-                )
-            }
+            DialogService.showConfirmDialog(
+                "Move Area?", "Move " + area.nameEnglish + " to " + ((parent) ? parent.nameEnglish : "the root") + "?")
+                .then(function() {
+                    AreaService.moveArea(
+                        area.id,
+                        (parent) ? parent.id : undefined,
+                        function (data) {
+                            $scope.loadAreas();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
         };
 
         $scope.showLocations = function (show) {
@@ -248,17 +251,21 @@ angular.module('msinm.admin')
         };
 
         $scope.deleteArea = function () {
-            if (confirm("Delete area " + $scope.area.nameEnglish + "?")) {
-                AreaService.deleteArea(
-                    $scope.editArea,
-                    function (data) {
-                        $scope.loadAreas();
-                    },
-                    function (data) {
-                        console.error("ERROR " + data);
-                    }
-                )
-            }
+
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                    "Delete Area?", "Delete area " + $scope.area.nameEnglish + "?")
+                .then(function() {
+                    AreaService.deleteArea(
+                        $scope.editArea,
+                        function (data) {
+                            $scope.loadAreas();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
         }
 
     }])
@@ -267,8 +274,8 @@ angular.module('msinm.admin')
     /**
      * Chart Controller
      */
-    .controller('ChartCtrl', ['$scope', '$modal', 'ChartService',
-        function ($scope, $modal, ChartService) {
+    .controller('ChartCtrl', ['$scope', 'DialogService', 'ChartService',
+        function ($scope, DialogService, ChartService) {
         'use strict';
 
         $scope.allCharts = [];
@@ -282,13 +289,11 @@ angular.module('msinm.admin')
         $scope.search = '';
         $scope.chart = undefined;
         $scope.action = "edit";
-        var that = this;
 
-        $scope.$watch(function() {
-                return $scope.search;
-            }, function() {
-                $scope.pageChanged();
-        }, true);
+        $scope.$watch(
+            function() { return $scope.search; },
+            function() { $scope.pageChanged(); },
+            true);
 
         $scope.loadCharts = function() {
             ChartService.getCharts(
@@ -327,20 +332,42 @@ angular.module('msinm.admin')
             $scope.chartDlg();
         };
 
-
         $scope.chartDlg = function () {
-            $scope.modalInstance = $modal.open({
-                controller: 'ChartCtrl',
-                templateUrl : "addEditArea.html"
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: ($scope.action == 'add') ? 'Create' : 'Update',
+                headerText: ($scope.action == 'add') ? 'Create Chart' : 'Edit Chart',
+                chart: $scope.chart,
+                action: $scope.action,
+                templateUrl: "addEditChart.html"
+            };
+
+            DialogService.showDialog({}, modalOptions).then(function (result) {
+                if ($scope.action == 'add') {
+                    ChartService.createChart(
+                        $scope.chart,
+                        function (data) {
+                            $scope.loadCharts();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+
+                } else {
+                    ChartService.updateChart(
+                        $scope.chart,
+                        function (data) {
+                            $scope.loadCharts();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                }
+
             });
 
-            $scope.modalInstance.result.then(function() {
-                $scope.loadCharts();
-            }, function() {
-                // Cancelled
-            })['finally'](function(){
-                $scope.modalInstance = undefined;
-            });
         };
 
         $scope.saveChart = function () {
@@ -368,18 +395,22 @@ angular.module('msinm.admin')
             }
         };
 
-        $scope.deleteChart = function () {
-            if (confirm("Delete chart " + $scope.chart.chartNumber + "?")) {
-                ChartService.deleteChart(
-                    $scope.chart,
-                    function (data) {
-                        $scope.loadCharts();
-                    },
-                    function (data) {
-                        console.error("ERROR " + data);
-                    }
-                )
-            }
+        $scope.deleteChart = function (chart) {
+
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                "Delete Chart?", "Delete chart " + chart.chartNumber + "?")
+                .then(function() {
+                    ChartService.deleteChart(
+                        chart,
+                        function (data) {
+                            $scope.loadCharts();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
         }
 
     }]);

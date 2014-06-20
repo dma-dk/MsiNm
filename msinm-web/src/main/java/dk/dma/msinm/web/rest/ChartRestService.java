@@ -1,6 +1,8 @@
 package dk.dma.msinm.web.rest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dk.dma.msinm.model.Chart;
+import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.ChartService;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -19,6 +21,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -59,7 +62,8 @@ public class ChartRestService {
     @Consumes("application/json")
     @Produces("application/json")
     @RolesAllowed({ "admin" })
-    public String createChart(Chart chart) throws Exception {
+    public String createChart(ChartVo chartVo) throws Exception {
+        Chart chart = chartVo.toChart();
         log.info("Updating chart " + chart);
         chartService.createChart(chart);
         return "OK";
@@ -70,7 +74,8 @@ public class ChartRestService {
     @Consumes("application/json")
     @Produces("application/json")
     @RolesAllowed({ "admin" })
-    public String updateChart(Chart chart) throws Exception {
+    public String updateChart(ChartVo chartVo) throws Exception {
+        Chart chart = chartVo.toChart();
         log.info("Updating chart " + chart);
         chartService.updateChartData(chart);
         return "OK";
@@ -85,5 +90,60 @@ public class ChartRestService {
         chartService.deleteChart(chartId);
         return "OK";
     }
+
+    /*********************
+     * Helper classes
+     *********************/
+
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    public static class ChartVo implements Serializable {
+        Integer id;
+        Integer chartNumber;
+        Integer internationalNumber;
+        String horizontalDatum;
+
+
+        public Chart toChart() {
+            Chart chart = new Chart();
+            chart.setId(id);
+            chart.setChartNumber(chartNumber);
+            chart.setInternationalNumber(internationalNumber);
+            chart.setHorizontalDatum(horizontalDatum);
+            return chart;
+        }
+
+        public Integer getId() {
+            return id;
+        }
+
+        public void setId(Integer id) {
+            this.id = id;
+        }
+
+        public Integer getChartNumber() {
+            return chartNumber;
+        }
+
+        public void setChartNumber(Integer chartNumber) {
+            this.chartNumber = chartNumber;
+        }
+
+        public Integer getInternationalNumber() {
+            return internationalNumber;
+        }
+
+        public void setInternationalNumber(Integer internationalNumber) {
+            this.internationalNumber = internationalNumber;
+        }
+
+        public String getHorizontalDatum() {
+            return horizontalDatum;
+        }
+
+        public void setHorizontalDatum(String horizontalDatum) {
+            this.horizontalDatum = horizontalDatum;
+        }
+    }
+
 
 }

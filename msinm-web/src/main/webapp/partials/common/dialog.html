@@ -1,0 +1,14 @@
+<div class="modal-header">
+    <button type="button" class="close" ng-click="modalOptions.close()">x</button>
+    <h3>{{modalOptions.headerText}}</h3>
+</div>
+<div class="modal-body">
+    <p ng-if="modalOptions.bodyText">{{modalOptions.bodyText}}</p>
+    <div ng-if="modalOptions.templateUrl" ng-include="modalOptions.templateUrl"></div>
+</div>
+<div class="modal-footer">
+    <button type="button" class="btn"
+            data-ng-click="modalOptions.close()">{{modalOptions.closeButtonText}}</button>
+    <button class="btn btn-primary"
+            data-ng-click="modalOptions.ok();">{{modalOptions.actionButtonText}}</button>
+</div>
