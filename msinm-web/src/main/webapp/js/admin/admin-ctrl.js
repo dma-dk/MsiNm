@@ -275,7 +275,7 @@ angular.module('msinm.admin')
 
         // Pagination
         $scope.charts = [];
-        $scope.pageSize = 3;
+        $scope.pageSize = 20;
         $scope.currentPage = 1;
         $scope.chartNo = 0;
 
