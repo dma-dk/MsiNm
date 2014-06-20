@@ -5,57 +5,51 @@
 angular.module('msinm.admin')
 
 
-    .factory('LegacyService', [ '$http', '$location', function($http, $location) {
+    .factory('LegacyService', [ '$http', function($http) {
         'use strict';
-
-        var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
 
         return {
 
             importMsiNm: function(success, error) {
-                $http.get(host + '/rest/import/legacy-ws-msi')
+                $http.get('/rest/import/legacy-ws-msi')
                     .success(success)
                     .error(error);
             },
 
             importLegacyMsi: function(count, success, error) {
-                $http.get(host + '/rest/import/legacy-db-msi?limit=' + count)
+                $http.get('/rest/import/legacy-db-msi?limit=' + count)
                     .success(success)
                     .error(error);
             }
         };
     }])
 
-    .factory('AdminUserService', [ '$http', '$location', function($http, $location) {
+    .factory('AdminUserService', [ '$http', function($http) {
         'use strict';
-
-        var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
 
         return {
 
             listUsers: function(success, error) {
-                $http.get(host + '/rest/user/all')
+                $http.get('/rest/user/all')
                     .success(success)
                     .error(error);
             }
         };
     }])
 
-    .factory('OperationsService', [ '$http', '$location', function($http, $location) {
+    .factory('OperationsService', [ '$http', function($http) {
         'use strict';
-
-        var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
 
         return {
 
             recreateSearchIndex: function(success, error) {
-                $http.get(host + '/rest/message/recreate-search-index')
+                $http.get('/rest/message/recreate-search-index')
                     .success(success)
                     .error(error);
             },
 
             clearCaches: function(cacheId, success, error) {
-                $http.get(host + '/rest/admin/operations/reset-cache/' + cacheId)
+                $http.get('/rest/admin/operations/reset-cache/' + cacheId)
                     .success(success)
                     .error(error);
             }
@@ -63,39 +57,69 @@ angular.module('msinm.admin')
         };
     }])
 
-    .factory('AreaService', [ '$http', '$location', function($http, $location) {
+    .factory('AreaService', [ '$http', function($http) {
         'use strict';
 
         return {
             getAreas: function(success, error) {
-                $http.get('/rest/message/area-roots')
+                $http.get('/rest/admin/areas/area-roots')
                     .success(success)
                     .error(error);
             },
 
             createArea: function(area, success, error) {
-                $http.post('/rest/message/area', area)
+                $http.post('/rest/admin/areas/area', area)
                     .success(success)
                     .error(error);
             },
 
             updateArea: function(area, success, error) {
-                $http.put('/rest/message/area', area)
+                $http.put('/rest/admin/areas/area', area)
                     .success(success)
                     .error(error);
             },
 
             deleteArea: function(area, success, error) {
-                $http.delete('/rest/message/area/' + area.id)
+                $http.delete('/rest/admin/areas/area/' + area.id)
                     .success(success)
                     .error(error);
             },
 
             moveArea: function(areaId, parentId, success, error) {
-                $http.put('/rest/message/move-area', { areaId: areaId, parentId: parentId })
+                $http.put('/rest/admin/areas/move-area', { areaId: areaId, parentId: parentId })
+                    .success(success)
+                    .error(error);
+            }
+        };
+    }])
+
+
+    .factory('ChartService', [ '$http', function($http) {
+        'use strict';
+
+        return {
+            getCharts: function(success, error) {
+                $http.get('/rest/admin/charts/all')
+                    .success(success)
+                    .error(error);
+            },
+
+            createChart: function(chart, success, error) {
+                $http.post('/rest/admin/charts/chart', chart)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateChart: function(chart, success, error) {
+                $http.put('/rest/admin/charts/chart', chart)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteChart: function(chart, success, error) {
+                $http.delete('/rest/admin/charts/chart/' + chart.id)
                     .success(success)
                     .error(error);
             }
         };
     }]);
-

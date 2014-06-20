@@ -2,20 +2,16 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Area;
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
-import javax.annotation.security.PermitAll;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.List;
 
 /**
- * Business interface for accessing MSI-NM messages
+ * Business interface for accessing MSI-NM areas
  */
 @Stateless
-@SecurityDomain("msinm-policy")
-@PermitAll
 public class AreaService extends BaseService {
 
     @Inject

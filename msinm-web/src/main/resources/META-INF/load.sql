@@ -21,5 +21,12 @@ insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (6, 'Su
 insert into msi.area (id, nameEnglish, nameLocal, parentArea_id) values  (7, 'Copenhagen Harbour', 'Københavns Havn', 6);
 update area set version = 1;
 
+insert into msi.chart (id, chartNumber, internationalNumber, horizontalDatum) values (0, 189, 1336, '');
+insert into msi.chart (id, chartNumber, internationalNumber, horizontalDatum) values (1, 131, 1331, '');
+insert into msi.chart (id, chartNumber, internationalNumber, horizontalDatum) values (2, 134, 1334, '');
+insert into msi.chart (id, chartNumber, internationalNumber, horizontalDatum) values (3, 142, 1368, '');
+insert into msi.chart (id, chartNumber, internationalNumber, horizontalDatum) values (4, 152, 1373, '');
+update msi.chart set version = 1;
+
 create index user_email on msi.user (email);
 

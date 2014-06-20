@@ -3,6 +3,10 @@
  * The main controllers for the admin app.
  */
 angular.module('msinm.admin')
+
+    /**
+     * Legacy Controller
+     */
     .controller('LegacyCtrl', ['$scope', '$location', '$modal', 'LegacyService',
         function ($scope, $location, $modal, LegacyService) {
         'use strict';
@@ -40,6 +44,10 @@ angular.module('msinm.admin')
         };
     }])
 
+
+    /**
+     * Admin User Controller
+     */
     .controller('AdminUserCtrl', ['$scope', '$location', '$modal', 'AdminUserService',
         function ($scope, $location, $modal, AdminUserService) {
         'use strict';
@@ -96,6 +104,10 @@ angular.module('msinm.admin')
 
     }])
 
+
+    /**
+     * Operations Controller
+     */
     .controller('OperationsCtrl', ['$scope', '$location', '$modal', 'OperationsService',
         function ($scope, $location, $modal, OperationsService) {
         'use strict';
@@ -123,6 +135,10 @@ angular.module('msinm.admin')
 
     }])
 
+
+    /**
+     * Area Controller
+     */
     .controller('AreaCtrl', ['$scope', 'AreaService',
         function ($scope, AreaService) {
         'use strict';
@@ -147,7 +163,7 @@ angular.module('msinm.admin')
                     $scope.areaForm.$setPristine()
                 },
                 function () {
-                    console.log("Error clearing all caches");
+                    console.log("Error fetching areas");
                 });
         };
 
@@ -245,5 +261,97 @@ angular.module('msinm.admin')
             }
         }
 
+    }])
+
+
+    /**
+     * Chart Controller
+     */
+    .controller('ChartCtrl', ['$scope', '$modal', 'ChartService',
+        function ($scope, $modal, ChartService) {
+        'use strict';
+
+        $scope.charts = [];
+        $scope.chart = undefined;
+        $scope.action = "edit";
+        var that = this;
+
+        $scope.loadCharts = function() {
+            ChartService.getCharts(
+                function (data) {
+                    $scope.charts = data;
+                    $scope.chart = undefined;
+                },
+                function () {
+                    console.log("Error fetching charts");
+                });
+        };
+
+        $scope.addChart = function () {
+            $scope.action = 'add';
+            $scope.chart = { chartNumber: undefined, internationalNumber: undefined, horizontalDatum: undefined };
+            $scope.chartDlg();
+        };
+
+        $scope.editChart = function (chart) {
+            $scope.action = 'edit';
+            $scope.chart = angular.copy(chart);
+            $scope.chartDlg();
+        };
+
+
+        $scope.chartDlg = function () {
+            $scope.modalInstance = $modal.open({
+                controller: that,
+                templateUrl : "/add-edit-chart.html"
+            });
+
+            $scope.modalInstance.result.then(function() {
+                $scope.loadCharts();
+            }, function() {
+                // Cancelled
+            })['finally'](function(){
+                $scope.modalInstance = undefined;
+            });
+        };
+
+        $scope.saveChart = function () {
+            if ($scope.action == 'add') {
+                ChartService.createChart(
+                    $scope.chart,
+                    function (data) {
+                        $scope.loadCharts();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+
+            } else {
+                ChartService.updateChart(
+                    $scope.chart,
+                    function (data) {
+                        $scope.loadCharts();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+            }
+        };
+
+        $scope.deleteChart = function () {
+            if (confirm("Delete chart " + $scope.chart.chartNumber + "?")) {
+                ChartService.deleteChart(
+                    $scope.chart,
+                    function (data) {
+                        $scope.loadCharts();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+            }
+        }
 
     }]);
