@@ -271,20 +271,48 @@ angular.module('msinm.admin')
         function ($scope, $modal, ChartService) {
         'use strict';
 
+        $scope.allCharts = [];
+
+        // Pagination
         $scope.charts = [];
+        $scope.pageSize = 3;
+        $scope.currentPage = 1;
+        $scope.chartNo = 0;
+
+        $scope.search = '';
         $scope.chart = undefined;
         $scope.action = "edit";
         var that = this;
 
+        $scope.$watch(function() {
+                return $scope.search;
+            }, function() {
+                $scope.pageChanged();
+        }, true);
+
         $scope.loadCharts = function() {
             ChartService.getCharts(
                 function (data) {
-                    $scope.charts = data;
+                    $scope.allCharts = data;
                     $scope.chart = undefined;
+                    $scope.pageChanged();
                 },
                 function () {
                     console.log("Error fetching charts");
                 });
+        };
+
+        $scope.pageChanged = function() {
+            var search = $scope.search.toLowerCase();
+            var filteredCharts = $scope.allCharts.filter(function (chart) {
+                return ("" + chart.chartNumber).contains(search) ||
+                    ("" + chart.internationalNumber).contains(search) ||
+                    ("" + chart.horizontalDatum).toLowerCase().contains(search);
+            });
+            $scope.chartNo = filteredCharts.length;
+            $scope.charts = filteredCharts.slice(
+                    $scope.pageSize * ($scope.currentPage - 1),
+                    Math.min($scope.chartNo, $scope.pageSize * $scope.currentPage));
         };
 
         $scope.addChart = function () {
@@ -302,8 +330,8 @@ angular.module('msinm.admin')
 
         $scope.chartDlg = function () {
             $scope.modalInstance = $modal.open({
-                controller: that,
-                templateUrl : "/add-edit-chart.html"
+                controller: 'ChartCtrl',
+                templateUrl : "addEditArea.html"
             });
 
             $scope.modalInstance.result.then(function() {

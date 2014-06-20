@@ -38,7 +38,7 @@
                             <th>Horizontal Datum</th>
                             <th>Edit</th>
                         </tr>
-                        <tr ng-repeat="chart in charts | filter:search">
+                        <tr ng-repeat="chart in charts">
                             <td>{{chart.chartNumber}}</td>
                             <td>{{chart.internationalNumber}}</td>
                             <td>{{chart.horizontalDatum}}</td>
@@ -47,6 +47,18 @@
                     </table>
                 </div>
             </div>
+
+            <!-- Pagination -->
+            <div class="row">
+                <div class="col-sm-10">
+                    <pagination total-items="chartNo" items-per-page="pageSize" max-size="10"
+                                ng-model="currentPage" ng-change="pageChanged()"
+                                class="pagination pagination-sm" previous-text="&lsaquo;"  next-text="&rsaquo;"
+                                boundary-links="true" first-text="&laquo;" last-text="&raquo;">
+                    </pagination>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -58,16 +70,17 @@
 </div>
 
 
-<script type="text/ng-template" id="/add-edit-area.html">
-    <div>
-    <div class="modal-header">
-        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
-        <h2 ng-show="action == 'add'">Add Chart</h2>
-        <h2 ng-show="action == 'edit'">Edit Chart</h2>
-    </div>
 
-    <div class="modal-body">
-        <div class="alert alert-danger" ng-show="error">{{error}}</div>
+<script type="text/ng-template" id="addEditArea.html">
+    <div>
+        <div class="modal-header">
+            <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+            <h2 ng-show="action == 'add'">Add Chart</h2>
+            <h2 ng-show="action == 'edit'">Edit Chart</h2>
+        </div>
+
+        <div class="modal-body">
+            <div class="alert alert-danger" ng-show="error">{{error}}</div>
 
 
             <form name="edit_form">
