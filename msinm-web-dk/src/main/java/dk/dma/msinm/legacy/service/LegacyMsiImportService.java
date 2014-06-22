@@ -36,7 +36,7 @@ import java.util.List;
 
 
 /**
- * Provides an interface for fetching active MSI warnings from the legacy MSI system.
+ * Provides an interface for fetching active Danish MSI warnings from the legacy MSI system.
  * <p/>
  * Sets up a timer service which performs the legacy import every 5 minutes.
  */

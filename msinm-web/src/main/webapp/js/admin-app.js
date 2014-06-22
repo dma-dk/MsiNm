@@ -4,12 +4,13 @@
  * @type {angular.Module}
  */
 
+angular.module('msinm.conf', []);
 angular.module('msinm.common', []);
 angular.module('msinm.map', []);
 angular.module('msinm.user', []);
 
 
-var app = angular.module('msinm.admin', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'angularFileUpload', 'msinm.user', 'msinm.map', 'msinm.common' ])
+var app = angular.module('msinm.admin', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'angularFileUpload', 'msinm.conf', 'msinm.user', 'msinm.map', 'msinm.common' ])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';
 

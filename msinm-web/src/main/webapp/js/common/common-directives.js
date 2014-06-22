@@ -50,6 +50,27 @@ angular.module('msinm.common')
         };
     }])
 
+    .directive('langFlag', [function () {
+        return {
+            restrict: 'A',
+            scope: {
+                langFlag: "@langFlag",
+                copyFrom: "@",
+                copyTo: "@"
+            },
+            link: function(scope, element, attrs) {
+                element.css({ "background": "white url('/img/flags/" + scope.langFlag + ".png') no-repeat right top",
+                              "background-size": "auto 14px" });
+
+                scope.copyText = function() {
+                    if (scope.copyFrom && scope.copyTo) {
+                        $('#' + scope.copyTo).val($('#' + scope.copyFrom).val());
+                    }
+                }
+            }
+        };
+    }])
+
     /**
      * Show element active/inactive depending on the current location.
      * Usage:

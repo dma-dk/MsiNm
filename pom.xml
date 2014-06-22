@@ -165,9 +165,9 @@
         <module>msinm-model</module>
         <module>msinm-user</module>
         <module>msinm-lucene</module>
-        <module>msinm-legacy</module>
         <module>msinm-cloud</module>
         <module>msinm-web</module>
+        <module>msinm-web-dk</module>
     </modules>
 
     <prerequisites>

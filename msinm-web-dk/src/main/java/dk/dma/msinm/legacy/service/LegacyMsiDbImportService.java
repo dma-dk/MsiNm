@@ -39,7 +39,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 /**
- * Imports data from a local db dump
+ * Imports data from a local db dump of the Danish MSI database
  */
 @Path("/import/legacy-db-msi")
 @Stateless

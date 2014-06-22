@@ -31,7 +31,7 @@ import javax.inject.Inject;
 import java.util.Calendar;
 
 /**
- * Provides an interface for persisting and fetching legacy MSI messages
+ * Provides an interface for persisting and fetching legacy Danish MSI messages
  */
 @Stateless
 public class LegacyMessageService extends BaseService {
