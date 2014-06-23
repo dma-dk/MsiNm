@@ -99,6 +99,10 @@ input.ng-invalid-pwmatch {
     border-color: red;
 }
 
+.localized:disabled {
+    background-color: #eeeeee!important;
+}
+
 .btn-file {
     position: relative;
     overflow: hidden;

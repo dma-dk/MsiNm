@@ -52,7 +52,7 @@
                 <tr ng-show="loc.showDesc">
                     <td></td>
                     <td colspan="3">
-                        <textarea ng-model="loc.description" placeholder="Location description" rows="3"></textarea>
+                        <textarea ng-model="loc.description" lang-flag="'en'" placeholder="Location description" rows="3"></textarea>
                     </td>
                 </tr>
                 <tr><td colspan="4" style="height: 4px; border-top: 1px solid #666666;"></td></tr>
@@ -78,7 +78,7 @@
                 <tr ng-repeat-end ng-show="pt.showDesc">
                     <td></td>
                     <td colspan="3">
-                        <textarea ng-model="pt.description" placeholder="Point description" rows="2"></textarea>
+                        <textarea ng-model="pt.description" lang-flag="'en'" placeholder="Point description" rows="2"></textarea>
                     </td>
                 </tr>
 
@@ -95,7 +95,7 @@
                 <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'" ng-show="newPt.showDesc">
                     <td></td>
                     <td colspan="3">
-                        <textarea ng-model="newPt.description" placeholder="Point description" rows="2"></textarea>
+                        <textarea ng-model="newPt.description" lang-flag="'en'" placeholder="Point description" rows="2"></textarea>
                     </td>
                 </tr>
             </table>

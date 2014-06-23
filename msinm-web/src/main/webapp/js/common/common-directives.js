@@ -62,25 +62,19 @@ angular.module('msinm.common')
         };
     }])
 
-    .directive('langFlag', [function () {
+    .directive('langFlag', ['$rootScope', function ($rootScope) {
         return {
             restrict: 'A',
             scope: {
-                langFlag: "@langFlag",
-                copyFrom: "@",
-                copyTo: "@"
+                langFlag: "=",
+                flagVisible: "="
             },
             link: function(scope, element, attrs) {
+                element.addClass("localized");
                 element.css({
-                    background: "transparent url('/img/flags/" + scope.langFlag + ".png') no-repeat right top",
+                    background: "white url('/img/flags/" + scope.langFlag + ".png') no-repeat 99% 0%",
                     backgroundSize: "auto 14px"
                 });
-
-                scope.copyText = function() {
-                    if (scope.copyFrom && scope.copyTo) {
-                        $('#' + scope.copyTo).val($('#' + scope.copyFrom).val());
-                    }
-                }
             }
         };
     }])
