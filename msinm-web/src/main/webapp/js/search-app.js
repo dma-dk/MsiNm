@@ -11,7 +11,9 @@ angular.module('msinm.map', []);
 angular.module('msinm.user', []);
 
 
-var app = angular.module('msinm', ['ngRoute', 'ngCookies', 'ui.bootstrap', 'msinm.common', 'msinm.search', 'msinm.conf', 'msinm.map', 'msinm.user'])
+var app = angular.module('msinm', [
+    'ngRoute', 'ngCookies', 'ui.bootstrap', 'pascalprecht.translate',
+    'msinm.common', 'msinm.search', 'msinm.conf', 'msinm.map', 'msinm.user'])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';
 

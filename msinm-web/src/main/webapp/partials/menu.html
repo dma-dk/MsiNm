@@ -12,21 +12,21 @@
         <div class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
 
-                <li check-active="/"><a href="index.html">Home</a></li>
+                <li check-active="/"><a href="index.html" translate>MENU_HOME</a></li>
 
-                <li check-active="/search/*"><a href="search.html">Search</a></li>
+                <li check-active="/search/*"><a href="search.html" translate>MENU_SEARCH</a></li>
 
-                <li check-active="/admin/*" ng-if="hasRole('admin')"><a href="admin.html">Admin</a></li>
+                <li check-active="/admin/*" ng-if="hasRole('admin')"><a href="admin.html" translate>MENU_ADMIN</a></li>
 
             </ul>
 
             <ul class="nav navbar-nav navbar-right" ng-if="!currentUser">
-                <li><a href ng-click="loginDlg()">Login</a></li>
-                <li><a href ng-controller="UserCtrl" ng-click="registerDlg()">Register</a></li>
+                <li><a href ng-click="loginDlg()" translate>MENU_LOGIN</a></li>
+                <li><a href ng-controller="UserCtrl" ng-click="registerDlg()" translate>MENU_REGISTER</a></li>
             </ul>
             <ul class="nav navbar-nav navbar-right" ng-if="currentUser">
                 <li><a href >{{currentUser.name}}</a></li>
-                <li><a href ng-click="logout()">Logout</a></li>
+                <li><a href ng-click="logout()" translate>MENU_LOGOUT</a></li>
             </ul>
         </div>
     </div>
