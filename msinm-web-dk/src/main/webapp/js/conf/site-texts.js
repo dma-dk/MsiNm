@@ -8,6 +8,9 @@ angular.module('msinm.conf')
     .config(['$translateProvider', function ($translateProvider) {
 
         $translateProvider.translations('en', {
+            'LANG_EN' : 'English',
+            'LANG_DA' : 'Danish',
+
             'MENU_HOME': 'Home',
             'MENU_SEARCH': 'Search',
             'MENU_ADMIN': 'Admin',
@@ -17,6 +20,9 @@ angular.module('msinm.conf')
         });
 
         $translateProvider.translations('da', {
+            'LANG_EN' : 'Engelsk',
+            'LANG_DA' : 'Dansk',
+
             'MENU_HOME': 'Forside',
             'MENU_SEARCH': 'Søg',
             'MENU_ADMIN': 'Admin',
