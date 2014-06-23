@@ -27,9 +27,9 @@
                 <li ng-if="currentUser"><a href ng-click="logout()" translate>MENU_LOGOUT</a></li>
 
                 <li class="dropdown"  ng-controller="LangCtrl">
-                    <a href class="dropdown-toggle" data-toggle="dropdown"><flag country="LANGUAGE" style="opacity: 0.5"/></a>
+                    <a href class="dropdown-toggle" data-toggle="dropdown"><flag country="language" style="opacity: 0.5"/></a>
                     <ul class="dropdown-menu">
-                        <li ng-repeat="lang in LANGUAGES">
+                        <li ng-repeat="lang in languages">
                             <a href ng-click="changeLanguage(lang)"><flag country="lang"/> &nbsp; {{'LANG_' + lang | uppercase | translate}}</a>
                         </li>
                     </ul>

@@ -30,7 +30,7 @@ angular.module('msinm.common')
 
         $scope.changeLanguage = function(lang) {
             $translate.use(lang);
-            $rootScope.LANGUAGE = lang;
+            $rootScope.language = lang;
             $window.localStorage.lang = lang;
         }
 
