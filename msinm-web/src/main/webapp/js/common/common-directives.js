@@ -36,7 +36,8 @@ angular.module('msinm.common')
             scope: {
                 country: "=",
                 copyFrom: "@",
-                copyTo: "@"
+                copyTo: "@",
+                style: "@"
             },
             link: function(scope, element, attrs) {
                 scope.$watch(function() {
@@ -47,6 +48,10 @@ angular.module('msinm.common')
                             element.attr('src', '/img/flags/' + newValue + '.png');
                         }
                     }, true);
+
+                if (scope.style) {
+                    element.attr('style', scope.style);
+                }
 
                 scope.copyText = function() {
                     if (scope.copyFrom && scope.copyTo) {
