@@ -54,10 +54,8 @@
 
                         <div class="form-group">
                             <label class="control-label" for="nameEnglish">Name</label>
-                            <div class="input-group input-group-sm">
-                                <input class="form-control" placeholder="English name" type="text" id="nameEnglish" ng-model="editArea.nameEnglish" required
-                                       lang-flag="en" copy-from="nameLocal" copy-to="nameEnglish">
-                            </div>
+                            <input class="form-control input-sm" placeholder="English name" type="text" id="nameEnglish" ng-model="editArea.nameEnglish" required
+                                   lang-flag="en" copy-from="nameLocal" copy-to="nameEnglish">
                             <div class="input-group input-group-sm">
                                 <input class="form-control" placeholder="Danish name" type="text" id="nameLocal" ng-model="editArea.nameLocal">
                                 <span class="input-group-addon"><flag country="da" copy-from="nameEnglish" copy-to="nameLocal"/></span>

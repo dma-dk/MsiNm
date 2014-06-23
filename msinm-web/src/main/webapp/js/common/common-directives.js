@@ -59,8 +59,10 @@ angular.module('msinm.common')
                 copyTo: "@"
             },
             link: function(scope, element, attrs) {
-                element.css({ "background": "white url('/img/flags/" + scope.langFlag + ".png') no-repeat right top",
-                              "background-size": "auto 14px" });
+                element.css({
+                    background: "transparent url('/img/flags/" + scope.langFlag + ".png') no-repeat right top",
+                    backgroundSize: "auto 14px"
+                });
 
                 scope.copyText = function() {
                     if (scope.copyFrom && scope.copyTo) {
