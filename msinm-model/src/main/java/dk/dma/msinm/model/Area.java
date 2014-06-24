@@ -1,12 +1,12 @@
 package dk.dma.msinm.model;
 
-import dk.dma.msinm.common.model.VersionedEntity;
+import dk.dma.msinm.common.model.LocalizedEntity;
+import org.apache.commons.lang.StringUtils;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
 import javax.json.JsonObjectBuilder;
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,13 +18,7 @@ import java.util.List;
         @NamedQuery(name  = "Area.findRootAreas",
                     query = "select distinct a from Area a left join fetch a.childAreas where a.parentArea is null")
 })
-public class Area extends VersionedEntity<Integer> {
-
-    @NotNull
-    private String nameEnglish;
-
-    @NotNull
-    private String nameLocal;
+public class Area extends LocalizedEntity<AreaDesc> {
 
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Area parentArea;
@@ -34,6 +28,18 @@ public class Area extends VersionedEntity<Integer> {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<MessageLocation> locations = new ArrayList<>();
+
+    /**
+     * Creates the localized description for the given language
+     * and adds it to the list of description entities.
+     *
+     * @param lang the language
+     * @return the created description
+     */
+    @Override
+    protected AreaDesc createDesc(String lang) {
+        return initDesc(new AreaDesc(), lang);
+    }
 
     /**
      * Adds a child area, and ensures that all references are properly updated
@@ -67,26 +73,10 @@ public class Area extends VersionedEntity<Integer> {
 
         return Json.createObjectBuilder()
                 .add("id", getId())
-                .add("nameEnglish", getNameEnglish())
-                .add("nameLocal", getNameLocal())
+                .add("nameEnglish", StringUtils.defaultString(getOrCreateDesc("en").getName()))
+                .add("nameLocal", StringUtils.defaultString(getOrCreateDesc("da").getName()))
                 .add("childAreas", childAreasJson)
                 .add("locations", locationsJson);
-    }
-
-    public String getNameEnglish() {
-        return nameEnglish;
-    }
-
-    public void setNameEnglish(String nameEnglish) {
-        this.nameEnglish = nameEnglish;
-    }
-
-    public String getNameLocal() {
-        return nameLocal;
-    }
-
-    public void setNameLocal(String nameLocal) {
-        this.nameLocal = nameLocal;
     }
 
     public Area getParentArea() {
