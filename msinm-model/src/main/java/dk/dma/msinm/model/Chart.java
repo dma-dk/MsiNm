@@ -14,17 +14,17 @@ public class Chart extends VersionedEntity<Integer> {
 
     @NotNull
     @Column(unique = true)
-    Integer chartNumber;
+    String chartNumber;
 
     Integer internationalNumber;
 
     String horizontalDatum;
 
-    public Integer getChartNumber() {
+    public String getChartNumber() {
         return chartNumber;
     }
 
-    public void setChartNumber(Integer chartNumber) {
+    public void setChartNumber(String chartNumber) {
         this.chartNumber = chartNumber;
     }
 

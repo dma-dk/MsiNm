@@ -98,7 +98,7 @@ public class ChartRestService {
     @JsonIgnoreProperties(ignoreUnknown=true)
     public static class ChartVo implements Serializable {
         Integer id;
-        Integer chartNumber;
+        String chartNumber;
         Integer internationalNumber;
         String horizontalDatum;
 
@@ -120,11 +120,11 @@ public class ChartRestService {
             this.id = id;
         }
 
-        public Integer getChartNumber() {
+        public String getChartNumber() {
             return chartNumber;
         }
 
-        public void setChartNumber(Integer chartNumber) {
+        public void setChartNumber(String chartNumber) {
             this.chartNumber = chartNumber;
         }
 
