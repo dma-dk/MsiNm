@@ -13,23 +13,12 @@ public abstract class LocalizedEntity<D extends DescEntity> extends VersionedEnt
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
     List<D> descs = new ArrayList<>();
 
-    @OneToOne(cascade = CascadeType.ALL)
-    D mainDesc;
-
     public List<D> getDescs() {
         return descs;
     }
 
     public void setDescs(List<D> descs) {
         this.descs = descs;
-    }
-
-    public D getMainDesc() {
-        return mainDesc;
-    }
-
-    public void setMainDesc(D mainDesc) {
-        this.mainDesc = mainDesc;
     }
 
     /**
@@ -63,9 +52,6 @@ public abstract class LocalizedEntity<D extends DescEntity> extends VersionedEnt
     @SuppressWarnings("unchecked")
     protected D initDesc(D desc, String lang) {
         desc.setLang(lang);
-        if (descs.isEmpty()) {
-            mainDesc = desc;
-        }
         desc.setEntity(this);
         descs.add(desc);
         return desc;
