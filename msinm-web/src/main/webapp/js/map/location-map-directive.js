@@ -103,7 +103,7 @@ angular.module('msinm.map')
                     var loc = '';
                     if (drawControls.point.active) {
                         var pt = evt.feature.geometry.transform(projmerc, proj4326);
-                        loc = { type: "POINT", points: [{ lat: pt.y, lon: pt.x, num:1}]};
+                        loc = { type: "POINT", points: [{ lat: pt.y, lon: pt.x, index:1}]};
 
                     } else if (drawControls.circle.active) {
                         var center = evt.feature.geometry.getBounds().getCenterLonLat();
@@ -112,7 +112,7 @@ angular.module('msinm.map')
                             new OpenLayers.Geometry.Point(center.lon, center.lat)]);
                         var radius = Math.round(line.getGeodesicLength(projmerc) / 1000);
                         var pt = center.transform(projmerc, proj4326);
-                        loc = { type: "CIRCLE", radius: radius, points: [{ lat: pt.lat, lon: pt.lon , num:1 }]};
+                        loc = { type: "CIRCLE", radius: radius, points: [{ lat: pt.lat, lon: pt.lon , index:1 }]};
 
                     } else {
                         var type = (drawControls.polyline.active) ? "POLYLINE" : "POLYGON";
@@ -121,7 +121,7 @@ angular.module('msinm.map')
                         var num = 0;
                         for (var i in  points) {
                             var pt = points[i].transform(projmerc, proj4326);
-                            loc.points[num] = { lat: pt.y, lon: pt.x, num: (num++) };
+                            loc.points[num] = { lat: pt.y, lon: pt.x, index: (num++) };
                         }
                     }
 

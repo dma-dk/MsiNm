@@ -154,17 +154,17 @@ public class LegacyMessageService extends BaseService {
 
         item1.getLocations().clear();
         if (msi.getPoints() != null && msi.getPoints().getPoint().size() > 0) {
-            MessageLocation.LocationType type;
+            Location.LocationType type;
             switch (msi.getLocationType()) {
-                case "Point":       type = MessageLocation.LocationType.POINT; break;
-                case "Polygon":     type = MessageLocation.LocationType.POLYGON; break;
-                case "Points":      type = MessageLocation.LocationType.POLYLINE; break;
-                case "Polyline":    type = MessageLocation.LocationType.POLYLINE; break;
-                default:            type = MessageLocation.LocationType.POLYLINE;
+                case "Point":       type = Location.LocationType.POINT; break;
+                case "Polygon":     type = Location.LocationType.POLYGON; break;
+                case "Points":      type = Location.LocationType.POLYLINE; break;
+                case "Polyline":    type = Location.LocationType.POLYLINE; break;
+                default:            type = Location.LocationType.POLYLINE;
             }
-            MessageLocation loc1 = new MessageLocation(type);
+            Location loc1 = new Location(type);
             for (PointDto p : msi.getPoints().getPoint()) {
-                loc1.addPoint(new Point(p.getLatitude(), p.getLongitude(), p.getPtno()));
+                loc1.addPoint(new Point(loc1, p.getLatitude(), p.getLongitude(), p.getPtno()));
             }
             item1.getLocations().add(loc1);
         }

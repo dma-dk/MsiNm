@@ -2,9 +2,12 @@ package dk.dma.msinm.vo;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dk.dma.msinm.common.vo.LocalizableVo;
+import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.AreaDesc;
+import org.apache.commons.lang.StringUtils;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,10 +15,9 @@ import java.util.List;
  * Value object for the {@code Area} model entity
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
-public class AreaVo implements Serializable {
+public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     Integer id;
     Integer parentId;
-    String nameLocal, nameEnglish;
     List<LocationVo> locations = new ArrayList<>();
     List<AreaVo> childAreas = new ArrayList<>();
 
@@ -30,23 +32,27 @@ public class AreaVo implements Serializable {
      * @param area the area
      */
     public AreaVo(Area area) {
+        super(area);
+
         id = area.getId();
-        nameLocal = area.getOrCreateDesc("da").getName();
-        nameEnglish = area.getOrCreateDesc("en").getName();
         area.getLocations().forEach(loc -> locations.add(new LocationVo(loc)));
         area.getChildAreas().forEach(childArea -> childAreas.add(new AreaVo(childArea)));
+        area.getDescs().forEach(desc -> getDescs().add(new AreaDescVo(desc)));
     }
 
     /**
-     * Converts this area to a an Area
-     * @return the area
+     * {@inheritDoc}
      */
-    public Area toArea() {
+    @Override
+    public Area toEntity() {
         Area area = new Area();
         area.setId(id);
-        area.getOrCreateDesc("da").setName(nameLocal);
-        area.getOrCreateDesc("en").setName(nameEnglish);
-        locations.forEach(loc -> area.getLocations().add(loc.toLocation()));
+        locations.stream()
+                .filter(loc -> loc.getPoints().size() > 0)
+                .forEach(loc -> area.getLocations().add(loc.toEntity()));
+        getDescs().stream()
+                .filter(desc -> StringUtils.isNotBlank(desc.getName()))
+                .forEach(desc -> area.getDescs().add(desc.toEntity(area)));
         return area;
     }
 
@@ -67,22 +73,6 @@ public class AreaVo implements Serializable {
         this.parentId = parentId;
     }
 
-    public String getNameLocal() {
-        return nameLocal;
-    }
-
-    public void setNameLocal(String nameLocal) {
-        this.nameLocal = nameLocal;
-    }
-
-    public String getNameEnglish() {
-        return nameEnglish;
-    }
-
-    public void setNameEnglish(String nameEnglish) {
-        this.nameEnglish = nameEnglish;
-    }
-
     public List<LocationVo> getLocations() {
         return locations;
     }
@@ -98,6 +88,65 @@ public class AreaVo implements Serializable {
 
     public void setChildAreas(List<AreaVo> childAreas) {
         this.childAreas = childAreas;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AreaDescVo createDesc(String lang) {
+        AreaDescVo area = new AreaDescVo();
+        area.setLang(lang);
+        return area;
+    }
+
+    /**
+     * The entity description VO
+     */
+    public static class AreaDescVo extends LocalizedDescVo<AreaDesc, AreaVo> {
+
+        String name;
+
+        /**
+         * Constructor
+         */
+        public AreaDescVo() {
+            super();
+        }
+
+        /**
+         * Constructor
+         * @param desc the entity
+         */
+        public AreaDescVo(AreaDesc desc) {
+            super(desc);
+            name = desc.getName();
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public AreaDesc toEntity() {
+            AreaDesc desc = new AreaDesc();
+            desc.setLang(getLang());
+            desc.setName(name);
+            return desc;
+        }
+
+        public AreaDesc toEntity(Area area) {
+            AreaDesc desc = toEntity();
+            desc.setEntity(area);
+            return desc;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
 }

@@ -37,7 +37,6 @@ insert into msi.areadesc (id, lang, entity_id, name) values (12, 'en', 6, 'The S
 insert into msi.areadesc (id, lang, entity_id, name) values (13, 'da', 6, 'Sundet');
 insert into msi.areadesc (id, lang, entity_id, name) values (14, 'en', 7, 'Copenhagen Harbour');
 insert into msi.areadesc (id, lang, entity_id, name) values (15, 'da', 7, 'Københavns Havn');
-update msi.area a set mainDesc_id = (select id from msi.areadesc ad where ad.entity_id = a.id and ad.lang = 'en');
 
 
 insert into msi.chart (id, chartNumber, internationalNumber, horizontalDatum) values (0, '60', null, '');

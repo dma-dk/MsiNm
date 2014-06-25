@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.web.rest;
 
-import dk.dma.msinm.model.MessageLocation;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.MessageStatus;
 import dk.dma.msinm.model.MessageType;
 import dk.dma.msinm.service.MessageSearchParams;
@@ -136,7 +136,7 @@ public class MessageRestService {
         }
 
         if (StringUtils.isNotBlank(loc)) {
-            params.setLocation(MessageLocation.fromJson(loc));
+            params.setLocation(Location.fromJson(loc));
         }
 
         if (StringUtils.isNotBlank(fromDate)) {

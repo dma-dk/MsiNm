@@ -36,6 +36,8 @@ public class AreaService extends BaseService {
 
         // Copy the area data
         original.copyDescs(area.getDescs());
+
+        // Add the locations
         original.getLocations().clear();
         original.getLocations().addAll(area.getLocations());
 

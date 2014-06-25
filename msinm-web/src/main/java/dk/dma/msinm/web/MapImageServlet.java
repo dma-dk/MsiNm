@@ -3,8 +3,8 @@ package dk.dma.msinm.web;
 import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.common.util.GraphicsUtils;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageLocation;
 import dk.dma.msinm.model.NavwarnMessage;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.MessageService;
@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static dk.dma.msinm.common.repo.RepositoryService.HashFolderLevels.ONE;
-import static dk.dma.msinm.model.MessageLocation.LocationType;
+import static dk.dma.msinm.model.Location.LocationType;
 
 /**
  * Returns and caches a thumbnail image for a message.
@@ -80,7 +80,7 @@ public class MapImageServlet extends HttpServlet  {
                 throw new IllegalArgumentException("Message " + id + " does not exist");
             }
 
-            List<MessageLocation> locations = getMessageLocations(message);
+            List<Location> locations = getMessageLocations(message);
             if (locations.size() > 0) {
                 // Construct the image file name for the messsage
                 String imageName = String.format("%d_%d.png", id, mapImageSize);
@@ -122,12 +122,12 @@ public class MapImageServlet extends HttpServlet  {
      * @return if the image file was properly created
      */
     private boolean createMapImage(Message message, Path imageRepoPath) throws IOException {
-        List<MessageLocation> locations = getMessageLocations(message);
+        List<Location> locations = getMessageLocations(message);
 
         if (locations.size() > 0) {
 
             // Only handle one for now
-            MessageLocation loc = locations.get(0);
+            Location loc = locations.get(0);
 
             // Compute the bounds of the location and compute the center
             Point[] bounds = getBounds(loc.getPoints());
@@ -173,7 +173,7 @@ public class MapImageServlet extends HttpServlet  {
                         path.lineTo(px, py);
                     }
                 }
-                if (loc.getType() == MessageLocation.LocationType.POLYGON) {
+                if (loc.getType() == Location.LocationType.POLYGON) {
                     path.closePath();
                     g2.setColor(fillCol);
                     g2.fill(path);
@@ -208,8 +208,8 @@ public class MapImageServlet extends HttpServlet  {
      * @param message the message
      * @return the list of locations
      */
-    public List<MessageLocation> getMessageLocations(Message message) {
-        List<MessageLocation> result = new ArrayList<>();
+    public List<Location> getMessageLocations(Message message) {
+        List<Location> result = new ArrayList<>();
         if (message != null) {
             NavwarnMessage msg = (NavwarnMessage)message;
             result.addAll(msg.getMessageItems().get(0).getLocations()

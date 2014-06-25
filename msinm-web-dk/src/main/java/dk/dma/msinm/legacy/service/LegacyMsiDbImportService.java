@@ -193,15 +193,15 @@ public class LegacyMsiDbImportService {
                     item1.setAmplifyingRemarks(StringUtils.defaultString(amplifyingRemarks));
 
                     if (pointLatitude != null) {
-                        MessageLocation.LocationType type;
+                        Location.LocationType type;
                         switch (locationType) {
-                            case "Point":       type = MessageLocation.LocationType.POINT; break;
-                            case "Polygon":     type = MessageLocation.LocationType.POLYGON; break;
-                            case "Points":      type = MessageLocation.LocationType.POLYLINE; break;
-                            case "Polyline":    type = MessageLocation.LocationType.POLYLINE; break;
-                            default:            type = MessageLocation.LocationType.POLYLINE;
+                            case "Point":       type = Location.LocationType.POINT; break;
+                            case "Polygon":     type = Location.LocationType.POLYGON; break;
+                            case "Points":      type = Location.LocationType.POLYLINE; break;
+                            case "Polyline":    type = Location.LocationType.POLYLINE; break;
+                            default:            type = Location.LocationType.POLYLINE;
                         }
-                        MessageLocation loc1 = new MessageLocation(type);
+                        Location loc1 = new Location(type);
                         if (pointRadius != null) {
                             loc1.setRadius(pointRadius);
                         }
@@ -210,8 +210,8 @@ public class LegacyMsiDbImportService {
                 }
 
                 if (pointLatitude != null) {
-                    MessageLocation loc1 =legacyMessage.getNavwarnMessage().getMessageItems().get(0).getLocations().get(0);
-                    loc1.addPoint(new Point(pointLatitude, pointLongitude, pointIndex));
+                    Location loc1 =legacyMessage.getNavwarnMessage().getMessageItems().get(0).getLocations().get(0);
+                    loc1.addPoint(new Point(loc1, pointLatitude, pointLongitude, pointIndex));
                 }
             }
 

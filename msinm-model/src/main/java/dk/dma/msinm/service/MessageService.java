@@ -149,7 +149,7 @@ public class MessageService extends BaseService {
                     NavwarnMessage msg = (NavwarnMessage)message;
                     msg.getSeriesIdentifier();
                     for (MessageItem item : msg.getMessageItems()) {
-                        for (MessageLocation loc : item.getLocations()) {
+                        for (Location loc : item.getLocations()) {
                             for (Point point : loc.getPoints()) {
                             }
                         }

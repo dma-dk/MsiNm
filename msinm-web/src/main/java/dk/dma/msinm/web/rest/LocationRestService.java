@@ -1,13 +1,15 @@
 package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.common.repo.RepositoryService;
-import dk.dma.msinm.model.MessageLocation;
+import dk.dma.msinm.model.Location;
+import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Point;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -71,33 +73,37 @@ public class LocationRestService {
             NodeList nodes = (NodeList) xpath.evaluate("//kml:Placemark", inputSource, XPathConstants.NODESET);
 
             for (int i = 0; i < nodes.getLength(); i++) {
-                MessageLocation loc = new MessageLocation();
+                Location loc = new Location();
 
                 // Extract the name for the Placemark
-                Node name = (Node) xpath.evaluate("kml:name", (Node)nodes.item(i), XPathConstants.NODE);
-                if (name != null) {
-                    //loc.setDescription(name.getTextContent());
+                Node name = (Node) xpath.evaluate("kml:name", nodes.item(i), XPathConstants.NODE);
+                if (name != null && StringUtils.isNotBlank(name.getTextContent())) {
+                    LocationDesc desc = new LocationDesc();
+                    desc.setEntity(loc);
+                    desc.setLang("en");
+                    desc.setDescription(name.getTextContent());
+                    loc.getDescs().add(desc);
                 }
 
                 // Try to match either POINT, POLYLINE or POLYGON
-                loc.setType(MessageLocation.LocationType.POINT);
+                loc.setType(Location.LocationType.POINT);
                 Node coordinates = (Node) xpath.evaluate(
                         "kml:Point/kml:coordinates",
-                        (Node)nodes.item(i),
+                        nodes.item(i),
                         XPathConstants.NODE);
 
                 if (coordinates == null) {
-                    loc.setType(MessageLocation.LocationType.POLYLINE);
+                    loc.setType(Location.LocationType.POLYLINE);
                     coordinates = (Node) xpath.evaluate(
                             "kml:LineString/kml:coordinates",
-                            (Node)nodes.item(i),
+                            nodes.item(i),
                             XPathConstants.NODE);
                 }
                 if (coordinates == null) {
-                    loc.setType(MessageLocation.LocationType.POLYGON);
+                    loc.setType(Location.LocationType.POLYGON);
                     coordinates = (Node) xpath.evaluate(
                             "kml:Polygon/kml:outerBoundaryIs/kml:LinearRing/kml:coordinates",
-                            (Node)nodes.item(i),
+                            nodes.item(i),
                             XPathConstants.NODE);
                 }
 
@@ -110,13 +116,14 @@ public class LocationRestService {
                             Point pt = new Point();
                             pt.setLon(Double.parseDouble(lonLatAlt[0]));
                             pt.setLat(Double.parseDouble(lonLatAlt[1]));
+                            pt.setLocation(loc);
                             loc.addPoint(pt);
                         }
                     }
 
                     if (loc.getPoints().size() > 0) {
                         // For polygons, skip the last point since it is identical to the first
-                        if (loc.getType() == MessageLocation.LocationType.POLYGON && loc.getPoints().size() > 1) {
+                        if (loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() > 1) {
                             loc.getPoints().remove(loc.getPoints().size() - 1);
                         }
 

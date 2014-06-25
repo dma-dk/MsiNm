@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.service;
 
-import dk.dma.msinm.model.MessageLocation;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.MessageStatus;
 import dk.dma.msinm.model.MessageType;
 import org.apache.commons.lang.StringUtils;
@@ -36,7 +36,7 @@ public class MessageSearchParams implements Serializable {
     String query;
     Date from;
     Date to;
-    MessageLocation location;
+    Location location;
     MessageStatus status;
     Set<MessageType> types = new HashSet<>();
 
@@ -48,7 +48,7 @@ public class MessageSearchParams implements Serializable {
     public MessageSearchParams() {
     }
 
-    public MessageSearchParams(String query, Date from, Date to, MessageLocation location, MessageStatus status) {
+    public MessageSearchParams(String query, Date from, Date to, Location location, MessageStatus status) {
         this.query = query;
         this.from = from;
         this.to = to;
@@ -56,7 +56,7 @@ public class MessageSearchParams implements Serializable {
         this.status = status;
     }
 
-    public MessageSearchParams(String query, MessageLocation location) {
+    public MessageSearchParams(String query, Location location) {
         this.query = query;
         this.location = location;
     }
@@ -106,11 +106,11 @@ public class MessageSearchParams implements Serializable {
         this.to = to;
     }
 
-    public MessageLocation getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(MessageLocation location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 

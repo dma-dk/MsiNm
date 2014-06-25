@@ -4,7 +4,7 @@
  * Editor for creating and editing an list locations
  */
 angular.module('msinm.map')
-    .directive('msiLocationEditor', ['$modal', 'MapService', function ($modal, MapService) {
+    .directive('msiLocationEditor', ['$modal', '$rootScope', 'MapService', function ($modal, $rootScope, MapService) {
         'use strict';
 
         return {
@@ -21,7 +21,34 @@ angular.module('msinm.map')
 
             link: function (scope, element, attrs) {
 
-                scope.newPt = { lat: undefined, lon: undefined, description: undefined };
+                // If oldElm (location or point) is defined, look for a description with the given language
+                function descForLang(lang, oldElm) {
+                    if (oldElm && oldElm.descs) {
+                        for (var d in oldElm.descs) {
+                            if (oldElm.descs[d].lang == lang) {
+                                return oldElm.descs[d];
+                            }
+                        }
+                    }
+                }
+
+                // Add a localized desc entity with an existing or  empty "description" attribute for each model language.
+                // If oldElm (location or point) is defined, the existing desc entities are used.
+                function initDescs(elm, oldElm) {
+                    for (var i in $rootScope.modelLanguages) {
+                        var desc = descForLang($rootScope.modelLanguages[i], oldElm);
+                        if (!desc) {
+                            desc = { lang: $rootScope.modelLanguages[i], description: undefined };
+                        }
+                        elm.descs.push(desc);
+                    }
+                    if (oldElm && oldElm.showDesc) {
+                        elm.showDesc = oldElm.showDesc;
+                    }
+                    return elm;
+                }
+
+                scope.newPt = initDescs({ lat: undefined, lon: undefined, descs: [] });
 
                 scope.location = undefined;
 
@@ -168,7 +195,8 @@ angular.module('msinm.map')
                     var points = [];
                     if (scope.location.type == 'POINT') {
                         var pt = evt.feature.geometry.transform(projmerc, proj4326);
-                        points.push({ lat: pt.y, lon: pt.x, index:1});
+                        var oldPt = (scope.location.points.length > 0) ? scope.location.points[0] : undefined;
+                        points.push(initDescs({ lat: pt.y, lon: pt.x, index:1, descs: []}, oldPt));
 
                     } else if (scope.location.type == 'CIRCLE') {
                         var center = evt.feature.geometry.getBounds().getCenterLonLat();
@@ -178,14 +206,17 @@ angular.module('msinm.map')
                         var radius = Math.round(line.getGeodesicLength(projmerc) / 1000);
                         var pt = center.transform(projmerc, proj4326);
                         scope.location.radius = radius;
-                        points.push({ lat: pt.lat, lon: pt.lon , index:1 });
+                        var oldPt = (scope.location.points.length > 0) ? scope.location.points[0] : undefined;
+                        points.push(initDescs({ lat: pt.lat, lon: pt.lon , index:1, descs: []}, oldPt));
 
                     } else {
                         var vertices = evt.feature.geometry.getVertices();
                         var pt, num = 0;
                         for (var i in  vertices) {
                             pt = vertices[i].transform(projmerc, proj4326);
-                            points.push({ lat: pt.y, lon: pt.x , index:num++ });
+                            // NB: Finding the old point by index is actually not correct if a point has been added or deleted
+                            var oldPt = (scope.location.points.length > i) ? scope.location.points[i] : undefined;
+                            points.push(initDescs({ lat: pt.y, lon: pt.x , index:num++, descs: []}, oldPt));
                         }
                     }
                     scope.location.points = points;
@@ -265,7 +296,7 @@ angular.module('msinm.map')
                     }
                     scope.newPt.index = scope.location.points.length + 1;
                     scope.location.points.push(angular.copy(scope.newPt));
-                    scope.newPt = { lat: undefined, lon: undefined, description:undefined };
+                    scope.newPt = initDescs({ lat: undefined, lon: undefined, descs:[] });
                 };
 
                 /*********************************/
@@ -276,7 +307,7 @@ angular.module('msinm.map')
                 };
 
                 scope.addLocationType = function(value) {
-                    scope.location = { type: value.toUpperCase(), points: [], description: '' };
+                    scope.location = initDescs({ type: value.toUpperCase(), points: [], descs:[] });
                     if (value == 'point' || value == 'circle') {
                         scope.location.points.push({ lat: undefined, lon: undefined, index:1});
                     }

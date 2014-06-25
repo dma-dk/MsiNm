@@ -1,6 +1,7 @@
 package dk.dma.msinm.model;
 
-import dk.dma.msinm.common.model.LocalizedEntity;
+import dk.dma.msinm.common.model.ILocalizable;
+import dk.dma.msinm.common.model.VersionedEntity;
 import org.apache.commons.lang.StringUtils;
 
 import javax.json.Json;
@@ -18,7 +19,7 @@ import java.util.List;
         @NamedQuery(name  = "Area.findRootAreas",
                     query = "select distinct a from Area a left join fetch a.childAreas where a.parentArea is null")
 })
-public class Area extends LocalizedEntity<AreaDesc> {
+public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc> {
 
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Area parentArea;
@@ -27,18 +28,31 @@ public class Area extends LocalizedEntity<AreaDesc> {
     private List<Area> childAreas = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<MessageLocation> locations = new ArrayList<>();
+    private List<Location> locations = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    List<AreaDesc> descs = new ArrayList<>();
+
+    @Override
+    public List<AreaDesc> getDescs() {
+        return descs;
+    }
+
+    @Override
+    public void setDescs(List<AreaDesc> descs) {
+        this.descs = descs;
+    }
 
     /**
-     * Creates the localized description for the given language
-     * and adds it to the list of description entities.
-     *
-     * @param lang the language
-     * @return the created description
+     * {@inheritDoc}
      */
     @Override
-    protected AreaDesc createDesc(String lang) {
-        return initDesc(new AreaDesc(), lang);
+    public AreaDesc createDesc(String lang) {
+        AreaDesc desc = new AreaDesc();
+        desc.setLang(lang);
+        desc.setEntity(this);
+        getDescs().add(desc);
+        return desc;
     }
 
     /**
@@ -95,11 +109,11 @@ public class Area extends LocalizedEntity<AreaDesc> {
         this.childAreas = childAreas;
     }
 
-    public List<MessageLocation> getLocations() {
+    public List<Location> getLocations() {
         return locations;
     }
 
-    public void setLocations(List<MessageLocation> locations) {
+    public void setLocations(List<Location> locations) {
         this.locations = locations;
     }
 

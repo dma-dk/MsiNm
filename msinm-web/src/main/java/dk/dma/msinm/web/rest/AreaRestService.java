@@ -12,9 +12,6 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import javax.ws.rs.*;
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,7 +43,6 @@ public class AreaRestService {
     @GZIP
     @NoCache
     public List<AreaVo> getAreaRoots() {
-
         List<AreaVo> result = new ArrayList<>();
         areaService.getAreas().forEach(area -> result.add(new AreaVo(area)));
         return result;
@@ -58,7 +54,7 @@ public class AreaRestService {
     @Produces("application/json")
     @RolesAllowed({ "admin" })
     public String createArea(AreaVo areaVo) throws Exception {
-        Area area = areaVo.toArea();
+        Area area = areaVo.toEntity();
         log.info("Creating area " + area);
         areaService.createArea(area, areaVo.getParentId());
         return "OK";
@@ -70,7 +66,7 @@ public class AreaRestService {
     @Produces("application/json")
     @RolesAllowed({ "admin" })
     public String updateArea(AreaVo areaVo) throws Exception {
-        Area area = areaVo.toArea();
+        Area area = areaVo.toEntity();
         log.info("Updating area " + area);
         areaService.updateAreaData(area);
         return "OK";

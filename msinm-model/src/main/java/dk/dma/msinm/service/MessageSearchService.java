@@ -193,7 +193,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getKeySubject());
             addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getAmplifyingRemarks());
             // TODO: Priority
-            for (MessageLocation location : messageItem.getLocations()) {
+            for (Location location : messageItem.getLocations()) {
                 try {
                     addShapeSearchFields(doc, location.toWkt());
                 } catch (Exception e) {
@@ -360,8 +360,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     /**
      * TODO
      */
-    public List<MessageLocation> searchLocations(MessageSearchParams param) {
-        List<MessageLocation> result = new ArrayList<>();
+    public List<Location> searchLocations(MessageSearchParams param) {
+        List<Location> result = new ArrayList<>();
 
         try {
 

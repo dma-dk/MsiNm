@@ -48,20 +48,16 @@
                         <div class="form-group" ng-if="action == 'add'">
                             <label class="control-label" for="parent">Parent Area</label>
                             <div class="input-group input-group-sm">
-                                <input class="form-control" type="text" id="parent" ng-model="area.nameEnglish" disabled>
+                                <input class="form-control" type="text" id="parent" ng-model="area.descs[0].name" disabled>
                             </div>
                         </div>
 
                         <div class="form-group">
-                            <label class="control-label" for="nameEnglish">Name</label>
+                            <label class="control-label">Name</label>
                             <div class="row">
-                                <div class="col-sm-6">
-                                    <input class="form-control input-sm" placeholder="English name" type="text" id="nameEnglish" ng-model="editArea.nameEnglish" required
-                                           lang-flag="'en'">
-                                </div>
-                                <div class="col-sm-6">
-                                    <input class="form-control input-sm" placeholder="Danish name" type="text" id="nameLocal" ng-model="editArea.nameLocal"
-                                           lang-flag="'da'">
+                                <div class="col-sm-6" ng-repeat="desc in editArea.descs">
+                                    <input class="form-control input-sm" placeholder="Name" type="text" ng-model="desc.name" ng-required="$first"
+                                           lang-flag="desc.lang">
                                 </div>
                             </div>
                         </div>
@@ -83,7 +79,7 @@
                     <div class="area-locations-panel">
                         <div style="text-align: center;">
                             <p>Edit locations for<br>
-                            <strong>{{editArea.nameEnglish}}</strong></p>
+                            <strong>{{editArea.descs[0].name}}</strong></p>
                             <button href class="btn btn-primary btn-xs" ng-click="updateLocations(true)">Done</button>
                             <button href class="btn btn-primary btn-xs" ng-click="updateLocations(false)" ng-if="action == 'edit'">Cancel</button>
                         </div>

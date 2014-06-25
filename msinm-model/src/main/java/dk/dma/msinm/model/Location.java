@@ -20,6 +20,7 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.model.BaseEntity;
+import dk.dma.msinm.common.model.ILocalizable;
 import dk.dma.msinm.lucene.LuceneUtils;
 
 import javax.json.*;
@@ -35,7 +36,7 @@ import java.util.stream.Collectors;
  * Defines a location as either a point, a circle, a polygon or a polyline.
  */
 @Entity
-public class MessageLocation extends BaseEntity<Integer> {
+public class Location extends BaseEntity<Integer> implements ILocalizable<LocationDesc> {
 
     private static final long serialVersionUID = 1L;
 
@@ -48,13 +49,16 @@ public class MessageLocation extends BaseEntity<Integer> {
     private LocationType type;
     
     @NotNull
-    @ElementCollection
-    @OrderBy("num")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "location")
+    @OrderBy("index")
     private List<Point> points = new ArrayList<>();
-    
+
     private Integer radius;
 
-    public MessageLocation() {
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    List<LocationDesc> descs = new ArrayList<>();
+
+    public Location() {
     }
 
     /**
@@ -93,7 +97,7 @@ public class MessageLocation extends BaseEntity<Integer> {
                     shape = "POLYGON ((%s))";
                     // Polygon needs to end in the start position
                     shapePoints = new ArrayList<>(points);
-                    shapePoints.add(new Point(shapePoints.get(0).getLat(), shapePoints.get(0).getLon(), shapePoints.size()));
+                    shapePoints.add(new Point(null, shapePoints.get(0).getLat(), shapePoints.get(0).getLon(), shapePoints.size()));
                 } else {
                     shape = "LINESTRING (%s)";
                     shapePoints = points;
@@ -130,10 +134,10 @@ public class MessageLocation extends BaseEntity<Integer> {
      * @param jsonData the Json data
      * @return the corresponding MessageLocation entity
      */
-    public static MessageLocation fromJson(String jsonData) {
+    public static Location fromJson(String jsonData) {
         try (JsonReader jsonReader = Json.createReader(new StringReader(jsonData))) {
             JsonObject jsonObject = jsonReader.readObject();
-            MessageLocation loc = new MessageLocation();
+            Location loc = new Location();
             loc.setType(LocationType.valueOf(jsonObject.getString("type")));
             if (jsonObject.containsKey("radius")) {
                 loc.setRadius(jsonObject.getInt("radius"));
@@ -141,15 +145,16 @@ public class MessageLocation extends BaseEntity<Integer> {
             for(JsonValue point : jsonObject.getJsonArray("points")) {
                 JsonObject pt = (JsonObject)point;
                 loc.getPoints().add(new Point(
+                        loc,
                         pt.getJsonNumber("lat").doubleValue(),
                         pt.getJsonNumber("lon").doubleValue(),
-                        pt.getInt("num")));
+                        pt.getInt("index")));
             }
             return loc;
         }
     }
 
-    public MessageLocation(LocationType type) {
+    public Location(LocationType type) {
         this.type = type;
     }
 
@@ -177,15 +182,36 @@ public class MessageLocation extends BaseEntity<Integer> {
         this.points = points;
         if (points != null && points.size() > 0) {
             for (int i=0; i < points.size(); i++) {
-                points.get(i).setNum(i + 1);   
+                points.get(i).setIndex(i + 1);
             }
         }       
     }
     
     @Transient
     public void addPoint(Point p) {
-        p.setNum(this.points.size() + 1);
+        p.setIndex(this.points.size() + 1);
         this.points.add(p);
     }
 
+    @Override
+    public List<LocationDesc> getDescs() {
+        return descs;
+    }
+
+    @Override
+    public void setDescs(List<LocationDesc> descs) {
+        this.descs = descs;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public LocationDesc createDesc(String lang) {
+        LocationDesc desc = new LocationDesc();
+        desc.setLang(lang);
+        desc.setEntity(this);
+        getDescs().add(desc);
+        return desc;
+    }
 }

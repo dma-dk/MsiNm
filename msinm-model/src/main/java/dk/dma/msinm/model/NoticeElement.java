@@ -44,7 +44,7 @@ public class NoticeElement extends BaseEntity<Integer> {
     private NoticeVerb noticeVerb;
 
     @OneToOne(cascade = CascadeType.ALL)
-    private MessageLocation location;
+    private Location location;
 
     public NoticeElement() {
 
@@ -82,11 +82,11 @@ public class NoticeElement extends BaseEntity<Integer> {
         this.noticeVerb = noticeVerb;
     }
 
-    public MessageLocation getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(MessageLocation location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 

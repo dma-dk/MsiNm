@@ -66,7 +66,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {
         prepareEntityManagerFactory(
                 SequenceEntity.class, SettingsEntity.class,
-                Message.class, MessageCategory.class, MessageItem.class, MessageLocation.class,
+                Message.class, MessageCategory.class, MessageItem.class, Location.class,
                 MessageSeriesIdentifier.class, NavwarnMessage.class, NoticeElement.class,
                 NoticeMessage.class, PermanentItem.class, Point.class, TempPreliminaryItem.class
         );
@@ -98,9 +98,9 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertEquals(1, messageSearchService.search(new MessageSearchParams("Kattegat", null)).getMessages().size());
 
         // Search on geometry
-        MessageLocation location = new MessageLocation();
-        location.setType(MessageLocation.LocationType.CIRCLE);
-        location.getPoints().add(new Point(56.120, 12.1684));
+        Location location = new Location();
+        location.setType(Location.LocationType.CIRCLE);
+        location.getPoints().add(new Point(location, 56.120, 12.1684));
         location.setRadius(10);
         assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).getMessages().size());
 
@@ -122,9 +122,9 @@ public class MessageServiceTest extends MsiNmUnitTest {
         assertEquals(1, messageSearchService.search(new MessageSearchParams("Langebro", null)).getMessages().size());
 
         // Search on geometry
-        MessageLocation location = new MessageLocation();
-        location.setType(MessageLocation.LocationType.CIRCLE);
-        location.getPoints().add(new Point(57, 12));
+        Location location = new Location();
+        location.setType(Location.LocationType.CIRCLE);
+        location.getPoints().add(new Point(location, 57, 12));
         location.setRadius(10);
         assertEquals(1, messageSearchService.search(new MessageSearchParams(null, location)).getMessages().size());
 
@@ -171,15 +171,15 @@ public class MessageServiceTest extends MsiNmUnitTest {
         cat1.setOtherCategory("Unlit");
         item1.setCategory(cat1);
 
-        MessageLocation loc1 = new MessageLocation(MessageLocation.LocationType.POLYGON);
-        loc1.addPoint(new Point(56.120, 12.1684));
-        loc1.addPoint(new Point(55.877, 12.622));
-        loc1.addPoint(new Point(55.962, 12.576));
+        Location loc1 = new Location(Location.LocationType.POLYGON);
+        loc1.addPoint(new Point(loc1, 56.120, 12.1684));
+        loc1.addPoint(new Point(loc1, 55.877, 12.622));
+        loc1.addPoint(new Point(loc1, 55.962, 12.576));
         item1.getLocations().add(loc1);
-        MessageLocation loc2 = new MessageLocation(MessageLocation.LocationType.POLYGON);
-        loc2.addPoint(new Point(57.120, 13.1684));
-        loc2.addPoint(new Point(57.877, 13.622));
-        loc2.addPoint(new Point(57.962, 13.576));
+        Location loc2 = new Location(Location.LocationType.POLYGON);
+        loc2.addPoint(new Point(loc2, 57.120, 13.1684));
+        loc2.addPoint(new Point(loc2, 57.877, 13.622));
+        loc2.addPoint(new Point(loc2, 57.962, 13.576));
         item1.getLocations().add(loc2);
 
         MessageItem item2 = new MessageItem();
@@ -231,8 +231,8 @@ public class MessageServiceTest extends MsiNmUnitTest {
         permanentItem.setAmplifyingRemarks("Amplifying remarks");
         permanentItem.setChartNumber("DK-1213");
         permanentItem.setHorizontalDatum("FSdasd");
-        MessageLocation pitLoc = new MessageLocation(MessageLocation.LocationType.POINT);
-        pitLoc.addPoint(new Point(57, 12));
+        Location pitLoc = new Location(Location.LocationType.POINT);
+        pitLoc.addPoint(new Point(pitLoc, 57, 12));
         permanentItem.setLocation(pitLoc);
         permanentItem.setLastUpdate(identifier);
 

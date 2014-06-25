@@ -98,8 +98,8 @@ angular.module('msinm.admin')
     /**
      * Area Controller
      */
-    .controller('AreaCtrl', ['$scope', 'AreaService', 'DialogService',
-        function ($scope, AreaService, DialogService) {
+    .controller('AreaCtrl', ['$scope', '$rootScope', 'AreaService', 'DialogService',
+        function ($scope, $rootScope, AreaService, DialogService) {
         'use strict';
 
         $scope.areas = [];
@@ -128,7 +128,10 @@ angular.module('msinm.admin')
 
         $scope.newArea = function() {
             $scope.action = "add";
-            $scope.editArea = { nameEnglish: '', nameLocal: '', locations: [] };
+            $scope.editArea = { descs:[], locations: [] };
+            for (var i in $rootScope.modelLanguages) {
+                $scope.editArea.descs.push({ lang: $rootScope.modelLanguages[i], name: '' });
+            }
             if ($scope.area) {
                 $scope.editArea.parentId = $scope.area.id;
             }
@@ -150,7 +153,7 @@ angular.module('msinm.admin')
 
             // Get confirmation
             DialogService.showConfirmDialog(
-                "Move Area?", "Move " + area.nameEnglish + " to " + ((parent) ? parent.nameEnglish : "the root") + "?")
+                "Move Area?", "Move " + area.descs[0].name + " to " + ((parent) ? parent.descs[0].name : "the root") + "?")
                 .then(function() {
                     AreaService.moveArea(
                         area.id,
@@ -213,7 +216,7 @@ angular.module('msinm.admin')
 
             // Get confirmation
             DialogService.showConfirmDialog(
-                    "Delete Area?", "Delete area " + $scope.area.nameEnglish + "?")
+                    "Delete Area?", "Delete area " + $scope.area.descs[0].name + "?")
                 .then(function() {
                     AreaService.deleteArea(
                         $scope.editArea,

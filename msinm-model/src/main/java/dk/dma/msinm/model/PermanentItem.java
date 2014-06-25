@@ -42,7 +42,7 @@ public class PermanentItem extends BaseEntity<Integer> {
     
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
-    private MessageLocation location;
+    private Location location;
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<NoticeElement> noticeElements = new ArrayList<>();
@@ -83,11 +83,11 @@ public class PermanentItem extends BaseEntity<Integer> {
         this.lastUpdate = lastUpdate;
     }
 
-    public MessageLocation getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(MessageLocation location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
     

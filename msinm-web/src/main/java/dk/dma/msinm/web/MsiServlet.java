@@ -1,7 +1,7 @@
 package dk.dma.msinm.web;
 
 import dk.dma.msinm.common.util.GraphicsUtils;
-import dk.dma.msinm.model.MessageLocation;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchService;
@@ -90,8 +90,8 @@ public class MsiServlet extends HttpServlet {
         GlobalMercator mercator = new GlobalMercator();
         double[] bounds = mercator.TileLatLonBounds(x, y, z);
 
-        MessageLocation loc = new MessageLocation();
-        loc.setType(MessageLocation.LocationType.POLYGON);
+        Location loc = new Location();
+        loc.setType(Location.LocationType.POLYGON);
         loc.getPoints().add(new Point(-bounds[0], bounds[1]));
         loc.getPoints().add(new Point(-bounds[2], bounds[1]));
         loc.getPoints().add(new Point(-bounds[2], bounds[3]));
@@ -105,11 +105,11 @@ public class MsiServlet extends HttpServlet {
         Color fillCol = new Color(173, 87, 161, 80);
 
         int xy0[] =  mercator.LatLonToPixels(-bounds[0], bounds[1], z);
-        java.util.List<MessageLocation> locations = messageSearchService.searchLocations(params);
+        java.util.List<Location> locations = messageSearchService.searchLocations(params);
 
         locations.stream().forEach(location -> {
 
-            if (location.getType() == MessageLocation.LocationType.POINT) {
+            if (location.getType() == Location.LocationType.POINT) {
                 Point pt = location.getPoints().get(0);
 
                 int xy[] = mercator.LatLonToPixels(pt.getLat(), pt.getLon(), z);
@@ -121,7 +121,7 @@ public class MsiServlet extends HttpServlet {
                 g2.setColor(col);
                 g2.fill(theCircle);
 
-            } else if (location.getType() == MessageLocation.LocationType.POLYLINE || location.getType() == MessageLocation.LocationType.POLYGON) {
+            } else if (location.getType() == Location.LocationType.POLYLINE || location.getType() == Location.LocationType.POLYGON) {
                 GeneralPath path = new GeneralPath();
                 for (int i = 0; i < location.getPoints().size(); i++) {
                     Point pt = location.getPoints().get(i);
@@ -135,7 +135,7 @@ public class MsiServlet extends HttpServlet {
                         path.lineTo(px, py);
                     }
                 }
-                if (location.getType() == MessageLocation.LocationType.POLYGON) {
+                if (location.getType() == Location.LocationType.POLYGON) {
                     path.closePath();
                     g2.setColor(fillCol);
                     g2.fill(path);

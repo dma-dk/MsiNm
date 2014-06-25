@@ -36,7 +36,7 @@ public class TempPreliminaryItem extends BaseEntity<Integer> {
     private String itemDescription;
     
     @OneToOne(cascade = CascadeType.ALL)
-    private MessageLocation location;
+    private Location location;
 
     public TempPreliminaryItem() {
 
@@ -58,11 +58,11 @@ public class TempPreliminaryItem extends BaseEntity<Integer> {
         this.itemDescription = itemDescription;
     }
 
-    public MessageLocation getLocation() {
+    public Location getLocation() {
         return location;
     }
 
-    public void setLocation(MessageLocation location) {
+    public void setLocation(Location location) {
         this.location = location;
     }
 

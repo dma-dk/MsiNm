@@ -35,7 +35,7 @@ angular.module('msinm.map')
                     scope.loc = {
                         type:"CIRCLE",
                         radius:100,
-                        points:[{lat: pos.coords.latitude, lon: pos.coords.longitude, num: 1 }]
+                        points:[{lat: pos.coords.latitude, lon: pos.coords.longitude, index: 1 }]
                     };
                     if(!scope.$$phase) {
                         scope.$apply();

@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
  */
 @MappedSuperclass
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "lang", "entity_id" }))
-public abstract class DescEntity<E extends LocalizedEntity> extends BaseEntity<Integer> {
+public abstract class DescEntity<E extends ILocalizable> extends BaseEntity<Integer> implements ILocalizedDesc<E> {
 
     @NotNull
     String lang;
@@ -20,10 +20,12 @@ public abstract class DescEntity<E extends LocalizedEntity> extends BaseEntity<I
     @NotNull
     E entity;
 
+    @Override
     public String getLang() {
         return lang;
     }
 
+    @Override
     public void setLang(String lang) {
         this.lang = lang;
     }
@@ -35,11 +37,5 @@ public abstract class DescEntity<E extends LocalizedEntity> extends BaseEntity<I
     public void setEntity(E entity) {
         this.entity = entity;
     }
-
-    /**
-     * Copies the description values from the desc entity to this entity
-     * @param desc the description entity to copy from
-     */
-    public abstract void copyDesc(DescEntity desc);
 
 }

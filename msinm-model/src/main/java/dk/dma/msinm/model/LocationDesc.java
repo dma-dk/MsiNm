@@ -7,20 +7,20 @@ import javax.persistence.Entity;
 import javax.validation.constraints.NotNull;
 
 /**
- * Localized contents for the Area entity
+ * Defines the localizable contents of Location
  */
 @Entity
-public class AreaDesc extends DescEntity<Area> {
+public class LocationDesc extends DescEntity<Location> {
 
     @NotNull
-    private String name;
+    private String description;
 
-    public String getName() {
-        return name;
+    public String getDescription() {
+        return description;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     /**
@@ -28,9 +28,10 @@ public class AreaDesc extends DescEntity<Area> {
      */
     @Override
     public void copyDesc(ILocalizedDesc desc) {
-        if (!(desc instanceof AreaDesc)) {
+        if (!(desc instanceof LocationDesc)) {
             throw new IllegalArgumentException("Invalid desc class " + desc);
         }
-        this.name = ((AreaDesc)desc).getName();
+        this.description = ((LocationDesc)desc).getDescription();
     }
+
 }

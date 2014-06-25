@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.service;
 
-import dk.dma.msinm.model.MessageLocation;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Point;
 import org.junit.Test;
 
@@ -23,7 +23,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dk.dma.msinm.model.MessageLocation.LocationType;
+import static dk.dma.msinm.model.Location.LocationType;
 
 /**
  * Checks the conversion of locations to spatial4j shapes
@@ -36,26 +36,26 @@ public class SpatialTest {
     public void test() throws ParseException {
 
         List<Point> points = new ArrayList<>();
-        points.add(new Point(0.0, 0.0));
+        points.add(new Point(null, 0.0, 0.0));
 
         System.out.println("Point " + creteMessageLocation(LocationType.POINT, points).toWkt());
 
-        MessageLocation circle = creteMessageLocation(LocationType.CIRCLE, points);
+        Location circle = creteMessageLocation(LocationType.CIRCLE, points);
         circle.setRadius(100);
         System.out.println("Circle " + circle.toWkt());
 
-        points.add(new Point(10.0, 0.0));
-        points.add(new Point(10.0, 10.0));
-        points.add(new Point(0.0, 10.0));
-        points.add(new Point(0.0, 0.0));
+        points.add(new Point(null, 10.0, 0.0));
+        points.add(new Point(null, 10.0, 10.0));
+        points.add(new Point(null, 0.0, 10.0));
+        points.add(new Point(null, 0.0, 0.0));
 
         System.out.println("Polygon " + creteMessageLocation(LocationType.POLYGON, points).toWkt());
         System.out.println("Polyline " + creteMessageLocation(LocationType.POLYLINE, points).toWkt());
     }
 
 
-    MessageLocation creteMessageLocation(LocationType type, List<Point> points) {
-        MessageLocation location = new MessageLocation();
+    Location creteMessageLocation(LocationType type, List<Point> points) {
+        Location location = new Location();
         location.setType(type);
         location.setPoints(points);
         return location;

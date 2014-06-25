@@ -15,41 +15,78 @@
  */
 package dk.dma.msinm.model;
 
+import dk.dma.msinm.common.model.BaseEntity;
+import dk.dma.msinm.common.model.ILocalizable;
+
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
-import javax.persistence.Embeddable;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Defines a position by its latitude, longitude and order
  */
-@Embeddable
-public class Point implements Serializable {
+@Entity
+public class Point extends BaseEntity<Integer> implements ILocalizable<PointDesc> {
 
     private static final long serialVersionUID = 1L;
+
+    @ManyToOne
+    @NotNull
+    Location location;
 
     @NotNull
     private Double lat;
     
     @NotNull
     private Double lon;
-    
+
+    @Column(name = "num")
     @NotNull
-    private Integer num;
+    private Integer index;
 
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    List<PointDesc> descs = new ArrayList<>();
+
+    /**
+     * No-argument constructor
+     */
     public Point() {
-
     }
-    
+
+    /**
+     * Constructor
+     * @param lat the latitude
+     * @param lon the longitude
+     */
     public Point(double lat, double lon) {
-        this(lat, lon, 0);
+        this(null, lat, lon, 0);
     }
 
-    public Point(Double lat, Double lon, Integer num) {
+    /**
+     * Constructor
+     * @param location the location
+     * @param lat the latitude
+     * @param lon the longitude
+     */
+    public Point(Location location, double lat, double lon) {
+        this(location, lat, lon, 0);
+    }
+
+    /**
+     * Constructor
+     * @param location the location
+     * @param lat the latitude
+     * @param lon the longitude
+     * @param index the point index
+     */
+    public Point(Location location, Double lat, Double lon, Integer index) {
         this.lat = lat;
         this.lon = lon;
-        this.num = num;
+        this.index = index;
+        this.location = location;
     }
 
     /**
@@ -60,7 +97,15 @@ public class Point implements Serializable {
         return Json.createObjectBuilder()
                 .add("lat", lat)
                 .add("lon", lon)
-                .add("num", num);
+                .add("index", index);
+    }
+
+    public Location getLocation() {
+        return location;
+    }
+
+    public void setLocation(Location location) {
+        this.location = location;
     }
 
     public Double getLat() {
@@ -79,12 +124,33 @@ public class Point implements Serializable {
         this.lon = lon;
     }
     
-    public Integer getNum() {
-        return num;
+    public Integer getIndex() {
+        return index;
     }
     
-    public void setNum(Integer num) {
-        this.num = num;
+    public void setIndex(Integer num) {
+        this.index = num;
     }
 
+    @Override
+    public List<PointDesc> getDescs() {
+        return descs;
+    }
+
+    @Override
+    public void setDescs(List<PointDesc> descs) {
+        this.descs = descs;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public PointDesc createDesc(String lang) {
+        PointDesc desc = new PointDesc();
+        desc.setLang(lang);
+        desc.setEntity(this);
+        getDescs().add(desc);
+        return desc;
+    }
 }
