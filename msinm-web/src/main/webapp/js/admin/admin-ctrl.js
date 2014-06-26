@@ -121,7 +121,7 @@ angular.module('msinm.admin')
 
                     $scope.area = undefined;
                     $scope.editArea = undefined;
-                    $scope.areaForm.$setPristine()
+                    $scope.areaForm.$setPristine();
                 },
                 function () {
                     console.log("Error fetching areas");
@@ -144,7 +144,7 @@ angular.module('msinm.admin')
                     $scope.action = "edit";
                     $scope.area = LangService.checkDescs(data, ensureNameField);
                     $scope.editArea = angular.copy($scope.area);
-                    $scope.areaForm.$setPristine()
+                    $scope.areaForm.$setPristine();
                     if(!$scope.$$phase) {
                         $scope.$apply();
                     }
@@ -407,7 +407,7 @@ angular.module('msinm.admin')
 
                     $scope.category = undefined;
                     $scope.editCategory = undefined;
-                    $scope.categoryForm.$setPristine()
+                    $scope.categoryForm.$setPristine();
                 },
                 function () {
                     console.log("Error fetching categories");
@@ -430,7 +430,7 @@ angular.module('msinm.admin')
                     $scope.action = "edit";
                     $scope.category = LangService.checkDescs(data, ensureNameField);
                     $scope.editCategory = angular.copy($scope.category);
-                    $scope.categoryForm.$setPristine()
+                    $scope.categoryForm.$setPristine();
                     if(!$scope.$$phase) {
                         $scope.$apply();
                     }

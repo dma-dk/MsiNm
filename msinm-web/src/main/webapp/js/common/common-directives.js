@@ -258,16 +258,16 @@ angular.module('msinm.common')
     /**
      * Directive that wraps the fancytree jQuery plugin
      */
-    .directive('msiAreaTree', [ function () {
+    .directive('msiEntityTree', [ function () {
         'use strict';
 
         return {
             restrict: 'AE',
             scope: {
-                areas: '=',
+                entities: '=',
                 filter: '=',
-                areaSelected : '&',
-                areaMoved : '&'
+                entitySelected : '&',
+                entityMoved : '&'
             },
 
             link: function (scope, element, attrs, ngModel) {
@@ -304,8 +304,8 @@ angular.module('msinm.common')
                     },
                     activate: function(event, data){
                         var node = data.node;
-                        if (scope.areaSelected) {
-                            scope.areaSelected({ area: node.data.area });
+                        if (scope.entitySelected) {
+                            scope.entitySelected({ entity: node.data.entity });
                         }
                     }
                 });
@@ -313,39 +313,39 @@ angular.module('msinm.common')
                 var tree = element.fancytree("getTree");
 
                 /**
-                 * Convert the list of areas into the tree structure used by
+                 * Convert the list of entities into the tree structure used by
                  * https://github.com/mar10/fancytree/
                  */
-                function toTreeData(areas, treeData, level) {
-                    for (var i in areas) {
-                        var area = areas[i];
-                        var node = { key: area.id, title: area.descs[0].name, folder: true, children: [], level: level, area: area };
+                function toTreeData(entities, treeData, level) {
+                    for (var i in entities) {
+                        var entity = entities[i];
+                        var node = { key: entity.id, title: entity.descs[0].name, folder: true, children: [], level: level, entity: entity };
                         treeData.push(node);
-                        if (area.children && area.children.length > 0) {
-                            toTreeData(area.children, node.children, level + 1);
+                        if (entity.children && entity.children.length > 0) {
+                            toTreeData(entity.children, node.children, level + 1);
                         }
                     }
                 }
 
                 function handleDragDrop(node, data) {
-                    if (scope.areaMoved) {
-                        var area = data.otherNode.data.area;
+                    if (scope.entityMoved) {
+                        var entity = data.otherNode.data.entity;
                         var parent = undefined;
                         if (data.hitMode == 'before' || data.hitMode == 'after') {
-                            parent = (node.parent.data.area) ? node.parent.data.area : undefined;
+                            parent = (node.parent.data.entity) ? node.parent.data.entity : undefined;
                         } else if (data.hitMode == 'over') {
-                            parent = node.data.area;
+                            parent = node.data.entity;
                         }
-                        scope.areaMoved({ area: area, parent: parent });
+                        scope.entityMoved({ entity: entity, parent: parent });
 
                     } else {
                         data.otherNode.moveTo(node, data.hitMode);
                     }
                 }
 
-                // Watch areas
+                // Watch entities
                 scope.$watchCollection(function () {
-                    return scope.areas;
+                    return scope.entities;
                 }, function (newValue) {
                     if (tree.options.source && tree.options.source.length > 0) {
                         scope.storeState();
