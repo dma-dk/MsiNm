@@ -30,14 +30,43 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     /**
      * Constructor
      * @param area the area
+     * @param includeChildAreas whether to include child areas or not
      */
-    public AreaVo(Area area) {
+    public AreaVo(Area area, boolean includeChildAreas) {
         super(area);
 
         id = area.getId();
         area.getLocations().forEach(loc -> locations.add(new LocationVo(loc)));
-        area.getChildAreas().forEach(childArea -> childAreas.add(new AreaVo(childArea)));
         area.getDescs().forEach(desc -> getDescs().add(new AreaDescVo(desc)));
+        if (includeChildAreas) {
+            area.getChildAreas().forEach(childArea -> childAreas.add(new AreaVo(childArea)));
+        }
+    }
+
+    /**
+     * Constructor
+     * @param area the area
+     */
+    public AreaVo(Area area) {
+        this(area, true);
+    }
+
+    /**
+     * Constructor
+     *
+     * This version only reads the description records with given language,
+     * and discards locations and child areas
+     *
+     * @param area the area
+     */
+    public AreaVo(Area area, String lang) {
+        super(area);
+
+        id = area.getId();
+        parentId = (area.getParentArea() == null) ? null : area.getParentArea().getId();
+        area.getDescs().stream()
+            .filter(desc -> desc.getLang().equals(lang))
+            .forEach(desc -> getDescs().add(new AreaDescVo(desc)));
     }
 
     /**

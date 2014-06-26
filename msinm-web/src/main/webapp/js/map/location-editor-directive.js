@@ -4,7 +4,7 @@
  * Editor for creating and editing an list locations
  */
 angular.module('msinm.map')
-    .directive('msiLocationEditor', ['$modal', '$rootScope', 'MapService', function ($modal, $rootScope, MapService) {
+    .directive('msiLocationEditor', ['$modal', 'LangService', 'MapService', function ($modal, LangService, MapService) {
         'use strict';
 
         return {
@@ -172,7 +172,7 @@ angular.module('msinm.map')
                     if (scope.location.type == 'POINT') {
                         var pt = evt.feature.geometry.transform(projmerc, proj4326);
                         var oldPt = (scope.location.points.length > 0) ? scope.location.points[0] : undefined;
-                        points.push(initDescs({ lat: pt.y, lon: pt.x, index:1, descs: []}, oldPt));
+                        points.push(initDescs({ lat: pt.y, lon: pt.x, index:1}, oldPt));
 
                     } else if (scope.location.type == 'CIRCLE') {
                         var center = evt.feature.geometry.getBounds().getCenterLonLat();
@@ -183,7 +183,7 @@ angular.module('msinm.map')
                         var pt = center.transform(projmerc, proj4326);
                         scope.location.radius = radius;
                         var oldPt = (scope.location.points.length > 0) ? scope.location.points[0] : undefined;
-                        points.push(initDescs({ lat: pt.lat, lon: pt.lon , index:1, descs: []}, oldPt));
+                        points.push(initDescs({ lat: pt.lat, lon: pt.lon , index:1}, oldPt));
 
                     } else {
                         var vertices = evt.feature.geometry.getVertices();
@@ -192,7 +192,7 @@ angular.module('msinm.map')
                             pt = vertices[i].transform(projmerc, proj4326);
                             // NB: Finding the old point by index is actually not correct if a point has been added or deleted
                             var oldPt = (scope.location.points.length > i) ? scope.location.points[i] : undefined;
-                            points.push(initDescs({ lat: pt.y, lon: pt.x , index:num++, descs: []}, oldPt));
+                            points.push(initDescs({ lat: pt.y, lon: pt.x , index:num++}, oldPt));
                         }
                     }
                     scope.location.points = points;
@@ -254,8 +254,10 @@ angular.module('msinm.map')
                             // Get OpenLayers to update it's size
                             map.updateSize();
 
-                            // Update the "showDesc" attribute of each location and point
-                            initShowDesc();
+                            // Update the locations by ensuring that all locations and points
+                            // have all language-specific description entities, and by
+                            // computing the "showDesc" attribute of each location and point
+                            initLocations();
                         }
                     }, true);
                 }
@@ -264,18 +266,22 @@ angular.module('msinm.map')
                 /* I18N Support                  */
                 /*********************************/
 
+                // Used to ensure that description entities have a "description" field
+                function ensureDescriptionField(desc) {
+                    desc.description = '';
+                }
+
                 // Set the "showDesc" flag true for all locations and points
                 // that have non-empty descriptions
-                function initShowDesc() {
+                function initLocations() {
                     for (var i in scope.locations) {
-                        var loc = scope.locations[i];
-                        loc.showDesc = hasDesc(loc.descs);
+                        var loc = initDescs(scope.locations[i], undefined, true);
                         for (var p in loc.points) {
-                            loc.points[p].showDesc = hasDesc(loc.points[p].descs);
+                            initDescs(loc.points[p], undefined, true);
                         }
 
                         // While we are at it, add a newPt to the locations
-                        loc.newPt = initDescs({ lat: undefined, lon: undefined, descs: [] });
+                        loc.newPt = initDescs({ lat: undefined, lon: undefined });
                     }
                 }
 
@@ -289,32 +295,17 @@ angular.module('msinm.map')
                     return false;
                 }
 
-                // If elm (location or point) is defined,
-                // look for a description with the given language
-                function descForLang(lang, elm) {
-                    if (elm && elm.descs) {
-                        for (var d in elm.descs) {
-                            if (elm.descs[d].lang == lang) {
-                                return elm.descs[d];
-                            }
-                        }
-                    }
-                }
-
                 // Add a localized desc entity with an existing or empty "description" attribute for each model language.
                 // If oldElm (location or point) is defined, the existing desc entities are used.
-                function initDescs(elm, oldElm) {
-                    for (var i in $rootScope.modelLanguages) {
-                        var desc = descForLang($rootScope.modelLanguages[i], oldElm);
-                        if (!desc) {
-                            desc = { lang: $rootScope.modelLanguages[i], description: undefined };
-                        }
-                        elm.descs.push(desc);
-                    }
+                // Otherwise, if computeShowDesc is true, the "showDesc" flag is computed for the element
+                function initDescs(elm, oldElm, computeShowDesc) {
+                    LangService.checkDescs(elm, ensureDescriptionField, oldElm);
 
                     // Restore the "showDesc" flag from the oldElm
                     if (oldElm && oldElm.showDesc) {
                         elm.showDesc = oldElm.showDesc;
+                    } else if (computeShowDesc) {
+                        elm.showDesc = hasDesc(elm.descs);
                     }
                     return elm;
                 }

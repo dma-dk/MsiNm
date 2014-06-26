@@ -14,7 +14,6 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.*;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,10 +41,16 @@ public class AreaRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    public List<AreaVo> getAreaRoots() {
-        List<AreaVo> result = new ArrayList<>();
-        areaService.getAreas().forEach(area -> result.add(new AreaVo(area)));
-        return result;
+    public List<AreaVo> getAreaRoots(@QueryParam("lang") String lang) {
+        return areaService.getAreaTreeForLanguage(lang);
+    }
+
+    @GET
+    @Path("/area/{areaId}")
+    @Produces("application/json")
+    public AreaVo getArea(@PathParam("areaId") Integer areaId) throws Exception {
+        log.info("Getting area " + areaId);
+        return areaService.getAreaDetails(areaId);
     }
 
     @POST

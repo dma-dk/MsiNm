@@ -57,12 +57,18 @@ angular.module('msinm.admin')
         };
     }])
 
-    .factory('AreaService', [ '$http', function($http) {
+    .factory('AreaService', [ '$http', '$rootScope', function($http, $rootScope) {
         'use strict';
 
         return {
             getAreas: function(success, error) {
-                $http.get('/rest/admin/areas/area-roots')
+                $http.get('/rest/admin/areas/area-roots?lang=' + $rootScope.language)
+                    .success(success)
+                    .error(error);
+            },
+
+            getArea: function(area, success, error) {
+                $http.get('/rest/admin/areas/area/' + area.id)
                     .success(success)
                     .error(error);
             },

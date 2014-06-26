@@ -62,11 +62,14 @@ public class Settings {
         Properties properties = new Properties();
         try {
             properties.load(getClass().getResourceAsStream(SETTINGS_FILE));
-            for (String name : properties.stringPropertyNames()) {
+            properties.stringPropertyNames().stream()
+                    .filter(name -> em.find(SettingsEntity.class, name) == null)
+                    .forEach(name -> {
+                // Persist the entity
                 SettingsEntity result = new SettingsEntity(name, properties.getProperty(name));
                 em.persist(result);
                 log.info(String.format("Loaded property %s=%s from %s", name, properties.getProperty(name), SETTINGS_FILE));
-            }
+            });
         } catch (Exception e) {
             // Ignore
         }
@@ -158,6 +161,17 @@ public class Settings {
     }
 
     /**
+     * Returns the setting as a Set
+     *
+     * @param setting the source
+     * @return the associated value
+     */
+    public String[] getArray(Setting setting) {
+        String value = get(setting);
+        return (value == null) ? new String[0] : value.split(",");
+    }
+
+    /**
      * Injects the setting defined by the {@code @Setting} annotation
      *
      * @param ip the injection point
@@ -203,6 +217,18 @@ public class Settings {
     @dk.dma.msinm.common.settings.annotation.Setting
     public Path getPath(InjectionPoint ip) {
         return getPath(ip2setting(ip));
+    }
+
+    /**
+     * Injects the String array setting defined by the {@code @Setting} annotation
+     *
+     * @param ip the injection point
+     * @return the String array setting value
+     */
+    @Produces
+    @dk.dma.msinm.common.settings.annotation.Setting
+    public String[] getArray(InjectionPoint ip) {
+        return getArray(ip2setting(ip));
     }
 
     /**

@@ -98,8 +98,8 @@ angular.module('msinm.admin')
     /**
      * Area Controller
      */
-    .controller('AreaCtrl', ['$scope', '$rootScope', 'AreaService', 'DialogService',
-        function ($scope, $rootScope, AreaService, DialogService) {
+    .controller('AreaCtrl', ['$scope', 'LangService', 'AreaService', 'DialogService',
+        function ($scope, LangService, AreaService, DialogService) {
         'use strict';
 
         $scope.areas = [];
@@ -109,6 +109,10 @@ angular.module('msinm.admin')
 
         $scope.locationsVisible = false;
 
+        // Used to ensure that description entities have a "name" field
+        function ensureNameField(desc) {
+            desc.name = '';
+        }
 
         $scope.loadAreas = function() {
             AreaService.getAreas(
@@ -128,10 +132,7 @@ angular.module('msinm.admin')
 
         $scope.newArea = function() {
             $scope.action = "add";
-            $scope.editArea = { descs:[], locations: [] };
-            for (var i in $rootScope.modelLanguages) {
-                $scope.editArea.descs.push({ lang: $rootScope.modelLanguages[i], name: '' });
-            }
+            $scope.editArea = LangService.checkDescs({ locations: [] }, ensureNameField);
             if ($scope.area) {
                 $scope.editArea.parentId = $scope.area.id;
             }
@@ -139,14 +140,21 @@ angular.module('msinm.admin')
         };
 
         $scope.selectArea = function (area) {
-            // We do not want to copy the entire childarea-tree
-            $scope.action = "edit";
-            $scope.area = area;
-            $scope.editArea = angular.copy($scope.area);
-            $scope.areaForm.$setPristine()
-            if(!$scope.$$phase) {
-                $scope.$apply();
-            }
+            AreaService.getArea(
+                area,
+                function(data) {
+                    $scope.action = "edit";
+                    $scope.area = LangService.checkDescs(data, ensureNameField);
+                    $scope.editArea = angular.copy($scope.area);
+                    $scope.areaForm.$setPristine()
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                },
+                function (data) {
+                    console.log("Error fetching area");
+                }
+            )
         };
 
         $scope.moveArea = function (area, parent) {

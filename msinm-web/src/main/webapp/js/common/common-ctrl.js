@@ -24,14 +24,12 @@ angular.module('msinm.common')
     /**
      * Language Controller
      */
-    .controller('LangCtrl', ['$rootScope', '$scope', '$window', '$translate',
-        function ($rootScope, $scope, $window, $translate) {
+    .controller('LangCtrl', ['$scope', 'LangService',
+        function ($scope, LangService) {
         'use strict';
 
         $scope.changeLanguage = function(lang) {
-            $translate.use(lang);
-            $rootScope.language = lang;
-            $window.localStorage.lang = lang;
+            LangService.changeLanguage(lang);
         }
 
     }]);

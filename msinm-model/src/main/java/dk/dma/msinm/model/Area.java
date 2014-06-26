@@ -17,7 +17,9 @@ import java.util.List;
 @Entity
 @NamedQueries({
         @NamedQuery(name  = "Area.findRootAreas",
-                    query = "select distinct a from Area a left join fetch a.childAreas where a.parentArea is null")
+                query = "select distinct a from Area a left join fetch a.childAreas where a.parentArea is null"),
+        @NamedQuery(name  = "Area.findAreasWithDescs",
+                query = "select distinct a from Area a left join fetch a.descs")
 })
 public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc> {
 

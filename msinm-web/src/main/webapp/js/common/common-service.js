@@ -7,7 +7,9 @@ angular.module('msinm.common')
  * The modalService is very much inspired by (even copied from):
  * http://weblogs.asp.net/dwahlin/building-an-angularjs-modal-service
  */
-.service('DialogService', ['$modal', function ($modal) {
+.service('DialogService', ['$modal',
+        function ($modal) {
+        'use strict';
 
         var modalDefaults = {
             backdrop: true,
@@ -61,4 +63,79 @@ angular.module('msinm.common')
             return $modal.open(tempModalDefaults).result;
         };
 
+    }])
+
+/**
+ * The language service is used for changing language, etc.
+ */
+.service('LangService', ['$rootScope', '$window', '$translate',
+        function ($rootScope, $window, $translate) {
+        'use strict';
+
+        this.changeLanguage = function(lang) {
+            $translate.use(lang);
+            $rootScope.language = lang;
+            $window.localStorage.lang = lang;
+        };
+
+        // look for a description entity with the given language
+        this.descForLanguage = function(elm, lang) {
+            if (elm && elm.descs) {
+                for (var d in elm.descs) {
+                    if (elm.descs[d].lang == lang) {
+                        return elm.descs[d];
+                    }
+                }
+            }
+        };
+
+        // Ensures that elm.descs contain a description entity for each supported language
+        // The initFunc will be called for newly added description entities and should be used
+        // to initialize the fields to include, e.g. "description" or "name",...
+        // Optionally, an oldElm can be specified, from which the description entity will be picked
+        // if present
+        this.checkDescs = function (elm, initFunc, oldElm) {
+            if (!elm.descs) {
+                elm.descs = [];
+            }
+            for (var l in $rootScope.modelLanguages) {
+                var lang = $rootScope.modelLanguages[l];
+                var desc = this.descForLanguage(elm, lang);
+                if (!desc && oldElm) {
+                    desc = this.descForLanguage(oldElm, lang);
+                    if (desc) {
+                        elm.descs.push(desc);
+                    }
+                }
+                if (!desc) {
+                    desc = { 'lang': lang };
+                    initFunc(desc);
+                    elm.descs.push(desc);
+                }
+            }
+            // Lastly, sort by language
+            this.sortDescs(elm);
+            return elm;
+        };
+
+        // Computes a sort value by comparing the desc language to the
+        // current language or else the index in the list of available languages.
+        function sortValue(desc) {
+            if (!desc.lang){
+                return 1000;
+            } else if (desc.lang == $rootScope.language) {
+                return -1;
+            }
+            var index = $.inArray(desc, $rootScope.languages);
+            return (index == -1) ? 999 : index;
+        }
+
+        // Sort the localized description entities by language
+        this.sortDescs = function (elm) {
+            if (elm && elm.descs) {
+                elm.descs.sort(function(d1, d2){
+                    return sortValue(d1) - sortValue(d2);
+                });
+            }
+        }
     }]);
