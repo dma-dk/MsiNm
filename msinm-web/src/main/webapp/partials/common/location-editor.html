@@ -73,7 +73,7 @@
                     <td><input latitude type="text" ng-model="pt.lat"  placeholder="Latitude" required></td>
                     <td><input longitude type="text" ng-model="pt.lon" placeholder="Longitude" required></td>
                     <td align="right">
-                        <a ng-click="deletePoint(pt)" ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'"><i class="glyphicon glyphicon-minus-sign"></i></a>
+                        <a ng-click="deletePoint(loc, pt)" ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'"><i class="glyphicon glyphicon-minus-sign"></i></a>
                         <a ng-click="toggleShowDesc(pt)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
@@ -89,17 +89,17 @@
                 <!-- New point -->
                 <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'">
                     <td>Pt:</td>
-                    <td><input latitude type="text" ng-model="newPt.lat" placeholder="Latitude"></td>
-                    <td><input longitude type="text" ng-model="newPt.lon" placeholder="Longitude"></td>
+                    <td><input latitude type="text" ng-model="loc.newPt.lat" placeholder="Latitude"></td>
+                    <td><input longitude type="text" ng-model="loc.newPt.lon" placeholder="Longitude"></td>
                     <td align="right">
-                        <a ng-click="addPoint()"><i class="glyphicon glyphicon-plus-sign"></i></a>
-                        <a ng-click="toggleShowDesc(newPt)"><i class="glyphicon glyphicon-info-sign"></i></a>
+                        <a ng-click="addPoint(loc, loc.newPt)"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                        <a ng-click="toggleShowDesc(loc.newPt)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
-                <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'" ng-show="newPt.showDesc">
+                <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'" ng-show="loc.newPt.showDesc">
                     <td></td>
                     <td colspan="3">
-                        <div ng-repeat="desc in newPt.descs">
+                        <div ng-repeat="desc in loc.newPt.descs">
                             <textarea ng-model="desc.description" lang-flag="desc.lang" placeholder="Point description" rows="2"></textarea>
                         </div>
                     </td>
