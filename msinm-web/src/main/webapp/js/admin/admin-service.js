@@ -57,6 +57,38 @@ angular.module('msinm.admin')
         };
     }])
 
+
+    .factory('ChartService', [ '$http', function($http) {
+        'use strict';
+
+        return {
+            getCharts: function(success, error) {
+                $http.get('/rest/admin/charts/all')
+                    .success(success)
+                    .error(error);
+            },
+
+            createChart: function(chart, success, error) {
+                $http.post('/rest/admin/charts/chart', chart)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateChart: function(chart, success, error) {
+                $http.put('/rest/admin/charts/chart', chart)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteChart: function(chart, success, error) {
+                $http.delete('/rest/admin/charts/chart/' + chart.id)
+                    .success(success)
+                    .error(error);
+            }
+        };
+    }])
+
+
     .factory('AreaService', [ '$http', '$rootScope', function($http, $rootScope) {
         'use strict';
 
@@ -100,32 +132,45 @@ angular.module('msinm.admin')
     }])
 
 
-    .factory('ChartService', [ '$http', function($http) {
+    .factory('CategoryService', [ '$http', '$rootScope', function($http, $rootScope) {
         'use strict';
 
         return {
-            getCharts: function(success, error) {
-                $http.get('/rest/admin/charts/all')
+            getCategories: function(success, error) {
+                $http.get('/rest/admin/categories/category-roots?lang=' + $rootScope.language)
                     .success(success)
                     .error(error);
             },
 
-            createChart: function(chart, success, error) {
-                $http.post('/rest/admin/charts/chart', chart)
+            getCategory: function(category, success, error) {
+                $http.get('/rest/admin/categories/category/' + category.id)
                     .success(success)
                     .error(error);
             },
 
-            updateChart: function(chart, success, error) {
-                $http.put('/rest/admin/charts/chart', chart)
+            createCategory: function(category, success, error) {
+                $http.post('/rest/admin/categories/category', category)
                     .success(success)
                     .error(error);
             },
 
-            deleteChart: function(chart, success, error) {
-                $http.delete('/rest/admin/charts/chart/' + chart.id)
+            updateCategory: function(category, success, error) {
+                $http.put('/rest/admin/categories/category', category)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteCategory: function(category, success, error) {
+                $http.delete('/rest/admin/categories/category/' + category.id)
+                    .success(success)
+                    .error(error);
+            },
+
+            moveCategory: function(categoryId, parentId, success, error) {
+                $http.put('/rest/admin/categories/move-category', { categoryId: categoryId, parentId: parentId })
                     .success(success)
                     .error(error);
             }
         };
     }]);
+

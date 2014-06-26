@@ -117,8 +117,6 @@ angular.module('msinm.admin')
         $scope.loadAreas = function() {
             AreaService.getAreas(
                 function (data) {
-                    //while($scope.areas.length > 0) $scope.areas.pop();
-                    //for (var i in data) $scope.areas.push(data[i]);
                     $scope.areas = data;
 
                     $scope.area = undefined;
@@ -375,6 +373,128 @@ angular.module('msinm.admin')
                         chart,
                         function (data) {
                             $scope.loadCharts();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
+        }
+
+    }])
+
+    /**
+     * Category Controller
+     */
+    .controller('CategoryCtrl', ['$scope', 'LangService', 'CategoryService', 'DialogService',
+        function ($scope, LangService, CategoryService, DialogService) {
+        'use strict';
+
+        $scope.categories = [];
+        $scope.category = undefined;
+        $scope.editCategory = undefined;
+        $scope.action = "edit";
+
+        // Used to ensure that description entities have a "name" field
+        function ensureNameField(desc) {
+            desc.name = '';
+        }
+
+        $scope.loadCategories = function() {
+            CategoryService.getCategories(
+                function (data) {
+                    $scope.categories = data;
+
+                    $scope.category = undefined;
+                    $scope.editCategory = undefined;
+                    $scope.categoryForm.$setPristine()
+                },
+                function () {
+                    console.log("Error fetching categories");
+                });
+        };
+
+        $scope.newCategory = function() {
+            $scope.action = "add";
+            $scope.editCategory = LangService.checkDescs({ }, ensureNameField);
+            if ($scope.category) {
+                $scope.editCategory.parentId = $scope.category.id;
+            }
+            $scope.categoryForm.$setPristine()
+        };
+
+        $scope.selectCategory = function (category) {
+            CategoryService.getCategory(
+                category,
+                function(data) {
+                    $scope.action = "edit";
+                    $scope.category = LangService.checkDescs(data, ensureNameField);
+                    $scope.editCategory = angular.copy($scope.category);
+                    $scope.categoryForm.$setPristine()
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                },
+                function (data) {
+                    console.log("Error fetching category");
+                }
+            )
+        };
+
+        $scope.moveCategory = function (category, parent) {
+
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                "Move Category?", "Move " + category.descs[0].name + " to " + ((parent) ? parent.descs[0].name : "the root") + "?")
+                .then(function() {
+                    CategoryService.moveCategory(
+                        category.id,
+                        (parent) ? parent.id : undefined,
+                        function (data) {
+                            $scope.loadCategories();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
+        };
+
+        $scope.saveCategory = function () {
+            if ($scope.action == 'add') {
+                CategoryService.createCategory(
+                    $scope.editCategory,
+                    function (data) {
+                        $scope.loadCategories();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+
+            } else {
+                CategoryService.updateCategory(
+                    $scope.editCategory,
+                    function (data) {
+                        $scope.loadCategories();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+            }
+        };
+
+        $scope.deleteCategory = function () {
+
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                "Delete Category?", "Delete category " + $scope.category.descs[0].name + "?")
+                .then(function() {
+                    CategoryService.deleteCategory(
+                        $scope.editCategory,
+                        function (data) {
+                            $scope.loadCategories();
                         },
                         function (data) {
                             console.error("ERROR " + data);
