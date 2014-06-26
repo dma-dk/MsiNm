@@ -19,7 +19,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     Integer id;
     Integer parentId;
     List<LocationVo> locations = new ArrayList<>();
-    List<AreaVo> childAreas = new ArrayList<>();
+    List<AreaVo> children = new ArrayList<>();
 
     /**
      * Constructor
@@ -30,16 +30,16 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     /**
      * Constructor
      * @param area the area
-     * @param includeChildAreas whether to include child areas or not
+     * @param includeChildren whether to include child areas or not
      */
-    public AreaVo(Area area, boolean includeChildAreas) {
+    public AreaVo(Area area, boolean includeChildren) {
         super(area);
 
         id = area.getId();
         area.getLocations().forEach(loc -> locations.add(new LocationVo(loc)));
         area.getDescs().forEach(desc -> getDescs().add(new AreaDescVo(desc)));
-        if (includeChildAreas) {
-            area.getChildAreas().forEach(childArea -> childAreas.add(new AreaVo(childArea)));
+        if (includeChildren) {
+            area.getChildren().forEach(child -> children.add(new AreaVo(child)));
         }
     }
 
@@ -63,7 +63,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         super(area);
 
         id = area.getId();
-        parentId = (area.getParentArea() == null) ? null : area.getParentArea().getId();
+        parentId = (area.getParent() == null) ? null : area.getParent().getId();
         area.getDescs().stream()
             .filter(desc -> desc.getLang().equals(lang))
             .forEach(desc -> getDescs().add(new AreaDescVo(desc)));
@@ -111,12 +111,12 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         this.locations = locations;
     }
 
-    public List<AreaVo> getChildAreas() {
-        return childAreas;
+    public List<AreaVo> getChildren() {
+        return children;
     }
 
-    public void setChildAreas(List<AreaVo> childAreas) {
-        this.childAreas = childAreas;
+    public void setChildren(List<AreaVo> children) {
+        this.children = children;
     }
 
     /**

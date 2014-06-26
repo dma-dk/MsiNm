@@ -17,7 +17,7 @@ import java.util.List;
 public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescVo> {
     Integer id;
     Integer parentId;
-    List<CategoryVo> childCategories = new ArrayList<>();
+    List<CategoryVo> children = new ArrayList<>();
 
     /**
      * Constructor
@@ -28,15 +28,15 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
     /**
      * Constructor
      * @param category the category
-     * @param includeChildCategories whether to include child categories or not
+     * @param includeChildren whether to include child categories or not
      */
-    public CategoryVo(Category category, boolean includeChildCategories) {
+    public CategoryVo(Category category, boolean includeChildren) {
         super(category);
 
         id = category.getId();
         category.getDescs().forEach(desc -> getDescs().add(new CategoryDescVo(desc)));
-        if (includeChildCategories) {
-            category.getChildCategories().forEach(childCategory -> childCategories.add(new CategoryVo(childCategory)));
+        if (includeChildren) {
+            category.getChildren().forEach(child -> children.add(new CategoryVo(child)));
         }
     }
 
@@ -60,7 +60,7 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
         super(category);
 
         id = category.getId();
-        parentId = (category.getParentCategory() == null) ? null : category.getParentCategory().getId();
+        parentId = (category.getParent() == null) ? null : category.getParent().getId();
         category.getDescs().stream()
                 .filter(desc -> desc.getLang().equals(lang))
                 .forEach(desc -> getDescs().add(new CategoryDescVo(desc)));
@@ -96,12 +96,12 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
         this.parentId = parentId;
     }
 
-    public List<CategoryVo> getChildCategories() {
-        return childCategories;
+    public List<CategoryVo> getChildren() {
+        return children;
     }
 
-    public void setChildCategories(List<CategoryVo> childCategories) {
-        this.childCategories = childCategories;
+    public void setChildren(List<CategoryVo> children) {
+        this.children = children;
     }
 
     /**

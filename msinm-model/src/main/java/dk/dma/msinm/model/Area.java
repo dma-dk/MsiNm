@@ -2,11 +2,7 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.ILocalizable;
 import dk.dma.msinm.common.model.VersionedEntity;
-import org.apache.commons.lang.StringUtils;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,17 +13,17 @@ import java.util.List;
 @Entity
 @NamedQueries({
         @NamedQuery(name  = "Area.findRootAreas",
-                query = "select distinct a from Area a left join fetch a.childAreas where a.parentArea is null"),
+                query = "select distinct a from Area a left join fetch a.children where a.parent is null"),
         @NamedQuery(name  = "Area.findAreasWithDescs",
                 query = "select distinct a from Area a left join fetch a.descs")
 })
 public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc> {
 
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    private Area parentArea;
+    private Area parent;
 
-    @OneToMany(mappedBy = "parentArea", cascade = CascadeType.ALL)
-    private List<Area> childAreas = new ArrayList<>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<Area> children = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Location> locations = new ArrayList<>();
@@ -62,9 +58,9 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
      *
      * @param area the area to add
      */
-    public void addChildArea(Area area) {
-        childAreas.add(area);
-        area.setParentArea(this);
+    public void addChild(Area area) {
+        children.add(area);
+        area.setParent(this);
     }
 
     /**
@@ -74,41 +70,23 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
      */
     @Transient
     public boolean isRootArea() {
-        return parentArea == null;
+        return parent == null;
     }
 
-    /**
-     * Creates a Json representation of this entity
-     * @return the Json representation
-     */
-    public JsonObjectBuilder toJson() {
-        JsonArrayBuilder childAreasJson = Json.createArrayBuilder();
-        childAreas.forEach(area -> childAreasJson.add(area.toJson()));
-        JsonArrayBuilder locationsJson = Json.createArrayBuilder();
-        locations.forEach(l -> locationsJson.add(l.toJson()));
-
-        return Json.createObjectBuilder()
-                .add("id", getId())
-                .add("nameEnglish", StringUtils.defaultString(getOrCreateDesc("en").getName()))
-                .add("nameLocal", StringUtils.defaultString(getOrCreateDesc("da").getName()))
-                .add("childAreas", childAreasJson)
-                .add("locations", locationsJson);
+    public Area getParent() {
+        return parent;
     }
 
-    public Area getParentArea() {
-        return parentArea;
+    public void setParent(Area parent) {
+        this.parent = parent;
     }
 
-    public void setParentArea(Area parentArea) {
-        this.parentArea = parentArea;
+    public List<Area> getChildren() {
+        return children;
     }
 
-    public List<Area> getChildAreas() {
-        return childAreas;
-    }
-
-    public void setChildAreas(List<Area> childAreas) {
-        this.childAreas = childAreas;
+    public void setChildren(List<Area> children) {
+        this.children = children;
     }
 
     public List<Location> getLocations() {

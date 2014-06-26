@@ -55,7 +55,7 @@ public class AreaService extends BaseService {
         // Add non-roots as child areas to their parent area
         areaLookup.values().stream()
                 .filter(areaVo -> areaVo.getParentId() != null)
-                .forEach(areaVo -> areaLookup.get(areaVo.getParentId()).getChildAreas().add(areaVo));
+                .forEach(areaVo -> areaLookup.get(areaVo.getParentId()).getChildren().add(areaVo));
 
         // Return roots
         return areaLookup.values().stream()
@@ -108,8 +108,8 @@ public class AreaService extends BaseService {
 
         if (parentId != null) {
             Area parent = getByPrimaryKey(Area.class, parentId);
-            parent.getChildAreas().add(area);
-            area.setParentArea(parent);
+            parent.getChildren().add(area);
+            area.setParent(parent);
         }
 
         return saveEntity(area);
@@ -124,16 +124,16 @@ public class AreaService extends BaseService {
     public Area moveArea(Integer areaId, Integer parentId) {
         Area area = getByPrimaryKey(Area.class, areaId);
 
-        if (area.getParentArea() != null && !area.getParentArea().getId().equals(parentId)) {
-            area.getParentArea().getChildAreas().remove(area);
+        if (area.getParent() != null && !area.getParent().getId().equals(parentId)) {
+            area.getParent().getChildren().remove(area);
         }
 
         if (parentId == null) {
-            area.setParentArea(null);
+            area.setParent(null);
         } else {
             Area parent = getByPrimaryKey(Area.class, parentId);
-            area.setParentArea(parent);
-            parent.getChildAreas().add(area);
+            area.setParent(parent);
+            parent.getChildren().add(area);
         }
 
         return saveEntity(area);
@@ -147,7 +147,7 @@ public class AreaService extends BaseService {
 
         Area area = getByPrimaryKey(Area.class, areaId);
         if (area != null) {
-            area.setParentArea(null);
+            area.setParent(null);
             saveEntity(area);
             remove(area);
             return true;

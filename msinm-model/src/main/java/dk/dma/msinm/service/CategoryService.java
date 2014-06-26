@@ -55,7 +55,7 @@ public class CategoryService extends BaseService {
         // Add non-roots as child categories to their parent category
         categoryLookup.values().stream()
                 .filter(categoryVo -> categoryVo.getParentId() != null)
-                .forEach(categoryVo -> categoryLookup.get(categoryVo.getParentId()).getChildCategories().add(categoryVo));
+                .forEach(categoryVo -> categoryLookup.get(categoryVo.getParentId()).getChildren().add(categoryVo));
 
         // Return roots
         return categoryLookup.values().stream()
@@ -104,8 +104,8 @@ public class CategoryService extends BaseService {
 
         if (parentId != null) {
             Category parent = getByPrimaryKey(Category.class, parentId);
-            parent.getChildCategories().add(category);
-            category.setParentCategory(parent);
+            parent.getChildren().add(category);
+            category.setParent(parent);
         }
 
         return saveEntity(category);
@@ -120,16 +120,16 @@ public class CategoryService extends BaseService {
     public Category moveCategory(Integer categoryId, Integer parentId) {
         Category category = getByPrimaryKey(Category.class, categoryId);
 
-        if (category.getParentCategory() != null && !category.getParentCategory().getId().equals(parentId)) {
-            category.getParentCategory().getChildCategories().remove(category);
+        if (category.getParent() != null && !category.getParent().getId().equals(parentId)) {
+            category.getParent().getChildren().remove(category);
         }
 
         if (parentId == null) {
-            category.setParentCategory(null);
+            category.setParent(null);
         } else {
             Category parent = getByPrimaryKey(Category.class, parentId);
-            category.setParentCategory(parent);
-            parent.getChildCategories().add(category);
+            category.setParent(parent);
+            parent.getChildren().add(category);
         }
 
         return saveEntity(category);
@@ -143,7 +143,7 @@ public class CategoryService extends BaseService {
 
         Category category = getByPrimaryKey(Category.class, categoryId);
         if (category != null) {
-            category.setParentCategory(null);
+            category.setParent(null);
             saveEntity(category);
             remove(category);
             return true;

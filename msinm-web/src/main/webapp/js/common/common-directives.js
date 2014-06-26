@@ -321,8 +321,8 @@ angular.module('msinm.common')
                         var area = areas[i];
                         var node = { key: area.id, title: area.descs[0].name, folder: true, children: [], level: level, area: area };
                         treeData.push(node);
-                        if (area.childAreas && area.childAreas.length > 0) {
-                            toTreeData(area.childAreas, node.children, level + 1);
+                        if (area.children && area.children.length > 0) {
+                            toTreeData(area.children, node.children, level + 1);
                         }
                     }
                 }
