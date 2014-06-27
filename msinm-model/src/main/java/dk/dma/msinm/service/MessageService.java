@@ -17,7 +17,7 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.model.*;
+import dk.dma.msinm.model.Message;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
@@ -48,23 +48,13 @@ public class MessageService extends BaseService {
     private String selectActiveSql;
 
     /**
-     * Creates or updates a NavwarnMessage
-     * @param navwarnMessage the message to create or update
+     * Creates or updates a Message
+     * @param message the message to create or update
      * @return the persisted message
      */
-    public NavwarnMessage create(NavwarnMessage navwarnMessage) {
-        log.info("Creating navwarn message");
-        return saveEntity(navwarnMessage);
-    }
-
-    /**
-     * Creates or updates a NoticeMessage
-     * @param noticeMessage the message to create or update
-     * @return the persisted message
-     */
-    public NoticeMessage create(NoticeMessage noticeMessage) {
-        log.info("Creating notice message");
-        return saveEntity(noticeMessage);
+    public Message create(Message message) {
+        log.info("Creating message " + message);
+        return saveEntity(message);
     }
 
     /**
@@ -143,18 +133,7 @@ public class MessageService extends BaseService {
         if (message == null) {
             message = findById(id);
             if (message != null) {
-                // TODO - complete and clean-up
-                if (message instanceof NavwarnMessage) {
-                    // Preload the data before detaching
-                    NavwarnMessage msg = (NavwarnMessage)message;
-                    msg.getSeriesIdentifier();
-                    for (MessageItem item : msg.getMessageItems()) {
-                        for (Location loc : item.getLocations()) {
-                            for (Point point : loc.getPoints()) {
-                            }
-                        }
-                    }
-                }
+                message.preload();
                 em.detach(message);
                 messageCache.getCache().put(id, message);
             }

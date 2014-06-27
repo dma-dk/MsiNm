@@ -16,7 +16,7 @@
 package dk.dma.msinm.legacy.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
-import dk.dma.msinm.model.NavwarnMessage;
+import dk.dma.msinm.model.Message;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -44,7 +44,7 @@ public class LegacyMessage extends BaseEntity<Integer> {
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
-    private NavwarnMessage navwarnMessage;
+    private Message message;
 
     /**
      * Constructor
@@ -78,11 +78,11 @@ public class LegacyMessage extends BaseEntity<Integer> {
         this.version = version;
     }
 
-    public NavwarnMessage getNavwarnMessage() {
-        return navwarnMessage;
+    public Message getMessage() {
+        return message;
     }
 
-    public void setNavwarnMessage(NavwarnMessage navwarnMessage) {
-        this.navwarnMessage = navwarnMessage;
+    public void setMessage(Message message) {
+        this.message = message;
     }
 }

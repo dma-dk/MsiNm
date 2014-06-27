@@ -5,7 +5,6 @@ import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.common.util.GraphicsUtils;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.NavwarnMessage;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.MessageService;
 import org.slf4j.Logger;
@@ -211,8 +210,7 @@ public class MapImageServlet extends HttpServlet  {
     public List<Location> getMessageLocations(Message message) {
         List<Location> result = new ArrayList<>();
         if (message != null) {
-            NavwarnMessage msg = (NavwarnMessage)message;
-            result.addAll(msg.getMessageItems().get(0).getLocations()
+            result.addAll(message.getLocations()
                     .stream()
                     .filter(location -> location.getPoints().size() > 0)
                     .collect(Collectors.toList()));

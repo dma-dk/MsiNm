@@ -15,18 +15,19 @@
  */
 package dk.dma.msinm.model;
 
+import dk.dma.msinm.common.model.ILocalizable;
+import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
 import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Abstract base class for MSI-NM messages
@@ -40,39 +41,60 @@ import java.util.List;
     @NamedQuery(name="Message.findUpdateMessages",
                 query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
     @NamedQuery(name="Message.findActive",
-                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.issueDate asc")
+                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.validFrom asc")
 })
-public abstract class Message extends VersionedEntity<Integer> {
+public class Message extends VersionedEntity<Integer> implements ILocalizable<MessageDesc>, IPreloadable {
 
     private static final long serialVersionUID = 1L;
+
     public static final Sequence MESSAGE_SEQUENCE = new DefaultSequence("msinm-message-id", 1);
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
-    private MessageSeriesIdentifier seriesIdentifier;
+    MessageSeriesIdentifier seriesIdentifier;
 
     @NotNull
     @Enumerated(EnumType.STRING)
     MessageStatus status;
 
-    @NotNull
-    private String generalArea;
-    
-    @NotNull
-    private String locality;
-    
-    @ElementCollection
-    private List<String> specificLocations = new ArrayList<>();
-    
-    @ElementCollection
-    private List<String> chartNumbers = new ArrayList<>();
-    
-    @ElementCollection
-    private List<Integer> intChartNumbers = new ArrayList<>();
-    
+    @ManyToOne
+    Area area;
+
+    @ManyToMany
+    List<Category> categories = new ArrayList<>();
+
+    @ManyToMany
+    List<Chart> charts = new ArrayList<>();
+
+    String horizontalDatum;
+
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
-    private Date issueDate;
+    Date validFrom;
+
+    @Temporal(TemporalType.TIMESTAMP)
+    Date validTo;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    List<Location> locations = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    List<MessageDesc> descs = new ArrayList<>();
+
+    @Temporal(TemporalType.TIMESTAMP)
+    Date cancellationDate;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    Set<MessageSeriesIdentifier> cancellations = new HashSet<>();
+
+    @NotNull
+    Priority priority = Priority.NONE;
+
+    @ElementCollection
+    List<String> lightsListNumbers = new ArrayList<>();
+
+    boolean originalInformation;
+
 
     /**
      * Constructor
@@ -81,34 +103,37 @@ public abstract class Message extends VersionedEntity<Integer> {
     }
 
     /**
-     * Creates a Json representation of this entity
-     * @return the Json representation
+     * {@inheritDoc}
      */
-    public JsonObjectBuilder toJson() {
-        JsonArrayBuilder specificLocationsJson = Json.createArrayBuilder();
-        specificLocations.forEach(specificLocationsJson::add);
-        JsonArrayBuilder chartNumbersJson = Json.createArrayBuilder();
-        chartNumbers.forEach(chartNumbersJson::add);
-        JsonArrayBuilder intChartNumbersJson = Json.createArrayBuilder();
-        intChartNumbers.forEach(intChartNumbersJson::add);
+    @Override
+    public MessageDesc createDesc(String lang) {
+        MessageDesc desc = new MessageDesc();
+        desc.setLang(lang);
+        desc.setEntity(this);
+        getDescs().add(desc);
+        return desc;
+    }
 
-        return Json.createObjectBuilder()
-                .add("id", getId())
-                .add("seriesIdentifier", getSeriesIdentifier().toJson())
-                .add("generalArea", generalArea)
-                .add("locality", locality)
-                .add("specificLocations", specificLocationsJson)
-                .add("chartNumbers", chartNumbersJson)
-                .add("intChartNumbers", intChartNumbersJson)
-                .add("issueDate", issueDate.getTime());
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void preload() {
+        getSeriesIdentifier();
+        getLocations().forEach(Location::preload);
+        getDescs().forEach(desc -> {});
+        getCategories().forEach(cat -> {});
+        getCharts().forEach(chart -> {});
+        getArea();
+        getCancellations().forEach(id -> {});
     }
 
     /******** Getters and setters *********/
-    
+
     public MessageSeriesIdentifier getSeriesIdentifier() {
         return seriesIdentifier;
     }
-    
+
     public void setSeriesIdentifier(MessageSeriesIdentifier seriesIdentifier) {
         this.seriesIdentifier = seriesIdentifier;
     }
@@ -121,52 +146,110 @@ public abstract class Message extends VersionedEntity<Integer> {
         this.status = status;
     }
 
-    public String getGeneralArea() {
-        return generalArea;
+    public Area getArea() {
+        return area;
     }
 
-    public void setGeneralArea(String generalArea) {
-        this.generalArea = generalArea;
-    }
-    
-    public String getLocality() {
-        return locality;
-    }
-    
-    public void setLocality(String locality) {
-        this.locality = locality;
+    public void setArea(Area area) {
+        this.area = area;
     }
 
-    public List<String> getSpecificLocations() {
-        return specificLocations;
+    public List<Category> getCategories() {
+        return categories;
     }
-    
-    public void setSpecificLocations(List<String> specificLocations) {
-        this.specificLocations = specificLocations;
+
+    public void setCategories(List<Category> categories) {
+        this.categories = categories;
     }
-    
-    public List<String> getChartNumbers() {
-        return chartNumbers;
+
+    public List<Chart> getCharts() {
+        return charts;
     }
-    
-    public void setChartNumbers(List<String> chartNumbers) {
-        this.chartNumbers = chartNumbers;
+
+    public void setCharts(List<Chart> charts) {
+        this.charts = charts;
     }
-    
-    public List<Integer> getIntChartNumbers() {
-        return intChartNumbers;
+
+    public String getHorizontalDatum() {
+        return horizontalDatum;
     }
-    
-    public void setIntChartNumbers(List<Integer> intChartNumbers) {
-        this.intChartNumbers = intChartNumbers;
+
+    public void setHorizontalDatum(String horizontalDatum) {
+        this.horizontalDatum = horizontalDatum;
     }
-    
-    public Date getIssueDate() {
-        return issueDate;
+
+    public Date getValidFrom() {
+        return validFrom;
     }
-    
-    public void setIssueDate(Date issueDate) {
-        this.issueDate = issueDate;
+
+    public void setValidFrom(Date validFrom) {
+        this.validFrom = validFrom;
     }
-    
+
+    public Date getValidTo() {
+        return validTo;
+    }
+
+    public void setValidTo(Date validTo) {
+        this.validTo = validTo;
+    }
+
+    public List<Location> getLocations() {
+        return locations;
+    }
+
+    public void setLocations(List<Location> locations) {
+        this.locations = locations;
+    }
+
+    public Date getCancellationDate() {
+        return cancellationDate;
+    }
+
+    public void setCancellationDate(Date cancellationDate) {
+        this.cancellationDate = cancellationDate;
+    }
+
+    public Set<MessageSeriesIdentifier> getCancellations() {
+        return cancellations;
+    }
+
+    public void setCancellations(Set<MessageSeriesIdentifier> cancellations) {
+        this.cancellations = cancellations;
+    }
+
+    public Priority getPriority() {
+        return priority;
+    }
+
+    public void setPriority(Priority priority) {
+        this.priority = priority;
+    }
+
+    public List<String> getLightsListNumbers() {
+        return lightsListNumbers;
+    }
+
+    public void setLightsListNumbers(List<String> lightsListNumbers) {
+        this.lightsListNumbers = lightsListNumbers;
+    }
+
+    public boolean isOriginalInformation() {
+        return originalInformation;
+    }
+
+    public void setOriginalInformation(boolean originalInformation) {
+        this.originalInformation = originalInformation;
+    }
+
+    @Override
+    public List<MessageDesc> getDescs() {
+        return descs;
+    }
+
+    @Override
+    public void setDescs(List<MessageDesc> descs) {
+        this.descs = descs;
+    }
+
 }

@@ -17,6 +17,7 @@ package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.common.model.ILocalizable;
+import dk.dma.msinm.common.model.IPreloadable;
 
 import javax.json.Json;
 import javax.json.JsonObjectBuilder;
@@ -29,7 +30,7 @@ import java.util.List;
  * Defines a position by its latitude, longitude and order
  */
 @Entity
-public class Point extends BaseEntity<Integer> implements ILocalizable<PointDesc> {
+public class Point extends BaseEntity<Integer> implements ILocalizable<PointDesc>, IPreloadable {
 
     private static final long serialVersionUID = 1L;
 
@@ -152,5 +153,13 @@ public class Point extends BaseEntity<Integer> implements ILocalizable<PointDesc
         desc.setEntity(this);
         getDescs().add(desc);
         return desc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void preload() {
+        descs.forEach(desc -> {});
     }
 }

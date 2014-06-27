@@ -15,10 +15,12 @@
  */
 package dk.dma.msinm.legacy.service;
 
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.legacy.model.LegacyMessage;
 import dk.dma.msinm.model.*;
+import dk.dma.msinm.service.AreaService;
 import dk.frv.msiedit.core.webservice.message.MsiDto;
 import dk.frv.msiedit.core.webservice.message.PointDto;
 import org.apache.commons.lang.StringUtils;
@@ -28,6 +30,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.Calendar;
 
 /**
@@ -41,6 +44,12 @@ public class LegacyMessageService extends BaseService {
 
     @Inject
     Sequences sequences;
+
+    @Inject
+    MsiNmApp app;
+
+    @Inject
+    AreaService areaService;
 
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public LegacyMessage saveLegacyMessage(LegacyMessage legacyMessage) {
@@ -83,16 +92,16 @@ public class LegacyMessageService extends BaseService {
             legacyMessage.setNavtexNo(msi.getNavtexNo());
             legacyMessage.setVersion(msi.getVersion());
 
-            NavwarnMessage message = new NavwarnMessage();
+            Message message = new Message();
             message.setStatus(MessageStatus.ACTIVE);
-            legacyMessage.setNavwarnMessage(message);
+            legacyMessage.setMessage(message);
         } else if (legacyMessage.getVersion() >= msi.getVersion()) {
             // No further updates...
             return false;
         }
 
         // Update the message from the legacy MSI warning
-        updateMessage(msi, legacyMessage.getNavwarnMessage());
+        updateMessage(msi, legacyMessage.getMessage());
 
         // Save the new entity
         try {
@@ -111,7 +120,7 @@ public class LegacyMessageService extends BaseService {
      * @param msi the legacy warning
      * @param message the message
      */
-    private void updateMessage(MsiDto msi, NavwarnMessage message) {
+    private void updateMessage(MsiDto msi, Message message) {
         // Message series identifier
         MessageSeriesIdentifier identifier = message.getSeriesIdentifier();
         if (identifier == null) {
@@ -123,36 +132,50 @@ public class LegacyMessageService extends BaseService {
             identifier.setType(MessageType.NAVAREA_WARNING);
         }
 
-        // Message
-        message.setGeneralArea(msi.getAreaEnglish());
-        message.setLocality(msi.getSubarea());
-        message.setIssueDate(msi.getValidFrom().toGregorianCalendar().getTime());
+        // Area
+        Area area = null;
+        if (StringUtils.isNotBlank(msi.getAreaEnglish())) {
+            area = areaService.findByName(msi.getAreaEnglish(), "en", null);
+            if (area == null) {
+                area = new Area();
+                area.createDesc("en").setName(msi.getAreaEnglish());
+                area.createDesc("da").setName(msi.getAreaEnglish());
+                area = areaService.createArea(area, null);
+            }
+        }
+        if (StringUtils.isNotBlank(msi.getSubarea())) {
+            Integer parentId = (area == null) ? null : area.getId();
+            area = areaService.findByName(msi.getAreaEnglish(), "en", parentId);
+            if (area == null) {
+                area = new Area();
+                area.createDesc("en").setName(msi.getSubarea());
+                area.createDesc("da").setName(msi.getSubarea());
+                area = areaService.createArea(area, parentId);
+            }
+        }
+        message.setArea(area);
 
-        // NavwarnMessage
+        // Dates
+        message.setValidFrom(msi.getValidFrom().toGregorianCalendar().getTime());
+        if (msi.getValidTo() != null) {
+            message.setValidFrom(msi.getValidFrom().toGregorianCalendar().getTime());
+        }
+
         if (msi.getDeleted() != null) {
             message.setCancellationDate(msi.getDeleted().toGregorianCalendar().getTime());
         } else {
             message.setCancellationDate(null);
         }
 
-        // MessageItem 's
-        MessageItem item1;
-        if (message.getMessageItems().size() == 0) {
-            item1 = new MessageItem();
-            message.getMessageItems().add(item1);
+        // Localized contents - updated da = en
+        Arrays.asList(app.getLanguages()).forEach(lang -> message.createDesc(lang));
+        message.getDescs().forEach(desc -> {
+            desc.setOtherCategories(StringUtils.defaultString(msi.getEncText()));
+            desc.setTitle(msi.getNavWarning());
+            desc.setDescription(msi.getEncText());
+        });
 
-            MessageCategory cat1 = new MessageCategory();
-            cat1.setGeneralCategory(GeneralCategory.NONE);
-            cat1.setSpecificCategory(SpecificCategory.NONE);
-            cat1.setOtherCategory(StringUtils.defaultString(msi.getEncText()));
-            item1.setCategory(cat1);
-        } else {
-            item1 = message.getMessageItems().get(0);
-        }
-        item1.setKeySubject(msi.getNavWarning());
-        item1.setAmplifyingRemarks(msi.getEncText());
-
-        item1.getLocations().clear();
+        message.getLocations().clear();
         if (msi.getPoints() != null && msi.getPoints().getPoint().size() > 0) {
             Location.LocationType type;
             switch (msi.getLocationType()) {
@@ -166,7 +189,7 @@ public class LegacyMessageService extends BaseService {
             for (PointDto p : msi.getPoints().getPoint()) {
                 loc1.addPoint(new Point(loc1, p.getLatitude(), p.getLongitude(), p.getPtno()));
             }
-            item1.getLocations().add(loc1);
+            message.getLocations().add(loc1);
         }
     }
 

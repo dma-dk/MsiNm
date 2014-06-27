@@ -1,16 +1,26 @@
 package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.MsiNmApp;
+import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.CategoryDesc;
 import dk.dma.msinm.vo.CategoryVo;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -150,4 +160,52 @@ public class CategoryService extends BaseService {
         }
         return false;
     }
+
+    /**
+     * Looks up an category by name
+     * @param name the name to search for
+     * @param lang the language. Optional
+     * @param parentId the parent ID. Optional
+     * @return The matching category, or null if not found
+     */
+    public Category findByName(String name, String lang, Integer parentId) {
+        Objects.requireNonNull(name, "Name must be specified");
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Category> categoryQuery = builder.createQuery(Category.class);
+
+        Root<Category> categoryRoot = categoryQuery.from(Category.class);
+
+        // Build the predicate
+        PredicateHelper<Category> predicateBuilder = new PredicateHelper<>(builder, categoryQuery);
+
+        // Match the name
+        Join<Category, CategoryDesc> descs = categoryRoot.join("descs", JoinType.LEFT);
+        predicateBuilder.like(descs.get("name"), name);
+        // Optionally, match the language
+        if (StringUtils.isNotBlank(lang)) {
+            predicateBuilder.equals(descs.get("lang"), lang);
+        }
+
+        // Optionally, match the parent
+        if (parentId != null) {
+            categoryRoot.join("parent", JoinType.LEFT);
+            Path<Category> parent = categoryRoot.get("parent");
+            predicateBuilder.equals(parent.get("id"), parentId);
+        }
+
+        // Complete the query
+        categoryQuery.select(categoryRoot)
+                .distinct(true)
+                .where(predicateBuilder.where());
+
+        // Execute the query and update the search result
+        List<Category> result = em
+                .createQuery(categoryQuery)
+                .getResultList();
+
+        return result.size() > 0 ? result.get(0) : null;
+    }
+
+
 }

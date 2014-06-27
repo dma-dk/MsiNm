@@ -17,7 +17,7 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
 
     String type;
     String description;
-    int radius;
+    Integer radius;
     List<PointVo> points = new ArrayList<>();
 
     /**
@@ -73,11 +73,11 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
         this.description = description;
     }
 
-    public int getRadius() {
+    public Integer getRadius() {
         return radius;
     }
 
-    public void setRadius(int radius) {
+    public void setRadius(Integer radius) {
         this.radius = radius;
     }
 

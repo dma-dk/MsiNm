@@ -69,7 +69,7 @@ public class LegacyMsiDbImportService {
 
     @Inject
     Settings settings;
-
+/*
     @GET
     public String importMsiWarnings(
             @QueryParam("limit") @DefaultValue("100") int limit,
@@ -143,7 +143,7 @@ public class LegacyMsiDbImportService {
                     legacyMessage.setVersion(1);
 
                     NavwarnMessage message = new NavwarnMessage();
-                    legacyMessage.setNavwarnMessage(message);
+                    legacyMessage.setMessage(message);
 
                     MessageSeriesIdentifier identifier = message.getSeriesIdentifier();
                     if (identifier == null) {
@@ -210,7 +210,7 @@ public class LegacyMsiDbImportService {
                 }
 
                 if (pointLatitude != null) {
-                    Location loc1 =legacyMessage.getNavwarnMessage().getMessageItems().get(0).getLocations().get(0);
+                    Location loc1 =legacyMessage.getMessage().getMessageItems().get(0).getLocations().get(0);
                     loc1.addPoint(new Point(loc1, pointLatitude, pointLongitude, pointIndex));
                 }
             }
@@ -233,7 +233,7 @@ public class LegacyMsiDbImportService {
 
         return "Imported " + count + " messages";
     }
-
+*/
     private void saveMessage(LegacyMessage legacyMsg, int count) {
         try {
             legacyMessageService.saveLegacyMessage(legacyMsg);

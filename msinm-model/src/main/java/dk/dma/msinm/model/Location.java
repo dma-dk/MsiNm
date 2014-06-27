@@ -21,6 +21,7 @@ import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.common.model.ILocalizable;
+import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.lucene.LuceneUtils;
 
 import javax.json.*;
@@ -36,7 +37,7 @@ import java.util.stream.Collectors;
  * Defines a location as either a point, a circle, a polygon or a polyline.
  */
 @Entity
-public class Location extends BaseEntity<Integer> implements ILocalizable<LocationDesc> {
+public class Location extends BaseEntity<Integer> implements ILocalizable<LocationDesc>, IPreloadable {
 
     private static final long serialVersionUID = 1L;
 
@@ -213,5 +214,14 @@ public class Location extends BaseEntity<Integer> implements ILocalizable<Locati
         desc.setEntity(this);
         getDescs().add(desc);
         return desc;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void preload() {
+        points.forEach(point -> point.preload());
+        descs.forEach(desc -> {});
     }
 }

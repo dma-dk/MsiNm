@@ -16,6 +16,7 @@
 package dk.dma.msinm.service;
 
 import dk.dma.msinm.model.Message;
+import dk.dma.msinm.vo.MessageVo;
 
 import javax.json.Json;
 import javax.json.JsonArrayBuilder;
@@ -33,22 +34,16 @@ import java.util.List;
  */
 public class MessageSearchResult implements Serializable {
 
-    List<Message> messages = new ArrayList<>();
+    List<MessageVo> messages = new ArrayList<>();
     int startIndex;
     int total;
 
     /**
-     * Creates a Json representation of this entity
-     * @return the Json representation
+     * Add a list of messages to the search result
+     * @param messages the messages to add
      */
-    public JsonObjectBuilder toJson() {
-        JsonArrayBuilder messagesJson = Json.createArrayBuilder();
-        messages.forEach(msg -> messagesJson.add(msg.toJson()));
-
-        return Json.createObjectBuilder()
-                .add("messages", messagesJson)
-                .add("startIndex", startIndex)
-                .add("total", total);
+    public void addMessages(List<Message> messages) {
+        messages.forEach(msg -> this.messages.add(new MessageVo(msg)));
     }
 
     /**
@@ -63,11 +58,11 @@ public class MessageSearchResult implements Serializable {
                 '}';
     }
 
-    public List<Message> getMessages() {
+    public List<MessageVo> getMessages() {
         return messages;
     }
 
-    public void setMessages(List<Message> messages) {
+    public void setMessages(List<MessageVo> messages) {
         this.messages = messages;
     }
 

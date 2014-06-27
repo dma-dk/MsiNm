@@ -19,8 +19,10 @@ import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.MessageStatus;
 import dk.dma.msinm.model.MessageType;
 import dk.dma.msinm.service.MessageSearchParams;
+import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
+import dk.dma.msinm.vo.MessageVo;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -31,10 +33,6 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -43,6 +41,8 @@ import javax.ws.rs.QueryParam;
 import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST interface for accessing MSI-NM messages
@@ -75,11 +75,11 @@ public class MessageRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    public JsonArray getAll() {
-
-        JsonArrayBuilder result = Json.createArrayBuilder();
-        messageService.getActive().forEach(msg -> result.add(msg.toJson()));
-        return result.build();
+    public List<MessageVo> getAll() {
+        return messageService.getActive()
+                .stream()
+                .map(MessageVo::new)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -90,7 +90,7 @@ public class MessageRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    public JsonObject search(
+    public MessageSearchResult search(
             @QueryParam("q") String query,
             @QueryParam("status") @DefaultValue("ACTIVE") String status,
             @QueryParam("type") String type,
@@ -150,9 +150,7 @@ public class MessageRestService {
         }
 
         return messageSearchService
-                .search(params)
-                .toJson()
-                .build();
+                .search(params);
     }
 
     /**

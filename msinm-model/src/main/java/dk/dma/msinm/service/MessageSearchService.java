@@ -5,7 +5,11 @@ import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
-import dk.dma.msinm.model.*;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.MessageSeriesIdentifier;
+import dk.dma.msinm.vo.LocationVo;
+import dk.dma.msinm.vo.MessageVo;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
@@ -21,7 +25,11 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.*;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -32,7 +40,6 @@ import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -159,99 +166,33 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     @Override
     protected void addEntityToDocument(Document doc, Message message) {
         addStringSearchField(doc, STATUS_FIELD, message.getStatus(), Field.Store.NO);
-        addPhraseSearchField(doc, SEARCH_FIELD, message.getGeneralArea());
-        addPhraseSearchField(doc, SEARCH_FIELD, message.getLocality());
         addPhraseSearchField(doc, SEARCH_FIELD, message.getSeriesIdentifier().getAuthority());
         addPhraseSearchField(doc, SEARCH_FIELD, String.valueOf(message.getSeriesIdentifier().getYear()));
         // TODO: Combined series identifier
         // TODO: Type in separate search field?
-        for (String specificLocation : message.getSpecificLocations()) {
-            addPhraseSearchField(doc, SEARCH_FIELD, specificLocation);
-        }
-        for (String chartNumber : message.getChartNumbers()) {
-            addStringSearchField(doc, SEARCH_FIELD, chartNumber, Field.Store.NO);
-        }
-        for (Integer intChartNumber : message.getIntChartNumbers()) {
-            addStringSearchField(doc, SEARCH_FIELD, String.valueOf(intChartNumber), Field.Store.NO);
-        }
 
-        // Add the MSI/NtM specific fields
-        if (message instanceof NavwarnMessage) {
-            addNavwarnMessageToDocument(doc, (NavwarnMessage)message);
-        } else {
-            addNoticeMessageToDocument(doc, (NoticeMessage) message);
-        }
-     }
-
-    /**
-     * Adds the MSI message to the index
-     * @param doc the Lucene document
-     * @param message the MSI message
-     */
-    protected void addNavwarnMessageToDocument(Document doc, NavwarnMessage message) {
-        for (MessageItem messageItem : message.getMessageItems()) {
-            addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getKeySubject());
-            addPhraseSearchField(doc, SEARCH_FIELD, messageItem.getAmplifyingRemarks());
-            // TODO: Priority
-            for (Location location : messageItem.getLocations()) {
-                try {
-                    addShapeSearchFields(doc, location.toWkt());
-                } catch (Exception e) {
-                    log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
-                }
-            }
-            // TODO: Category in separate search field?
-        }
-    }
-
-    /**
-     * Adds the NtM message to the index
-     * @param doc the Lucene document
-     * @param message the NtM message
-     */
-    protected void addNoticeMessageToDocument(Document doc, NoticeMessage message) {
-        addPhraseSearchField(doc, SEARCH_FIELD, message.getAuthority());
-        addPhraseSearchField(doc, SEARCH_FIELD, message.getAmplifyingRemarks());
-        // TODO: Category in separate search field?
-        for (String lightsListNumber : message.getLightsListNumbers()) {
-            addStringSearchField(doc, SEARCH_FIELD, lightsListNumber, Field.Store.NO);
-        }
-
-        // Add permanent items
-        for (PermanentItem permanentItem : message.getPermanentItems()) {
-            addPhraseSearchField(doc, SEARCH_FIELD, permanentItem.getAmplifyingRemarks());
-            addStringSearchField(doc, SEARCH_FIELD, permanentItem.getChartNumber(), Field.Store.NO);
-            addStringSearchField(doc, SEARCH_FIELD, permanentItem.getHorizontalDatum(), Field.Store.NO);
-            for (NoticeElement noticeElement : permanentItem.getNoticeElements()) {
-                // TODO: Add notice verb in separate field?
-                addPhraseSearchField(doc, SEARCH_FIELD, noticeElement.getFeatureOrCharacteristic());
-                addPhraseSearchField(doc, SEARCH_FIELD, noticeElement.getAmplifyingNote());
-                for (String graphicalRepresentation : noticeElement.getGraphicalRepresentations()) {
-                    addPhraseSearchField(doc, SEARCH_FIELD, graphicalRepresentation);
-                }
-                try {
-                    addShapeSearchFields(doc, noticeElement.getLocation().toWkt());
-                } catch (Exception e) {
-                    log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
-                }
-            }
-        }
-
-        // Add P & T items
-        for (TempPreliminaryItem tempPreliminaryItem : message.getTempPreliminaryItems()) {
-            addPhraseSearchField(doc, SEARCH_FIELD, tempPreliminaryItem.getItemDescription());
-            for (String graphicalRepresentation : tempPreliminaryItem.getGraphicalRepresentations()) {
-                addPhraseSearchField(doc, SEARCH_FIELD, graphicalRepresentation);
-            }
+        message.getLocations().forEach(location -> {
             try {
-                addShapeSearchFields(doc, tempPreliminaryItem.getLocation().toWkt());
-            } catch (ParseException e) {
+                addShapeSearchFields(doc, location.toWkt());
+            } catch (Exception e) {
                 log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
             }
-        }
+        });
+
+        // TODO: Language specific fields
+        message.getDescs().forEach(desc -> {
+            addPhraseSearchField(doc, SEARCH_FIELD, desc.getTitle());
+            addPhraseSearchField(doc, SEARCH_FIELD, desc.getDescription());
+            addPhraseSearchField(doc, SEARCH_FIELD, desc.getOtherCategories());
+            addPhraseSearchField(doc, SEARCH_FIELD, desc.getVicinity());
+        });
+
+        message.getLightsListNumbers().forEach(lightsListNumber -> {
+            addStringSearchField(doc, SEARCH_FIELD, lightsListNumber, Field.Store.NO);
+        });
     }
 
-    /**
+     /**
      * Main search method
      *
      * @param param the search parameters
@@ -302,8 +243,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 tuplePredicateBuilder.in(msgRoot.get("id"), ids);
             }
 
-            // Complete the query and fetch the message id's (and issueDate for sorting)
-            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("issueDate"))
+            // Complete the query and fetch the message id's (and validFrom for sorting)
+            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("validFrom"))
                     .distinct(true)
                     .where(tuplePredicateBuilder.where());
             sortQuery(param, builder, tupleQuery, msgRoot);
@@ -344,7 +285,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             List<Message> pagedResult = em
                     .createQuery(msgQuery)
                     .getResultList();
-            result.setMessages(pagedResult);
+            result.addMessages(pagedResult);
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");
@@ -360,16 +301,17 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     /**
      * TODO
      */
-    public List<Location> searchLocations(MessageSearchParams param) {
-        List<Location> result = new ArrayList<>();
+    public List<LocationVo> searchLocations(MessageSearchParams param) {
+        List<LocationVo> result = new ArrayList<>();
 
         try {
 
             MessageSearchResult messages = search(param);
 
-            for (Message msg : messages.getMessages()) {
-                MessageItem item = ((NavwarnMessage) msg).getMessageItems().get(0);
-                result.addAll(item.getLocations().stream().filter(loc -> loc.getPoints().size() > 0).collect(Collectors.toList()));
+            for (MessageVo msg : messages.getMessages()) {
+               msg.getLocations().stream()
+                       .filter(loc -> loc.getPoints().size() > 0)
+                       .forEach(result::add);
             }
             return result;
 
@@ -389,9 +331,9 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     private <M, T> void sortQuery(MessageSearchParams param, CriteriaBuilder builder, CriteriaQuery<T> cq, Root<M> root) {
         if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {
             if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
-                cq.orderBy(builder.asc(root.get("issueDate")));
+                cq.orderBy(builder.asc(root.get("validFrom")));
             } else {
-                cq.orderBy(builder.desc(root.get("issueDate")));
+                cq.orderBy(builder.desc(root.get("validFrom")));
             }
         }
     }

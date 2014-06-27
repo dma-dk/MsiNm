@@ -5,6 +5,8 @@ import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchService;
+import dk.dma.msinm.vo.LocationVo;
+import dk.dma.msinm.vo.PointVo;
 import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -105,12 +107,12 @@ public class MsiServlet extends HttpServlet {
         Color fillCol = new Color(173, 87, 161, 80);
 
         int xy0[] =  mercator.LatLonToPixels(-bounds[0], bounds[1], z);
-        java.util.List<Location> locations = messageSearchService.searchLocations(params);
+        java.util.List<LocationVo> locations = messageSearchService.searchLocations(params);
 
         locations.stream().forEach(location -> {
 
-            if (location.getType() == Location.LocationType.POINT) {
-                Point pt = location.getPoints().get(0);
+            if ("POINT".equals(location.getType())) {
+                PointVo pt = location.getPoints().get(0);
 
                 int xy[] = mercator.LatLonToPixels(pt.getLat(), pt.getLon(), z);
                 double px = xy[0] - xy0[0];
@@ -121,10 +123,10 @@ public class MsiServlet extends HttpServlet {
                 g2.setColor(col);
                 g2.fill(theCircle);
 
-            } else if (location.getType() == Location.LocationType.POLYLINE || location.getType() == Location.LocationType.POLYGON) {
+            } else if ("POLYLINE".equals(location.getType()) || "POLYGON".equals(location.getType())) {
                 GeneralPath path = new GeneralPath();
                 for (int i = 0; i < location.getPoints().size(); i++) {
-                    Point pt = location.getPoints().get(i);
+                    PointVo pt = location.getPoints().get(i);
                     int xy[] = mercator.LatLonToPixels(pt.getLat(), pt.getLon(), z);
                     double px = xy[0] - xy0[0];
                     double py = -(xy[1] - xy0[1]);
@@ -135,7 +137,7 @@ public class MsiServlet extends HttpServlet {
                         path.lineTo(px, py);
                     }
                 }
-                if (location.getType() == Location.LocationType.POLYGON) {
+                if ("POLYGON".equals(location.getType())) {
                     path.closePath();
                     g2.setColor(fillCol);
                     g2.fill(path);

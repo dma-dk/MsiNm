@@ -1,16 +1,26 @@
 package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.MsiNmApp;
+import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.AreaDesc;
 import dk.dma.msinm.vo.AreaVo;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -153,6 +163,53 @@ public class AreaService extends BaseService {
             return true;
         }
         return false;
+    }
+
+
+    /**
+     * Looks up an area by name
+     * @param name the name to search for
+     * @param lang the language. Optional
+     * @param parentId the parent ID. Optional
+     * @return The matching area, or null if not found
+     */
+    public Area findByName(String name, String lang, Integer parentId) {
+        Objects.requireNonNull(name, "Name must be specified");
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Area> areaQuery = builder.createQuery(Area.class);
+
+        Root<Area> areaRoot = areaQuery.from(Area.class);
+
+        // Build the predicate
+        PredicateHelper<Area> predicateBuilder = new PredicateHelper<>(builder, areaQuery);
+
+        // Match the name
+        Join<Area, AreaDesc> descs = areaRoot.join("descs", JoinType.LEFT);
+        predicateBuilder.like(descs.get("name"), name);
+        // Optionally, match the language
+        if (StringUtils.isNotBlank(lang)) {
+            predicateBuilder.equals(descs.get("lang"), lang);
+        }
+
+        // Optionally, match the parent
+        if (parentId != null) {
+            areaRoot.join("parent", JoinType.LEFT);
+            Path<Area> parent = areaRoot.get("parent");
+            predicateBuilder.equals(parent.get("id"), parentId);
+        }
+
+        // Complete the query
+        areaQuery.select(areaRoot)
+                .distinct(true)
+                .where(predicateBuilder.where());
+
+        // Execute the query and update the search result
+        List<Area> result = em
+                .createQuery(areaQuery)
+                .getResultList();
+
+        return result.size() > 0 ? result.get(0) : null;
     }
 
 
