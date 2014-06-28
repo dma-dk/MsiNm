@@ -133,18 +133,28 @@ public class LegacyMessageService extends BaseService {
         }
 
         // Area
-        Area area = null;
+        // Find Denmark
+        Area area = areaService.findByName("denmark", "en", null);
+        if (area == null) {
+            area = new Area();
+            area.createDesc("en").setName("Denmark");
+            area.createDesc("da").setName("Danmark");
+            area = areaService.createArea(area, null);
+        }
+        Integer parentId = area.getId();
+
         if (StringUtils.isNotBlank(msi.getAreaEnglish())) {
-            area = areaService.findByName(msi.getAreaEnglish(), "en", null);
+            area = areaService.findByName(msi.getAreaEnglish(), "en", parentId);
             if (area == null) {
                 area = new Area();
                 area.createDesc("en").setName(msi.getAreaEnglish());
                 area.createDesc("da").setName(msi.getAreaEnglish());
-                area = areaService.createArea(area, null);
+                area = areaService.createArea(area, parentId);
             }
+            parentId = area.getId();
         }
+
         if (StringUtils.isNotBlank(msi.getSubarea())) {
-            Integer parentId = (area == null) ? null : area.getId();
             area = areaService.findByName(msi.getAreaEnglish(), "en", parentId);
             if (area == null) {
                 area = new Area();
@@ -168,11 +178,10 @@ public class LegacyMessageService extends BaseService {
         }
 
         // Localized contents - updated da = en
-        Arrays.asList(app.getLanguages()).forEach(lang -> message.createDesc(lang));
+        Arrays.asList(app.getLanguages()).forEach(message::createDesc);
         message.getDescs().forEach(desc -> {
-            desc.setOtherCategories(StringUtils.defaultString(msi.getEncText()));
-            desc.setTitle(msi.getNavWarning());
-            desc.setDescription(msi.getEncText());
+            desc.setTitle(StringUtils.defaultString(msi.getEncText(), msi.getNavWarning()));
+            desc.setDescription(msi.getNavWarning());
         });
 
         message.getLocations().clear();

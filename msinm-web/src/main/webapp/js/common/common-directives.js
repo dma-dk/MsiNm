@@ -80,6 +80,24 @@ angular.module('msinm.common')
     }])
 
     /**
+     * Replaces the content of the element with the area description of the message
+     */
+    .directive('msiArea', ['LangService', function (LangService) {
+        return {
+            restrict: 'A',
+            scope: {
+                msiArea: "="
+            },
+            link: function(scope, element, attrs) {
+                if (attrs.msiArea) {
+                    var desc = LangService.desc(scope.msiArea.area);
+                    element.html((desc) ? desc.name : '');
+                }
+            }
+        };
+    }])
+
+    /**
      * Show element active/inactive depending on the current location.
      * Usage:
      * <pre>

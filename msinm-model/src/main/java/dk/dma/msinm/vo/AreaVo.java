@@ -39,7 +39,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         area.getLocations().forEach(loc -> locations.add(new LocationVo(loc)));
         area.getDescs().forEach(desc -> getDescs().add(new AreaDescVo(desc)));
         if (includeChildren) {
-            area.getChildren().forEach(child -> children.add(new AreaVo(child)));
+            area.getChildren().forEach(child -> children.add(new AreaVo(child, includeChildren)));
         }
     }
 

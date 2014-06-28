@@ -89,6 +89,12 @@ angular.module('msinm.common')
             }
         };
 
+        // look for a description entity with the current language
+        this.desc = function(elm) {
+            return this.descForLanguage(elm, $rootScope.language);
+        };
+
+
         // Ensures that elm.descs contain a description entity for each supported language
         // The initFunc will be called for newly added description entities and should be used
         // to initialize the fields to include, e.g. "description" or "name",...

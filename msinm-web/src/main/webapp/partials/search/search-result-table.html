@@ -10,10 +10,10 @@
             <th>Type</th>
             <th>Area</th>
         </tr>
-        <tr ng-repeat="msi in searchResult.messages">
-            <td style="white-space:nowrap;">{{msi.issueDate | date : 'dd/MM/yy HH:mm'}}</td>
-            <td>{{msi.messageItems[0].keySubject}}</td>
-            <td style="white-space:nowrap;">{{msi.generalArea + '-' + msi.locality}}</td>
+        <tr ng-repeat="msg in searchResult.messages">
+            <td style="white-space:nowrap;">{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</td>
+            <td>{{msg.descs[0].description}}</td>
+            <td style="white-space:nowrap;" msi-area="msg"></td>
         </tr>
     </table>
 </div>

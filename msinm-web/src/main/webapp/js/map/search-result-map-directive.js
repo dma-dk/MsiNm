@@ -141,15 +141,17 @@ angular.module('msinm.map')
 
                     for (var i in value.messages) {
                         var msg = value.messages[i];
-                        var loc = msg.messageItems[0].locations[0];
 
-                        var bgAttr = { id : i, description: msg.messageItems[0].keySubject, type : "msi", msi : msg, bg:true  };
-                        MapService.createLocationFeature(loc, bgAttr, features);
+                        for (var j in msg.locations) {
+                            var loc = msg.locations[j];
 
-                        // Flick the "showVertices to true to show icons for each vertex
-                        var attr = { id : i, description: msg.messageItems[0].keySubject, type : "msi", msi : msg, showVertices:false  };
-                        MapService.createLocationFeature(loc, attr, features);
+                            var bgAttr = { id : i, description: msg.descs[0].title, type : "msi", msi : msg, bg:true  };
+                            MapService.createLocationFeature(loc, bgAttr, features);
 
+                            // Flick the "showVertices to true to show icons for each vertex
+                            var attr = { id : i, description: msg.descs[0].title, type : "msi", msi : msg, showVertices:false  };
+                            MapService.createLocationFeature(loc, attr, features);
+                        }
                     }
                     msiLayer.addFeatures(features);
                 }

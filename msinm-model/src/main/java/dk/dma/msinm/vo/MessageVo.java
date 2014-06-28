@@ -51,7 +51,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         id = message.getId();
         seriesIdentifier = message.getSeriesIdentifier();
         status = message.getStatus();
-        area = (area == null) ? null : new AreaVo(message.getArea(), false);
+        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), false);
         message.getCategories().forEach(cat -> categories.add(new CategoryVo(cat, false)));
         message.getLocations().forEach(loc -> locations.add(new LocationVo(loc)));
         charts.addAll(message.getCharts());
