@@ -20,7 +20,6 @@ import javax.persistence.criteria.Root;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -174,7 +173,10 @@ public class AreaService extends BaseService {
      * @return The matching area, or null if not found
      */
     public Area findByName(String name, String lang, Integer parentId) {
-        Objects.requireNonNull(name, "Name must be specified");
+        // Sanity check
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Area> areaQuery = builder.createQuery(Area.class);

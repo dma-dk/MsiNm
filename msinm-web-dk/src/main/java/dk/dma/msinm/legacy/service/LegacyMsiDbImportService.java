@@ -21,7 +21,18 @@ import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.legacy.model.LegacyMessage;
-import dk.dma.msinm.model.*;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.Location;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.MessageSeriesIdentifier;
+import dk.dma.msinm.model.MessageStatus;
+import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.model.Point;
+import dk.dma.msinm.model.Priority;
+import dk.dma.msinm.service.AreaService;
+import dk.dma.msinm.service.CategoryService;
 import dk.dma.msinm.service.MessageService;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -34,7 +45,12 @@ import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.QueryParam;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -59,6 +75,12 @@ public class LegacyMsiDbImportService {
     MessageService messageService;
 
     @Inject
+    AreaService areaService;
+
+    @Inject
+    CategoryService categoryService;
+
+    @Inject
     LegacyMessageService legacyMessageService;
 
     @Inject
@@ -69,7 +91,7 @@ public class LegacyMsiDbImportService {
 
     @Inject
     Settings settings;
-/*
+
     @GET
     public String importMsiWarnings(
             @QueryParam("limit") @DefaultValue("100") int limit,
@@ -100,29 +122,35 @@ public class LegacyMsiDbImportService {
 
             LegacyMessage legacyMessage = null;
             while (rs.next()) {
-                Integer id                  = getInt(rs,        "id");
-                Integer messageId           = getInt(rs,        "messageId");
-                Boolean statusDraft         = getBoolean(rs,    "statusDraft");
-                String  navtexNo            = getString(rs,     "navtexNo");
-                String  keySubject          = getString(rs,     "keySubject");
-                String  amplifyingRemarks   = getString(rs,     "amplifyingRemarks");
-                String  amplifyingRemarks2  = getString(rs,     "amplifyingRemarks2");
-                Date    issueDate           = getDate(rs,       "issueDate");
-                Date    cancellationDate    = getDate(rs,       "cancellationDate");
-                Date    created             = getDate(rs,       "created");
-                Date    updated             = getDate(rs,       "updated");
-                Date    deleted             = getDate(rs,       "deleted");
-                String  priority            = getString(rs,     "priority");
-                String  messageType         = getString(rs,     "messageType");
-                String  specificCategory    = getString(rs,     "specificCategory");
-                String  specificLocation    = getString(rs,     "specificLocation");
-                String  generalArea         = getString(rs,     "generalArea");
-                String  locality            = getString(rs,     "locality");
-                String  locationType        = getString(rs,     "locationType");
-                Integer pointIndex          = getInt(rs,        "pointIndex");
-                Double  pointLatitude       = getDouble(rs,     "pointLatitude");
-                Double  pointLongitude      = getDouble(rs,     "pointLongitude");
-                Integer pointRadius         = getInt(rs,        "pointRadius");
+                Integer id                  = getInt(rs,     "id");
+                Integer messageId           = getInt(rs,     "messageId");
+                Boolean statusDraft         = getBoolean(rs, "statusDraft");
+                String  navtexNo            = getString(rs,  "navtexNo");
+                String  descriptionEn       = getString(rs,  "description_en");
+                String  descriptionDa       = getString(rs,  "description_da");
+                String  title               = getString(rs,  "title");
+                Date    validFrom           = getDate(rs,    "validFrom");
+                Date    validTo             = getDate(rs,    "validTo");
+                Date    created             = getDate(rs,    "created");
+                Date    updated             = getDate(rs,    "updated");
+                Date    deleted             = getDate(rs,    "deleted");
+                String  priority            = getString(rs,  "priority");
+                String  messageType         = getString(rs,  "messageType");
+                String  category1En         = getString(rs,  "category1_en");
+                String  category1Da         = getString(rs,  "category1_da");
+                String  category2En         = getString(rs,  "category2_en");
+                String  category2Da         = getString(rs,  "category2_da");
+                String  area1En             = getString(rs,  "area1_en");
+                String  area1Da             = getString(rs,  "area1_da");
+                String  area2En             = getString(rs,  "area2_en");
+                String  area2Da             = getString(rs,  "area2_da");
+                String  area3En             = getString(rs,  "area3_en");
+                String  area3Da             = getString(rs,  "area3_da");
+                String  locationType        = getString(rs,  "locationType");
+                Integer pointIndex          = getInt(rs,     "pointIndex");
+                Double  pointLatitude       = getDouble(rs,  "pointLatitude");
+                Double  pointLongitude      = getDouble(rs,  "pointLongitude");
+                Integer pointRadius         = getInt(rs,     "pointRadius");
 
                 if (legacyMessage != null && !legacyMessage.getLegacyId().equals(id)) {
                     saveMessage(legacyMessage, count++);
@@ -142,7 +170,7 @@ public class LegacyMsiDbImportService {
                     legacyMessage.setNavtexNo(navtexNo);
                     legacyMessage.setVersion(1);
 
-                    NavwarnMessage message = new NavwarnMessage();
+                    Message message = new Message();
                     legacyMessage.setMessage(message);
 
                     MessageSeriesIdentifier identifier = message.getSeriesIdentifier();
@@ -152,7 +180,7 @@ public class LegacyMsiDbImportService {
                         identifier.setNumber((int) sequences.getNextValue(Message.MESSAGE_SEQUENCE));
                         identifier.setAuthority("DMA");
                         Calendar cal = Calendar.getInstance();
-                        cal.setTime(issueDate);
+                        cal.setTime(validFrom);
                         identifier.setYear(cal.get(Calendar.YEAR));
                         identifier.setType(MessageType.NAVAREA_WARNING);
                     }
@@ -161,36 +189,34 @@ public class LegacyMsiDbImportService {
                     message.setCreated(created);
                     message.setUpdated(updated);
                     message.setStatus(deleted != null ? MessageStatus.DELETED : (statusDraft ? MessageStatus.DRAFT : MessageStatus.ACTIVE));
-                    message.setGeneralArea(generalArea);
-                    message.setLocality(StringUtils.defaultString(locality));
-                    if (specificLocation != null) {
-                        message.getSpecificLocations().add(specificLocation);
-                    }
-                    message.setIssueDate(issueDate);
-                    message.setCancellationDate(cancellationDate);
+                    message.setValidFrom(validFrom);
+                    message.setValidTo(validTo);
                     try {
                         message.setPriority(Priority.valueOf(priority));
                     } catch (Exception ex) {
                         message.setPriority(Priority.NONE);
                     }
 
-                    // MessageItem 's
-                    MessageItem item1 = new MessageItem();
-                    message.getMessageItems().add(item1);
+                    // Message Desc
+                    MessageDesc descEn = message.createDesc("en");
+                    descEn.setTitle(StringUtils.defaultString(title, descriptionEn));
+                    descEn.setDescription(descriptionEn);
+                    descEn.setVicinity(area3En);
 
-                    MessageCategory cat1 = new MessageCategory();
+                    MessageDesc descDa = message.createDesc("da");
+                    descDa.setTitle(StringUtils.defaultString(title, descriptionDa));
+                    descDa.setDescription(descriptionDa);
+                    descDa.setVicinity(area3Da);
 
-                    cat1.setGeneralCategory(GeneralCategory.NONE);
-                    try {
-                        cat1.setSpecificCategory(SpecificCategory.valueOf(specificCategory.toUpperCase().replaceAll(" ", "_")));
-                    } catch (Exception ex) {
-                        cat1.setSpecificCategory(SpecificCategory.NONE);
-                    }
+                    // Areas
+                    Area area = findOrCreateArea(area1En, area1Da, null);
+                    area = findOrCreateArea(area2En, area2Da, area);
+                    message.setArea(area);
 
-                    cat1.setOtherCategory("");
-                    item1.setCategory(cat1);
-                    item1.setKeySubject(StringUtils.defaultString(keySubject));
-                    item1.setAmplifyingRemarks(StringUtils.defaultString(amplifyingRemarks));
+                    // Categories
+                    Category category = findOrCreateCategory(category1En, category1Da, null);
+                    category = findOrCreateCategory(category2En, category2Da, category);
+                    message.getCategories().add(category);
 
                     if (pointLatitude != null) {
                         Location.LocationType type;
@@ -205,12 +231,12 @@ public class LegacyMsiDbImportService {
                         if (pointRadius != null) {
                             loc1.setRadius(pointRadius);
                         }
-                        item1.getLocations().add(loc1);
+                        message.getLocations().add(loc1);
                     }
                 }
 
                 if (pointLatitude != null) {
-                    Location loc1 =legacyMessage.getMessage().getMessageItems().get(0).getLocations().get(0);
+                    Location loc1 =legacyMessage.getMessage().getLocations().get(0);
                     loc1.addPoint(new Point(loc1, pointLatitude, pointLongitude, pointIndex));
                 }
             }
@@ -233,7 +259,53 @@ public class LegacyMsiDbImportService {
 
         return "Imported " + count + " messages";
     }
-*/
+
+    private Area findOrCreateArea(String nameEn, String nameDa, Area parent) {
+        Integer parentId = (parent == null) ? null : parent.getId();
+
+        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
+            Area area = areaService.findByName(nameEn, "en", parentId);
+            if (area == null) {
+                area = areaService.findByName(nameDa, "da", parentId);
+            }
+            if (area == null) {
+                area = new Area();
+                if (StringUtils.isNotBlank(nameEn)) {
+                    area.createDesc("en").setName(nameEn);
+                }
+                if (StringUtils.isNotBlank(nameDa)) {
+                    area.createDesc("da").setName(nameDa);
+                }
+                area = areaService.createArea(area, parentId);
+            }
+            return area;
+        }
+        return parent;
+    }
+
+    private Category findOrCreateCategory(String nameEn, String nameDa, Category parent) {
+        Integer parentId = (parent == null) ? null : parent.getId();
+
+        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
+            Category category = categoryService.findByName(nameEn, "en", parentId);
+            if (category == null) {
+                category = categoryService.findByName(nameDa, "da", parentId);
+            }
+            if (category == null) {
+                category = new Category();
+                if (StringUtils.isNotBlank(nameEn)) {
+                    category.createDesc("en").setName(nameEn);
+                }
+                if (StringUtils.isNotBlank(nameDa)) {
+                    category.createDesc("da").setName(nameDa);
+                }
+                category = categoryService.createCategory(category, parentId);
+            }
+            return category;
+        }
+        return parent;
+    }
+
     private void saveMessage(LegacyMessage legacyMsg, int count) {
         try {
             legacyMessageService.saveLegacyMessage(legacyMsg);

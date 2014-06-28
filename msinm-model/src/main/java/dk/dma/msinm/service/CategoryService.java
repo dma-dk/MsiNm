@@ -20,7 +20,6 @@ import javax.persistence.criteria.Root;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -169,7 +168,10 @@ public class CategoryService extends BaseService {
      * @return The matching category, or null if not found
      */
     public Category findByName(String name, String lang, Integer parentId) {
-        Objects.requireNonNull(name, "Name must be specified");
+        // Sanity check
+        if (StringUtils.isBlank(name)) {
+            return null;
+        }
 
         CriteriaBuilder builder = em.getCriteriaBuilder();
         CriteriaQuery<Category> categoryQuery = builder.createQuery(Category.class);
