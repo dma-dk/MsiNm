@@ -11,9 +11,8 @@ insert into msi.user_role (user_id, roles_id) values (0,0);
 insert into msi.user_role (user_id, roles_id) values (0,-1);
 insert into msi.user_role (user_id, roles_id) values (-1,0);
 
-insert into msi.area (id, parent_id) values  (0, null);
-insert into msi.area (id, parent_id) values  (-1, 0);
-insert into msi.area (id, parent_id) values  (-2, 0);
+insert into msi.area (id, parent_id) values  (-1, null);
+insert into msi.area (id, parent_id) values  (-2, null);
 insert into msi.area (id, parent_id) values  (-3, -1);
 insert into msi.area (id, parent_id) values  (-4, -3);
 insert into msi.area (id, parent_id) values  (-5, -3);
@@ -21,8 +20,6 @@ insert into msi.area (id, parent_id) values  (-6, -1);
 insert into msi.area (id, parent_id) values  (-7, -6);
 update area set version = 1;
 
-insert into msi.areadesc (id, lang, entity_id, name) values (0,  'en', 0, 'World');
-insert into msi.areadesc (id, lang, entity_id, name) values (-1,  'da', 0, 'Jorden');
 insert into msi.areadesc (id, lang, entity_id, name) values (-2,  'en', -1, 'Denmark');
 insert into msi.areadesc (id, lang, entity_id, name) values (-3,  'da', -1, 'Danmark');
 insert into msi.areadesc (id, lang, entity_id, name) values (-4,  'en', -2, 'England');
