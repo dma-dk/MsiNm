@@ -2,14 +2,21 @@ package dk.dma.msinm.service;
 
 import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.AreaDesc;
+import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.CategoryDesc;
+import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageDesc;
 import dk.dma.msinm.model.MessageSeriesIdentifier;
+import dk.dma.msinm.model.PointDesc;
 import dk.dma.msinm.vo.LocationVo;
 import dk.dma.msinm.vo.MessageVo;
+import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
@@ -64,6 +71,9 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     Logger log;
 
     @Inject
+    MsiNmApp app;
+
+    @Inject
     MessageService messageService;
 
     @Inject
@@ -103,6 +113,15 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 log.error("Failed re-creating the index on startup", e);
             }
         }
+    }
+
+    /**
+     * Returns the language specific language field
+     * @param language the language
+     * @return the language specific language field
+     */
+    private String searchField(String language) {
+        return SEARCH_FIELD + "_" + app.getLanguage(language);
     }
 
     /**
@@ -165,30 +184,75 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
      */
     @Override
     protected void addEntityToDocument(Document doc, Message message) {
-        addStringSearchField(doc, STATUS_FIELD, message.getStatus(), Field.Store.NO);
-        addPhraseSearchField(doc, SEARCH_FIELD, message.getSeriesIdentifier().getAuthority());
-        addPhraseSearchField(doc, SEARCH_FIELD, String.valueOf(message.getSeriesIdentifier().getYear()));
-        // TODO: Combined series identifier
-        // TODO: Type in separate search field?
 
+        // For each supported language, update a search field
+        for (String language : app.getLanguages()) {
+            String searchField = searchField(language);
+
+            addStringSearchField(doc, searchField, message.getStatus(), Field.Store.NO);
+            addPhraseSearchField(doc, searchField, message.getSeriesIdentifier().getAuthority());
+            addPhraseSearchField(doc, searchField, String.valueOf(message.getSeriesIdentifier().getYear()));
+
+            // Area
+            for (Area area = message.getArea(); area != null; area = area.getParent()) {
+                AreaDesc desc = area.getDesc(language);
+                if (desc != null) {
+                    addPhraseSearchField(doc, searchField, desc.getName());
+                }
+            }
+
+            // Category
+            message.getCategories().forEach(category -> {
+                for (Category cat = category; cat != null; cat = cat.getParent()) {
+                    CategoryDesc desc = cat.getDesc(language);
+                    if (desc != null) {
+                        addPhraseSearchField(doc, searchField, desc.getName());
+                    }
+                }
+            });
+
+            // Charts
+            message.getCharts().forEach(chart -> {
+                addStringSearchField(doc, searchField, chart.getChartNumber(), Field.Store.NO);
+                addStringSearchField(doc, searchField, chart.getInternationalNumber(), Field.Store.NO);
+            });
+
+            // Horizontal datum
+            addStringSearchField(doc, searchField, message.getHorizontalDatum(), Field.Store.NO);
+
+            // Add language specific fields
+            message.getDescs().forEach(desc -> {
+                addPhraseSearchField(doc, searchField, desc.getTitle());
+                addPhraseSearchField(doc, searchField, desc.getDescription());
+                addPhraseSearchField(doc, searchField, desc.getOtherCategories());
+                addPhraseSearchField(doc, searchField, desc.getVicinity());
+            });
+
+            message.getLightsListNumbers()
+                    .forEach(lightsListNumber -> addStringSearchField(doc, searchField, lightsListNumber, Field.Store.NO));
+
+            // Add descriptions for locations and points associated with the message.
+            message.getLocations().forEach(location -> {
+                LocationDesc locDesc = location.getDesc(language);
+                if (locDesc != null) {
+                    addPhraseSearchField(doc, searchField, locDesc.getDescription());
+                }
+                location.getPoints().forEach(point -> {
+                    PointDesc pointDesc = point.getDesc(language);
+                    if (pointDesc != null) {
+                        addPhraseSearchField(doc, searchField, pointDesc.getDescription());
+                    }
+                });
+            });
+        }
+
+        // Add the spatial data to the index
         message.getLocations().forEach(location -> {
             try {
                 addShapeSearchFields(doc, location.toWkt());
             } catch (Exception e) {
                 log.warn("Not indexing location for message " + message.getId() + " because of error " + e);
             }
-        });
-
-        // TODO: Language specific fields
-        message.getDescs().forEach(desc -> {
-            addPhraseSearchField(doc, SEARCH_FIELD, desc.getTitle());
-            addPhraseSearchField(doc, SEARCH_FIELD, desc.getDescription());
-            addPhraseSearchField(doc, SEARCH_FIELD, desc.getOtherCategories());
-            addPhraseSearchField(doc, SEARCH_FIELD, desc.getVicinity());
-        });
-
-        message.getLightsListNumbers().forEach(lightsListNumber -> {
-            addStringSearchField(doc, SEARCH_FIELD, lightsListNumber, Field.Store.NO);
         });
     }
 
@@ -239,7 +303,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                     SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, param.getLocation().toWkt());
                     filter = strategy.makeFilter(args);
                 }
-                List<Long> ids = searchIndex(param.getQuery(), SEARCH_FIELD, filter, Integer.MAX_VALUE);
+                List<Long> ids = searchIndex(param.getQuery(), searchField(param.getLanguage()), filter, Integer.MAX_VALUE);
                 tuplePredicateBuilder.in(msgRoot.get("id"), ids);
             }
 
@@ -285,7 +349,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             List<Message> pagedResult = em
                     .createQuery(msgQuery)
                     .getResultList();
-            result.addMessages(pagedResult);
+            result.addMessages(pagedResult, param.getLanguage());
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");
@@ -305,7 +369,6 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
         List<LocationVo> result = new ArrayList<>();
 
         try {
-
             MessageSearchResult messages = search(param);
 
             for (MessageVo msg : messages.getMessages()) {

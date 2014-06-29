@@ -33,6 +33,7 @@ public class MessageSearchParams implements Serializable {
     public enum SortBy { DATE }
     public enum SortOrder { ASC, DESC }
 
+    String language;
     String query;
     Date from;
     Date to;
@@ -46,14 +47,6 @@ public class MessageSearchParams implements Serializable {
     SortOrder sortOrder = SortOrder.DESC;
 
     public MessageSearchParams() {
-    }
-
-    public MessageSearchParams(String query, Date from, Date to, Location location, MessageStatus status) {
-        this.query = query;
-        this.from = from;
-        this.to = to;
-        this.location = location;
-        this.status = status;
     }
 
     public MessageSearchParams(String query, Location location) {
@@ -72,7 +65,8 @@ public class MessageSearchParams implements Serializable {
     @Override
     public String toString() {
         return "MessageSearchParams{" +
-                "query='" + query + '\'' +
+                "language='" + language + '\'' +
+                ", query='" + query + '\'' +
                 ", from=" + from +
                 ", to=" + to +
                 ", location=" + location +
@@ -80,6 +74,14 @@ public class MessageSearchParams implements Serializable {
                 ", maxHits=" + maxHits +
                 ", startIndex=" + startIndex +
                 '}';
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getQuery() {

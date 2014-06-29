@@ -41,9 +41,10 @@ public class MessageSearchResult implements Serializable {
     /**
      * Add a list of messages to the search result
      * @param messages the messages to add
+     * @param language the language
      */
-    public void addMessages(List<Message> messages) {
-        messages.forEach(msg -> this.messages.add(new MessageVo(msg)));
+    public void addMessages(List<Message> messages, String language) {
+        messages.forEach(msg -> this.messages.add(new MessageVo(msg, language)));
     }
 
     /**

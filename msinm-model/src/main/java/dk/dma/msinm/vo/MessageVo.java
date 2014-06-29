@@ -46,8 +46,11 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     /**
      * Constructor
+     * @param message the message
      */
     public MessageVo(Message message) {
+        super(message);
+
         id = message.getId();
         seriesIdentifier = message.getSeriesIdentifier();
         status = message.getStatus();
@@ -63,6 +66,25 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         lightsListNumbers.addAll(message.getLightsListNumbers());
         originalInformation = message.isOriginalInformation();
         message.getDescs().forEach(desc -> getDescs().add(new MessageDescVo(desc)));
+    }
+
+    /**
+     * Constructor
+     * This version is used for search results and only contains a subset of the message data
+     * @param message the message
+     * @param lang the language
+     */
+    public MessageVo(Message message, String lang) {
+        super(message);
+
+        id = message.getId();
+        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), lang, false);
+        message.getLocations().forEach(loc -> locations.add(new LocationVo(loc, lang)));
+        validFrom = message.getValidFrom();
+        validTo = message.getValidTo();
+        message.getDescs().stream()
+            .filter(desc -> lang == null || desc.getLang().equals(lang))
+            .forEach(desc -> getDescs().add(new MessageDescVo(desc)));
     }
 
     /**

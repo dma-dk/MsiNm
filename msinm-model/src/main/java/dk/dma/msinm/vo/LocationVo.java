@@ -16,7 +16,6 @@ import java.util.List;
 public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescVo> {
 
     String type;
-    String description;
     Integer radius;
     List<PointVo> points = new ArrayList<>();
 
@@ -38,6 +37,22 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
         radius = location.getRadius();
         location.getPoints().forEach(point -> points.add(new PointVo(point)));
         location.getDescs().forEach(desc -> getDescs().add(new LocationDescVo(desc)));
+    }
+
+    /**
+     * Constructor
+     * @param location the location
+     * @param lang the language
+     */
+    public LocationVo(Location location, String lang) {
+        super(location);
+
+        type = location.getType().toString();
+        radius = location.getRadius();
+        location.getPoints().forEach(point -> points.add(new PointVo(point, lang)));
+        location.getDescs().stream()
+                .filter(desc -> lang == null || desc.getLang().equals(lang))
+                .forEach(desc -> getDescs().add(new LocationDescVo(desc)));
     }
 
     /**
@@ -63,14 +78,6 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public Integer getRadius() {

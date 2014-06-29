@@ -36,6 +36,22 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
     }
 
     /**
+     * Constructor
+     * @param point the point
+     * @param lang the language
+     */
+    public PointVo(Point point, String lang) {
+        super(point);
+
+        lat = point.getLat();
+        lon = point.getLon();
+        index = point.getIndex();
+        point.getDescs().stream()
+            .filter(desc -> lang == null || desc.getLang().equals(lang))
+            .forEach(desc -> getDescs().add(new PointDescVo(desc)));
+    }
+
+    /**
      * {@inheritDoc}
      */
     @Override

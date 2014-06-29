@@ -27,17 +27,29 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
 
     /**
      * Constructor
+     *
+     * @param category        the category
+     * @param includeChildren whether to include child categories or not
+     */
+    public CategoryVo(Category category, String lang, boolean includeChildren) {
+        super(category);
+
+        id = category.getId();
+        if (includeChildren) {
+            category.getChildren().forEach(child -> children.add(new CategoryVo(child)));
+        }
+        category.getDescs().stream()
+            .filter(desc -> lang == null || desc.getLang().equals(lang))
+            .forEach(desc -> getDescs().add(new CategoryDescVo(desc)));
+    }
+
+    /**
+     * Constructor
      * @param category the category
      * @param includeChildren whether to include child categories or not
      */
     public CategoryVo(Category category, boolean includeChildren) {
-        super(category);
-
-        id = category.getId();
-        category.getDescs().forEach(desc -> getDescs().add(new CategoryDescVo(desc)));
-        if (includeChildren) {
-            category.getChildren().forEach(child -> children.add(new CategoryVo(child)));
-        }
+        this(category, null, includeChildren);
     }
 
     /**

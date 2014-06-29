@@ -29,18 +29,31 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
 
     /**
      * Constructor
+     *
+     * @param area the area
+     * @param lang the language
+     * @param includeChildren whether to include child areas or not
+     */
+    public AreaVo(Area area, String lang, boolean includeChildren) {
+        super(area);
+
+        id = area.getId();
+        area.getLocations().forEach(loc -> locations.add(new LocationVo(loc, lang)));
+        if (includeChildren) {
+            area.getChildren().forEach(child -> children.add(new AreaVo(child, lang, includeChildren)));
+        }
+        area.getDescs().stream()
+            .filter(desc -> lang == null || desc.getLang().equals(lang))
+            .forEach(desc -> getDescs().add(new AreaDescVo(desc)));
+    }
+
+    /**
+     * Constructor
      * @param area the area
      * @param includeChildren whether to include child areas or not
      */
     public AreaVo(Area area, boolean includeChildren) {
-        super(area);
-
-        id = area.getId();
-        area.getLocations().forEach(loc -> locations.add(new LocationVo(loc)));
-        area.getDescs().forEach(desc -> getDescs().add(new AreaDescVo(desc)));
-        if (includeChildren) {
-            area.getChildren().forEach(child -> children.add(new AreaVo(child, includeChildren)));
-        }
+        this(area, null, includeChildren);
     }
 
     /**

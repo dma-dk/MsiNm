@@ -91,6 +91,7 @@ public class MessageRestService {
     @GZIP
     @NoCache
     public MessageSearchResult search(
+            @QueryParam("lang") String language,
             @QueryParam("q") String query,
             @QueryParam("status") @DefaultValue("ACTIVE") String status,
             @QueryParam("type") String type,
@@ -104,10 +105,11 @@ public class MessageRestService {
     ) throws Exception {
 
         log.info(String.format(
-                "Search with q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s",
-                query, status, type, loc, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder));
+                "Search with lang=%s, q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s",
+                language, query, status, type, loc, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder));
 
         MessageSearchParams params = new MessageSearchParams();
+        params.setLanguage(language);
         params.setStartIndex(startIndex);
         params.setMaxHits(maxHits);
 
