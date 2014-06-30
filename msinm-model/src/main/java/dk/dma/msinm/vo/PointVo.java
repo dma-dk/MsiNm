@@ -27,27 +27,22 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
      * @param point the point
      */
     public PointVo(Point point) {
-        super(point);
-
-        lat = point.getLat();
-        lon = point.getLon();
-        index = point.getIndex();
-        point.getDescs().forEach(desc -> getDescs().add(new PointDescVo(desc)));
+        this(point, new CopyOp());
     }
 
     /**
      * Constructor
      * @param point the point
-     * @param lang the language
+     * @param copyOp what type of data to copy from the entity
      */
-    public PointVo(Point point, String lang) {
+    public PointVo(Point point, CopyOp copyOp) {
         super(point);
 
         lat = point.getLat();
         lon = point.getLon();
         index = point.getIndex();
         point.getDescs().stream()
-            .filter(desc -> lang == null || desc.getLang().equals(lang))
+            .filter(copyOp::copyLang)
             .forEach(desc -> getDescs().add(new PointDescVo(desc)));
     }
 

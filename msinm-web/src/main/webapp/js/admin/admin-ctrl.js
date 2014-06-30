@@ -132,7 +132,7 @@ angular.module('msinm.admin')
             $scope.action = "add";
             $scope.editArea = LangService.checkDescs({ locations: [] }, ensureNameField);
             if ($scope.area) {
-                $scope.editArea.parentId = $scope.area.id;
+                $scope.editArea.parent = { id: $scope.area.id };
             }
             $scope.areaForm.$setPristine()
         };
@@ -418,7 +418,7 @@ angular.module('msinm.admin')
             $scope.action = "add";
             $scope.editCategory = LangService.checkDescs({ }, ensureNameField);
             if ($scope.category) {
-                $scope.editCategory.parentId = $scope.category.id;
+                $scope.editCategory.parent = { id: $scope.category.id };
             }
             $scope.categoryForm.$setPristine()
         };

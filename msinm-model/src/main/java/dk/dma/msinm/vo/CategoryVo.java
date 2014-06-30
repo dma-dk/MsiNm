@@ -16,7 +16,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescVo> {
     Integer id;
-    Integer parentId;
+    CategoryVo parent;
     List<CategoryVo> children = new ArrayList<>();
 
     /**
@@ -28,54 +28,28 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
     /**
      * Constructor
      *
-     * @param category        the category
-     * @param includeChildren whether to include child categories or not
+     * @param category the category
+     * @param copyOp what type of data to copy from the entity
      */
-    public CategoryVo(Category category, String lang, boolean includeChildren) {
+    public CategoryVo(Category category, CopyOp copyOp) {
         super(category);
 
         id = category.getId();
-        if (includeChildren) {
-            category.getChildren().forEach(child -> children.add(new CategoryVo(child)));
+
+        if (copyOp.copy(CopyOp.CHILDREN)) {
+            category.getChildren().forEach(child -> children.add(new CategoryVo(child, copyOp)));
         }
+
+        if (copyOp.copy(CopyOp.PARENT) && category.getParent() != null) {
+            parent = new CategoryVo(category.getParent(), copyOp);
+        } else if (copyOp.copy(CopyOp.PARENT_ID) && category.getParent() != null) {
+            parent = new CategoryVo();
+            parent.setId(category.getParent().getId());
+        }
+
         category.getDescs().stream()
-            .filter(desc -> lang == null || desc.getLang().equals(lang))
+            .filter(copyOp::copyLang)
             .forEach(desc -> getDescs().add(new CategoryDescVo(desc)));
-    }
-
-    /**
-     * Constructor
-     * @param category the category
-     * @param includeChildren whether to include child categories or not
-     */
-    public CategoryVo(Category category, boolean includeChildren) {
-        this(category, null, includeChildren);
-    }
-
-    /**
-     * Constructor
-     * @param category the category
-     */
-    public CategoryVo(Category category) {
-        this(category, true);
-    }
-
-    /**
-     * Constructor
-     *
-     * This version only reads the description records with given language,
-     * and discards locations and child categories
-     *
-     * @param category the category
-     */
-    public CategoryVo(Category category, String lang) {
-        super(category);
-
-        id = category.getId();
-        parentId = (category.getParent() == null) ? null : category.getParent().getId();
-        category.getDescs().stream()
-                .filter(desc -> desc.getLang().equals(lang))
-                .forEach(desc -> getDescs().add(new CategoryDescVo(desc)));
     }
 
     /**
@@ -99,13 +73,12 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
         this.id = id;
     }
 
-
-    public Integer getParentId() {
-        return parentId;
+    public CategoryVo getParent() {
+        return parent;
     }
 
-    public void setParentId(Integer parentId) {
-        this.parentId = parentId;
+    public void setParent(CategoryVo parent) {
+        this.parent = parent;
     }
 
     public List<CategoryVo> getChildren() {

@@ -31,27 +31,22 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
      * @param location the location
      */
     public LocationVo(Location location) {
-        super(location);
-
-        type = location.getType().toString();
-        radius = location.getRadius();
-        location.getPoints().forEach(point -> points.add(new PointVo(point)));
-        location.getDescs().forEach(desc -> getDescs().add(new LocationDescVo(desc)));
+        this(location, CopyOp.get("points"));
     }
 
     /**
      * Constructor
      * @param location the location
-     * @param lang the language
+     * @param copyOp what type of data to copy from the entity
      */
-    public LocationVo(Location location, String lang) {
+    public LocationVo(Location location, CopyOp copyOp) {
         super(location);
 
         type = location.getType().toString();
         radius = location.getRadius();
-        location.getPoints().forEach(point -> points.add(new PointVo(point, lang)));
+        location.getPoints().forEach(point -> points.add(new PointVo(point, copyOp)));
         location.getDescs().stream()
-                .filter(desc -> lang == null || desc.getLang().equals(lang))
+                .filter(copyOp::copyLang)
                 .forEach(desc -> getDescs().add(new LocationDescVo(desc)));
     }
 

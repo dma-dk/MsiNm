@@ -14,6 +14,7 @@ import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageSeriesIdentifier;
 import dk.dma.msinm.model.PointDesc;
+import dk.dma.msinm.vo.CopyOp;
 import dk.dma.msinm.vo.LocationVo;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.commons.lang.StringUtils;
@@ -349,7 +350,9 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             List<Message> pagedResult = em
                     .createQuery(msgQuery)
                     .getResultList();
-            result.addMessages(pagedResult, param.getLanguage());
+
+            // Copy the specified language and parent references of the included Area
+            result.addMessages(pagedResult, CopyOp.get(CopyOp.PARENT).setLang(param.getLanguage()));
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");

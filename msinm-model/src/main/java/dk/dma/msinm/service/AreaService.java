@@ -6,6 +6,7 @@ import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.AreaDesc;
 import dk.dma.msinm.vo.AreaVo;
+import dk.dma.msinm.vo.CopyOp;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -58,17 +59,17 @@ public class AreaService extends BaseService {
         //        .collect(Collectors.toMap(Area::getId, area -> new AreaVo(area, language)));
         Map<Integer, AreaVo> areaLookup = new HashMap<>();
         areas.stream()
-                .forEach(area -> areaLookup.put(area.getId(), new AreaVo(area, language)));
+                .forEach(area -> areaLookup.put(area.getId(), new AreaVo(area, CopyOp.get(CopyOp.PARENT_ID).setLang(language))));
 
 
         // Add non-roots as child areas to their parent area
         areaLookup.values().stream()
-                .filter(areaVo -> areaVo.getParentId() != null)
-                .forEach(areaVo -> areaLookup.get(areaVo.getParentId()).getChildren().add(areaVo));
+                .filter(areaVo -> areaVo.getParent() != null)
+                .forEach(areaVo -> areaLookup.get(areaVo.getParent().getId()).getChildren().add(areaVo));
 
         // Return roots
         return areaLookup.values().stream()
-                .filter(areaVo -> areaVo.getParentId() == null)
+                .filter(areaVo -> areaVo.getParent() == null)
                 .collect(Collectors.toList());
     }
 
@@ -86,7 +87,7 @@ public class AreaService extends BaseService {
         }
 
         // NB: No child areas included
-        return new AreaVo(area, false);
+        return new AreaVo(area, CopyOp.get("locations"));
     }
 
     /**

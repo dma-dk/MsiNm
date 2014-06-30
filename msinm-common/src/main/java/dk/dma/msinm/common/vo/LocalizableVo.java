@@ -28,11 +28,17 @@ public abstract class LocalizableVo<E extends BaseEntity & ILocalizable, D exten
         super(entity);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public List<D> getDescs() {
         return descs;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void setDescs(List<D> descs) {
         this.descs = descs;

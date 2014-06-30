@@ -47,44 +47,32 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     /**
      * Constructor
      * @param message the message
+     * @param copyOp what type of data to copy from the entity
      */
-    public MessageVo(Message message) {
+    public MessageVo(Message message, CopyOp copyOp) {
         super(message);
 
         id = message.getId();
-        seriesIdentifier = message.getSeriesIdentifier();
-        status = message.getStatus();
-        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), false);
-        message.getCategories().forEach(cat -> categories.add(new CategoryVo(cat, false)));
-        message.getLocations().forEach(loc -> locations.add(new LocationVo(loc)));
-        charts.addAll(message.getCharts());
-        horizontalDatum = message.getHorizontalDatum();
-        validFrom = message.getValidFrom();
-        validTo = message.getValidTo();
-        cancellationDate = message.getCancellationDate();
-        cancellations.addAll(message.getCancellations());
-        lightsListNumbers.addAll(message.getLightsListNumbers());
-        originalInformation = message.isOriginalInformation();
-        message.getDescs().forEach(desc -> getDescs().add(new MessageDescVo(desc)));
-    }
 
-    /**
-     * Constructor
-     * This version is used for search results and only contains a subset of the message data
-     * @param message the message
-     * @param lang the language
-     */
-    public MessageVo(Message message, String lang) {
-        super(message);
-
-        id = message.getId();
-        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), lang, false);
-        message.getLocations().forEach(loc -> locations.add(new LocationVo(loc, lang)));
+        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), copyOp);
+        message.getLocations().forEach(loc -> locations.add(new LocationVo(loc, copyOp)));
         validFrom = message.getValidFrom();
         validTo = message.getValidTo();
         message.getDescs().stream()
-            .filter(desc -> lang == null || desc.getLang().equals(lang))
-            .forEach(desc -> getDescs().add(new MessageDescVo(desc)));
+                .filter(copyOp::copyLang)
+                .forEach(desc -> getDescs().add(new MessageDescVo(desc)));
+
+        if (copyOp.copy("details")) {
+            seriesIdentifier = message.getSeriesIdentifier();
+            status = message.getStatus();
+            message.getCategories().forEach(cat -> categories.add(new CategoryVo(cat, CopyOp.get(CopyOp.PARENT))));
+            charts.addAll(message.getCharts());
+            horizontalDatum = message.getHorizontalDatum();
+            cancellationDate = message.getCancellationDate();
+            cancellations.addAll(message.getCancellations());
+            lightsListNumbers.addAll(message.getLightsListNumbers());
+            originalInformation = message.isOriginalInformation();
+        }
     }
 
     /**

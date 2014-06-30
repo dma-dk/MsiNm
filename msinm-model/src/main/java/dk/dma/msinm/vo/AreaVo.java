@@ -17,7 +17,7 @@ import java.util.List;
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     Integer id;
-    Integer parentId;
+    AreaVo parent;
     List<LocationVo> locations = new ArrayList<>();
     List<AreaVo> children = new ArrayList<>();
 
@@ -31,54 +31,30 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
      * Constructor
      *
      * @param area the area
-     * @param lang the language
-     * @param includeChildren whether to include child areas or not
+     * @param copyOp what type of data to copy from the entity
      */
-    public AreaVo(Area area, String lang, boolean includeChildren) {
+    public AreaVo(Area area, CopyOp copyOp) {
         super(area);
 
         id = area.getId();
-        area.getLocations().forEach(loc -> locations.add(new LocationVo(loc, lang)));
-        if (includeChildren) {
-            area.getChildren().forEach(child -> children.add(new AreaVo(child, lang, includeChildren)));
+
+        if (copyOp.copy("locations")) {
+            area.getLocations().forEach(loc -> locations.add(new LocationVo(loc, copyOp)));
         }
+
+        if (copyOp.copy(CopyOp.CHILDREN)) {
+            area.getChildren().forEach(child -> children.add(new AreaVo(child, copyOp)));
+        }
+
+        if (copyOp.copy(CopyOp.PARENT) && area.getParent() != null) {
+            parent = new AreaVo(area.getParent(), copyOp);
+        } else if (copyOp.copy(CopyOp.PARENT_ID) && area.getParent() != null) {
+            parent = new AreaVo();
+            parent.setId(area.getParent().getId());
+        }
+
         area.getDescs().stream()
-            .filter(desc -> lang == null || desc.getLang().equals(lang))
-            .forEach(desc -> getDescs().add(new AreaDescVo(desc)));
-    }
-
-    /**
-     * Constructor
-     * @param area the area
-     * @param includeChildren whether to include child areas or not
-     */
-    public AreaVo(Area area, boolean includeChildren) {
-        this(area, null, includeChildren);
-    }
-
-    /**
-     * Constructor
-     * @param area the area
-     */
-    public AreaVo(Area area) {
-        this(area, true);
-    }
-
-    /**
-     * Constructor
-     *
-     * This version only reads the description records with given language,
-     * and discards locations and child areas
-     *
-     * @param area the area
-     */
-    public AreaVo(Area area, String lang) {
-        super(area);
-
-        id = area.getId();
-        parentId = (area.getParent() == null) ? null : area.getParent().getId();
-        area.getDescs().stream()
-            .filter(desc -> desc.getLang().equals(lang))
+            .filter(copyOp::copyLang)
             .forEach(desc -> getDescs().add(new AreaDescVo(desc)));
     }
 
@@ -106,13 +82,12 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         this.id = id;
     }
 
-
-    public Integer getParentId() {
-        return parentId;
+    public AreaVo getParent() {
+        return parent;
     }
 
-    public void setParentId(Integer parentId) {
-        this.parentId = parentId;
+    public void setParent(AreaVo parent) {
+        this.parent = parent;
     }
 
     public List<LocationVo> getLocations() {

@@ -90,8 +90,14 @@ angular.module('msinm.common')
             },
             link: function(scope, element, attrs) {
                 if (attrs.msiArea) {
-                    var desc = LangService.desc(scope.msiArea.area);
-                    element.html((desc) ? desc.name : '');
+                    var desc = LangService.desc(scope.msiArea);
+                    var areas = (desc && desc.vicinity) ? desc.vicinity : '';
+                    for (var area = scope.msiArea.area; area; area = area.parent) {
+                        desc = LangService.desc(area);
+                        var areaName = (desc) ? desc.name : '';
+                        areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
+                    }
+                    element.html(areas);
                 }
             }
         };

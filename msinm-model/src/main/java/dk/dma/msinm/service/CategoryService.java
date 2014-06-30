@@ -6,6 +6,7 @@ import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.CategoryDesc;
 import dk.dma.msinm.vo.CategoryVo;
+import dk.dma.msinm.vo.CopyOp;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -54,21 +55,19 @@ public class CategoryService extends BaseService {
                 .getResultList();
 
         // Create a lookup map
-        //Map<Integer, CategoryVo> categoryLookup = categories.stream()
-        //        .collect(Collectors.toMap(Category::getId, category -> new CategoryVo(category, language)));
         Map<Integer, CategoryVo> categoryLookup = new HashMap<>();
         categories.stream()
-                .forEach(category -> categoryLookup.put(category.getId(), new CategoryVo(category, language)));
+                .forEach(category -> categoryLookup.put(category.getId(), new CategoryVo(category, CopyOp.get(CopyOp.PARENT_ID).setLang(language))));
 
 
         // Add non-roots as child categories to their parent category
         categoryLookup.values().stream()
-                .filter(categoryVo -> categoryVo.getParentId() != null)
-                .forEach(categoryVo -> categoryLookup.get(categoryVo.getParentId()).getChildren().add(categoryVo));
+                .filter(categoryVo -> categoryVo.getParent() != null)
+                .forEach(categoryVo -> categoryLookup.get(categoryVo.getParent().getId()).getChildren().add(categoryVo));
 
         // Return roots
         return categoryLookup.values().stream()
-                .filter(categoryVo -> categoryVo.getParentId() == null)
+                .filter(categoryVo -> categoryVo.getParent() == null)
                 .collect(Collectors.toList());
     }
 
@@ -86,7 +85,7 @@ public class CategoryService extends BaseService {
         }
 
         // NB: No child categories included
-        return new CategoryVo(category, false);
+        return new CategoryVo(category, CopyOp.get());
     }
 
     /**
