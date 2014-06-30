@@ -13,7 +13,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.legacy.service;
+package dk.dma.msinm.legacy.msi.service;
 
 import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.common.settings.Settings;

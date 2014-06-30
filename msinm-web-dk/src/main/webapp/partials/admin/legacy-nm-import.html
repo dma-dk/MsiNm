@@ -1,0 +1,26 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Import Legacy NM PDF</h2>
+    </div>
+
+    <div class="modal-body">
+
+        <form name="import_form">
+
+            <div class="form-controls">
+
+                <div class="form-group">
+                    <msi-file-upload repo-folder="'/rest/import/legacy-nm-import/upload-pdf'" drop-text="or drop .pdf file here"
+                                     file-types="'pdf'" auto-upload="true" remove-after-upload="true"
+                                     success="pdfFileUploaded(result)"></msi-file-upload>
+                </div>
+
+                <div style="margin-top: 24px">
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

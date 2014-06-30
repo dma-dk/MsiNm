@@ -102,7 +102,7 @@ public class MessageService extends BaseService {
                     .setParameter("year", messageYear)
                     .setParameter("authority", messageAuthority)
                     .getSingleResult();
-        } catch (NoResultException ex) {
+        } catch (Exception ex) {
             return null;
         }
     }

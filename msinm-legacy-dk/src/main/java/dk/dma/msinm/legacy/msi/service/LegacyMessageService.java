@@ -13,12 +13,12 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.legacy.service;
+package dk.dma.msinm.legacy.msi.service;
 
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.legacy.model.LegacyMessage;
+import dk.dma.msinm.legacy.msi.model.LegacyMessage;
 import dk.dma.msinm.model.*;
 import dk.dma.msinm.service.AreaService;
 import dk.frv.msiedit.core.webservice.message.MsiDto;

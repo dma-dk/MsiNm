@@ -26,6 +26,22 @@ public class ChartService extends BaseService {
     }
 
     /**
+     * Returns the chart with the given chart number
+     * @param chartNumber the chart number
+     * @return the chart with the given chart number
+     */
+    public Chart findByChartNumber(String chartNumber) {
+        try {
+            return em
+                    .createNamedQuery("Chart.findByChartNumber", Chart.class)
+                    .setParameter("chartNumber", chartNumber)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * Updates the chart data from the chart template
      * @param chart the chart to update
      * @return the updated chart

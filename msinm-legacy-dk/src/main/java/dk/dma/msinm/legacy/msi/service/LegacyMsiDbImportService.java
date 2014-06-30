@@ -13,14 +13,14 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.legacy.service;
+package dk.dma.msinm.legacy.msi.service;
 
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
-import dk.dma.msinm.legacy.model.LegacyMessage;
+import dk.dma.msinm.legacy.msi.model.LegacyMessage;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Location;

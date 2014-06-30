@@ -26,19 +26,19 @@
                         Import Legacy MSI &nbsp; <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
-                        <li><a href ng-click="importMsiNm()">Import Active MSI</a></li>
-                        <li><a href ng-click="legacyImportDlg()">Import legacy DB MSI...</a></li>
+                        <li><a href ng-click="importActiveMsi()">Import Active MSI</a></li>
+                        <li><a href ng-click="legacyMsiImportDlg()">Import legacy DB MSI...</a></li>
                     </ul>
                 </div>
             </div>
 
-            <div class="col-sm-5 col-sm-offset-1">
+            <div class="col-sm-5 col-sm-offset-1" ng-controller="LegacyCtrl">
                 <h2>NM</h2>
                 <p>
                     Notices to Mariners can be imported by scraping existing PDF documents, with the format used by
                     <a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/EfterretningerForSoefarende/Sider/Default.aspx" target="_blank">Søfartsstyrelsen</a>.
                 </p>
-                <button type="button" class="btn btn-sm btn-default">
+                <button type="button" class="btn btn-sm btn-default" ng-click="legacyNMImportDlg()">
                     Import Legacy NM...
                 </button>
             </div>

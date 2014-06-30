@@ -13,7 +13,7 @@ angular.module('msinm.admin')
 
             $scope.importCount = 500;
 
-            $scope.importMsiNm = function () {
+            $scope.importActiveMsi = function () {
                 LegacyService.importMsiNm(function(data) {
                         console.log("Imported legacy MSI");
                     },
@@ -22,7 +22,7 @@ angular.module('msinm.admin')
                     });
             };
 
-            $scope.legacyImportDlg = function() {
+            $scope.legacyMsiImportDlg = function() {
 
                 $scope.importLegacyMsiDialog = $modal.open({
                     templateUrl : "/partials/admin/import-legacy-msi-dialog.html"
@@ -30,7 +30,7 @@ angular.module('msinm.admin')
                 return $scope.importLegacyMsiDialog;
             };
 
-            $scope.legacyImport = function() {
+            $scope.legacyMsiImport = function() {
                 LegacyService.importLegacyMsi(
                     $scope.importCount,
                     function(data) {
@@ -42,6 +42,23 @@ angular.module('msinm.admin')
 
                 $scope.$close();
             };
+
+            // Open modal dialog for uploading and importing legacy NM PDF's.
+            $scope.legacyNMImportDlg = function() {
+
+                console.log("IMPORTING PDF");
+                $scope.modalInstance = $modal.open({
+                    templateUrl : "/partials/admin/legacy-nm-import.html",
+                    controller: function ($scope) {
+                        $scope.pdfFileUploaded = function(result) {
+                            console.log("PDF UPLOADED " + result);
+                            $scope.$close();
+                        };
+                    }
+                });
+            };
+
+
         }]);
 
 

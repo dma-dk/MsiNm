@@ -5,6 +5,7 @@ import dk.dma.msinm.common.model.ILocalizedDesc;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.Lob;
 
 /**
  * Localized contents for the Message entity
@@ -15,11 +16,12 @@ public class MessageDesc extends DescEntity<Message>  {
     @Column(length = 1000)
     String title;
 
-    @Column(length = 4000)
+    @Lob
     String description;
 
     String otherCategories;
 
+    @Column(length = 1000)
     String time;
 
     String vicinity;
