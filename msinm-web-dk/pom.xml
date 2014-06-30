@@ -18,6 +18,7 @@
         <msinm-common.jar>msinm-common-${project.version}.jar</msinm-common.jar>
         <msinm-model.jar>msinm-model-${project.version}.jar</msinm-model.jar>
         <msinm-user.jar>msinm-user-${project.version}.jar</msinm-user.jar>
+        <msinm-legacy-dk.jar>msinm-legacy-dk-${project.version}.jar</msinm-legacy-dk.jar>
     </properties>
 
     <dependencies>
@@ -41,17 +42,16 @@
             <artifactId>msinm-user</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-legacy-dk</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
         <!--dependency>
             <groupId>dk.dma.msinm</groupId>
             <artifactId>msinm-cloud</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency-->
-        <dependency>
-            <groupId>dk.dma.msinm</groupId>
-            <artifactId>msinm-test</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>test</scope>
-        </dependency>
         <dependency>
             <groupId>dk.dma.msinm</groupId>
             <artifactId>msinm-web</artifactId>
@@ -69,61 +69,29 @@
 
     <build>
 
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+                <includes>
+                    <include>**/persistence.xml</include>
+                </includes>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>false</filtering>
+                <excludes>
+                    <exclude>**/persistence.xml</exclude>
+                </excludes>
+            </resource>
+        </resources>
+
         <plugins>
             <plugin>
                 <groupId>org.wildfly.plugins</groupId>
                 <artifactId>wildfly-maven-plugin</artifactId>
                 <version>1.0.1.Final</version>
             </plugin>
-
-            <!-- Generate sources from wsdl -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>1.12</version>
-                <executions>
-                    <execution>
-                        <id>wsimport-from-jdk</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <!--wsdls file directory -->
-                    <wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
-                    <!-- which wsdl file -->
-                    <wsdlFiles>
-                        <wsdlFile>warning.wsdl</wsdlFile>
-                    </wsdlFiles>
-                    <!-- Keep generated files -->
-                    <keep>true</keep>
-                    <!-- generated source files destination-->
-                    <sourceDestDir>${basedir}/target/generated</sourceDestDir>
-                    <sei/>
-                </configuration>
-            </plugin>
-
-            <!-- adding generated source -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${basedir}/target/generated</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

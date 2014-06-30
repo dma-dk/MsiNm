@@ -180,6 +180,7 @@
         <module>msinm-lucene</module>
         <module>msinm-cloud</module>
         <module>msinm-web</module>
+        <module>msinm-legacy-dk</module>
         <module>msinm-web-dk</module>
     </modules>
 
