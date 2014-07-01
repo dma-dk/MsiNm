@@ -26,9 +26,9 @@ import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.MessageSeriesIdentifier;
-import dk.dma.msinm.model.MessageStatus;
-import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Status;
+import dk.dma.msinm.model.Type;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.model.Priority;
 import dk.dma.msinm.service.AreaService;
@@ -173,22 +173,22 @@ public class LegacyMsiDbImportService {
                     Message message = new Message();
                     legacyMessage.setMessage(message);
 
-                    MessageSeriesIdentifier identifier = message.getSeriesIdentifier();
+                    SeriesIdentifier identifier = message.getSeriesIdentifier();
                     if (identifier == null) {
-                        identifier = new MessageSeriesIdentifier();
+                        identifier = new SeriesIdentifier();
                         message.setSeriesIdentifier(identifier);
                         identifier.setNumber((int) sequences.getNextValue(Message.MESSAGE_SEQUENCE));
                         identifier.setAuthority("DMA");
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(validFrom);
                         identifier.setYear(cal.get(Calendar.YEAR));
-                        identifier.setType(MessageType.NAVAREA_WARNING);
                     }
 
                     // Message
                     message.setCreated(created);
                     message.setUpdated(updated);
-                    message.setStatus(deleted != null ? MessageStatus.DELETED : (statusDraft ? MessageStatus.DRAFT : MessageStatus.ACTIVE));
+                    message.setType(Type.NAVAREA_WARNING);
+                    message.setStatus(deleted != null ? Status.DELETED : (statusDraft ? Status.DRAFT : Status.ACTIVE));
                     message.setValidFrom(validFrom);
                     message.setValidTo(validTo);
                     try {

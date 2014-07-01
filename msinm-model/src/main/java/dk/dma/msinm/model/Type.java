@@ -18,7 +18,7 @@ package dk.dma.msinm.model;
 /**
  * Message type for message series identifier
  */
-public enum MessageType {
+public enum Type {
     // NtM types
     PERMANENT_NOTICE, 
     TEMPORARY_NOTICE, 

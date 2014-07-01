@@ -28,15 +28,11 @@ import javax.validation.constraints.NotNull;
  * A unique identifier for an MSI or NtM message
  */
 @Entity
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "type", "authority", "number", "year"}))
-public class MessageSeriesIdentifier extends BaseEntity<Integer> {
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "authority", "number", "year"}))
+public class SeriesIdentifier extends BaseEntity<Integer> {
 
     private static final long serialVersionUID = 1L;
 
-    @NotNull
-    @Enumerated(EnumType.STRING)
-    private MessageType type;
-    
     @NotNull
     private String authority;
     
@@ -46,15 +42,7 @@ public class MessageSeriesIdentifier extends BaseEntity<Integer> {
     @NotNull
     private Integer year;
     
-    public MessageSeriesIdentifier() {
-    }
-
-    public MessageType getType() {
-        return type;
-    }
-
-    public void setType(MessageType type) {
-        this.type = type;
+    public SeriesIdentifier() {
     }
 
     public String getAuthority() {

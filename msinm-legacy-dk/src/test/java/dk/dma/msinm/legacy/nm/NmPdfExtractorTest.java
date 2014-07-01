@@ -1,7 +1,7 @@
 package dk.dma.msinm.legacy.nm;
 
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.model.Type;
 import org.junit.Test;
 
 import java.io.File;
@@ -37,7 +37,7 @@ public class NmPdfExtractorTest {
 
         Message msg = notices.get(0);
         assertEquals(new Integer(548), msg.getSeriesIdentifier().getNumber());
-        assertEquals(MessageType.TEMPORARY_NOTICE, msg.getSeriesIdentifier().getType());
+        assertEquals(Type.TEMPORARY_NOTICE, msg.getType());
         assertEquals("104", msg.getCharts().get(0).getChartNumber());
         assertEquals(1, msg.getLocations().size());
         assertEquals(1, msg.getLocations().get(0).getPoints().size());

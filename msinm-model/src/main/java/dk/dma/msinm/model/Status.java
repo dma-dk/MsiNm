@@ -18,7 +18,7 @@ package dk.dma.msinm.model;
 /**
  * Defines the message status
  */
-public enum MessageStatus {
+public enum Status {
     ACTIVE,
     DRAFT,
     DELETED

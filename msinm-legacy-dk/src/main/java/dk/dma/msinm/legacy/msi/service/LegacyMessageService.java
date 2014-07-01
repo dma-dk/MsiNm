@@ -93,7 +93,7 @@ public class LegacyMessageService extends BaseService {
             legacyMessage.setVersion(msi.getVersion());
 
             Message message = new Message();
-            message.setStatus(MessageStatus.ACTIVE);
+            message.setStatus(Status.ACTIVE);
             legacyMessage.setMessage(message);
         } else if (legacyMessage.getVersion() >= msi.getVersion()) {
             // No further updates...
@@ -122,15 +122,16 @@ public class LegacyMessageService extends BaseService {
      */
     private void updateMessage(MsiDto msi, Message message) {
         // Message series identifier
-        MessageSeriesIdentifier identifier = message.getSeriesIdentifier();
+        SeriesIdentifier identifier = message.getSeriesIdentifier();
         if (identifier == null) {
-            identifier = new MessageSeriesIdentifier();
+            identifier = new SeriesIdentifier();
             message.setSeriesIdentifier(identifier);
             identifier.setNumber((int) sequences.getNextValue(Message.MESSAGE_SEQUENCE));
             identifier.setAuthority(msi.getOrganisation());
             identifier.setYear(msi.getCreated().toGregorianCalendar().get(Calendar.YEAR));
-            identifier.setType(MessageType.NAVAREA_WARNING);
         }
+
+        message.setType(Type.NAVAREA_WARNING);
 
         // Area
         // Find Denmark

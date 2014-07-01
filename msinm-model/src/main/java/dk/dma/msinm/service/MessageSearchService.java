@@ -12,12 +12,11 @@ import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.CategoryDesc;
 import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageSeriesIdentifier;
+import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.PointDesc;
 import dk.dma.msinm.vo.CopyOp;
 import dk.dma.msinm.vo.LocationVo;
 import dk.dma.msinm.vo.MessageVo;
-import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
@@ -177,7 +176,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     @Override
     protected boolean shouldAddEntity(Message entity) {
         return true;
-        //return entity.getStatus() != MessageStatus.DELETED;
+        //return entity.getStatus() != Status.DELETED;
     }
 
     /**
@@ -286,7 +285,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // Select messages
             Root<Message> msgRoot = tupleQuery.from(Message.class);
             msgRoot.join("seriesIdentifier", JoinType.LEFT);
-            javax.persistence.criteria.Path<MessageSeriesIdentifier> msgId = msgRoot.get("seriesIdentifier");
+            javax.persistence.criteria.Path<SeriesIdentifier> msgId = msgRoot.get("seriesIdentifier");
 
             // Build the predicates based on the search parameters
             PredicateHelper<Tuple> tuplePredicateBuilder = new PredicateHelper<>(builder, tupleQuery)

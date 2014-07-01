@@ -51,11 +51,15 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
 
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
-    MessageSeriesIdentifier seriesIdentifier;
+    SeriesIdentifier seriesIdentifier;
 
     @NotNull
     @Enumerated(EnumType.STRING)
-    MessageStatus status;
+    Type type;
+
+    @NotNull
+    @Enumerated(EnumType.STRING)
+    Status status;
 
     @ManyToOne
     Area area;
@@ -85,7 +89,7 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
     Date cancellationDate;
 
     @OneToMany(cascade = CascadeType.ALL)
-    Set<MessageSeriesIdentifier> cancellations = new HashSet<>();
+    Set<SeriesIdentifier> cancellations = new HashSet<>();
 
     @NotNull
     Priority priority = Priority.NONE;
@@ -130,19 +134,27 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
 
     /******** Getters and setters *********/
 
-    public MessageSeriesIdentifier getSeriesIdentifier() {
+    public SeriesIdentifier getSeriesIdentifier() {
         return seriesIdentifier;
     }
 
-    public void setSeriesIdentifier(MessageSeriesIdentifier seriesIdentifier) {
+    public void setSeriesIdentifier(SeriesIdentifier seriesIdentifier) {
         this.seriesIdentifier = seriesIdentifier;
     }
 
-    public MessageStatus getStatus() {
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
+    }
+
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(MessageStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -210,11 +222,11 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
         this.cancellationDate = cancellationDate;
     }
 
-    public Set<MessageSeriesIdentifier> getCancellations() {
+    public Set<SeriesIdentifier> getCancellations() {
         return cancellations;
     }
 
-    public void setCancellations(Set<MessageSeriesIdentifier> cancellations) {
+    public void setCancellations(Set<SeriesIdentifier> cancellations) {
         this.cancellations = cancellations;
     }
 

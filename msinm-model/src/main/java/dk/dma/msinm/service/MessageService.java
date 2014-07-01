@@ -93,7 +93,7 @@ public class MessageService extends BaseService {
      * @param messageAuthority the message authority
      * @return the message or null if not found
      */
-    public Message findByMessageSeriesId(int messageNumber, int messageYear, String messageAuthority) {
+    public Message findBySeriesIdentifier(int messageNumber, int messageYear, String messageAuthority) {
         // Execute and return the result
         try {
             return em

@@ -30,9 +30,9 @@ import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.MessageSeriesIdentifier;
-import dk.dma.msinm.model.MessageStatus;
-import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Status;
+import dk.dma.msinm.model.Type;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.model.PointDesc;
 import dk.dma.msinm.test.MsiNmUnitTest;
@@ -79,7 +79,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
                 SequenceEntity.class, SettingsEntity.class,
                 Message.class, MessageDesc.class, Location.class, LocationDesc.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
-                Chart.class, Point.class, PointDesc.class, MessageSeriesIdentifier.class
+                Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
         );
     }
 
@@ -123,14 +123,14 @@ public class MessageServiceTest extends MsiNmUnitTest {
     public static Message createMessage() throws ParseException {
         Message message = new Message();
 
-        message.setStatus(MessageStatus.ACTIVE);
+        message.setStatus(Status.ACTIVE);
+        message.setType(Type.NAVAREA_WARNING);
 
         // Message series identifier
-        MessageSeriesIdentifier identifier = new MessageSeriesIdentifier();
+        SeriesIdentifier identifier = new SeriesIdentifier();
         identifier.setAuthority("DMA");
         identifier.setYear(2013);
         identifier.setNumber(new Random(System.currentTimeMillis()).nextInt(1000) + 1);
-        identifier.setType(MessageType.NAVAREA_WARNING);
 
         // Tie to message
         message.setSeriesIdentifier(identifier);

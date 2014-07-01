@@ -4,7 +4,7 @@ import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageStatus;
+import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Priority;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.ChartService;
@@ -12,7 +12,6 @@ import dk.dma.msinm.service.MessageService;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
@@ -141,7 +140,7 @@ public class LegacyNmImportService {
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     private Message importMessage(Message template) {
         // Check if the message already exists
-        Message message = messageService.findByMessageSeriesId(
+        Message message = messageService.findBySeriesIdentifier(
                 template.getSeriesIdentifier().getNumber(),
                 template.getSeriesIdentifier().getYear(),
                 template.getSeriesIdentifier().getAuthority()
@@ -153,7 +152,7 @@ public class LegacyNmImportService {
         // Fill out missing fields
         template.setValidFrom(new Date()); // TODO
         template.setPriority(Priority.NONE);
-        template.setStatus(MessageStatus.ACTIVE);
+        template.setStatus(Status.ACTIVE);
 
         try {
             // Make sure all charts are saved

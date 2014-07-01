@@ -6,8 +6,8 @@ import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.MessageSeriesIdentifier;
-import dk.dma.msinm.model.MessageStatus;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Status;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -23,8 +23,8 @@ import java.util.Set;
 public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     Integer id;
-    MessageSeriesIdentifier seriesIdentifier;
-    MessageStatus status;
+    SeriesIdentifier seriesIdentifier;
+    Status status;
     AreaVo area;
     List<CategoryVo> categories = new ArrayList<>();
     List<LocationVo> locations = new ArrayList<>();
@@ -33,7 +33,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     Date validFrom;
     Date validTo;
     Date cancellationDate;
-    Set<MessageSeriesIdentifier> cancellations = new HashSet<>();
+    Set<SeriesIdentifier> cancellations = new HashSet<>();
     List<String> lightsListNumbers = new ArrayList<>();
     boolean originalInformation;
 
@@ -125,19 +125,19 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         this.id = id;
     }
 
-    public MessageSeriesIdentifier getSeriesIdentifier() {
+    public SeriesIdentifier getSeriesIdentifier() {
         return seriesIdentifier;
     }
 
-    public void setSeriesIdentifier(MessageSeriesIdentifier seriesIdentifier) {
+    public void setSeriesIdentifier(SeriesIdentifier seriesIdentifier) {
         this.seriesIdentifier = seriesIdentifier;
     }
 
-    public MessageStatus getStatus() {
+    public Status getStatus() {
         return status;
     }
 
-    public void setStatus(MessageStatus status) {
+    public void setStatus(Status status) {
         this.status = status;
     }
 
@@ -205,11 +205,11 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         this.cancellationDate = cancellationDate;
     }
 
-    public Set<MessageSeriesIdentifier> getCancellations() {
+    public Set<SeriesIdentifier> getCancellations() {
         return cancellations;
     }
 
-    public void setCancellations(Set<MessageSeriesIdentifier> cancellations) {
+    public void setCancellations(Set<SeriesIdentifier> cancellations) {
         this.cancellations = cancellations;
     }
 

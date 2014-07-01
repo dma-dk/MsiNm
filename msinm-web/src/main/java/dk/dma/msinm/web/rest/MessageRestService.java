@@ -16,8 +16,8 @@
 package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.model.Location;
-import dk.dma.msinm.model.MessageStatus;
-import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.model.Status;
+import dk.dma.msinm.model.Type;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
@@ -129,12 +129,12 @@ public class MessageRestService {
         params.setQuery(query);
 
         if (StringUtils.isNotBlank(status)) {
-            params.setStatus(MessageStatus.valueOf(status));
+            params.setStatus(Status.valueOf(status));
         }
 
         if (StringUtils.isNotBlank(type)) {
             for (String msgType : type.split(",")) {
-                params.getTypes().add(MessageType.valueOf(msgType));
+                params.getTypes().add(Type.valueOf(msgType));
             }
         }
 

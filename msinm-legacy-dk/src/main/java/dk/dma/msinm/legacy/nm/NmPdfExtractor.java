@@ -5,8 +5,8 @@ import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.MessageSeriesIdentifier;
-import dk.dma.msinm.model.MessageType;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Type;
 import dk.dma.msinm.model.Point;
 import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -205,7 +205,7 @@ public class NmPdfExtractor {
                 }
                 // Extract the number
                 LinePart<String> parts = readFirstPart(line);
-                MessageSeriesIdentifier id = new MessageSeriesIdentifier();
+                SeriesIdentifier id = new SeriesIdentifier();
                 id.setYear(year);
                 id.setAuthority("DMA");
                 id.setNumber(Integer.valueOf(parts.part));
@@ -241,13 +241,13 @@ public class NmPdfExtractor {
         // First line -> type
         LinePart<String> parts = readFirstPart(line);
         if ("(P)".equalsIgnoreCase(parts.part)) {
-            notice.getSeriesIdentifier().setType(MessageType.PRELIMINARY_NOTICE);
+            notice.setType(Type.PRELIMINARY_NOTICE);
             line = parts.remainingLine;
         } else if ("(T)".equalsIgnoreCase(parts.part)) {
-            notice.getSeriesIdentifier().setType(MessageType.TEMPORARY_NOTICE);
+            notice.setType(Type.TEMPORARY_NOTICE);
             line = parts.remainingLine;
         } else {
-            notice.getSeriesIdentifier().setType(MessageType.PERMANENT_NOTICE);
+            notice.setType(Type.PERMANENT_NOTICE);
         }
 
         // First line -> locality and title

@@ -62,7 +62,7 @@ public class LegacyMsiServiceTest extends MsiNmUnitTest
                 LegacyMessage.class,
                 Message.class, MessageDesc.class, Location.class, LocationDesc.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
-                Chart.class, Point.class, PointDesc.class, MessageSeriesIdentifier.class
+                Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
         );
     }
 
