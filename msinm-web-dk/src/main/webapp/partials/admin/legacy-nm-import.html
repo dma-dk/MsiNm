@@ -7,6 +7,20 @@
 
     <div class="modal-body">
 
+        <p>
+            Please upload NM PDF files in the format found at
+            <a target="_blank" href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/EfterretningerForSoefarende/Sider/Default.aspx">Søfartsstyrelsen.</a>
+        </p>
+        <p>You can upload two types of PDF files, as exemplified by:</p>
+        <ul>
+            <li>
+                <strong>2014 EfS 26.pdf</strong>: Contains the actual NM's in the given week. Used for creating the NM messages.
+            </li>
+            <li>
+                <strong>2014 P&T 26.pdf</strong>: Contains the active NM's in the given week. Used for cancelling old NM's.
+            </li>
+        </ul>
+
         <form name="import_form">
 
             <div class="form-controls">
@@ -14,22 +28,7 @@
                 <div class="form-group">
                     <msi-file-upload repo-folder="'/rest/import/legacy-nm-import/upload-pdf'" drop-text="or drop .pdf file here"
                                      file-types="'pdf'" auto-upload="false" remove-after-upload="true"
-                                     data="uploadData" success="pdfFileUploaded(result)">
-
-                        <div class="form-group row" style="padding-top: 10px;">
-                            <label class="control-label col-xs-1" for="year">Year</label>
-                            <div class="col-xs-4">
-                                <input class="form-control input-xs" type="number" id="year" name="year" ng-model="uploadData.year" placeholder="Year">
-                            </div>
-                        </div>
-                        <div class="form-group row">
-                            <label class="control-label col-xs-1" for="week">Week</label>
-                            <div class="col-xs-4">
-                                <input class="form-control input-xs" type="number" id="week" name="week" ng-model="uploadData.week" placeholder="Week">
-                            </div>
-                        </div>
-
-                    </msi-file-upload>
+                                     success="pdfFileUploaded(result)"></msi-file-upload>
                 </div>
                 <div class="form-group">
                     <label class="control-label" for="importResult">Result</label>

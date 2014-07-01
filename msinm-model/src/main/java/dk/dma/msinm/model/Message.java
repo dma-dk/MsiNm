@@ -41,7 +41,10 @@ import java.util.Set;
     @NamedQuery(name="Message.findUpdateMessages",
                 query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
     @NamedQuery(name="Message.findActive",
-                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.validFrom asc")
+                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.validFrom asc"),
+    @NamedQuery(name="Message.findActiveTempPrelimNotices",
+                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' and (msg.type = 'TEMPORARY_NOTICE' or msg.type = 'PRELIMINARY_NOTICE') " +
+                      " and msg.validFrom < :date and (msg.validTo is null or msg.validTo > :date)")
 })
 public class Message extends VersionedEntity<Integer> implements ILocalizable<MessageDesc>, IPreloadable {
 

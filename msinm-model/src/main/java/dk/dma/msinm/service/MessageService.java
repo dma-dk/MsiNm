@@ -18,6 +18,7 @@ package dk.dma.msinm.service;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.SeriesIdentifier;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
@@ -25,9 +26,11 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.NoResultException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Business interface for accessing MSI-NM messages
@@ -141,4 +144,29 @@ public class MessageService extends BaseService {
         return message;
     }
 
+    /**
+     * Inactivate all active P&T NM messages created before the given date, excluding the given noticeIds
+     * @param noticeIds the P&T NM notices that should no be inactivated
+     * @param date the date
+     * @return the messages actually deactivated
+     */
+    public List<Message> inactivateTempPrelimNmMessages(List<SeriesIdentifier> noticeIds, Date date) {
+        List<Message> messages =
+                em.createNamedQuery("Message.findActiveTempPrelimNotices", Message.class)
+                .setParameter("date", date)
+                .getResultList();
+        List<Message> deactivated = new ArrayList<>();
+        Set<SeriesIdentifier> excludeIds = new HashSet<>();
+        excludeIds.addAll(noticeIds);
+
+        messages.stream()
+                .filter(msg -> !excludeIds.contains(msg.getSeriesIdentifier()))
+                .forEach(msg -> {
+                    msg.setValidTo(date);
+                    saveEntity(msg);
+                    deactivated.add(msg);
+                });
+
+        return deactivated;
+    }
 }

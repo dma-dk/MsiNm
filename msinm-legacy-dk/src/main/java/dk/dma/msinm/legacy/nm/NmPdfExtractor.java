@@ -38,6 +38,8 @@ import java.util.regex.Pattern;
  */
 public class NmPdfExtractor {
 
+    public static final String PDF_NAME_FORMAT = "^(\\d+) EfS (\\d+).pdf$";
+
     enum Line {
 
         PREVIOUS(10, "Tidligere EfS.", "Former EfS."),
@@ -82,11 +84,9 @@ public class NmPdfExtractor {
      * Constructor
      *
      * @param file the PDF file
-     * @param year the year
-     * @param week the week
      */
-    public NmPdfExtractor(File file, int year, int week) throws FileNotFoundException {
-        this(new FileInputStream(file), file.getName(), year, week);
+    public NmPdfExtractor(File file) throws FileNotFoundException {
+        this(new FileInputStream(file), file.getName());
     }
 
     /**
@@ -94,15 +94,35 @@ public class NmPdfExtractor {
      *
      * @param inputStream the PDF input stream
      * @param fileName the name of the PDF file
-     * @param year the year
-     * @param week the week
      */
-    public NmPdfExtractor(InputStream inputStream, String fileName, int year, int week) {
+    public NmPdfExtractor(InputStream inputStream, String fileName) {
         this.inputStream = inputStream;
         this.fileName = fileName;
 
-        this.year = year;
-        this.week = week;
+        Matcher m = getFileNameMatcher(fileName);
+        if (!m.matches()) {
+            throw new IllegalArgumentException("Invalid file name, " + fileName + ". Must have format 'yyyy EfS ww.pdf'");
+        }
+        this.year = Integer.valueOf(m.group(1));
+        this.week = Integer.valueOf(m.group(2));
+    }
+
+    /**
+     * Returns a matcher for the file name
+     * @param fileName the file name
+     * @return the matcher
+     */
+    public static Matcher getFileNameMatcher(String fileName) {
+        Pattern p = Pattern.compile(PDF_NAME_FORMAT);
+        return p.matcher(fileName);
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public int getWeek() {
+        return week;
     }
 
     /**

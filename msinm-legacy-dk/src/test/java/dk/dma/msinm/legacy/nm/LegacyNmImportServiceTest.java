@@ -76,7 +76,7 @@ public class LegacyNmImportServiceTest extends MsiNmUnitTest
         assertNotNull(pdf);
 
         StringBuilder txt = new StringBuilder();
-        List<Message> notices = nmImportService.importPDF(pdf, 2014, 21, txt);
+        List<Message> notices = nmImportService.importNmPdf(pdf, txt);
 
         log.info(txt.toString());
 

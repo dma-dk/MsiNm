@@ -5,6 +5,7 @@ import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Priority;
+import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.ChartService;
@@ -20,9 +21,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonObject;
-import javax.json.JsonReader;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -34,7 +32,6 @@ import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
-import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -76,69 +73,89 @@ public class LegacyNmImportService {
         ServletFileUpload upload = new ServletFileUpload(factory);
         List<FileItem> items = upload.parseRequest(request);
 
-        int year = 2014, week = 1;
-
-        for (FileItem item : items) {
-            if (item.isFormField() && "data".equals(item.getFieldName())) {
-                try {
-                    JsonReader rdr = Json.createReader(new StringReader(item.getString()));
-                    JsonObject obj = rdr.readObject();
-                    year = obj.getInt("year");
-                    week = obj.getInt("week");
-                } catch (Exception e) {
-                    log.warn("Failed to extract year and week parameters");
-                    return "Invalid week or year specified";
-                }
-            }
-        }
-
-
         for (FileItem item : items) {
             if (!item.isFormField()) {
-                if (item.getName().toLowerCase().endsWith(".pdf")) {
+                // NM PDF
+                if (NmPdfExtractor.getFileNameMatcher(item.getName()).matches()) {
                     StringBuilder txt = new StringBuilder();
-                    List<Message> result = importPDF(item.getInputStream(), item.getName(), year, week, txt);
+                    importNmPdf(item.getInputStream(), item.getName(), txt);
+                    return txt.toString();
+
+                } else if (ActiveTempPrelimNmPdfExtractor.getFileNameMatcher(item.getName()).matches()) {
+                    // Active P&T NM PDF
+                    StringBuilder txt = new StringBuilder();
+                    updateActiveNm(item.getInputStream(), item.getName(), txt);
                     return txt.toString();
                 }
             }
         }
 
-        return "No legacy NtM messages imported";
+        return "No valid PDF uploaded";
+    }
+
+    /**
+     * Extracts the list of active P&T NM's from the PDF
+     * @param inputStream the PDF input stream
+     * @param fileName the name of the PDF file
+     * @param txt a log of the import
+     */
+    private void updateActiveNm(InputStream inputStream, String fileName, StringBuilder txt) throws Exception {
+        log.info("Extracting active P&T NtM's from PDF " + fileName);
+
+        ActiveTempPrelimNmPdfExtractor extractor = new ActiveTempPrelimNmPdfExtractor(inputStream, fileName);
+
+        List<SeriesIdentifier> noticeIds = new ArrayList<>();
+        extractor.extractActiveNoticeIds(noticeIds);
+        log.info("Extracted " + noticeIds.size() + " active P&T NtM's from " + fileName);
+        txt.append("Detected " + noticeIds.size() + " active P&T NtM's in PDF file " + fileName + "\n");
+
+        DateTime weekStartDate =
+                new DateTime()
+                        .withYear(extractor.getYear())
+                        .withDayOfWeek(DateTimeConstants.MONDAY)
+                        .withWeekOfWeekyear(extractor.getWeek());
+
+        List<Message> messages = messageService.inactivateTempPrelimNmMessages(noticeIds, weekStartDate.toDate());
+        messages.forEach(msg -> {
+            txt.append("Inactivate NtM " + msg.getSeriesIdentifier() + "\n");
+        });
+        log.info("Inactivated " + messages.size());
     }
 
     /**
      * Imports the NtM PDF file
      * @param pdf the NtM PDF file
-     * @param year the year
-     * @param week the week
      * @param txt a log of the import
      * @return the imported messages
      */
-    public List<Message> importPDF(File pdf, int year, int week, StringBuilder txt) throws Exception {
-        return importPDF(new FileInputStream(pdf), pdf.getName(), year, week, txt);
+    public List<Message> importNmPdf(File pdf, StringBuilder txt) throws Exception {
+        return importNmPdf(new FileInputStream(pdf), pdf.getName(), txt);
     }
 
     /**
      * Imports the NtM PDF file
      * @param inputStream the PDF input stream
      * @param fileName the name of the PDF file
-     * @param year the year
-     * @param week the week
      * @param txt a log of the import
      * @return the imported messages
      */
-    public List<Message> importPDF(InputStream inputStream, String fileName, int year, int week, StringBuilder txt) throws Exception {
+    public List<Message> importNmPdf(InputStream inputStream, String fileName, StringBuilder txt) throws Exception {
 
         log.info("Extracting NtM's from PDF " + fileName);
 
         List<Message> templates = new ArrayList<>();
-        NmPdfExtractor extractor = new NmPdfExtractor(inputStream, fileName, year, week);
+        NmPdfExtractor extractor = new NmPdfExtractor(inputStream, fileName);
         extractor.extractNotices(templates);
         log.info("Extracted " + templates.size() + " NtM's from " + fileName);
         txt.append("Detected " + templates.size() + " NtM's in PDF file " + fileName + "\n");
 
         // Save the template NtM's
-        DateTime weekStartDate = new DateTime().withYear(year).withDayOfWeek(DateTimeConstants.MONDAY).withWeekOfWeekyear(week);
+        DateTime weekStartDate =
+                new DateTime()
+                        .withYear(extractor.getYear())
+                        .withDayOfWeek(DateTimeConstants.MONDAY)
+                        .withWeekOfWeekyear(extractor.getWeek());
+
         List<Message> result = importMessages(templates, weekStartDate.toDate(), txt);
         log.info("Saved " + result.size() + " out of " + templates.size() + " extracted NtM's from " + fileName);
         txt.append("Saved a total of " + result.size() + " NTM's\n");
