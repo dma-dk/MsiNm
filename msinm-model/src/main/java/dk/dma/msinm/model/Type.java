@@ -20,13 +20,27 @@ package dk.dma.msinm.model;
  */
 public enum Type {
     // NtM types
-    PERMANENT_NOTICE, 
-    TEMPORARY_NOTICE, 
-    PRELIMINARY_NOTICE, 
-    MISCELLANEOUS_NOTICE, 
+    PERMANENT_NOTICE(false),
+    TEMPORARY_NOTICE(false),
+    PRELIMINARY_NOTICE(false),
+    MISCELLANEOUS_NOTICE(false),
     
     // MSI types
-    COSTAL_WARNING, 
-    SUBAREA_WARNING, 
-    NAVAREA_WARNING;
+    COSTAL_WARNING(true),
+    SUBAREA_WARNING(true),
+    NAVAREA_WARNING(true);
+
+    boolean msi;
+
+    private Type(boolean msi) {
+        this.msi = msi;
+    }
+
+    public boolean isMsi() {
+        return msi;
+    }
+
+    public boolean isNm() {
+        return !msi;
+    }
 }

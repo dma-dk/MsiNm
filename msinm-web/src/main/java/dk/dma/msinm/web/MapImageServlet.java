@@ -43,7 +43,7 @@ public class MapImageServlet extends HttpServlet  {
     private static String IMAGE_PLACEHOLDER = "/img/map_image_placeholder.png";
 
     private static GlobalMercator mercator = new GlobalMercator();
-    private static Image msiImage;
+    private static Image msiImage, nmImage;
 
     @Inject
     Logger log;
@@ -125,19 +125,18 @@ public class MapImageServlet extends HttpServlet  {
 
         if (locations.size() > 0) {
 
-            // Only handle one for now
-            Location loc = locations.get(0);
+            boolean isSinglePoint = locations.size() == 1 && locations.get(0).getType() == LocationType.POINT;
 
             // Compute the bounds of the location and compute the center
-            Point[] bounds = getBounds(loc.getPoints());
+            Point[] bounds = getBounds(locations);
             Point centerPt = new Point((bounds[0].getLat() + bounds[1].getLat()) / 2.0, (bounds[0].getLon() + bounds[1].getLon()) / 2.0);
 
             // Find zoom level where polygon is at most 80% of bitmap width/height, and zoom level in
-            // the range of 10 to 4. See http://wiki.openstreetmap.org/wiki/Zoom_levels
+            // the range of 12 to 4. See http://wiki.openstreetmap.org/wiki/Zoom_levels
             int maxWH = (int)(mapImageSize.doubleValue() * 0.8);
-            int zoom = (loc.getType() == LocationType.POINT)
-                    ? zoomLevel.intValue()
-                    : computeZoomLevel(bounds, maxWH, maxWH, 10, 4);
+            int zoom = (isSinglePoint)
+                     ? zoomLevel.intValue()
+                     : computeZoomLevel(bounds, maxWH, maxWH, 12, 4);
 
             // Fetch the image
             String url = String.format(STATIC_IMAGE_URL, centerPt.getLat(), centerPt.getLon(), zoom, mapImageSize, mapImageSize);
@@ -150,41 +149,50 @@ public class MapImageServlet extends HttpServlet  {
             int rx0 = - mapImageSize.intValue() / 2, ry0 = -mapImageSize.intValue() / 2;
             int cxy[] =  mercator.LatLonToPixels(centerPt.getLat(), centerPt.getLon(), zoom);
 
-            if (loc.getType() == LocationType.POINT) {
-                int msiIconSize = 24;
-                g2.drawImage(getMsiImage(), 0 - rx0 - msiIconSize / 2, 0 - ry0 - msiIconSize / 2, msiIconSize, msiIconSize, null);
+            // Draw each location
+            locations.forEach(loc -> {
+                // Point
+                if (loc.getType() == LocationType.POINT) {
+                    int iconSize = 24;
+                    g2.drawImage(getMessageImage(message),
+                            0 - rx0 - iconSize / 2,
+                            0 - ry0 - iconSize / 2,
+                            iconSize,
+                            iconSize,
+                            null);
 
-            } else if (loc.getType() == LocationType.POLYGON || loc.getType() == LocationType.POLYLINE) {
+                } else if (loc.getType() == LocationType.POLYGON || loc.getType() == LocationType.POLYLINE) {
+                    // Polygon / polyline
 
-                Color col = new Color(143, 47, 123);
-                Color fillCol = new Color(173, 87, 161, 80);
-                GeneralPath path = new GeneralPath();
-                for (int i = 0; i < loc.getPoints().size(); i++) {
-                    Point pt = loc.getPoints().get(i);
-                    int xy[] = mercator.LatLonToPixels(pt.getLat(), pt.getLon(), zoom);
+                    Color col = new Color(143, 47, 123);
+                    Color fillCol = new Color(173, 87, 161, 80);
+                    GeneralPath path = new GeneralPath();
+                    for (int i = 0; i < loc.getPoints().size(); i++) {
+                        Point pt = loc.getPoints().get(i);
+                        int xy[] = mercator.LatLonToPixels(pt.getLat(), pt.getLon(), zoom);
 
-                    double px = xy[0] - cxy[0] - rx0;
-                    double py = cxy[1] - xy[1] - ry0;
+                        double px = xy[0] - cxy[0] - rx0;
+                        double py = cxy[1] - xy[1] - ry0;
 
-                    if (i == 0) {
-                        path.moveTo(px, py);
-                    } else {
-                        path.lineTo(px, py);
+                        if (i == 0) {
+                            path.moveTo(px, py);
+                        } else {
+                            path.lineTo(px, py);
+                        }
                     }
-                }
-                if (loc.getType() == Location.LocationType.POLYGON) {
-                    path.closePath();
-                    g2.setColor(fillCol);
-                    g2.fill(path);
-                    g2.setColor(col);
-                    g2.draw(path);
-                } else {
-                    g2.setColor(col);
-                    g2.draw(path);
-                }
+                    if (loc.getType() == Location.LocationType.POLYGON) {
+                        path.closePath();
+                        g2.setColor(fillCol);
+                        g2.fill(path);
+                        g2.setColor(col);
+                        g2.draw(path);
+                    } else {
+                        g2.setColor(col);
+                        g2.draw(path);
+                    }
 
-            }
-
+                }
+            });
 
             g2.dispose();
 
@@ -242,19 +250,28 @@ public class MapImageServlet extends HttpServlet  {
      * Calculate the bounds
      * TODO: Cater with border cases...
      */
-    public Point[] getBounds(List<Point> points) {
+    public Point[] getBounds(List<Location> locations) {
         Point minPt = new Point(90, 180);
         Point maxPt = new Point(-90, -180);
-        for (Point pt : points) {
-            maxPt.setLat(Math.max(maxPt.getLat(), pt.getLat()));
-            maxPt.setLon(Math.max(maxPt.getLon(), pt.getLon()));
-            minPt.setLat(Math.min(minPt.getLat(), pt.getLat()));
-            minPt.setLon(Math.min(minPt.getLon(), pt.getLon()));
-        }
+        locations.forEach(loc -> loc.getPoints().forEach(pt -> {
+                    maxPt.setLat(Math.max(maxPt.getLat(), pt.getLat()));
+                    maxPt.setLon(Math.max(maxPt.getLon(), pt.getLon()));
+                    minPt.setLat(Math.min(minPt.getLat(), pt.getLat()));
+                    minPt.setLon(Math.min(minPt.getLon(), pt.getLon()));
+                }
+        ));
 
         return new Point[] { minPt, maxPt };
     }
 
+    /**
+     * Depending on the type of message, return an MSI or an NM image
+     * @param message the  message
+     * @return the corresponding image
+     */
+    public Image getMessageImage(Message message) {
+        return message.getType().isMsi() ? getMsiImage() : getNmImage();
+    }
 
     /**
      * Returns the MSI symbol image
@@ -271,4 +288,19 @@ public class MapImageServlet extends HttpServlet  {
         return msiImage;
     }
 
+
+    /**
+     * Returns the MSI symbol image
+     * @return the MSI symbol image
+     */
+    private synchronized Image getNmImage() {
+        if (nmImage == null) {
+            try {
+                nmImage = ImageIO.read(new URL("http://localhost:8080/img/nm.png"));
+            } catch (IOException e) {
+                log.error("This should never happen");
+            }
+        }
+        return nmImage;
+    }
 }
