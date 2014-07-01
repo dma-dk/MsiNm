@@ -12,7 +12,6 @@ import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.CategoryDesc;
 import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.PointDesc;
 import dk.dma.msinm.vo.CopyOp;
 import dk.dma.msinm.vo.LocationVo;
@@ -42,7 +41,6 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -284,8 +282,6 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
             // Select messages
             Root<Message> msgRoot = tupleQuery.from(Message.class);
-            msgRoot.join("seriesIdentifier", JoinType.LEFT);
-            javax.persistence.criteria.Path<SeriesIdentifier> msgId = msgRoot.get("seriesIdentifier");
 
             // Build the predicates based on the search parameters
             PredicateHelper<Tuple> tuplePredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
@@ -293,7 +289,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                     .between(msgRoot.get("created"), param.getFrom(), param.getTo());
 
             if (param.getTypes().size() > 0) {
-                tuplePredicateBuilder.in(msgId.get("type"), param.getTypes());
+                tuplePredicateBuilder.in(msgRoot.get("type"), param.getTypes());
             }
 
             // Search the Lucene index for free text search and location information
