@@ -75,7 +75,11 @@ public class LegacyNmImportServiceTest extends MsiNmUnitTest
         File pdf = Paths.get(getClass().getResource("/2014 EfS 21.pdf").toURI()).toFile();
         assertNotNull(pdf);
 
-        List<Message> notices = nmImportService.importPDF(pdf);
+        StringBuilder txt = new StringBuilder();
+        List<Message> notices = nmImportService.importPDF(pdf, 2014, 21, txt);
+
+        log.info(txt.toString());
+
         assertEquals(38, notices.size());
 
     }

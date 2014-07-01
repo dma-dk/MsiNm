@@ -76,15 +76,17 @@ public class NmPdfExtractor {
     Logger log = LoggerFactory.getLogger(NmPdfExtractor.class);
     InputStream inputStream;
     String fileName;
-    int year;
+    int year, week;
 
     /**
      * Constructor
      *
      * @param file the PDF file
+     * @param year the year
+     * @param week the week
      */
-    public NmPdfExtractor(File file) throws FileNotFoundException {
-        this(new FileInputStream(file), file.getName());
+    public NmPdfExtractor(File file, int year, int week) throws FileNotFoundException {
+        this(new FileInputStream(file), file.getName(), year, week);
     }
 
     /**
@@ -92,13 +94,15 @@ public class NmPdfExtractor {
      *
      * @param inputStream the PDF input stream
      * @param fileName the name of the PDF file
+     * @param year the year
+     * @param week the week
      */
-    public NmPdfExtractor(InputStream inputStream, String fileName) {
+    public NmPdfExtractor(InputStream inputStream, String fileName, int year, int week) {
         this.inputStream = inputStream;
         this.fileName = fileName;
 
-        // The file name is assumed to start with the year, e.g. "2014 EfS 21.pdf"
-        year = Integer.valueOf(fileName.split(" ")[0]);
+        this.year = year;
+        this.week = week;
     }
 
     /**
@@ -443,7 +447,10 @@ public class NmPdfExtractor {
         }
 
         if (location.getPoints().size() > 0) {
-            location.setType(location.getPoints().size() == 1 ? Location.LocationType.POINT : Location.LocationType.POLYGON);
+            location.setType(
+                    location.getPoints().size() == 1
+                            ? Location.LocationType.POINT
+                            : (location.getPoints().size() == 2 ? Location.LocationType.POLYLINE : Location.LocationType.POLYGON));
             notice.getLocations().add(location);
         }
     }

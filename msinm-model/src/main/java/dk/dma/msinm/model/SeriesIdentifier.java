@@ -69,4 +69,8 @@ public class SeriesIdentifier extends BaseEntity<Integer> {
         this.year = year;
     }
 
+    @Override
+    public String toString() {
+        return String.format("[%s %d %d]", authority, number, year);
+    }
 }

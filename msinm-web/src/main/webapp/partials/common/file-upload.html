@@ -47,6 +47,8 @@
         </div>
     </div>
 
+    <div ng-transclude></div>
+
     <div ng-show="uploader.queue.length > 0">
         <div>
             <button type="button" class="btn btn-success btn-xs" ng-click="uploader.uploadAll()" ng-disabled="!uploader.getNotUploadedItems().length">

@@ -50,9 +50,12 @@ angular.module('msinm.admin')
                 $scope.modalInstance = $modal.open({
                     templateUrl : "/partials/admin/legacy-nm-import.html",
                     controller: function ($scope) {
+                        $scope.uploadData = { year: new Date().getFullYear(), week: new Date().getWeek() };
                         $scope.pdfFileUploaded = function(result) {
-                            console.log("PDF UPLOADED " + result);
-                            $scope.$close();
+                            $scope.importResult = result;
+                            if(!$scope.$$phase) {
+                                $scope.$apply();
+                            }
                         };
                     }
                 });

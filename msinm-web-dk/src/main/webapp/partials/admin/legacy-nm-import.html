@@ -13,12 +13,31 @@
 
                 <div class="form-group">
                     <msi-file-upload repo-folder="'/rest/import/legacy-nm-import/upload-pdf'" drop-text="or drop .pdf file here"
-                                     file-types="'pdf'" auto-upload="true" remove-after-upload="true"
-                                     success="pdfFileUploaded(result)"></msi-file-upload>
+                                     file-types="'pdf'" auto-upload="false" remove-after-upload="true"
+                                     data="uploadData" success="pdfFileUploaded(result)">
+
+                        <div class="form-group row" style="padding-top: 10px;">
+                            <label class="control-label col-xs-1" for="year">Year</label>
+                            <div class="col-xs-4">
+                                <input class="form-control input-xs" type="number" id="year" name="year" ng-model="uploadData.year" placeholder="Year">
+                            </div>
+                        </div>
+                        <div class="form-group row">
+                            <label class="control-label col-xs-1" for="week">Week</label>
+                            <div class="col-xs-4">
+                                <input class="form-control input-xs" type="number" id="week" name="week" ng-model="uploadData.week" placeholder="Week">
+                            </div>
+                        </div>
+
+                    </msi-file-upload>
+                </div>
+                <div class="form-group">
+                    <label class="control-label" for="importResult">Result</label>
+                    <textarea ng-model="importResult" id="importResult" class="form-control input-sm" style="font-size: 10px;" rows="6" readonly></textarea>
                 </div>
 
                 <div style="margin-top: 24px">
-                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                    <button class="btn btn-sm" ng-click="$dismiss('closed')">Close</button>
                 </div>
             </div>
         </form>

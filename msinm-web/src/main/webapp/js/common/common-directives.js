@@ -198,6 +198,8 @@ angular.module('msinm.common')
         return {
             restrict: 'AE',
 
+            transclude: true,
+
             templateUrl: '/partials/common/file-upload.html',
 
             scope: {
@@ -207,6 +209,7 @@ angular.module('msinm.common')
                 fileTypes:          '=fileTypes',
                 autoUpload:         '=autoUpload',
                 removeAfterUpload:  '=removeAfterUpload',
+                data:               '=data',
                 success:            '&success',
                 error:              '&error'
             },
@@ -222,8 +225,15 @@ angular.module('msinm.common')
                     var uploader = scope.uploader = $fileUploader.create({
                         scope: scope,
                         url: scope.repoFolder,
+                        data: { uploadData: scope.data },
                         filters: []
                     });
+
+                    if (scope.data) {
+                        uploader.bind('beforeupload', function (event, item) {
+                            item.formData.push({ data: JSON.stringify(scope.data) });
+                        });
+                    }
 
                     // Check if file-types are defined
                     if (scope.fileTypes) {
