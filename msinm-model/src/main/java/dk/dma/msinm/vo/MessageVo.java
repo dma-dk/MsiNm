@@ -8,6 +8,7 @@ import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
+import dk.dma.msinm.model.Type;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     Integer id;
     SeriesIdentifier seriesIdentifier;
+    Type type;
     Status status;
     AreaVo area;
     List<CategoryVo> categories = new ArrayList<>();
@@ -54,6 +56,8 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
         id = message.getId();
 
+        seriesIdentifier = message.getSeriesIdentifier();
+        type = message.getType();
         area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), copyOp);
         message.getLocations().forEach(loc -> locations.add(new LocationVo(loc, copyOp)));
         validFrom = message.getValidFrom();
@@ -63,7 +67,6 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
                 .forEach(desc -> getDescs().add(new MessageDescVo(desc)));
 
         if (copyOp.copy("details")) {
-            seriesIdentifier = message.getSeriesIdentifier();
             status = message.getStatus();
             message.getCategories().forEach(cat -> categories.add(new CategoryVo(cat, CopyOp.get(CopyOp.PARENT))));
             charts.addAll(message.getCharts());
@@ -86,6 +89,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         message.setId(id);
         message.setSeriesIdentifier(seriesIdentifier);
         message.setStatus(status);
+        message.setType(type);
         message.setArea((area == null) ? null : area.toEntity());
         categories.forEach(cat -> message.getCategories().add(cat.toEntity()));
         locations.stream()
@@ -131,6 +135,14 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     public void setSeriesIdentifier(SeriesIdentifier seriesIdentifier) {
         this.seriesIdentifier = seriesIdentifier;
+    }
+
+    public Type getType() {
+        return type;
+    }
+
+    public void setType(Type type) {
+        this.type = type;
     }
 
     public Status getStatus() {

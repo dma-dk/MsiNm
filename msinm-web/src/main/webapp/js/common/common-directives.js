@@ -104,6 +104,38 @@ angular.module('msinm.common')
     }])
 
     /**
+     * Displays the composite identifier of the message
+     */
+    .directive('msiMessageId', [function () {
+        return {
+            restrict: 'A',
+            scope: {
+                msiMessageId: "="
+            },
+            link: function(scope, element, attrs) {
+                if (attrs.msiMessageId) {
+                    var id = '';
+                    var msg = scope.msiMessageId;
+                    var type = msg.type;
+                    if (type == 'COSTAL_WARNING' || type == 'SUBAREA_WARNING' || type == 'NAVAREA_WARNING') {
+                        // MSI
+                        id = 'MSI ' + msg.seriesIdentifier.number + '-' + msg.seriesIdentifier.year;
+                    } else {
+                        // NTM
+                        id = 'NM ' + msg.seriesIdentifier.number + '-' + msg.seriesIdentifier.year;
+                        if (type == 'TEMPORARY_NOTICE') {
+                            id += '(T)';
+                        } else if (type == 'PRELIMINARY_NOTICE') {
+                            id += '(P)';
+                        }
+                    }
+                    element.html(id);
+                }
+            }
+        };
+    }])
+
+/**
      * Show element active/inactive depending on the current location.
      * Usage:
      * <pre>

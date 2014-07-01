@@ -12,7 +12,7 @@
         </tr>
         <tr ng-repeat="msg in searchResult.messages">
             <td style="white-space:nowrap;">{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</td>
-            <td>{{msg.descs[0].description}}</td>
+            <td><strong msi-message-id="msg"></strong>: {{msg.descs[0].description}}</td>
             <td style="white-space:nowrap;" msi-area="msg"></td>
         </tr>
     </table>
