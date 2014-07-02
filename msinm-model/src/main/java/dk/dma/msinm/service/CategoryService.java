@@ -11,6 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -108,6 +110,7 @@ public class CategoryService extends BaseService {
      * @param parentId the id of the parent category
      * @return the created category
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Category createCategory(Category category, Integer parentId) {
 
         if (parentId != null) {
@@ -116,7 +119,9 @@ public class CategoryService extends BaseService {
             category.setParent(parent);
         }
 
-        return saveEntity(category);
+        category = saveEntity(category);
+        em.flush();
+        return category;
     }
 
     /**

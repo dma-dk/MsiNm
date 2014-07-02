@@ -11,6 +11,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -114,6 +116,7 @@ public class AreaService extends BaseService {
      * @param parentId the id of the parent area
      * @return the created area
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Area createArea(Area area, Integer parentId) {
 
         if (parentId != null) {
@@ -122,7 +125,9 @@ public class AreaService extends BaseService {
             area.setParent(parent);
         }
 
-        return saveEntity(area);
+        area = saveEntity(area);
+        em.flush();
+        return area;
     }
 
     /**
