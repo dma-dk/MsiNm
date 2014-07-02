@@ -385,7 +385,8 @@ angular.module('msinm.common')
                 function toTreeData(entities, treeData, level) {
                     for (var i in entities) {
                         var entity = entities[i];
-                        var node = { key: entity.id, title: entity.descs[0].name, folder: true, children: [], level: level, entity: entity };
+                        var title = (entity.descs && entity.descs.length > 0) ? entity.descs[0].name : 'N/A';
+                        var node = { key: entity.id, title: title, folder: true, children: [], level: level, entity: entity };
                         treeData.push(node);
                         if (entity.children && entity.children.length > 0) {
                             toTreeData(entity.children, node.children, level + 1);
