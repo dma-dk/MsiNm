@@ -17,7 +17,6 @@ import dk.dma.msinm.vo.CopyOp;
 import dk.dma.msinm.vo.LocationVo;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.lucene.document.Document;
-import org.apache.lucene.document.Field;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
 import org.apache.lucene.search.Filter;
@@ -187,7 +186,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
         for (String language : app.getLanguages()) {
             String searchField = searchField(language);
 
-            addStringSearchField(doc, searchField, message.getStatus(), Field.Store.NO);
+            addPhraseSearchField(doc, searchField, message.getStatus());
             addPhraseSearchField(doc, searchField, message.getSeriesIdentifier().getAuthority());
             addPhraseSearchField(doc, searchField, String.valueOf(message.getSeriesIdentifier().getYear()));
 
@@ -211,12 +210,12 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
             // Charts
             message.getCharts().forEach(chart -> {
-                addStringSearchField(doc, searchField, chart.getChartNumber(), Field.Store.NO);
-                addStringSearchField(doc, searchField, chart.getInternationalNumber(), Field.Store.NO);
+                addPhraseSearchField(doc, searchField, chart.getChartNumber());
+                addPhraseSearchField(doc, searchField, chart.getInternationalNumber());
             });
 
             // Horizontal datum
-            addStringSearchField(doc, searchField, message.getHorizontalDatum(), Field.Store.NO);
+            addPhraseSearchField(doc, searchField, message.getHorizontalDatum());
 
             // Add language specific fields
             message.getDescs().forEach(desc -> {
@@ -227,7 +226,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             });
 
             message.getLightsListNumbers()
-                    .forEach(lightsListNumber -> addStringSearchField(doc, searchField, lightsListNumber, Field.Store.NO));
+                    .forEach(lightsListNumber -> addPhraseSearchField(doc, searchField, lightsListNumber));
 
             // Add descriptions for locations and points associated with the message.
             message.getLocations().forEach(location -> {
