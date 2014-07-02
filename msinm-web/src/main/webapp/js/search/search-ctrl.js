@@ -3,8 +3,8 @@
  * The main controller for the app.
  */
 angular.module('msinm.search')
-    .controller('SearchCtrl', ['$scope', '$location', '$modal', 'SearchService', '$http',
-        function ($scope, $location, $modal, SearchService, $http) {
+    .controller('SearchCtrl', ['$scope', '$location', '$modal', 'SearchService', '$http', 'growlNotifications',
+        function ($scope, $location, $modal, SearchService, $http, growlNotifications) {
         'use strict';
 
         $scope.filterOnType = false;
@@ -53,7 +53,7 @@ angular.module('msinm.search')
                     $scope.searchResult = data;
                 },
                 function () {
-                    //alert("Error");
+                    growlNotifications.add('<h4>Search failed</h4>', 'danger', 3000);
                 }
             );
         };
