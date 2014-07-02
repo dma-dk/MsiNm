@@ -12,7 +12,7 @@ angular.module('msinm.user', []);
 
 
 var app = angular.module('msinm', [
-    'ngRoute', 'ngCookies', 'ui.bootstrap', 'pascalprecht.translate',
+    'ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'pascalprecht.translate', 'growlNotifications',
     'msinm.common', 'msinm.search', 'msinm.conf', 'msinm.map', 'msinm.user'])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';

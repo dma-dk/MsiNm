@@ -11,7 +11,7 @@ angular.module('msinm.user', []);
 
 
 var app = angular.module('msinm.admin', [
-    'ngRoute', 'ngCookies', 'ui.bootstrap', 'angularFileUpload', 'pascalprecht.translate',
+    'ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'angularFileUpload', 'pascalprecht.translate', 'growlNotifications',
     'msinm.conf', 'msinm.user', 'msinm.map', 'msinm.common' ])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';

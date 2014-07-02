@@ -26,6 +26,14 @@ h3 {
     font-size: 18px;
 }
 
+div.growl-notifications {
+    position: fixed;
+    top: 70px;
+    right: 20px;
+    z-index: 2000;
+    width: 200px;
+}
+
 .white, .white a {
     color: #fff;
 }
