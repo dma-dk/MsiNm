@@ -24,8 +24,8 @@ angular.module('msinm.search')
         $scope.currentPage = 1;
         $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
 
-        $scope.sortBy = 'DATE';
-        $scope.sortDesc = true;
+        $scope.sortBy = 'ID';
+        $scope.sortDesc = false;
 
         $scope.showWms = false;
 

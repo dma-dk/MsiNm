@@ -6,13 +6,7 @@ import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
-import dk.dma.msinm.model.Area;
-import dk.dma.msinm.model.AreaDesc;
-import dk.dma.msinm.model.Category;
-import dk.dma.msinm.model.CategoryDesc;
-import dk.dma.msinm.model.LocationDesc;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.PointDesc;
+import dk.dma.msinm.model.*;
 import dk.dma.msinm.vo.CopyOp;
 import dk.dma.msinm.vo.LocationVo;
 import dk.dma.msinm.vo.MessageVo;
@@ -40,6 +34,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -281,6 +276,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
             // Select messages
             Root<Message> msgRoot = tupleQuery.from(Message.class);
+            msgRoot.join("seriesIdentifier", JoinType.LEFT);
+            javax.persistence.criteria.Path<SeriesIdentifier> msgId = msgRoot.get("seriesIdentifier");
 
             // Build the predicates based on the search parameters
             PredicateHelper<Tuple> tuplePredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
@@ -302,11 +299,11 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 tuplePredicateBuilder.in(msgRoot.get("id"), ids);
             }
 
-            // Complete the query and fetch the message id's (and validFrom for sorting)
-            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("validFrom"))
+            // Complete the query and fetch the message id's (and validFrom, year and number for sorting)
+            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("validFrom"), msgId.get("year"), msgId.get("number"))
                     .distinct(true)
                     .where(tuplePredicateBuilder.where());
-            sortQuery(param, builder, tupleQuery, msgRoot);
+            sortQuery(param, builder, tupleQuery, msgRoot, msgId);
 
             // Execute the query
             List<Tuple> totalResult = em
@@ -329,6 +326,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // **********************************************************************************/
             CriteriaQuery<Message> msgQuery = builder.createQuery(Message.class);
             msgRoot = msgQuery.from(Message.class);
+            msgRoot.join("seriesIdentifier", JoinType.LEFT);
+            msgId = msgRoot.get("seriesIdentifier");
 
             // Build the predicate
             PredicateHelper<Message> msgPredicateBuilder = new PredicateHelper<>(builder, msgQuery)
@@ -338,7 +337,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             msgQuery.select(msgRoot)
                     .distinct(true)
                     .where(msgPredicateBuilder.where());
-            sortQuery(param, builder, msgQuery, msgRoot);
+            sortQuery(param, builder, msgQuery, msgRoot, msgId);
 
             // Execute the query and update the search result
             List<Message> pagedResult = em
@@ -360,6 +359,28 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     }
 
     /**
+     * Sorts the criteria query according to the parameters
+     *
+     * @param param the search parameters
+     * @param cq the criteria query
+     */
+    private <M, T, I> void sortQuery(MessageSearchParams param, CriteriaBuilder builder, CriteriaQuery<T> cq, Root<M> root, javax.persistence.criteria.Path<I> msgId) {
+        if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {
+            if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
+                cq.orderBy(builder.asc(root.get("validFrom")));
+            } else {
+                cq.orderBy(builder.desc(root.get("validFrom")));
+            }
+        } else if (MessageSearchParams.SortBy.ID == param.getSortBy()) {
+            if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
+                cq.orderBy(builder.asc(msgId.get("year")), builder.asc(msgId.get("number")));
+            } else {
+                cq.orderBy(builder.desc(msgId.get("year")), builder.desc(msgId.get("number")));
+            }
+        }
+    }
+
+    /**
      * TODO
      */
     public List<LocationVo> searchLocations(MessageSearchParams param) {
@@ -369,32 +390,15 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             MessageSearchResult messages = search(param);
 
             for (MessageVo msg : messages.getMessages()) {
-               msg.getLocations().stream()
-                       .filter(loc -> loc.getPoints().size() > 0)
-                       .forEach(result::add);
+                msg.getLocations().stream()
+                        .filter(loc -> loc.getPoints().size() > 0)
+                        .forEach(result::add);
             }
             return result;
 
         } catch (Exception e) {
             log.error("Error performing search : " + e, e);
             return result;
-        }
-    }
-
-
-    /**
-     * Sorts the criteria query according to the parameters
-     *
-     * @param param the search parameters
-     * @param cq the criteria query
-     */
-    private <M, T> void sortQuery(MessageSearchParams param, CriteriaBuilder builder, CriteriaQuery<T> cq, Root<M> root) {
-        if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {
-            if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
-                cq.orderBy(builder.asc(root.get("validFrom")));
-            } else {
-                cq.orderBy(builder.desc(root.get("validFrom")));
-            }
         }
     }
 }

@@ -30,7 +30,7 @@ import java.util.Set;
  */
 public class MessageSearchParams implements Serializable {
 
-    public enum SortBy { DATE }
+    public enum SortBy { DATE, ID }
     public enum SortOrder { ASC, DESC }
 
     String language;
@@ -43,7 +43,7 @@ public class MessageSearchParams implements Serializable {
 
     int maxHits = 100;
     int startIndex = 0;
-    SortBy sortBy = SortBy.DATE;
+    SortBy sortBy = SortBy.ID;
     SortOrder sortOrder = SortOrder.DESC;
 
     public MessageSearchParams() {
