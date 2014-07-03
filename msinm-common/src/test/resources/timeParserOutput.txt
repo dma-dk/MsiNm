@@ -1,0 +1,45 @@
+
+date(99, may, 2014) - date(1, june, 2014)
+
+week(22, 2014)
+
+date(june, 2014)
+
+date(18, june, 2014)
+
+date(14, june, 2014) hour(0800) - date(15, june, 2014) hour(2000)
+
+date(2, june, 2014) hourrange(0800, 1600) - date(4, june, 2014) hourrange(0800, 1600)
+
+date(1, june, 2014) - date(1, july, 2014)
+
+date(15, june, 2014) + date(3, july, 2014)
+
+date(15, july, 2014) - date(15, october, 2014)
+
+date(3, July, 2014) - date(7, june, 2014)
+
+date(3, July, 2014) - date(1, january, 2014)
+
+date(3, July, 2014) - date(1, july, 2014)
+
+date(3, July, 2014) - date(15, june, 2014)
+
+date(3, July, 2014) - date(99, june, 2014)
+
+date(3, July, 2014) -
+
+date(3, July, 2014) - season(1, 2014)
+
+date(3, July, 2014) - week(2, 2014)
+
+date(3, July, 2014) - date(11, october, 2014)
+date(23, may, 2014) hourrange(0500, 2200) - date(7, june, 2014) hourrange(0500, 2200)
+date(16, june, 2014) hourrange(0500, 2200) - date(31, july, 2014) hourrange(0500, 2200)
+date(2, october, 2014) hourrange(0500, 2200) - date(11, october, 2014) hourrange(0500, 2200)
+date(8, june, 2014) hourrange(0500, 2200) - date(15, june, 2014) hourrange(0500, 2200)
+date(1, august, 2014) hourrange(0500, 2200) - date(1, october, 2014) hourrange(0500, 2200)
+
+date(june, 2014)
+lastdate(10) hourrange(0900, 1500)
+lastdate(11) hourrange(0910, 1345) - lastdate(12) hourrange(0910, 1345)
