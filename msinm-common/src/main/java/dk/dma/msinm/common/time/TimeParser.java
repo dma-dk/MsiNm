@@ -20,6 +20,7 @@ public class TimeParser {
     private static final Map<String, TimeParser> CACHE = new HashMap<>();
 
     String[] months;
+    String[] seasons;
     Map<String, String> rewriteRules = new LinkedHashMap<>();
 
     /**
@@ -60,6 +61,10 @@ public class TimeParser {
                         break;
 
                     case "seasons":
+                        seasons = value.toLowerCase().split(",");
+                        if (seasons.length != 4) {
+                            throw new TimeException("Invalid season definition: " + value);
+                        }
                         break;
 
                     case "rewrite_rule":
@@ -99,6 +104,11 @@ public class TimeParser {
             months[m] = months[m].trim().toLowerCase();
         }
 
+        // Check that seasons is defined
+        if (seasons == null) {
+            throw new TimeException("Seasons not defined in " + file);
+        }
+
     }
 
     /**
@@ -115,6 +125,7 @@ public class TimeParser {
 
     public String parse(String time, Date now) throws IOException {
         String monthMatch = "(" + Arrays.asList(months).stream().collect(Collectors.joining("|")) + ")";
+        String seasonMatch = "(" + Arrays.asList(seasons).stream().collect(Collectors.joining("|")) + ")";
         String dayMatch = "(\\\\d{1,2})";
         String yearMatch = "(\\\\d{4})";
         String hourMatch = "(\\\\d{4})";
@@ -140,6 +151,7 @@ public class TimeParser {
 
                 String from = key;
                 from = from.replaceAll("\\$month", monthMatch);
+                from = from.replaceAll("\\$season", seasonMatch);
                 from = from.replaceAll("\\$date", dayMatch);
                 from = from.replaceAll("\\$year", yearMatch);
                 from = from.replaceAll("\\$hour", hourMatch);

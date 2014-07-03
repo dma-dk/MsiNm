@@ -1,45 +1,44 @@
+<time><from><date day="99" month="may" year="2014"/></from><to><date day="1" month="june" year="2014"/></to></time>
 
-date(99, may, 2014) - date(1, june, 2014)
+<time><from-to><date week="22" year=2014"/></from-to></time>
 
-week(22, 2014)
+<time><from-to><date month="june" year="2014"/></from-to></time>
 
-date(june, 2014)
+<time><from-to><date day="18" month="june" year="2014"/></from-to></time>
 
-date(18, june, 2014)
+<time><from><date day="14" month="june" year="2014"/> <hour hour="0800"/></from><to><date day="15" month="june" year="2014"/> <hour hour="2000"/></to></time>
 
-date(14, june, 2014) hour(0800) - date(15, june, 2014) hour(2000)
+<time><from><date day="2" month="june" year="2014"/> <hour-range from="0800" to="1600"/></from><to><date day="4" month="june" year="2014"/> <hour-range from="0800" to="1600"/></to></time>
 
-date(2, june, 2014) hourrange(0800, 1600) - date(4, june, 2014) hourrange(0800, 1600)
+<time><from><date day="1" month="june" year="2014"/></from><to><date day="1" month="july" year="2014"/></to></time>
 
-date(1, june, 2014) - date(1, july, 2014)
+<time><from-to><date day="15" month="june" year="2014"/></time><time><date day="3" month="july" year="2014"/></from-to></time>
 
-date(15, june, 2014) + date(3, july, 2014)
+<time><from><date day="15" month="july" year="2014"/></from><to><date day="15" month="october" year="2014"/></to></time>
 
-date(15, july, 2014) - date(15, october, 2014)
+<time><from><date day="3" month="July" year="2014"/></from><to><date day="7" month="june" year="2014"/></to></time>
 
-date(3, July, 2014) - date(7, june, 2014)
+<time><from><date day="3" month="July" year="2014"/></from><to><date day="1" month="january" year="2014"/></to></time>
 
-date(3, July, 2014) - date(1, january, 2014)
+<time><from><date day="3" month="July" year="2014"/></from><to><date day="1" month="july" year="2014"/></to></time>
 
-date(3, July, 2014) - date(1, july, 2014)
+<time><from><date day="3" month="July" year="2014"/></from><to><date day="15" month="june" year="2014"/></to></time>
 
-date(3, July, 2014) - date(15, june, 2014)
+<time><from><date day="3" month="July" year="2014"/></from><to><date day="99" month="june" year="2014"/></to></time>
 
-date(3, July, 2014) - date(99, june, 2014)
+<time><from><date day="3" month="July" year="2014"/></from></time>
 
-date(3, July, 2014) -
+<time><from><date day="3" month="July" year="2014"/></from><to><date season="spring" year="2014"/></to></time>
 
-date(3, July, 2014) - season(1, 2014)
+<time><from><date day="3" month="July" year="2014"/></from><to><date week="2" year=2014"/></to></time>
 
-date(3, July, 2014) - week(2, 2014)
+<time><from><date day="3" month="July" year="2014"/></from><to><date day="11" month="october" year="2014"/></to></time>
+<time><from><date day="23" month="may" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="7" month="june" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
+<time><from><date day="16" month="june" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="31" month="july" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
+<time><from><date day="2" month="october" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="11" month="october" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
+<time><from><date day="8" month="june" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="15" month="june" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
+<time><from><date day="1" month="august" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="1" month="october" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
 
-date(3, July, 2014) - date(11, october, 2014)
-date(23, may, 2014) hourrange(0500, 2200) - date(7, june, 2014) hourrange(0500, 2200)
-date(16, june, 2014) hourrange(0500, 2200) - date(31, july, 2014) hourrange(0500, 2200)
-date(2, october, 2014) hourrange(0500, 2200) - date(11, october, 2014) hourrange(0500, 2200)
-date(8, june, 2014) hourrange(0500, 2200) - date(15, june, 2014) hourrange(0500, 2200)
-date(1, august, 2014) hourrange(0500, 2200) - date(1, october, 2014) hourrange(0500, 2200)
-
-date(june, 2014)
-lastdate(10) hourrange(0900, 1500)
-lastdate(11) hourrange(0910, 1345) - lastdate(12) hourrange(0910, 1345)
+<time><from-to><date month="june" year="2014"/></from-to></time>
+<time><from-to><date lastdate="true" day="10"> <hour-range from="0900" to="1500"/></from-to></time>
+<time><from><date lastdate="true" day="11"> <hour-range from="0910" to="1345"/></from><to><date lastdate="true" day="12"> <hour-range from="0910" to="1345"/></to></time>
