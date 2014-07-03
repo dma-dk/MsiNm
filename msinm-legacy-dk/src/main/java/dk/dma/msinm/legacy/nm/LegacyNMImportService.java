@@ -13,6 +13,7 @@ import dk.dma.msinm.service.MessageService;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.lang.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.slf4j.Logger;
@@ -209,6 +210,9 @@ public class LegacyNmImportService {
         template.setValidFrom(weekStartDate);
         template.setPriority(Priority.NONE);
         template.setStatus(Status.ACTIVE);
+
+        // Some NM's do not have descriptions. Use the title instead
+        template.getDescs().forEach(desc -> desc.setDescription(StringUtils.defaultIfBlank(desc.getDescription(), desc.getTitle())));
 
         try {
             // Make sure all charts are saved
