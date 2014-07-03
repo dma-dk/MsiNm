@@ -80,6 +80,15 @@ public class SecurityServletFilter implements Filter {
         HttpServletRequest request = (HttpServletRequest) req;
         HttpServletResponse response = (HttpServletResponse) res;
 
+        // As of Wildfly 8.1, once a request has executed a successful request.login(),
+        // subsequent requests will stay logged in. Surely this is an error(?).
+        // Hence, we ensure that the request is logged out by default:
+        try {
+            request.logout();
+        } catch (ServletException e) {
+            log.debug("Failed logging request out");
+        }
+
         // Check if the security filter needs to process this requested resource
         if (securityConf.checkResource(request)) {
 

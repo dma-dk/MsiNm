@@ -39,7 +39,7 @@ public class SecurityUtils {
      */
     public static HttpServletRequest login(UserService userService, HttpServletRequest request, String username, String password) throws ServletException {
         // Will throw an exception if the login fails
-        request.logout();
+        //request.logout();
         request.login(username, password);
 
         // The email is used as it is unique for the user
