@@ -38,7 +38,7 @@ public class SqlProducer {
         }
 
         // Not cached - load it
-        try (BufferedReader r = new BufferedReader(new InputStreamReader(clazz.getResourceAsStream(resourceName)))) {
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(clazz.getResourceAsStream(resourceName), "UTF-8"))) {
             StringBuilder result = new StringBuilder();
             String line;
             while ((line = r.readLine()) != null) {

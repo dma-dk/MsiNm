@@ -1,5 +1,5 @@
 
-CREATE DATABASE msi;
+CREATE DATABASE msi CHARACTER SET utf8 COLLATE utf8_general_ci;
 
 CREATE USER 'msi'@'localhost' IDENTIFIED BY 'msi';
 GRANT ALL PRIVILEGES ON *.* TO 'msi'@'localhost' WITH GRANT OPTION;
