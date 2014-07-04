@@ -8,4 +8,8 @@ public class TimeException extends Exception {
     public TimeException(String message) {
         super(message);
     }
+
+    public TimeException(String message, Exception ex) {
+        super(message, ex);
+    }
 }

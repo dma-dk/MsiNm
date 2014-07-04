@@ -1,44 +1,271 @@
-<time><from><date day="99" month="may" year="2014"/></from><to><date day="1" month="june" year="2014"/></to></time>
 
-<time><from-to><date week="22" year=2014"/></from-to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date day="99" month="may"/>
+        </from>
+        <to>
+            <date day="1" month="june" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from-to><date month="june" year="2014"/></from-to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from-to>
+            <date year="2014" week="22"/>
+        </from-to>
+    </time>
+</time-result>
 
-<time><from-to><date day="18" month="june" year="2014"/></from-to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from-to>
+            <date month="june" year="2014"/>
+        </from-to>
+    </time>
+</time-result>
 
-<time><from><date day="14" month="june" year="2014"/> <hour hour="0800"/></from><to><date day="15" month="june" year="2014"/> <hour hour="2000"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from-to>
+            <date day="18" month="june" year="2014"/>
+        </from-to>
+    </time>
+</time-result>
 
-<time><from><date day="2" month="june" year="2014"/> <hour-range from="0800" to="1600"/></from><to><date day="4" month="june" year="2014"/> <hour-range from="0800" to="1600"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date day="14" month="june" year="2014"/>
+            <hour hour="0800"/>
+        </from>
+        <to>
+            <date day="15" month="june" year="2014"/>
+            <hour hour="2000"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date day="1" month="june" year="2014"/></from><to><date day="1" month="july" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date day="2" month="june" year="2014"/>
+            <hour-range from="0800" to="1600"/>
+        </from>
+        <to>
+            <date day="4" month="june" year="2014"/>
+            <hour-range from="0800" to="1600"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from-to><date day="15" month="june" year="2014"/></time><time><date day="3" month="july" year="2014"/></from-to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date day="1" month="june"/>
+        </from>
+        <to>
+            <date day="1" month="july" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date day="15" month="july" year="2014"/></from><to><date day="15" month="october" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date day="15" month="july"/>
+        </from>
+        <to>
+            <date day="15" month="october" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date day="7" month="june" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date day="7" month="june" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date day="1" month="january" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date day="1" month="january" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date day="1" month="july" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date day="1" month="july" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date day="15" month="june" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date day="15" month="june" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date day="99" month="june" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date day="99" month="june" year="2014"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date season="spring" year="2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date year="2014" season="spring"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date week="2" year=2014"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date year="2014" week="2"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from><date today="true"/></from><to><date day="11" month="october" year="2014"/></to></time>
-<time><from><date day="23" month="may" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="7" month="june" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
-<time><from><date day="16" month="june" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="31" month="july" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
-<time><from><date day="2" month="october" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="11" month="october" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
-<time><from><date day="8" month="june" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="15" month="june" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
-<time><from><date day="1" month="august" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="1" month="october" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from>
+            <date today="true"/>
+        </from>
+        <to>
+            <date day="11" month="october" year="2014"/>
+        </to>
+    </time>
+    <time>
+        <from>
+            <date day="23" month="may"/>
+            <hour-range from="0500" to="2200"/>
+        </from>
+        <to>
+            <date day="7" month="june" year="2014"/>
+            <hour-range from="0500" to="2200"/>
+        </to>
+    </time>
+    <time>
+        <from>
+            <date day="16" month="june"/>
+            <hour-range from="0500" to="2200"/>
+        </from>
+        <to>
+            <date day="31" month="july" year="2014"/>
+            <hour-range from="0500" to="2200"/>
+        </to>
+    </time>
+    <time>
+        <from>
+            <date day="2" month="october"/>
+            <hour-range from="0500" to="2200"/>
+        </from>
+        <to>
+            <date day="11" month="october" year="2014"/>
+            <hour-range from="0500" to="2200"/>
+        </to>
+    </time>
+    <time>
+        <from>
+            <date day="8" month="june"/>
+            <hour-range from="0500" to="2200"/>
+        </from>
+        <to>
+            <date day="15" month="june" year="2014"/>
+            <hour-range from="0500" to="2200"/>
+        </to>
+    </time>
+    <time>
+        <from>
+            <date day="1" month="august"/>
+            <hour-range from="0500" to="2200"/>
+        </from>
+        <to>
+            <date day="1" month="october" year="2014"/>
+            <hour-range from="0500" to="2200"/>
+        </to>
+    </time>
+</time-result>
 
-<time><from-to><date month="june" year="2014"/></from-to></time>
-<time><from-to><date lastdate="true" day="10"> <hour-range from="0900" to="1500"/></from-to></time>
-<time><from><date lastdate="true" day="11"> <hour-range from="0910" to="1345"/></from><to><date lastdate="true" day="12"> <hour-range from="0910" to="1345"/></to></time>
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<time-result>
+    <time>
+        <from-to>
+            <date month="june" year="2014"/>
+        </from-to>
+    </time>
+    <time>
+        <from-to>
+            <date day="10" lastdate="true"/>
+            <hour-range from="0900" to="1500"/>
+        </from-to>
+    </time>
+    <time>
+        <from>
+            <date day="11" lastdate="true"/>
+            <hour-range from="0910" to="1345"/>
+        </from>
+        <to>
+            <date day="12" lastdate="true"/>
+            <hour-range from="0910" to="1345"/>
+        </to>
+    </time>
+</time-result>

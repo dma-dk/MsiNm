@@ -1,8 +1,4 @@
 
-# Months picked from the built-in locale
-# months: January,February,March,April,May,June,July,August,September,October,November,December
-seasons: spring,summer,autumn,winter
-
 
 rewrite_rule:    $season $year                      ->      <date season="$1" year="$2"/>
 
@@ -19,24 +15,23 @@ rewrite_rule:    hours $hour                        ->      <hour hour="$1"/>
 
 rewrite_rule:    $date - $date $month $year         ->      <date day="$1" month="$3" year="$4"/> - <date day="$2" month="$3" year="$4"/>
 rewrite_rule:    $date $month $year                 ->      <date day="$1" month="$2" year="$3"/>
-rewrite_rule:    $date $month                       ->      <date day="$1" month="$2" year="$current_year"/>
+rewrite_rule:    $date $month                       ->      <date day="$1" month="$2"/>
 rewrite_rule:    $month $year                       ->      <date month="$1" year="$2"/>
 
-rewrite_rule:    week $week $year                   ->      <date week="$1" year=$2"/>
-rewrite_rule:    week $week                         ->      <date week="$1" year=$current_year"/>
+rewrite_rule:    week $week $year                   ->      <date week="$1" year="$2"/>
+rewrite_rule:    week $week                         ->      <date week="$1"/>
 
 rewrite_rule:    until further notice               ->      now -
 rewrite_rule:    until and including (.*)           ->      now - $1
 rewrite_rule:    until (.*)                         ->      now - $1
 rewrite_rule:    now                                ->      <date today="true"/>
 
-rewrite_rule:    $date - $date (<hour-range .*/>)   ->      <date lastdate="true" day="$1"> $3 - <date lastdate="true" day="$2"> $3
-rewrite_rule:    $date (<hour-range .*/>)           ->      <date lastdate="true" day="$1"> $2
+rewrite_rule:    $date - $date (<hour-range .*/>)   ->      <date lastdate="true" day="$1"/> $3 - <date lastdate="true" day="$2"/> $3
+rewrite_rule:    $date (<hour-range .*/>)           ->      <date lastdate="true" day="$1"/> $2
 
 rewrite_rule:    (<date .*/>) - (<date .*/>) (<hour-range .*/>)   ->   $1 $3 - $2 $3
 
 rewrite_rule:    (.+)                               ->      <time>$1</time>
-rewrite_rule:    (.+) and (.+)                      ->      $1</time><time>$2
 
 rewrite_rule:    <time>(.+) - (.+)</time>           ->      <time><from>$1</from><to>$2</to></time>
 rewrite_rule:    <time>(.+) -</time>                ->      <time><from>$1</from></time>

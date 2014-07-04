@@ -2,32 +2,35 @@ package dk.dma.msinm.common.time;
 
 import org.apache.commons.lang.StringUtils;
 
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.StringReader;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Represents a time parser for a specific language
+ * Represents a time parser for the english version of the time description
  */
-public class TimeParser {
+public class TimeParser implements TimeConstants {
 
-    private static final Map<String, TimeParser> CACHE = new HashMap<>();
+    private static TimeParser parser;
 
-    String[] months;
-    String[] seasons;
+    String[] months = MONTHS_EN.toLowerCase().split(",");
+    String[] seasons = SEASONS_EN.toLowerCase().split(",");
     Map<String, String> rewriteRules = new LinkedHashMap<>();
 
     /**
      * Disable public construction
      */
-    private TimeParser(String language) throws TimeException {
-
+    private TimeParser() throws TimeException {
 
         // Default rewrite rules
         rewriteRules.put("\\w\\) ", "");
@@ -35,8 +38,8 @@ public class TimeParser {
         rewriteRules.put("\\,", "");
         rewriteRules.put("\\s+", " ");
 
-        String file = "/timeParser_" + language + ".txt";
-        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(file)))) {
+        String file = "/timeParser.txt";
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(file), "UTF-8"))) {
 
             String line;
             while ((line = reader.readLine()) != null) {
@@ -53,20 +56,6 @@ public class TimeParser {
                 String value = line.substring(index + 1).trim();
 
                 switch (key) {
-                    case "months":
-                        months = value.toLowerCase().split(",");
-                        if (months.length != 12) {
-                            throw new TimeException("Invalid month definition: " + value);
-                        }
-                        break;
-
-                    case "seasons":
-                        seasons = value.toLowerCase().split(",");
-                        if (seasons.length != 4) {
-                            throw new TimeException("Invalid season definition: " + value);
-                        }
-                        break;
-
                     case "rewrite_rule":
                         int x = value.indexOf("->");
                         if (x == -1) {
@@ -86,44 +75,28 @@ public class TimeParser {
         } catch (IOException e) {
             throw new TimeException("Error reading " + file + ": " + e);
         }
-
-        // Read the "months" property, or fall back to use the SimpleDateFormat definitions
-        if (months == null) {
-            months = new String[12];
-            SimpleDateFormat dateFormat = new SimpleDateFormat( "MMMM", new Locale(language));
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.DAY_OF_MONTH, 1);
-            for (int m = 0; m < 12; m++) {
-                cal.set(Calendar.MONTH, m);
-                months[m] = dateFormat.format(cal.getTime());
-            }
-        }
-
-        // Work in lowercase
-        for (int m = 0; m < 12; m++) {
-            months[m] = months[m].trim().toLowerCase();
-        }
-
-        // Check that seasons is defined
-        if (seasons == null) {
-            throw new TimeException("Seasons not defined in " + file);
-        }
-
     }
 
     /**
-     * Removes start-end quotes
-     * @param value the value to remove quotes from
-     * @return the unquoted value
+     * Return the time parser
+     * @return the time parser
      */
-    String unquote(String value) {
-        if (value != null && value.startsWith("\"") && value.endsWith("\"")) {
-            value = value.substring(1, value.length() - 1);
+    public synchronized static TimeParser get() throws TimeException {
+
+        // Cache the parser
+        if (parser == null) {
+            parser = new TimeParser();
         }
-        return value;
+
+        return parser;
     }
 
-    public String parse(String time, Date now) throws IOException {
+    /**
+     * Parse the time description into its XML representation
+     * @param time the time description to parse
+     * @return the result
+     */
+    public String parse(String time) throws TimeException {
         String monthMatch = "(" + Arrays.asList(months).stream().collect(Collectors.joining("|")) + ")";
         String seasonMatch = "(" + Arrays.asList(seasons).stream().collect(Collectors.joining("|")) + ")";
         String dayMatch = "(\\\\d{1,2})";
@@ -131,72 +104,69 @@ public class TimeParser {
         String hourMatch = "(\\\\d{4})";
         String weekMatch = "(\\\\d{1,2})";
 
-        SimpleDateFormat yearFormat = new SimpleDateFormat("yyyy");
-        SimpleDateFormat monthFormat = new SimpleDateFormat("MMMM");
-        SimpleDateFormat dateFormat = new SimpleDateFormat("d");
-
         BufferedReader reader = new BufferedReader(new StringReader(time));
         String line;
         StringBuilder result = new StringBuilder();
-        while((line = reader.readLine()) != null) {
-            line = line.trim().toLowerCase();
+        try {
+            while((line = reader.readLine()) != null) {
+                line = line.trim().toLowerCase();
 
-            // Replace according to replace rules
-            for (String key : rewriteRules.keySet()) {
-                String value = rewriteRules.get(key);
+                // Replace according to replace rules
+                for (String key : rewriteRules.keySet()) {
+                    String value = rewriteRules.get(key);
 
-                value = value.replaceAll("\\$current_year", yearFormat.format(now));
-                value = value.replaceAll("\\$current_month", monthFormat.format(now));
-                value = value.replaceAll("\\$current_date", dateFormat.format(now));
+                    String from = key;
+                    from = from.replaceAll("\\$month", monthMatch);
+                    from = from.replaceAll("\\$season", seasonMatch);
+                    from = from.replaceAll("\\$date", dayMatch);
+                    from = from.replaceAll("\\$year", yearMatch);
+                    from = from.replaceAll("\\$hour", hourMatch);
+                    from = from.replaceAll("\\$week", weekMatch);
 
-                String from = key;
-                from = from.replaceAll("\\$month", monthMatch);
-                from = from.replaceAll("\\$season", seasonMatch);
-                from = from.replaceAll("\\$date", dayMatch);
-                from = from.replaceAll("\\$year", yearMatch);
-                from = from.replaceAll("\\$hour", hourMatch);
-                from = from.replaceAll("\\$week", weekMatch);
-
-                Matcher m = Pattern.compile(from).matcher(line);
-                StringBuffer sb = new StringBuffer();
-                while (m.find()) {
-                    String text = m.group();
-                    m.appendReplacement(sb, value);
+                    Matcher m = Pattern.compile(from).matcher(line);
+                    StringBuffer sb = new StringBuffer();
+                    while (m.find()) {
+                        String text = m.group();
+                        m.appendReplacement(sb, value);
+                    }
+                    m.appendTail(sb);
+                    line = sb.toString();
                 }
-                m.appendTail(sb);
-                line = sb.toString();
+                result.append(line + "\n");
             }
-            result.append(line + "\n");
+        } catch (Exception e) {
+            throw new TimeException("Failed converting time description into XML", e);
         }
-        return result.toString();
+        return "<time-result>" + result.toString() + "</time-result>";
     }
-
-
 
     /**
-     * Return the time parser for the specific language
-     * @param language the language
-     * @return the time parser for the specific language
+     * Parses the time into a {@code TimeModel} model.
+     * @param time the time description to parse
+     * @return the time model
      */
-    public synchronized static TimeParser get(String language) throws TimeException {
+    public TimeModel parseModel(String time) throws TimeException {
+        String timeXml = null;
+        try {
+            // Transform the time description into xml
+            timeXml = parse(time);
 
-        // Cache the parser
-        TimeParser parser = CACHE.get(language);
-        if (parser == null) {
-            parser = new TimeParser(language);
-            CACHE.put(language, parser);
+            // Attempt to parse the XML
+            JAXBContext jc = JAXBContext.newInstance(TimeModel.class);
+            Unmarshaller unmarshaller = jc.createUnmarshaller();
+            return (TimeModel) unmarshaller.unmarshal(new StringReader(timeXml));
+
+        } catch (Exception e) {
+            throw new TimeException("Failed parsing time description: " + time + "\n" + timeXml, e);
         }
-
-        return parser;
     }
 
 
-    public static void main(String... args) throws TimeException, IOException {
-        Date now = new Date();
-        TimeParser parser = TimeParser.get("en");
+    public static void main(String... args) throws TimeException, JAXBException {
+        TimeParser parser = TimeParser.get();
 
-        System.out.println(parser.parse("Mid-July - end October 2014.", now));
-        System.out.println(parser.parse("9. - 15. january 2014", now));
+        System.out.println(parser.parseModel("Mid-July - end October 2014.").toXml());
+        System.out.println(parser.parseModel("9. - 15. january 2014").toXml());
 
     }
 
