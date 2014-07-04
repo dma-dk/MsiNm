@@ -16,23 +16,23 @@
 
 <time><from><date day="15" month="july" year="2014"/></from><to><date day="15" month="october" year="2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date day="7" month="june" year="2014"/></to></time>
+<time><from><date today="true"/></from><to><date day="7" month="june" year="2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date day="1" month="january" year="2014"/></to></time>
+<time><from><date today="true"/></from><to><date day="1" month="january" year="2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date day="1" month="july" year="2014"/></to></time>
+<time><from><date today="true"/></from><to><date day="1" month="july" year="2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date day="15" month="june" year="2014"/></to></time>
+<time><from><date today="true"/></from><to><date day="15" month="june" year="2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date day="99" month="june" year="2014"/></to></time>
+<time><from><date today="true"/></from><to><date day="99" month="june" year="2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from></time>
+<time><from><date today="true"/></from></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date season="spring" year="2014"/></to></time>
+<time><from><date today="true"/></from><to><date season="spring" year="2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date week="2" year=2014"/></to></time>
+<time><from><date today="true"/></from><to><date week="2" year=2014"/></to></time>
 
-<time><from><date day="3" month="July" year="2014"/></from><to><date day="11" month="october" year="2014"/></to></time>
+<time><from><date today="true"/></from><to><date day="11" month="october" year="2014"/></to></time>
 <time><from><date day="23" month="may" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="7" month="june" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
 <time><from><date day="16" month="june" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="31" month="july" year="2014"/> <hour-range from="0500" to="2200"/></to></time>
 <time><from><date day="2" month="october" year="2014"/> <hour-range from="0500" to="2200"/></from><to><date day="11" month="october" year="2014"/> <hour-range from="0500" to="2200"/></to></time>

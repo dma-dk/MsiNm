@@ -28,7 +28,7 @@ rewrite_rule:    week $week                         ->      <date week="$1" year
 rewrite_rule:    until further notice               ->      now -
 rewrite_rule:    until and including (.*)           ->      now - $1
 rewrite_rule:    until (.*)                         ->      now - $1
-rewrite_rule:    now                                ->      <date day="$current_date" month="$current_month" year="$current_year"/>
+rewrite_rule:    now                                ->      <date today="true"/>
 
 rewrite_rule:    $date - $date (<hour-range .*/>)   ->      <date lastdate="true" day="$1"> $3 - <date lastdate="true" day="$2"> $3
 rewrite_rule:    $date (<hour-range .*/>)           ->      <date lastdate="true" day="$1"> $2
