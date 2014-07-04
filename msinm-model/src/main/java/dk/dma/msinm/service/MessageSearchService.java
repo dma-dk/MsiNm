@@ -24,11 +24,7 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
@@ -324,28 +320,30 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // **********************************************************************************/
             // ********** Query 2: Fetch messages with the paged set of id's             ********/
             // **********************************************************************************/
-            CriteriaQuery<Message> msgQuery = builder.createQuery(Message.class);
-            msgRoot = msgQuery.from(Message.class);
+            tupleQuery = builder.createTupleQuery();
+            msgRoot = tupleQuery.from(Message.class);
             msgRoot.join("seriesIdentifier", JoinType.LEFT);
             msgId = msgRoot.get("seriesIdentifier");
 
             // Build the predicate
-            PredicateHelper<Message> msgPredicateBuilder = new PredicateHelper<>(builder, msgQuery)
+            PredicateHelper<Tuple> msgPredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
                     .in(msgRoot.get("id"), pagedMsgIds);
 
             // Complete the query
-            msgQuery.select(msgRoot)
+            tupleQuery.multiselect(msgRoot, msgId.get("year"), msgId.get("number"))
                     .distinct(true)
                     .where(msgPredicateBuilder.where());
-            sortQuery(param, builder, msgQuery, msgRoot, msgId);
+            sortQuery(param, builder, tupleQuery, msgRoot, msgId);
 
             // Execute the query and update the search result
-            List<Message> pagedResult = em
-                    .createQuery(msgQuery)
+            List<Tuple> pagedResult = em
+                    .createQuery(tupleQuery)
                     .getResultList();
 
             // Copy the specified language and parent references of the included Area
-            result.addMessages(pagedResult, CopyOp.get(CopyOp.PARENT).setLang(param.getLanguage()));
+            List<Message> messages = new ArrayList<>();
+            pagedResult.stream().forEach(t -> messages.add((Message) t.get(0)));
+            result.addMessages(messages, CopyOp.get(CopyOp.PARENT).setLang(param.getLanguage()));
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");
