@@ -96,7 +96,7 @@ public class TimeParser implements TimeConstants {
      * @param time the time description to parse
      * @return the result
      */
-    public String parse(String time) throws TimeException {
+    protected String parse(String time) throws TimeException {
         String monthMatch = "(" + Arrays.asList(months).stream().collect(Collectors.joining("|")) + ")";
         String seasonMatch = "(" + Arrays.asList(seasons).stream().collect(Collectors.joining("|")) + ")";
         String dayMatch = "(\\\\d{1,2})";
@@ -161,12 +161,25 @@ public class TimeParser implements TimeConstants {
         }
     }
 
+    /**
+     * Parses the time into a {@code TimeModel} model in the given language.
+     * @param time the time description to parse
+     * @param language the language of the time description
+     * @return the time model
+     */
+    public TimeModel parseModel(String time, String language) throws TimeException {
+        // Translate non-english time descriptions to english
+        if (!"en".equals(language)) {
+            time = TimeTranslator.get(language).translateToEnglish(time);
+        }
+        return parseModel(time);
+    }
 
     public static void main(String... args) throws TimeException, JAXBException {
         TimeParser parser = TimeParser.get();
 
         System.out.println(parser.parseModel("Mid-July - end October 2014.").toXml());
-        System.out.println(parser.parseModel("9. - 15. january 2014").toXml());
+        System.out.println(parser.parseModel("14. juni 2014, kl. 0800 - 15. juni 2014, kl. 2000.", "da").toXml());
 
     }
 

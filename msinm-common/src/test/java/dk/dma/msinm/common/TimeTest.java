@@ -56,7 +56,24 @@ public class TimeTest {
             String backToEnglish = translator.translateToEnglish(translated);
 
             System.out.printf("==Input==%n%s%n==Translated DK==%n%s%n==Translated EN==%n%s%n%n", time, translated, backToEnglish);
+
+            // Assert that translating EN -> DA -> EN will be (almost) identical
             assertEquals(time.toLowerCase().trim(), backToEnglish.toLowerCase().trim());
+        }
+    }
+
+    @Test
+    public void timeParserDaTest() throws TimeException, IOException, JAXBException {
+        List<String> times = readTestFile("/timeParserInput_da.txt");
+
+        TimeParser parser = TimeParser.get();
+
+        for (int x = 0; x < times.size(); x++) {
+            String time = times.get(x);
+
+            TimeModel result = parser.parseModel(time, "da");
+            //System.out.printf("%s%n", result.toXml());
+            System.out.printf("==Input==%n%s%n==Output==%n%s%n", time, result.toXml());
         }
     }
 
