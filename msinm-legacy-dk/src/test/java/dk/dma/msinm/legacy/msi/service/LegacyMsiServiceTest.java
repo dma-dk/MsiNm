@@ -60,7 +60,7 @@ public class LegacyMsiServiceTest extends MsiNmUnitTest
         prepareEntityManagerFactory(
                 SequenceEntity.class, SettingsEntity.class, AuditEntry.class,
                 LegacyMessage.class,
-                Message.class, MessageDesc.class, Location.class, LocationDesc.class,
+                Message.class, MessageDesc.class, Location.class, LocationDesc.class, Reference.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
                 Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
         );

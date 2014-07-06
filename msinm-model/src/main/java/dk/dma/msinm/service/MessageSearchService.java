@@ -343,7 +343,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // Copy the specified language and parent references of the included Area
             List<Message> messages = new ArrayList<>();
             pagedResult.stream().forEach(t -> messages.add((Message) t.get(0)));
-            result.addMessages(messages, CopyOp.get(CopyOp.PARENT).setLang(param.getLanguage()));
+            result.addMessages(messages, CopyOp.get(CopyOp.PARENT, "details").setLang(param.getLanguage()));
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");

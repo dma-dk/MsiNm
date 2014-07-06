@@ -15,21 +15,18 @@
  */
 package dk.dma.msinm.model;
 
-import dk.dma.msinm.common.model.BaseEntity;
-
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
+import javax.persistence.Embeddable;
 import javax.persistence.Table;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 /**
  * A unique identifier for an MSI or NtM message
  */
-@Entity
+@Embeddable
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "authority", "number", "year"}))
-public class SeriesIdentifier extends BaseEntity<Integer> {
+public class SeriesIdentifier implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -42,9 +39,6 @@ public class SeriesIdentifier extends BaseEntity<Integer> {
     @NotNull
     private Integer year;
     
-    public SeriesIdentifier() {
-    }
-
     public String getAuthority() {
         return authority;
     }

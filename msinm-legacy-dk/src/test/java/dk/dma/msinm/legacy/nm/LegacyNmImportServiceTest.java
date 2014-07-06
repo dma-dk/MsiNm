@@ -20,6 +20,7 @@ import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.model.PointDesc;
@@ -63,7 +64,7 @@ public class LegacyNmImportServiceTest extends MsiNmUnitTest
         prepareEntityManagerFactory(
                 SequenceEntity.class, SettingsEntity.class, AuditEntry.class,
                 LegacyMessage.class,
-                Message.class, MessageDesc.class, Location.class, LocationDesc.class,
+                Message.class, MessageDesc.class, Location.class, LocationDesc.class, Reference.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
                 Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
         );

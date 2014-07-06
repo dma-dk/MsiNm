@@ -82,6 +82,47 @@
     padding: 5px 8px 5px 8px;
 }
 
+/**
+ * Table search result
+ */
+
+.table-image img {
+    display: none;
+}
+
+@media (min-width: 600px) {
+    .table-image img {
+        display: block;
+        width: 120px;
+        height: 120px;
+    }
+}
+@media (min-width: 1000px) {
+    .table-image img {
+        display: block;
+        width: 200px;
+        height: 200px;
+    }
+}
+
+.table-item {
+    width: 100%;
+    font-size: 11px;
+}
+
+.table-item-field {
+    font-style: italic;
+    color: #666;
+    padding-top: 5px;
+}
+
+.table-item-value {
+    padding-top: 5px;
+}
+
+/**
+ * Map search result
+ */
 
 .loc-map {
     margin-top: 20px;

@@ -36,8 +36,8 @@ import java.util.Set;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NamedQueries({
     @NamedQuery(name="Message.findBySeriesIdentifier",
-                query="SELECT msg FROM Message msg inner join msg.seriesIdentifier si where si.number = :number " +
-                      " and si.year = :year and si.authority = :authority"),
+                query="SELECT msg FROM Message msg where msg.seriesIdentifier.number = :number " +
+                      " and msg.seriesIdentifier.year = :year and msg.seriesIdentifier.authority = :authority"),
     @NamedQuery(name="Message.findUpdateMessages",
                 query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
     @NamedQuery(name="Message.findActive",
@@ -53,7 +53,7 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
     public static final Sequence MESSAGE_SEQUENCE = new DefaultSequence("msinm-message-id", 1);
 
     @NotNull
-    @OneToOne(cascade = CascadeType.ALL)
+    @Embedded
     SeriesIdentifier seriesIdentifier;
 
     @NotNull
@@ -91,8 +91,8 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
     @Temporal(TemporalType.TIMESTAMP)
     Date cancellationDate;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    Set<SeriesIdentifier> cancellations = new HashSet<>();
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "message")
+    Set<Reference> references = new HashSet<>();
 
     @NotNull
     Priority priority = Priority.NONE;
@@ -132,7 +132,7 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
         getCategories().forEach(cat -> {});
         getCharts().forEach(chart -> {});
         getArea();
-        getCancellations().forEach(id -> {});
+        getReferences().forEach(id -> {});
     }
 
     /******** Getters and setters *********/
@@ -225,12 +225,12 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
         this.cancellationDate = cancellationDate;
     }
 
-    public Set<SeriesIdentifier> getCancellations() {
-        return cancellations;
+    public Set<Reference> getReferences() {
+        return references;
     }
 
-    public void setCancellations(Set<SeriesIdentifier> cancellations) {
-        this.cancellations = cancellations;
+    public void setReferences(Set<Reference> references) {
+        this.references = references;
     }
 
     public Priority getPriority() {

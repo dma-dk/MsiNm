@@ -21,20 +21,7 @@ import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
-import dk.dma.msinm.model.Area;
-import dk.dma.msinm.model.AreaDesc;
-import dk.dma.msinm.model.Category;
-import dk.dma.msinm.model.CategoryDesc;
-import dk.dma.msinm.model.Chart;
-import dk.dma.msinm.model.Location;
-import dk.dma.msinm.model.LocationDesc;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.SeriesIdentifier;
-import dk.dma.msinm.model.Status;
-import dk.dma.msinm.model.Type;
-import dk.dma.msinm.model.Point;
-import dk.dma.msinm.model.PointDesc;
+import dk.dma.msinm.model.*;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
 import org.jglue.cdiunit.AdditionalClasses;
@@ -77,7 +64,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {
         prepareEntityManagerFactory(
                 SequenceEntity.class, SettingsEntity.class,
-                Message.class, MessageDesc.class, Location.class, LocationDesc.class,
+                Message.class, MessageDesc.class, Location.class, LocationDesc.class, Reference.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
                 Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
         );

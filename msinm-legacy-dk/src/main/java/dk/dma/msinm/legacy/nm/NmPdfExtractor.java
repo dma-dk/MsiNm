@@ -5,6 +5,8 @@ import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.Reference;
+import dk.dma.msinm.model.ReferenceType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Type;
 import dk.dma.msinm.model.Point;
@@ -13,6 +15,7 @@ import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import sun.jvm.hotspot.debugger.cdbg.RefType;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -24,6 +27,7 @@ import java.io.StringReader;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -324,11 +328,12 @@ public class NmPdfExtractor {
                 desc.setDescription(line);
                 break;
             case NOTE:
-                // TODO: notice.setNote(line, lang);
+                desc.setNote(line);
                 break;
             case REFERENCE:
                 if ("da".equals(lang)) {
-                    // TODO: Arrays.asList(removeLastPeriod(line).split(",|( and )|( og )")).forEach(ref -> notice.getReferences().add(ref.trim()));
+                    Arrays.asList(removeLastPeriod(line).split(",|( and )|( og )"))
+                            .forEach(ref -> addReference(ref.trim(), ReferenceType.REFERENCE, notice));
                 }
                 break;
             case POSITION:
@@ -338,20 +343,49 @@ public class NmPdfExtractor {
                 break;
             case PREVIOUS:
                 if ("da".equals(lang)) {
-                    // TODO: notice.setPreviousNotice(removeLastPeriod(line));
+                    if (line.contains("ajourført") || line.contains("ny tid")) {
+                        addReference(line, ReferenceType.UPDATE, notice);
+                    } else if (line.contains("gentagelse")) {
+                        addReference(line, ReferenceType.REPETITION, notice);
+                    } else if (line.contains("udgår")) {
+                        addReference(line, ReferenceType.CANCELLATION, notice);
+                    }
                 }
                 break;
             case PUBLICATION:
-                // TODO: notice.setPublication(line, lang);
+                desc.setPublication(removeLastPeriod(line));
                 break;
             case SOURCE:
-                // TODO: notice.setSource(line.substring(0, line.length() - 1), lang);
+                desc.setSource(line.substring(0, line.length() - 1));
                 break;
             case TIME:
                 desc.setTime(line);
                 break;
         }
 
+    }
+
+    /**
+     * Adds a reference of the given type to the notice.
+     * The reference has the format "18/460 2014"
+     * @param ref the reference
+     * @param type the type
+     * @param notice the notice to update
+     */
+    void addReference(String ref, ReferenceType type, Message notice) {
+        Matcher m = Pattern.compile("[-\\d]+/(\\d+) (\\d+).*").matcher(ref);
+        if (m.matches()) {
+            SeriesIdentifier id = new SeriesIdentifier();
+            id.setAuthority("DMA");
+            id.setNumber(Integer.valueOf(m.group(1)));
+            id.setYear(Integer.valueOf(m.group(2)));
+
+            Reference reference = new Reference();
+            reference.setMessage(notice);
+            reference.setType(type);
+            reference.setSeriesIdentifier(id);
+            notice.getReferences().add(reference);
+        }
     }
 
     /**

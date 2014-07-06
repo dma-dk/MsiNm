@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.Set;
 
 /**
- * Value object for the {@code Area} model entity
+ * Value object for the {@code Message} model entity
  */
 @JsonIgnoreProperties(ignoreUnknown=true)
 public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
@@ -35,7 +35,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     Date validFrom;
     Date validTo;
     Date cancellationDate;
-    Set<SeriesIdentifier> cancellations = new HashSet<>();
+    Set<ReferenceVo> references = new HashSet<>();
     List<String> lightsListNumbers = new ArrayList<>();
     boolean originalInformation;
 
@@ -72,7 +72,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
             charts.addAll(message.getCharts());
             horizontalDatum = message.getHorizontalDatum();
             cancellationDate = message.getCancellationDate();
-            cancellations.addAll(message.getCancellations());
+            message.getReferences().forEach(ref -> references.add(new ReferenceVo(ref)));
             lightsListNumbers.addAll(message.getLightsListNumbers());
             originalInformation = message.isOriginalInformation();
         }
@@ -100,7 +100,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         message.setValidFrom(validFrom);
         message.setValidTo(validTo);
         message.setCancellationDate(cancellationDate);
-        message.getCancellations().addAll(cancellations);
+        references.forEach(ref -> message.getReferences().add(ref.toEntity()));
         message.getLightsListNumbers().addAll(lightsListNumbers);
         message.setOriginalInformation(originalInformation);
         getDescs().stream()
@@ -217,12 +217,12 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         this.cancellationDate = cancellationDate;
     }
 
-    public Set<SeriesIdentifier> getCancellations() {
-        return cancellations;
+    public Set<ReferenceVo> getReferences() {
+        return references;
     }
 
-    public void setCancellations(Set<SeriesIdentifier> cancellations) {
-        this.cancellations = cancellations;
+    public void setReferences(Set<ReferenceVo> references) {
+        this.references = references;
     }
 
     public List<String> getLightsListNumbers() {
@@ -251,6 +251,9 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         String otherCategories;
         String time;
         String vicinity;
+        String note;
+        String publication;
+        String source;
 
         /**
          * Constructor
@@ -270,6 +273,9 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
             this.otherCategories = desc.getOtherCategories();
             this.time = desc.getTime();
             this.vicinity = desc.getVicinity();
+            this.note = desc.getNote();
+            this.publication = desc.getPublication();
+            this.source = desc.getSource();
         }
 
         /**
@@ -284,6 +290,9 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
             desc.setOtherCategories(otherCategories);
             desc.setTime(time);
             desc.setVicinity(vicinity);
+            desc.setNote(note);
+            desc.setPublication(publication);
+            desc.setSource(source);
             return desc;
         }
 
@@ -302,7 +311,10 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
                     StringUtils.isNotBlank(description) &&
                     StringUtils.isNotBlank(otherCategories) &&
                     StringUtils.isNotBlank(time) &&
-                    StringUtils.isNotBlank(vicinity);
+                    StringUtils.isNotBlank(vicinity) &&
+                    StringUtils.isNotBlank(note) &&
+                    StringUtils.isNotBlank(publication) &&
+                    StringUtils.isNotBlank(source);
         }
 
         public String getTitle() {
@@ -343,6 +355,30 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
         public void setVicinity(String vicinity) {
             this.vicinity = vicinity;
+        }
+
+        public String getNote() {
+            return note;
+        }
+
+        public void setNote(String note) {
+            this.note = note;
+        }
+
+        public String getPublication() {
+            return publication;
+        }
+
+        public void setPublication(String publication) {
+            this.publication = publication;
+        }
+
+        public String getSource() {
+            return source;
+        }
+
+        public void setSource(String source) {
+            this.source = source;
         }
     }
 

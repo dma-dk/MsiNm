@@ -26,6 +26,14 @@ public class MessageDesc extends DescEntity<Message>  {
 
     String vicinity;
 
+    @Column(length = 1000)
+    String note;
+
+    String publication;
+
+    String source;
+
+
     /**
      * {@inheritDoc}
      */
@@ -40,6 +48,9 @@ public class MessageDesc extends DescEntity<Message>  {
         this.otherCategories = other.getOtherCategories();
         this.time = other.getTime();
         this.vicinity = other.getVicinity();
+        this.note = other.getNote();
+        this.publication = other.getPublication();
+        this.source = other.getSource();
     }
 
     public String getTitle() {
@@ -80,5 +91,29 @@ public class MessageDesc extends DescEntity<Message>  {
 
     public void setVicinity(String vicinity) {
         this.vicinity = vicinity;
+    }
+
+    public String getNote() {
+        return note;
+    }
+
+    public void setNote(String note) {
+        this.note = note;
+    }
+
+    public String getPublication() {
+        return publication;
+    }
+
+    public void setPublication(String publication) {
+        this.publication = publication;
+    }
+
+    public String getSource() {
+        return source;
+    }
+
+    public void setSource(String source) {
+        this.source = source;
     }
 }

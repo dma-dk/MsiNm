@@ -157,10 +157,19 @@ function positionDirective(directive, formatter1, parser) {
     };
 }
 
-angular.module('msinm.map').directive('latitude', function() {
-    return positionDirective('latitude', formatLatitude, parseLatitude);
-});
+angular.module('msinm.map')
 
-angular.module('msinm.map').directive('longitude', function() {
-    return positionDirective('longitude', formatLongitude, parseLongitude);
-});
+    .directive('latitude', function() {
+        return positionDirective('latitude', formatLatitude, parseLatitude);
+    })
+
+    .directive('longitude', function() {
+        return positionDirective('longitude', formatLongitude, parseLongitude);
+    })
+
+    .filter('lonlat', function() {
+        return function(input) {
+            input = input || '';
+            return formatLonLat(input);
+        };
+    });
