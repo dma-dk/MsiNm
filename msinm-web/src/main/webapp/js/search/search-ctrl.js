@@ -3,8 +3,8 @@
  * The main controller for the app.
  */
 angular.module('msinm.search')
-    .controller('SearchCtrl', ['$scope', '$location', '$modal', 'SearchService', '$http', 'growlNotifications',
-        function ($scope, $location, $modal, SearchService, $http, growlNotifications) {
+    .controller('SearchCtrl', ['$scope', '$window', '$location', '$modal', 'SearchService', '$http', 'growlNotifications',
+        function ($scope, $window, $location, $modal, SearchService, $http, growlNotifications) {
         'use strict';
 
         $scope.filterOnType = false;
@@ -90,5 +90,18 @@ angular.module('msinm.search')
             $scope.sortDesc = !$scope.sortDesc;
             $scope.search();
         };
+
+        $scope.pdf = function () {
+            $window.location = '/rest/message/pdf?lang=da'
+            + '&q=' + encodeURIComponent($scope.query)
+            + '&status=' + encodeURIComponent($scope.status)
+            + '&type=' + encodeURIComponent($scope.type)
+            + '&loc=' + encodeURIComponent($scope.loc.type ? JSON.stringify($scope.loc) : '')
+            + '&from=' + encodeURIComponent($("#messageDateFrom").val())
+            + '&to=' + encodeURIComponent($("#messageDateTo").val())
+            + '&sortBy=' + ($scope.sortBy)
+            + '&sortOrder=' + ($scope.sortDesc ? 'DESC' : 'ASC');
+        };
+
 
 }]);

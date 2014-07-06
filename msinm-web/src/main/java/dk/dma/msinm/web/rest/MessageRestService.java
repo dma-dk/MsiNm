@@ -39,10 +39,17 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -62,6 +69,9 @@ public class MessageRestService {
 
     @Inject
     MessageSearchService messageSearchService;
+
+    @Inject
+    PdfService pdfService;
 
     public MessageRestService() {
     }
@@ -83,28 +93,19 @@ public class MessageRestService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Main search method
-     */
-    @GET
-    @Path("/search")
-    @Produces("application/json;charset=UTF-8")
-    @GZIP
-    @NoCache
-    public MessageSearchResult search(
-            @QueryParam("lang") String language,
-            @QueryParam("q") String query,
-            @QueryParam("status") @DefaultValue("ACTIVE") String status,
-            @QueryParam("type") String type,
-            @QueryParam("loc") String loc,
-            @QueryParam("from") String fromDate,
-            @QueryParam("to") String toDate,
-            @QueryParam("maxHits") @DefaultValue("100") int maxHits,
-            @QueryParam("startIndex") @DefaultValue("0") int startIndex,
-            @QueryParam("sortBy") @DefaultValue("issueDate") String sortBy,
-            @QueryParam("sortOrder") @DefaultValue("desc") String sortOrder
-    ) throws Exception {
-
+    private MessageSearchParams readParams(
+            String language,
+            String query,
+            String status,
+            String type,
+            String loc,
+            String fromDate,
+            String toDate,
+            int maxHits,
+            int startIndex,
+            String sortBy,
+            String sortOrder
+    ) throws ParseException {
         log.info(String.format(
                 "Search with lang=%s, q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s",
                 language, query, status, type, loc, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder));
@@ -152,8 +153,84 @@ public class MessageRestService {
             params.setTo(sdf.parse(toDate));
         }
 
-        return messageSearchService
-                .search(params);
+        return params;
+    }
+
+    /**
+     * Main search method
+     */
+    @GET
+    @Path("/search")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public MessageSearchResult search(
+            @QueryParam("lang") String language,
+            @QueryParam("q") String query,
+            @QueryParam("status") @DefaultValue("ACTIVE") String status,
+            @QueryParam("type") String type,
+            @QueryParam("loc") String loc,
+            @QueryParam("from") String fromDate,
+            @QueryParam("to") String toDate,
+            @QueryParam("maxHits") @DefaultValue("100") int maxHits,
+            @QueryParam("startIndex") @DefaultValue("0") int startIndex,
+            @QueryParam("sortBy") @DefaultValue("issueDate") String sortBy,
+            @QueryParam("sortOrder") @DefaultValue("desc") String sortOrder
+    ) throws Exception {
+        MessageSearchParams params = readParams(language, query, status, type, loc, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder);
+        return messageSearchService.search(params);
+    }
+
+    /**
+     * Returns a PDF for the search result
+     */
+    @GET
+    @Path("/pdf")
+    @Produces("application/pdf")
+    @NoCache
+    public Response generatePdf(
+            @QueryParam("lang") String language,
+            @QueryParam("q") String query,
+            @QueryParam("status") @DefaultValue("ACTIVE") String status,
+            @QueryParam("type") String type,
+            @QueryParam("loc") String loc,
+            @QueryParam("from") String fromDate,
+            @QueryParam("to") String toDate,
+            @QueryParam("sortBy") @DefaultValue("issueDate") String sortBy,
+            @QueryParam("sortOrder") @DefaultValue("desc") String sortOrder
+    ) throws Exception {
+        MessageSearchParams params = readParams(language, query, status, type, loc, fromDate, toDate, Integer.MAX_VALUE, 0, sortBy, sortOrder);
+        MessageSearchResult result = messageSearchService.search(params);
+
+        String template = "pdf-test.ftl";
+        try {
+            // Standard data properties
+            Map<String, Object> data = new HashMap<>();
+            data.put("messages", result.getMessages());
+
+            StreamingOutput stream = new StreamingOutput() {
+                @Override
+                public void write(OutputStream os) throws IOException, WebApplicationException {
+
+                    try {
+                        pdfService.generatePdf(data, template, os);
+                    } catch (Exception e) {
+                        throw new WebApplicationException("Error generating PDF", e);
+                    }
+                }
+            };
+
+            return Response
+                    .ok(stream)
+                    .type("application/pdf")
+                    .header("Content-Disposition", "attachment; filename=\"messages.pdf\"")
+                    .build();
+
+
+        } catch (Exception e) {
+            log.error("error sending email from template " + template, e);
+            throw e;
+        }
     }
 
     /**
