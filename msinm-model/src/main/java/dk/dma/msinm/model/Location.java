@@ -135,23 +135,28 @@ public class Location extends BaseEntity<Integer> implements ILocalizable<Locati
      * @param jsonData the Json data
      * @return the corresponding MessageLocation entity
      */
-    public static Location fromJson(String jsonData) {
+    public static List<Location> fromJson(String jsonData) {
+        List<Location> locations = new ArrayList<>();
+
         try (JsonReader jsonReader = Json.createReader(new StringReader(jsonData))) {
-            JsonObject jsonObject = jsonReader.readObject();
-            Location loc = new Location();
-            loc.setType(LocationType.valueOf(jsonObject.getString("type")));
-            if (jsonObject.containsKey("radius")) {
-                loc.setRadius(jsonObject.getInt("radius"));
+            for (JsonValue jloc : jsonReader.readArray()) {
+                JsonObject jsonObject = (JsonObject)jloc;
+                Location loc = new Location();
+                loc.setType(LocationType.valueOf(jsonObject.getString("type")));
+                if (jsonObject.containsKey("radius")) {
+                    loc.setRadius(jsonObject.getInt("radius"));
+                }
+                for (JsonValue point : jsonObject.getJsonArray("points")) {
+                    JsonObject pt = (JsonObject) point;
+                    loc.getPoints().add(new Point(
+                            loc,
+                            pt.getJsonNumber("lat").doubleValue(),
+                            pt.getJsonNumber("lon").doubleValue(),
+                            pt.getInt("index")));
+                }
+                locations.add(loc);
             }
-            for(JsonValue point : jsonObject.getJsonArray("points")) {
-                JsonObject pt = (JsonObject)point;
-                loc.getPoints().add(new Point(
-                        loc,
-                        pt.getJsonNumber("lat").doubleValue(),
-                        pt.getJsonNumber("lon").doubleValue(),
-                        pt.getInt("index")));
-            }
-            return loc;
+            return locations;
         }
     }
 

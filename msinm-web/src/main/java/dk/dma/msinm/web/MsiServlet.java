@@ -116,7 +116,7 @@ public class MsiServlet extends HttpServlet {
 
         MessageSearchParams params = new MessageSearchParams();
         params.setMaxHits(10000);
-        params.setLocation(loc);
+        params.getLocations().add(loc);
 
         Color col = new Color(143, 47, 123);
         Color fillCol = new Color(173, 87, 161, 80);

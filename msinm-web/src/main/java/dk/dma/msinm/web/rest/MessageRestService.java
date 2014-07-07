@@ -140,7 +140,7 @@ public class MessageRestService {
         }
 
         if (StringUtils.isNotBlank(loc)) {
-            params.setLocation(Location.fromJson(loc));
+            params.setLocations(Location.fromJson(loc));
         }
 
         if (StringUtils.isNotBlank(fromDate)) {

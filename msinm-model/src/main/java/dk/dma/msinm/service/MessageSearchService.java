@@ -28,6 +28,7 @@ import dk.dma.msinm.vo.MessageVo;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
+import org.apache.lucene.queries.ChainedFilter;
 import org.apache.lucene.search.Filter;
 import org.apache.lucene.spatial.SpatialStrategy;
 import org.apache.lucene.spatial.prefix.RecursivePrefixTreeStrategy;
@@ -50,6 +51,7 @@ import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -265,7 +267,24 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
         });
     }
 
-     /**
+    /**
+     * Produces a chained lucene filter based on the location list
+     * @param locations the list of locations to produce a filter for
+     * @return the lucene filter or null if no locations are defiend.
+     */
+    public Filter getLocationFilter(List<Location> locations) throws ParseException {
+        if (locations.size() == 0) {
+            return null;
+        }
+        List<Filter> filters = new ArrayList<>();
+        for (Location loc : locations) {
+            SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, loc.toWkt());
+            filters.add(strategy.makeFilter(args));
+        }
+        return new ChainedFilter(filters.toArray(new Filter[filters.size()]), ChainedFilter.OR);
+    }
+
+    /**
      * Main search method
      *
      * @param param the search parameters
@@ -308,9 +327,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // Search the Lucene index for free text search and location information
             if (param.requiresLuceneSearch()) {
                 Filter filter = null;
-                if (param.getLocation() != null) {
-                    SpatialArgs args = new SpatialArgs(SpatialOperation.Intersects, param.getLocation().toWkt());
-                    filter = strategy.makeFilter(args);
+                if (param.getLocations() != null) {
+                    filter = getLocationFilter(param.getLocations());
                 }
                 List<Long> ids = searchIndex(param.getQuery(), searchField(param.getLanguage()), filter, Integer.MAX_VALUE);
                 tuplePredicateBuilder.in(msgRoot.get("id"), ids);

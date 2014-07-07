@@ -16,7 +16,7 @@ angular.module('msinm.search')
         $scope.query = '';
         $scope.status = 'ACTIVE';
         $scope.type = '';
-        $scope.loc = {};
+        $scope.locations = [];
         $scope.dateFrom = '';
         $scope.dateTo = '';
 
@@ -42,7 +42,7 @@ angular.module('msinm.search')
                 $scope.query,
                 $scope.status,
                 $scope.type,
-                $scope.loc.type ? JSON.stringify($scope.loc) : '',
+                JSON.stringify($scope.locations),
                 $("#messageDateFrom").val(),
                 $("#messageDateTo").val(),
                 $scope.pageSize,
@@ -65,7 +65,7 @@ angular.module('msinm.search')
         };
 
         $scope.resetLocation = function () {
-            $scope.loc = {};
+            $scope.locations = [];
         };
 
         $scope.showLocation = function () {
@@ -97,12 +97,21 @@ angular.module('msinm.search')
             + '&q=' + encodeURIComponent($scope.query)
             + '&status=' + encodeURIComponent($scope.status)
             + '&type=' + encodeURIComponent($scope.type)
-            + '&loc=' + encodeURIComponent($scope.loc.type ? JSON.stringify($scope.loc) : '')
+            + '&loc=' + encodeURIComponent(JSON.stringify($scope.locations))
             + '&from=' + encodeURIComponent($("#messageDateFrom").val())
             + '&to=' + encodeURIComponent($("#messageDateTo").val())
             + '&sortBy=' + ($scope.sortBy)
             + '&sortOrder=' + ($scope.sortDesc ? 'DESC' : 'ASC');
         };
 
+        $scope.showLocationEditor = function(show) {
+            if (show) {
+                $('.search-locations').fadeIn(0);
+                $scope.locationsVisible = true;
+            } else {
+                $('.search-locations').fadeOut(0);
+                $scope.locationsVisible = false;
+            }
+        }
 
 }]);

@@ -21,9 +21,7 @@ import dk.dma.msinm.model.Type;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Defines the search parameters
@@ -37,7 +35,7 @@ public class MessageSearchParams implements Serializable {
     String query;
     Date from;
     Date to;
-    Location location;
+    List<Location> locations = new ArrayList<>();
     Status status;
     Set<Type> types = new HashSet<>();
 
@@ -51,7 +49,9 @@ public class MessageSearchParams implements Serializable {
 
     public MessageSearchParams(String query, Location location) {
         this.query = query;
-        this.location = location;
+        if (location != null) {
+            this.locations.add(location);
+        }
     }
 
     /**
@@ -59,7 +59,7 @@ public class MessageSearchParams implements Serializable {
      * @return whether or not the search requires a Lucene search
      */
     public boolean requiresLuceneSearch() {
-        return StringUtils.isNotBlank(query) || location != null;
+        return StringUtils.isNotBlank(query) || locations.size() > 0;
     }
 
     @Override
@@ -69,7 +69,7 @@ public class MessageSearchParams implements Serializable {
                 ", query='" + query + '\'' +
                 ", from=" + from +
                 ", to=" + to +
-                ", location=" + location +
+                ", locations=" + locations +
                 ", status=" + status +
                 ", maxHits=" + maxHits +
                 ", startIndex=" + startIndex +
@@ -108,12 +108,12 @@ public class MessageSearchParams implements Serializable {
         this.to = to;
     }
 
-    public Location getLocation() {
-        return location;
+    public List<Location> getLocations() {
+        return locations;
     }
 
-    public void setLocation(Location location) {
-        this.location = location;
+    public void setLocations(List<Location> locations) {
+        this.locations = locations;
     }
 
     public Status getStatus() {
