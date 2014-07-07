@@ -1,29 +1,13 @@
 package dk.dma.msinm.legacy.nm;
 
-import dk.dma.msinm.model.Area;
-import dk.dma.msinm.model.Chart;
-import dk.dma.msinm.model.Location;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.Reference;
-import dk.dma.msinm.model.ReferenceType;
-import dk.dma.msinm.model.SeriesIdentifier;
-import dk.dma.msinm.model.Type;
-import dk.dma.msinm.model.Point;
+import dk.dma.msinm.model.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import sun.jvm.hotspot.debugger.cdbg.RefType;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.StringReader;
+import java.io.*;
 import java.text.NumberFormat;
 import java.text.ParseException;
 import java.util.ArrayList;
