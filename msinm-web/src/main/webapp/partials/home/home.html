@@ -23,7 +23,7 @@
             </p>
             <div class="front-page-msi">
                 <div ng-repeat="msg in searchResult.messages" class="front-page-msi-item">
-                    <div><strong msi-area="msg"/></div>
+                    <div><strong msi-area="msg"/><strong> - {{msg.descs[0].title}}</strong></div>
                     <div><small>{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</small></div>
                     <div>{{msg.descs[0].description}}</div>
                 </div>
