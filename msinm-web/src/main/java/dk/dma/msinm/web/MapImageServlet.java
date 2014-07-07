@@ -100,7 +100,8 @@ public class MapImageServlet extends HttpServlet  {
                 // Either return the image file, or a place holder image
                 if (imageFileExists) {
                     // Redirect the the repository streaming service
-                    response.sendRedirect("/rest/repo/" + imageUrl.toString());
+                    String uri = "/rest/repo/" + imageUrl.toString().replace('\\', '/');
+                    response.sendRedirect(uri);
                     return;
                 }
             }
