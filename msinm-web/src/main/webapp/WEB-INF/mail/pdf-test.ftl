@@ -13,7 +13,7 @@
         }
 
         body{
-            font-size:12px;
+            font-size:10px;
             font-family: Helvetica;
             margin: 0;
             padding:0;
@@ -28,6 +28,10 @@
             height: 0;
         }
 
+        table.message-table tr, table.message-table tr {
+            page-break-inside: avoid;
+        }
+
         .table-image {
             vertical-align: top;
             padding: 10px;
@@ -37,7 +41,7 @@
         .table-item {
             vertical-align: top;
             width: 100%;
-            padding: 10px;
+            padding: 10px 10px 10px 40px;
             border-top: 1px solid lightgray;
         }
 
@@ -60,11 +64,11 @@
 <body>
 
 <h1>Messages</h1>
-<table>
+<table class="message-table">
     <#list messages as msg>
     <tr>
         <td class="table-image">
-            <img src="/map-image/${msg.id}.png" width="120" height="120"/>
+            <img src="/map-image/${msg.id?c}.png" width="120" height="120"/>
         </td>
         <td class="table-item">
 
@@ -73,7 +77,7 @@
                 <div>*</div>
             </#if>
             <div>
-                <strong>${msg.seriesIdentifier.number}</strong>.
+                <strong>${msg.seriesIdentifier.number?c}-${msg.seriesIdentifier.year?c}</strong>.
                 ${msg.area.descs[0].name} -
                 ${msg.descs[0].title}
             </div>
@@ -91,7 +95,7 @@
                         </#if>
                     </td>
                     <td class="field-value">
-                        ${ref.seriesIdentifier.number} ${'' + ref.seriesIdentifier.year}
+                        ${ref.seriesIdentifier.number?c}-${'' + ref.seriesIdentifier.year?c}
 
                         <#if ref.type == 'REPETITION'>
                             (repitition)
@@ -161,7 +165,7 @@
                         <td class="field-value">
                             <#list msg.charts as chart>
                                 ${chart.chartNumber}
-                                <#if chart.internationalNumber?has_content>${chart.internationalNumber}</#if>
+                                <#if chart.internationalNumber?has_content>${chart.internationalNumber?c}</#if>
                                 <#if chart_has_next>, </#if>
                             </#list>
                         </td>
