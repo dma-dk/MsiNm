@@ -178,7 +178,10 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             String searchField = searchField(language);
 
             addPhraseSearchField(doc, searchField, message.getStatus());
+
+            // Todo: add reference message series identifiers...
             addPhraseSearchField(doc, searchField, message.getSeriesIdentifier().getAuthority());
+            addPhraseSearchField(doc, searchField, String.valueOf(message.getSeriesIdentifier().getNumber()));
             addPhraseSearchField(doc, searchField, String.valueOf(message.getSeriesIdentifier().getYear()));
 
             // Area
@@ -212,8 +215,11 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             message.getDescs().forEach(desc -> {
                 addPhraseSearchField(doc, searchField, desc.getTitle());
                 addPhraseSearchField(doc, searchField, desc.getDescription());
+                addPhraseSearchField(doc, searchField, desc.getNote());
                 addPhraseSearchField(doc, searchField, desc.getOtherCategories());
                 addPhraseSearchField(doc, searchField, desc.getVicinity());
+                addPhraseSearchField(doc, searchField, desc.getPublication());
+                addPhraseSearchField(doc, searchField, desc.getSource());
             });
 
             message.getLightsListNumbers()

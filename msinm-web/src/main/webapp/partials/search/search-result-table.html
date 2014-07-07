@@ -11,7 +11,7 @@
                 <div ng-if="msg.originalInformation">&#10029;</div>
                 <div>
                     <strong msi-message-id="msg"></strong>.
-                    <strong msi-area="msg"></strong><br/>
+                    <strong msi-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
                 </div>
 
                 <!-- Reference lines -->
