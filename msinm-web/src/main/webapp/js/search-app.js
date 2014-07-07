@@ -21,6 +21,8 @@ var app = angular.module('msinm', [
             templateUrl: 'partials/search/search-result-grid.html'
         }).when('/search/map', {
             templateUrl: 'partials/search/search-result-map.html'
+        }).when('/search/details', {
+            templateUrl: 'partials/search/search-result-details.html'
         }).when('/search/table', {
             templateUrl: 'partials/search/search-result-table.html'
         }).otherwise({

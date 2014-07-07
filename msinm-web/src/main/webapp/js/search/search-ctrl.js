@@ -86,7 +86,8 @@ angular.module('msinm.search')
             $scope.search();
         };
 
-        $scope.toggleSortOrder = function() {
+        $scope.toggleSortOrder = function(sortBy) {
+            $scope.sortBy = sortBy;
             $scope.sortDesc = !$scope.sortDesc;
             $scope.search();
         };
