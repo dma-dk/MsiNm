@@ -25,6 +25,19 @@
 <div ng-include="'partials/notifications.html'"></div>
 <div ng-include="'partials/menu.html'"></div>
 
+<!-- Location editor -->
+<div class="location-editor">
+    <div msi-location-editor locations="locations" visible="locationsVisible" style="width:100%; height: 100%">
+        <div class="location-editor-panel">
+            <div style="text-align: center;">
+                <p>Select locations</p>
+                <button href class="btn btn-primary btn-xs" ng-click="showLocationEditor(false)">Done</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div class="container-fluid">
 
     <form class="search-form form-horizontal panel panel-default" style="padding-top: 20px;" role="form" novalidate>
@@ -60,19 +73,9 @@
         <div class="form-group" collapse="!filterOnLocation">
             <div class="row">
                 <label class="col-sm-2 control-label">Location</label>
-                <div class="col-sm-9" style="position: relative; height: 300px;">
-                    <button href class="btn btn-primary btn-xs" ng-click="showLocationEditor(true)">Edit locations</button>
-
-                    <div class="search-locations">
-                        <div msi-location-editor locations="locations" visible="locationsVisible" style="width:100%; height: 100%">
-                            <div class="search-locations-panel">
-                                <div style="text-align: center;">
-                                    <p>Select locations</p>
-                                    <button href class="btn btn-primary btn-xs" ng-click="showLocationEditor(false)">Done</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="col-sm-9">
+                    <button href class="btn btn-primary btn-sm" ng-click="showLocationEditor(true)">Edit locations</button>
+                    <button href class="btn btn-primary btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">Clear {{locations.length}} locations</button>
                 </div>
             </div>
 

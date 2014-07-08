@@ -106,10 +106,10 @@ angular.module('msinm.search')
 
         $scope.showLocationEditor = function(show) {
             if (show) {
-                $('.search-locations').fadeIn(0);
+                $('.location-editor').fadeIn(0);
                 $scope.locationsVisible = true;
             } else {
-                $('.search-locations').fadeOut(0);
+                $('.location-editor').fadeOut(0);
                 $scope.locationsVisible = false;
             }
         }

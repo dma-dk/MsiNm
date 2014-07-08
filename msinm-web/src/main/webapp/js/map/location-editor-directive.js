@@ -364,6 +364,24 @@ angular.module('msinm.map')
                     drawControls[value].activate();
                 };
 
+                // Adds the current location with a radius of 10 NM
+                scope.addCurrentLocation = function () {
+                    console.log("ADDING now");
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        console.log("ADDING " + pos);
+                        scope.location = initDescs({
+                            type: 'CIRCLE',
+                            radius: 10,
+                            points: [{lat: pos.coords.latitude, lon: pos.coords.longitude, index: 1 }],
+                            descs:[] });
+                        scope.locations.push(scope.location);
+                        scope.deactivateDrawControls(false);
+                        if(!scope.$$phase) {
+                            scope.$apply();
+                        }
+                    });
+                };
+
                 // Show/hide the panel that lists the locations
                 scope.toggleShowLocationPanel = function () {
                     if (scope.showLocationPanel) {
