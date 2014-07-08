@@ -16,7 +16,8 @@ angular.module('msinm.map')
 
             scope: {
                 locations: '=locations',
-                visible: '=visible'
+                visible: '=visible',
+                editDescs: '@editDescs'
             },
 
             link: function (scope, element, attrs) {
@@ -366,9 +367,7 @@ angular.module('msinm.map')
 
                 // Adds the current location with a radius of 10 NM
                 scope.addCurrentLocation = function () {
-                    console.log("ADDING now");
                     navigator.geolocation.getCurrentPosition(function(pos) {
-                        console.log("ADDING " + pos);
                         scope.location = initDescs({
                             type: 'CIRCLE',
                             radius: 10,

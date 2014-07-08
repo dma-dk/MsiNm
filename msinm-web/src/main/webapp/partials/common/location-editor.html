@@ -48,10 +48,10 @@
                     </td>
                     <td align="right">
                         <a ng-click="deleteLocation(loc)"><i class="glyphicon glyphicon-minus-sign"></i></a>
-                        <a ng-click="toggleShowDesc(loc)"><i class="glyphicon glyphicon-info-sign"></i></a>
+                        <a ng-if="editDescs" ng-click="toggleShowDesc(loc)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
-                <tr ng-show="loc.showDesc">
+                <tr ng-if="editDescs" ng-show="loc.showDesc">
                     <td></td>
                     <td colspan="3">
                         <div ng-repeat="desc in loc.descs">
@@ -76,10 +76,10 @@
                     <td><input longitude type="text" ng-model="pt.lon" placeholder="Longitude" required></td>
                     <td align="right">
                         <a ng-click="deletePoint(loc, pt)" ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'"><i class="glyphicon glyphicon-minus-sign"></i></a>
-                        <a ng-click="toggleShowDesc(pt)"><i class="glyphicon glyphicon-info-sign"></i></a>
+                        <a ng-if="editDescs" ng-click="toggleShowDesc(pt)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
-                <tr ng-repeat-end ng-show="pt.showDesc">
+                <tr ng-repeat-end ng-if="editDescs" ng-show="pt.showDesc">
                     <td></td>
                     <td colspan="3">
                         <div ng-repeat="desc in pt.descs">
@@ -95,10 +95,10 @@
                     <td><input longitude type="text" ng-model="loc.newPt.lon" placeholder="Longitude"></td>
                     <td align="right">
                         <a ng-click="addPoint(loc, loc.newPt)"><i class="glyphicon glyphicon-plus-sign"></i></a>
-                        <a ng-click="toggleShowDesc(loc.newPt)"><i class="glyphicon glyphicon-info-sign"></i></a>
+                        <a ng-if="editDescs" ng-click="toggleShowDesc(loc.newPt)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
-                <tr ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'" ng-show="loc.newPt.showDesc">
+                <tr ng-if="editDescs && (loc.type == 'POLYGON' || loc.type == 'POLYLINE')" ng-show="loc.newPt.showDesc">
                     <td></td>
                     <td colspan="3">
                         <div ng-repeat="desc in loc.newPt.descs">
