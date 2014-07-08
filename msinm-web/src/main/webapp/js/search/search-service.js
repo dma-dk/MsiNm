@@ -11,7 +11,7 @@ angular.module('msinm.search')
         'use strict';
 
         return {
-            search: function(query, status, type, loc, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, success, error) {
+            search: function(query, status, type, loc, areas, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, success, error) {
                 var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
                 $http.get(
                         host + '/rest/message/search?lang=' + $rootScope.language
@@ -19,12 +19,13 @@ angular.module('msinm.search')
                              + '&status=' + encodeURIComponent(status)
                              + '&type=' + encodeURIComponent(type)
                              + '&loc=' + encodeURIComponent(loc)
+                             + '&areas=' + encodeURIComponent(areas)
                              + '&from=' + encodeURIComponent(dateFrom)
                              + '&to=' + encodeURIComponent(dateTo)
                              + '&maxHits=' + maxHits
                              + '&startIndex=' + startIndex
-                            + '&sortBy=' + sortBy
-                            + '&sortOrder=' + sortOrder
+                             + '&sortBy=' + sortBy
+                             + '&sortOrder=' + sortOrder
                     )
                     .success(success)
                     .error(error);

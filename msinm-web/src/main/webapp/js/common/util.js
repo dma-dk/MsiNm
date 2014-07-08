@@ -24,3 +24,14 @@ String.prototype.contains = function (s) {
 String.prototype.extension = function () {
     return this.substr((~-this.lastIndexOf(".") >>> 0) + 2);
 };
+
+
+function getLang(defaultLang) {
+    try {
+        return ('localStorage' in window && window['localStorage'] !== null)
+                ? window.localStorage.getItem("lang")
+                : defaultLang;
+    } catch (e) {
+    }
+    return defaultLang;
+}

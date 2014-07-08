@@ -99,6 +99,7 @@ public class MessageRestService {
             String status,
             String type,
             String loc,
+            String areas,
             String fromDate,
             String toDate,
             int maxHits,
@@ -107,8 +108,8 @@ public class MessageRestService {
             String sortOrder
     ) throws ParseException {
         log.info(String.format(
-                "Search with lang=%s, q=%s, status=%s, type=%s, loc=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s",
-                language, query, status, type, loc, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder));
+                "Search with lang=%s, q=%s, status=%s, type=%s, loc=%s, areas=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s",
+                language, query, status, type, loc, areas, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder));
 
         MessageSearchParams params = new MessageSearchParams();
         params.setLanguage(language);
@@ -170,6 +171,7 @@ public class MessageRestService {
             @QueryParam("status") @DefaultValue("ACTIVE") String status,
             @QueryParam("type") String type,
             @QueryParam("loc") String loc,
+            @QueryParam("areas") String areas,
             @QueryParam("from") String fromDate,
             @QueryParam("to") String toDate,
             @QueryParam("maxHits") @DefaultValue("100") int maxHits,
@@ -177,7 +179,7 @@ public class MessageRestService {
             @QueryParam("sortBy") @DefaultValue("issueDate") String sortBy,
             @QueryParam("sortOrder") @DefaultValue("desc") String sortOrder
     ) throws Exception {
-        MessageSearchParams params = readParams(language, query, status, type, loc, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder);
+        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder);
         return messageSearchService.search(params);
     }
 
@@ -194,12 +196,13 @@ public class MessageRestService {
             @QueryParam("status") @DefaultValue("ACTIVE") String status,
             @QueryParam("type") String type,
             @QueryParam("loc") String loc,
+            @QueryParam("areas") String areas,
             @QueryParam("from") String fromDate,
             @QueryParam("to") String toDate,
             @QueryParam("sortBy") @DefaultValue("issueDate") String sortBy,
             @QueryParam("sortOrder") @DefaultValue("desc") String sortOrder
     ) throws Exception {
-        MessageSearchParams params = readParams(language, query, status, type, loc, fromDate, toDate, Integer.MAX_VALUE, 0, sortBy, sortOrder);
+        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, Integer.MAX_VALUE, 0, sortBy, sortOrder);
         MessageSearchResult result = messageSearchService.search(params);
 
         String template = "pdf-test.ftl";

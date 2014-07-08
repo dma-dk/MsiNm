@@ -27,6 +27,9 @@ import java.util.List;
  */
 @Entity
 @NamedQueries({
+        @NamedQuery(name  = "Area.searchAreas",
+                query = "select distinct a from Area a left join a.descs d where d.lang = :lang and lower(d.name) like lower(:term) "
+                      + "order by LOCATE(lower(:sort), lower(d.name))"),
         @NamedQuery(name  = "Area.findRootAreas",
                 query = "select distinct a from Area a left join fetch a.children where a.parent is null"),
         @NamedQuery(name  = "Area.findAreasWithDescs",

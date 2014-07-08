@@ -54,6 +54,22 @@ public class AreaRestService {
     @Inject
     AreaService areaService;
 
+    /**
+     * Searchs for areas matching the given term in the given language
+     * @param lang the language
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    @GET
+    @Path("/search")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<AreaVo> searchAreas(@QueryParam("lang") String lang, @QueryParam("term") String term, @QueryParam("limit") int limit) {
+        log.info(String.format("Searching for areas lang=%s, term='%s', limit=%d", lang, term, limit));
+        return areaService.searchAreas(lang, term, limit);
+    }
 
     /**
      * Returns all areas via a list of hierarchical root areas

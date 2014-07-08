@@ -35,6 +35,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -51,6 +52,30 @@ public class AreaService extends BaseService {
 
     @Inject
     private MsiNmApp app;
+
+    /**
+     * Searchs for areas matching the given term in the given language
+     * @param lang the language
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    public List<AreaVo> searchAreas(String lang, String term, int limit) {
+        List<AreaVo> result = new ArrayList<>();
+        if (StringUtils.isNotBlank(term)) {
+            List<Area> areas = em
+                    .createNamedQuery("Area.searchAreas", Area.class)
+                    .setParameter("lang", lang)
+                    .setParameter("term", "%" + term + "%")
+                    .setParameter("sort", term)
+                    .setMaxResults(limit)
+                    .getResultList();
+
+            CopyOp copyOp = CopyOp.get(CopyOp.PARENT).setLang(lang);
+            areas.forEach(area -> result.add(new AreaVo(area, copyOp)));
+        }
+        return result;
+    }
 
     /**
      * Returns the hierarchical list of root areas.

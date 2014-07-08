@@ -17,6 +17,7 @@ angular.module('msinm.search')
         $scope.status = 'ACTIVE';
         $scope.type = '';
         $scope.locations = [];
+        $scope.areas = '';
         $scope.dateFrom = '';
         $scope.dateTo = '';
 
@@ -43,6 +44,7 @@ angular.module('msinm.search')
                 $scope.status,
                 $scope.type,
                 JSON.stringify($scope.locations),
+                $scope.areas,
                 $("#messageDateFrom").val(),
                 $("#messageDateTo").val(),
                 $scope.pageSize,
@@ -66,6 +68,7 @@ angular.module('msinm.search')
 
         $scope.resetLocation = function () {
             $scope.locations = [];
+            $scope.areas = '';
         };
 
         $scope.showLocation = function () {
@@ -98,6 +101,7 @@ angular.module('msinm.search')
             + '&status=' + encodeURIComponent($scope.status)
             + '&type=' + encodeURIComponent($scope.type)
             + '&loc=' + encodeURIComponent(JSON.stringify($scope.locations))
+            + '&areas=' + encodeURIComponent($scope.areas)
             + '&from=' + encodeURIComponent($("#messageDateFrom").val())
             + '&to=' + encodeURIComponent($("#messageDateTo").val())
             + '&sortBy=' + ($scope.sortBy)
