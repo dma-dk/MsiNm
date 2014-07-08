@@ -53,6 +53,9 @@ public class Category extends VersionedEntity<Integer> implements ILocalizable<C
         this.descs = descs;
     }
 
+    @Column(length = 256)
+    String lineage;
+
     /**
      * {@inheritDoc}
      */
@@ -73,6 +76,18 @@ public class Category extends VersionedEntity<Integer> implements ILocalizable<C
     public void addChild(Category category) {
         children.add(category);
         category.setParent(this);
+    }
+
+    /**
+     * Update the lineage to have the format "/root-id/.../parent-id/id"
+     * @return if the lineage was updated
+     */
+    public boolean updateLineage() {
+        String oldLineage = lineage;
+        lineage = getParent() == null
+                ? "/" + id  + "/"
+                : getParent().getLineage() + id + "/";
+        return !lineage.equals(oldLineage);
     }
 
     /**
@@ -99,5 +114,13 @@ public class Category extends VersionedEntity<Integer> implements ILocalizable<C
 
     public void setChildren(List<Category> children) {
         this.children = children;
+    }
+
+    public String getLineage() {
+        return lineage;
+    }
+
+    public void setLineage(String lineage) {
+        this.lineage = lineage;
     }
 }

@@ -18,6 +18,7 @@ package dk.dma.msinm.service;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.CategoryDesc;
 import dk.dma.msinm.vo.CategoryVo;
@@ -35,6 +36,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -116,6 +118,9 @@ public class CategoryService extends BaseService {
         // Copy the category data
         original.copyDescs(category.getDescs());
 
+        // Update lineage
+        original.updateLineage();
+
         return saveEntity(original);
     }
 
@@ -135,6 +140,11 @@ public class CategoryService extends BaseService {
         }
 
         category = saveEntity(category);
+
+        // The category now has an ID - Update lineage
+        category.updateLineage();
+        category = saveEntity(category);
+
         em.flush();
         return category;
     }
@@ -145,6 +155,7 @@ public class CategoryService extends BaseService {
      * @param parentId the id of the parent category
      * @return the updated category
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Category moveCategory(Integer categoryId, Integer parentId) {
         Category category = getByPrimaryKey(Category.class, categoryId);
 
@@ -160,7 +171,52 @@ public class CategoryService extends BaseService {
             parent.getChildren().add(category);
         }
 
-        return saveEntity(category);
+        category = saveEntity(category);
+        em.flush();
+
+        // Update all lineages
+        updateLineages();
+
+        // Return the update area
+        return getByPrimaryKey(Category.class, category.getId());
+    }
+
+    /**
+     * Update lineages for all categories
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void updateLineages() {
+
+        log.info("Update category lineages");
+
+        // Get root areas
+        List<Category> roots = getAll(Category.class).stream()
+                .filter(Category::isRootCategory)
+                .collect(Collectors.toList());
+
+        // Update each root subtree
+        List<Category> updated = new ArrayList<>();
+        roots.forEach(category -> updateLineages(category, updated));
+
+        // Persist the changes
+        updated.forEach(this::saveEntity);
+        em.flush();
+    }
+
+    /**
+     * Recursively updates the lineages of categories rooted at the given category
+     * @param category the category whose sub-tree should be updated
+     * @param categories the list of updated categories
+     * @return if the lineage was updated
+     */
+    private boolean updateLineages(Category category, List<Category> categories) {
+
+        boolean updated = category.updateLineage();
+        if (updated) {
+            categories.add(category);
+        }
+        category.getChildren().forEach(childCategory -> updateLineages(childCategory, categories));
+        return updated;
     }
 
     /**

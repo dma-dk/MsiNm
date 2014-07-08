@@ -20,6 +20,8 @@ import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Chart;
+import dk.dma.msinm.service.AreaService;
+import dk.dma.msinm.service.CategoryService;
 import dk.dma.msinm.user.User;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -49,6 +51,12 @@ public class BaseDataLoader extends BaseService {
     private Logger log;
 
     @Inject
+    AreaService areaService;
+
+    @Inject
+    CategoryService categoryService;
+
+    @Inject
     @Sql("/sql/base-users.sql")
     String usersSql;
 
@@ -71,9 +79,16 @@ public class BaseDataLoader extends BaseService {
     public void init() {
 
         checkLoadBaseData(User.class, usersSql);
-        checkLoadBaseData(Area.class, areasSql);
-        checkLoadBaseData(Category.class, categoriesSql);
+
         checkLoadBaseData(Chart.class, chartsSql);
+
+        if (checkLoadBaseData(Area.class, areasSql)) {
+            areaService.updateLineages();
+        }
+
+        if (checkLoadBaseData(Category.class, categoriesSql)) {
+            categoryService.updateLineages();
+        }
     }
 
     /**
@@ -84,9 +99,10 @@ public class BaseDataLoader extends BaseService {
      *
      * @param entityClass the entity class
      * @param importSql the sql to execute, if the table is empty
+     * @return if data was imported
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    private void checkLoadBaseData(Class<?> entityClass, String importSql) {
+    private boolean checkLoadBaseData(Class<?> entityClass, String importSql) {
 
         String table = entityClass.getSimpleName();
         try {
@@ -98,10 +114,12 @@ public class BaseDataLoader extends BaseService {
                 log.info("Table " + table + " is empty. Import SQL executed");
                 int updateCount = executeScript(importSql);
                 log.info("Import SQL executed. " + updateCount + " rows affected");
+                return true;
             }
         } catch (Exception e) {
             log.error("Failed updating table " + table, e);
         }
+        return false;
     }
 
     /**

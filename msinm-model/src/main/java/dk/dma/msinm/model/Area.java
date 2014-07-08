@@ -49,6 +49,9 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
     List<AreaDesc> descs = new ArrayList<>();
 
+    @Column(length = 256)
+    String lineage;
+
     @Override
     public List<AreaDesc> getDescs() {
         return descs;
@@ -79,6 +82,18 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
     public void addChild(Area area) {
         children.add(area);
         area.setParent(this);
+    }
+
+    /**
+     * Update the lineage to have the format "/root-id/.../parent-id/id"
+     * @return if the lineage was updated
+     */
+    public boolean updateLineage() {
+        String oldLineage = lineage;
+        lineage = getParent() == null
+                ? "/" + id + "/"
+                : getParent().getLineage() + id + "/";
+        return !lineage.equals(oldLineage);
     }
 
     /**
@@ -115,5 +130,12 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
         this.locations = locations;
     }
 
+    public String getLineage() {
+        return lineage;
+    }
+
+    public void setLineage(String lineage) {
+        this.lineage = lineage;
+    }
 }
 

@@ -147,6 +147,9 @@ public class AreaService extends BaseService {
         original.getLocations().clear();
         original.getLocations().addAll(area.getLocations());
 
+        // Update lineage
+        original.updateLineage();
+
         return saveEntity(original);
     }
 
@@ -166,6 +169,11 @@ public class AreaService extends BaseService {
         }
 
         area = saveEntity(area);
+
+        // The area now has an ID - Update lineage
+        area.updateLineage();
+        area = saveEntity(area);
+
         em.flush();
         return area;
     }
@@ -176,6 +184,7 @@ public class AreaService extends BaseService {
      * @param parentId the id of the parent area
      * @return the updated area
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Area moveArea(Integer areaId, Integer parentId) {
         Area area = getByPrimaryKey(Area.class, areaId);
 
@@ -191,7 +200,53 @@ public class AreaService extends BaseService {
             parent.getChildren().add(area);
         }
 
-        return saveEntity(area);
+        // Save the entity
+        area = saveEntity(area);
+        em.flush();
+
+        // Update all lineages
+        updateLineages();
+
+        // Return the update area
+        return getByPrimaryKey(Area.class, area.getId());
+    }
+
+    /**
+     * Update lineages for all areas
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void updateLineages() {
+
+        log.info("Update area lineages");
+
+        // Get root areas
+        List<Area> roots = getAll(Area.class).stream()
+            .filter(Area::isRootArea)
+            .collect(Collectors.toList());
+
+        // Update each root subtree
+        List<Area> updated = new ArrayList<>();
+        roots.forEach(area -> updateLineages(area, updated));
+
+        // Persist the changes
+        updated.forEach(this::saveEntity);
+        em.flush();
+    }
+
+    /**
+     * Recursively updates the lineages of areas rooted at the given area
+     * @param area the area whose sub-tree should be updated
+     * @param areas the list of updated areas
+     * @return if the lineage was updated
+     */
+    private boolean updateLineages(Area area, List<Area> areas) {
+
+        boolean updated = area.updateLineage();
+        if (updated) {
+            areas.add(area);
+        }
+        area.getChildren().forEach(childArea -> updateLineages(childArea, areas));
+        return updated;
     }
 
     /**
