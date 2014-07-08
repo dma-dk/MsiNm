@@ -82,6 +82,19 @@ public class PredicateHelper<T> {
     }
 
     /**
+     * If value is defined, matches the attribute with the value.
+     *
+     * @param attr the attribute
+     * @param value the value to substring-match
+     */
+    public PredicateHelper<T> startsWith(Expression<String> attr, String value) {
+        if (StringUtils.isNotBlank(value)) {
+            where.add(cb.like(cb.lower(attr), value.toLowerCase() + "%"));
+        }
+        return this;
+    }
+
+    /**
      * If values is defined, matches the attribute with any of the values.
      * If values is undefined (null or empty) this predicate yields false.
      *

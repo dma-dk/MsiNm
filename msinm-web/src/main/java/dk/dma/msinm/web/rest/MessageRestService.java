@@ -144,6 +144,12 @@ public class MessageRestService {
             params.setLocations(Location.fromJson(loc));
         }
 
+        if (StringUtils.isNotBlank(areas)) {
+            for (String areaId : areas.split(",")) {
+                params.getAreaIds().add(Integer.valueOf(areaId));
+            }
+        }
+
         if (StringUtils.isNotBlank(fromDate)) {
             DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
             params.setFrom(sdf.parse(fromDate));

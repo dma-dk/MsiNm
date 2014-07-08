@@ -38,6 +38,7 @@ public class MessageSearchParams implements Serializable {
     List<Location> locations = new ArrayList<>();
     Status status;
     Set<Type> types = new HashSet<>();
+    Set<Integer> areaIds = new HashSet<>();
 
     int maxHits = 100;
     int startIndex = 0;
@@ -70,6 +71,7 @@ public class MessageSearchParams implements Serializable {
                 ", from=" + from +
                 ", to=" + to +
                 ", locations=" + locations +
+                ", areaIds=" + areaIds +
                 ", status=" + status +
                 ", maxHits=" + maxHits +
                 ", startIndex=" + startIndex +
@@ -114,6 +116,14 @@ public class MessageSearchParams implements Serializable {
 
     public void setLocations(List<Location> locations) {
         this.locations = locations;
+    }
+
+    public Set<Integer> getAreaIds() {
+        return areaIds;
+    }
+
+    public void setAreaIds(Set<Integer> areaIds) {
+        this.areaIds = areaIds;
     }
 
     public Status getStatus() {

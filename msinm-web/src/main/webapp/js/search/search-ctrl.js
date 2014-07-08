@@ -69,6 +69,7 @@ angular.module('msinm.search')
         $scope.resetLocation = function () {
             $scope.locations = [];
             $scope.areas = '';
+            $("#messageArea").select2('data', null);
         };
 
         $scope.showLocation = function () {
@@ -111,10 +112,6 @@ angular.module('msinm.search')
         $scope.showLocationEditor = function(show) {
             if (show) {
                 $("body").css("overflow", "hidden");
-                //$('.location-editor').css('top', $(window).top() + 'px');
-                //$('.location-editor').css('left', $(window).left() + 'px');
-                //$('.location-editor').css('width', $(window).width() + 'px');
-                //$('.location-editor').css('height', $(window).height() + 'px');
                 $('.location-editor').fadeIn(0);
                 $scope.locationsVisible = true;
             } else {
