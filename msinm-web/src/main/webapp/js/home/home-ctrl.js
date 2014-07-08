@@ -19,7 +19,8 @@ angular.module('msinm.common')
                     '', // query
                     'ACTIVE',
                     '', // type
-                    '', // location
+                    '[]', // location
+                    '', // area
                     '', // from date
                     '', // to date
                     100,
