@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.legacy.nm;
 
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Chart;
@@ -64,6 +65,9 @@ public class LegacyNmImportService {
 
     @Context
     ServletContext servletContext;
+
+    @Inject
+    MsiNmApp app;
 
     @Inject
     MessageService messageService;
@@ -118,7 +122,7 @@ public class LegacyNmImportService {
     private void updateActiveNm(InputStream inputStream, String fileName, StringBuilder txt) throws Exception {
         log.info("Extracting active P&T NtM's from PDF " + fileName);
 
-        ActiveTempPrelimNmPdfExtractor extractor = new ActiveTempPrelimNmPdfExtractor(inputStream, fileName);
+        ActiveTempPrelimNmPdfExtractor extractor = new ActiveTempPrelimNmPdfExtractor(inputStream, fileName, app.getOrganization());
 
         List<SeriesIdentifier> noticeIds = new ArrayList<>();
         extractor.extractActiveNoticeIds(noticeIds);
@@ -160,7 +164,7 @@ public class LegacyNmImportService {
         log.info("Extracting NtM's from PDF " + fileName);
 
         List<Message> templates = new ArrayList<>();
-        NmPdfExtractor extractor = new NmPdfExtractor(inputStream, fileName);
+        NmPdfExtractor extractor = new NmPdfExtractor(inputStream, fileName, app.getOrganization());
         extractor.extractNotices(templates);
         log.info("Extracted " + templates.size() + " NtM's from " + fileName);
         txt.append("Detected " + templates.size() + " NtM's in PDF file " + fileName + "\n");

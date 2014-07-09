@@ -42,7 +42,7 @@ public class NmPdfExtractorTest {
 
         List<Message> notices = new ArrayList<>();
         try {
-            NmPdfExtractor extractor = new NmPdfExtractor(pdf);
+            NmPdfExtractor extractor = new NmPdfExtractor(pdf, "DMA");
             extractor.extractNotices(notices);
         } catch (Exception e) {
             e.printStackTrace();

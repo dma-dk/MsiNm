@@ -35,6 +35,10 @@ public class MsiNmApp {
     @Setting(value = "languages", defaultValue = "en")
     String[] languages;
 
+    @Inject
+    @Setting(value = "organization", defaultValue = "N/A")
+    String organization;
+
     /**
      * Returns the list of languages supported by the MSI-NM application
      * @return the list of languages supported by the MSI-NM application
@@ -64,5 +68,13 @@ public class MsiNmApp {
             }
         }
         return getDefaultLanguage();
+    }
+
+    /**
+     * Returns the organization running the MSI-NM system
+     * @return the organization running the MSI-NM system
+     */
+    public String getOrganization() {
+        return organization;
     }
 }

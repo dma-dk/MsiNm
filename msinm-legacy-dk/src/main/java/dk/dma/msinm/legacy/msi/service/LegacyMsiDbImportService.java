@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.legacy.msi.service;
 
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.DefaultSetting;
@@ -70,6 +71,9 @@ public class LegacyMsiDbImportService {
 
     @Inject
     private Logger log;
+
+    @Inject
+    MsiNmApp app;
 
     @Inject
     MessageService messageService;
@@ -178,7 +182,7 @@ public class LegacyMsiDbImportService {
                         identifier = new SeriesIdentifier();
                         message.setSeriesIdentifier(identifier);
                         identifier.setNumber((int) sequences.getNextValue(Message.MESSAGE_SEQUENCE));
-                        identifier.setAuthority("DMA");
+                        identifier.setAuthority(app.getOrganization());
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(validFrom);
                         identifier.setYear(cal.get(Calendar.YEAR));

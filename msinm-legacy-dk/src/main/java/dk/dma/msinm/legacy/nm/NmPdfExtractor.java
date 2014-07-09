@@ -79,6 +79,7 @@ public class NmPdfExtractor {
     }
 
     Logger log = LoggerFactory.getLogger(NmPdfExtractor.class);
+    String organization;
     InputStream inputStream;
     String fileName;
     int year, week;
@@ -88,8 +89,8 @@ public class NmPdfExtractor {
      *
      * @param file the PDF file
      */
-    public NmPdfExtractor(File file) throws FileNotFoundException {
-        this(new FileInputStream(file), file.getName());
+    public NmPdfExtractor(File file, String organization) throws FileNotFoundException {
+        this(new FileInputStream(file), file.getName(), organization);
     }
 
     /**
@@ -98,9 +99,10 @@ public class NmPdfExtractor {
      * @param inputStream the PDF input stream
      * @param fileName the name of the PDF file
      */
-    public NmPdfExtractor(InputStream inputStream, String fileName) {
+    public NmPdfExtractor(InputStream inputStream, String fileName, String organization) {
         this.inputStream = inputStream;
         this.fileName = fileName;
+        this.organization = organization;
 
         Matcher m = getFileNameMatcher(fileName);
         if (!m.matches()) {
@@ -234,7 +236,7 @@ public class NmPdfExtractor {
                 LinePart<String> parts = readFirstPart(line);
                 SeriesIdentifier id = new SeriesIdentifier();
                 id.setYear(year);
-                id.setAuthority("DMA");
+                id.setAuthority(organization);
                 id.setNumber(Integer.valueOf(parts.part));
                 notice.setSeriesIdentifier(id);
                 line = parts.remainingLine;
@@ -375,7 +377,7 @@ public class NmPdfExtractor {
         Matcher m = Pattern.compile("[-\\d]+/(\\d+) (\\d+).*").matcher(ref);
         if (m.matches()) {
             SeriesIdentifier id = new SeriesIdentifier();
-            id.setAuthority("DMA");
+            id.setAuthority(organization);
             id.setNumber(Integer.valueOf(m.group(1)));
             id.setYear(Integer.valueOf(m.group(2)));
 

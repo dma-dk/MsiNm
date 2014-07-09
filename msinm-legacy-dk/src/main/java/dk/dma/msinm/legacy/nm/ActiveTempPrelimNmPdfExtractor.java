@@ -45,6 +45,7 @@ public class ActiveTempPrelimNmPdfExtractor {
     public static final String ACTIVE_NM_LINE = "^[-\\d]+/(\\d+) \\([T|P]\\) .*";
 
     Logger log = LoggerFactory.getLogger(NmPdfExtractor.class);
+    String organization;
     InputStream inputStream;
     String fileName;
     int year, week;
@@ -54,8 +55,8 @@ public class ActiveTempPrelimNmPdfExtractor {
      *
      * @param file the PDF file
      */
-    public ActiveTempPrelimNmPdfExtractor(File file) throws FileNotFoundException {
-        this(new FileInputStream(file), file.getName());
+    public ActiveTempPrelimNmPdfExtractor(File file, String organization) throws FileNotFoundException {
+        this(new FileInputStream(file), file.getName(), organization);
     }
 
     /**
@@ -64,9 +65,10 @@ public class ActiveTempPrelimNmPdfExtractor {
      * @param inputStream the PDF input stream
      * @param fileName the name of the PDF file
      */
-    public ActiveTempPrelimNmPdfExtractor(InputStream inputStream, String fileName) {
+    public ActiveTempPrelimNmPdfExtractor(InputStream inputStream, String fileName, String organization) {
         this.inputStream = inputStream;
         this.fileName = fileName;
+        this.organization = organization;
 
         Matcher m = getFileNameMatcher(fileName);
         if (!m.matches()) {
@@ -116,7 +118,7 @@ public class ActiveTempPrelimNmPdfExtractor {
                     SeriesIdentifier id = new SeriesIdentifier();
                     id.setYear(year);
                     id.setNumber(Integer.valueOf(m.group(1)));
-                    id.setAuthority("DMA");
+                    id.setAuthority(organization);
                     noticeIds.add(id);
                 }
             }

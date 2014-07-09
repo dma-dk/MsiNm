@@ -40,7 +40,7 @@ public class ActiveTempPrelimNmPdfExtractorTest {
 
         List<SeriesIdentifier> noticeIds = new ArrayList<>();
         try {
-            ActiveTempPrelimNmPdfExtractor extractor = new ActiveTempPrelimNmPdfExtractor(pdf);
+            ActiveTempPrelimNmPdfExtractor extractor = new ActiveTempPrelimNmPdfExtractor(pdf, "DMA");
             extractor.extractActiveNoticeIds(noticeIds);
         } catch (Exception e) {
             e.printStackTrace();
