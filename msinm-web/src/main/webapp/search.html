@@ -80,8 +80,9 @@
                     <button href class="btn btn-primary btn-sm" ng-click="showLocationEditor(true)">
                         <span class="glyphicon glyphicon-map-marker"></span> Edit locations
                     </button>
-                    <button href class="btn btn-primary btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">
-                        <span class="glyphicon glyphicon-trash"></span>  Clear {{locations.length}} locations
+                    <button href class="btn btn-primary btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()"
+                            tooltip="Clear {{locations.length}} locations">
+                        <span class="glyphicon glyphicon-trash"></span>  Clear
                     </button>
                 </div>
             </div>
