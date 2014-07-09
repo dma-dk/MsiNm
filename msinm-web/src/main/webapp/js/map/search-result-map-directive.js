@@ -109,19 +109,21 @@ angular.module('msinm.map')
             /*********************************/
             /* Update the location feature   */
             /*********************************/
-            scope.$watch(attrs.loc, function (value) {
+            scope.$watch(attrs.locations, function (value) {
 
                 locLayer.removeAllFeatures();
-                if (value && value != '') {
+                if (value && value.length > 0) {
                     var features = [];
                     try {
                         var attr = {
                             id: 1,
                             description: "location filter",
                             type: "loc"
+                        };
+                        for (var i in value) {
+                            var location = value[i];
+                            MapService.createLocationFeature(location, attr, features);
                         }
-
-                        MapService.createLocationFeature(value, attr, features);
                         locLayer.addFeatures(features);
                     } catch (ex) {
                         console.log("Error: " + ex);
