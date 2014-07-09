@@ -76,13 +76,12 @@
                 <div class="col-sm-4">
                     <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
                 </div>
-                <div class="col-sm-6">
+                <div class="col-sm-6 btn-group">
                     <button href class="btn btn-primary btn-sm" ng-click="showLocationEditor(true)">
                         <span class="glyphicon glyphicon-map-marker"></span> Edit locations
                     </button>
-                    <button href class="btn btn-primary btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()"
-                            tooltip="Clear {{locations.length}} locations">
-                        <span class="glyphicon glyphicon-trash"></span>  Clear
+                    <button href class="btn btn-primary btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">
+                        <span class="glyphicon glyphicon-trash"></span>
                     </button>
                 </div>
             </div>
