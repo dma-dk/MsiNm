@@ -180,7 +180,7 @@ angular.module('msinm.map')
                         var line = new OpenLayers.Geometry.LineString([
                             evt.feature.geometry.getVertices()[0],
                             new OpenLayers.Geometry.Point(center.lon, center.lat)]);
-                        var radius = Math.round(line.getGeodesicLength(projmerc) / 1000);
+                        var radius = m2nm(line.getGeodesicLength(projmerc));
                         var pt = center.transform(projmerc, proj4326);
                         scope.location.radius = radius;
                         var oldPt = (scope.location.points.length > 0) ? scope.location.points[0] : undefined;

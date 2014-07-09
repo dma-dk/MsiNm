@@ -41,7 +41,7 @@ angular.module('msinm.map')
      * Constructs a circular ring of transformed points
      * @param lon longitude
      * @param lat latitude
-     * @param radius the radius in km
+     * @param radius the radius in nm
      * @param noPoints the number of points
      * @returns the list of points that constitutes the ring
      */
@@ -50,7 +50,7 @@ angular.module('msinm.map')
         var lat1 = toRad(lat);
         var lon1 = toRad(lon);
         var R = 6371.0087714; // earths mean radius
-        var d = radius;
+        var d = radius * 1852.0 / 1000.0; // nm -> km
         for (var i = 0; i < noPoints; i++) {
             var brng = Math.PI * 2 * i / noPoints;
             var lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) +

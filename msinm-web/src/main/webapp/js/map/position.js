@@ -1,5 +1,26 @@
 
 
+function nm2km(nm) {
+    if (!nm) {
+        return undefined;
+    }
+    return Math.round(nm * 1852 / 1000);
+}
+
+function km2nm(km) {
+    if (!km) {
+        return undefined;
+    }
+    return Math.round(km * 1000 / 1852);
+}
+
+function m2nm(m) {
+    if (!m) {
+        return undefined;
+    }
+    return Math.round(m / 1852);
+}
+
 function formatLongitude(longitude) {
     var ns = "E";
     if (longitude < 0) {
@@ -172,4 +193,52 @@ angular.module('msinm.map')
             input = input || '';
             return formatLonLat(input);
         };
+    })
+
+    .directive('radius', function() {
+        return {
+            require : '^ngModel',
+            restrict : 'A',
+            link : function(scope, element, attr, ctrl) {
+
+                var patt1=/([0-9]+)$/i;
+                var patt2=/([0-9]+)\s?nm$/i;
+                var patt3=/([0-9]+)\s?km$/i;
+
+                ctrl.$formatters.unshift(function(modelValue) {
+                    if (!modelValue) {
+                        return null;
+                    }
+                    return modelValue + ' nm';
+                });
+
+                ctrl.$parsers.unshift(function(valueFromInput) {
+                    var val = undefined;
+                    if (valueFromInput.match(patt1)) {
+                        ctrl.$setValidity('radius', true);
+                        val = parseInt(valueFromInput.match(patt1)[1]);
+                    } else if (valueFromInput.match(patt2)) {
+                        ctrl.$setValidity('radius', true);
+                        val = parseInt(valueFromInput.match(patt2)[1]);
+                    } else if (valueFromInput.match(patt3)) {
+                        ctrl.$setValidity('radius', true);
+                        val = parseInt(valueFromInput.match(patt3)[1] * 1000 / 1852 + 0.5);
+                    } else {
+                        ctrl.$setValidity('radius', false);
+
+                    }
+                    return val;
+                });
+
+                element.bind('change', function(event) {
+                    if (!ctrl.$modelValue) {
+                        ctrl.$viewValue = null;
+                    }
+                    ctrl.$viewValue = ctrl.$modelValue + " nm";
+                    ctrl.$render();
+                });
+
+            }
+        }
     });
+
