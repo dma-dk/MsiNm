@@ -70,7 +70,7 @@ angular.module('msinm.user')
         };
 
         $scope.registerDlg = function() {
-            $scope.newUser = {  email: '', firstName: '', lastName: '', password: undefined, pasasword2: undefined };
+            $scope.newUser = {  email: '', firstName: '', lastName: '', mmsi: undefined, vesselName: undefined };
             $modal.open({
                 controller: "UserCtrl",
                 templateUrl : "/partials/user/registration-dialog.html"
@@ -82,12 +82,13 @@ angular.module('msinm.user')
                 $scope.newUser.email,
                 $scope.newUser.firstName,
                 $scope.newUser.lastName,
-                $scope.newUser.password,
+                $scope.newUser.mmsi,
+                $scope.newUser.vesselName,
                 function(data) {
                     console.log("User " + $scope.newUser.email + " registered");
                     $scope.viewMode = "info";
                     $scope.error = undefined;
-                    $scope.message = $scope.newUser.email + " has been registered as a new user.";
+                    $scope.message = $scope.newUser.email + " has been registered as a new user. An activation email has been sent to you.";
                     if(!$scope.$$phase) {
                         $scope.$apply();
                     }

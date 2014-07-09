@@ -16,6 +16,7 @@
 package dk.dma.msinm.web.rest;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dk.dma.msinm.common.vo.BaseVo;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -27,17 +28,10 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,11 +58,11 @@ public class UserRestService {
     @GZIP
     @NoCache
     @RolesAllowed({ "admin" })
-    public JsonArray getUsers() {
+    public List<UserVo> getUsers() {
 
-        JsonArrayBuilder result = Json.createArrayBuilder();
-        userService.getAll(User.class).forEach(user -> result.add(user.toJson()));
-        return result.build();
+        List<UserVo> users = new ArrayList<>();
+        userService.getAll(User.class).forEach(user -> users.add(new UserVo(user)));
+        return users;
     }
 
     @POST
@@ -105,11 +99,8 @@ public class UserRestService {
     public String registerUser(UserVo userVo) throws Exception {
         try {
             log.info(String.format("Registering user email=%s, firstName=%s, lastName=%s", userVo.getEmail(), userVo.getFirstName(), userVo.getLastName()));
-            User user = new User();
-            user.setEmail(userVo.getEmail());
-            user.setFirstName(userVo.getFirstName());
-            user.setLastName(userVo.getLastName());
-            userService.registerUser(user, userVo.getPassword());
+            User user = userVo.toEntity();
+            userService.registerUser(user);
         } catch (Exception e) {
             throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
         }
@@ -124,10 +115,7 @@ public class UserRestService {
     public String createOrUpdateUser(UserVo userVo) throws Exception {
         try {
             log.info(String.format("Create/update user email=%s, firstName=%s, lastName=%s", userVo.getEmail(), userVo.getFirstName(), userVo.getLastName()));
-            User user = new User();
-            user.setEmail(userVo.getEmail());
-            user.setFirstName(userVo.getFirstName());
-            user.setLastName(userVo.getLastName());
+            User user = userVo.toEntity();
             List<String> roles = userVo.getRoles();
             userService.createOrUpdateUser(user, roles.toArray(new String[roles.size()]));
         } catch (Exception e) {
@@ -171,9 +159,50 @@ public class UserRestService {
     /**
      * Helper class used for creating users
      */
-    public static class UserVo {
-        String email, firstName, lastName, password;
-        List<String> roles;
+    public static class UserVo extends BaseVo<User> {
+        Integer id;
+        String email;
+        String firstName;
+        String lastName;
+        String mmsi;
+        String vesselName;
+        List<String> roles = new ArrayList<>();
+
+        /**
+         * Constructor
+         */
+        public UserVo() {
+        }
+
+        /**
+         * Constructor
+         * @param entity the user entity
+         */
+        public UserVo(User entity) {
+            super(entity);
+            this.id = entity.getId();
+            this.email = entity.getEmail();
+            this.firstName = entity.getFirstName();
+            this.lastName = entity.getLastName();
+            this.mmsi = entity.getMmsi();
+            this.vesselName = entity.getVesselName();
+            entity.getRoles().forEach(role -> roles.add(role.getName()));
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public User toEntity() {
+            User user = new User();
+            user.setId(id);
+            user.setEmail(email);
+            user.setFirstName(firstName);
+            user.setLastName(lastName);
+            user.setMmsi(mmsi);
+            user.setVesselName(vesselName);
+            return user;
+        }
 
         public String getEmail() {
             return email;
@@ -199,12 +228,20 @@ public class UserRestService {
             this.lastName = lastName;
         }
 
-        public String getPassword() {
-            return password;
+        public String getMmsi() {
+            return mmsi;
         }
 
-        public void setPassword(String password) {
-            this.password = password;
+        public void setMmsi(String mmsi) {
+            this.mmsi = mmsi;
+        }
+
+        public String getVesselName() {
+            return vesselName;
+        }
+
+        public void setVesselName(String vesselName) {
+            this.vesselName = vesselName;
         }
 
         public List<String> getRoles() {

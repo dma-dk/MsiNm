@@ -174,9 +174,9 @@ angular.module('msinm.user')
                     });
             },
 
-            registerUser: function(email, firstName, lastName, password, success, error) {
+            registerUser: function(email, firstName, lastName, mmsi, vesselName, success, error) {
                 $http
-                    .post('/rest/user/register-user', { email: email, firstName: firstName, lastName: lastName, password: password })
+                    .post('/rest/user/register-user', { email: email, firstName: firstName, lastName: lastName, mmsi: mmsi, vesselName: vesselName })
                     .success(function (data) {
                         success(data);
                     })

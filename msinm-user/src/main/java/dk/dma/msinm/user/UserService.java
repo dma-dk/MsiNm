@@ -107,31 +107,44 @@ public class UserService extends BaseService {
      * The user will automatically get the "user" role.
      *
      * @param user the template user entity
-     * @param password the password of choice
      * @return the updated user
      */
-    public User registerUser(User user, String password) throws Exception {
+    public User registerUser(User user) throws Exception {
+        return registerUserWithRoles(user, "user");
+    }
+
+    /**
+     * Registers a new user with the given roles.
+     * Sends an activation email to the user.
+     *
+     * @param user the template user entity
+     * @param roles the list of roles to assign the user
+     * @return the updated user
+     */
+    private User registerUserWithRoles(User user, String... roles) throws Exception {
         // Validate that the email address is not already registered
         if (findByEmail(user.getEmail()) != null) {
             throw new Exception("Email " + user.getEmail() + " is already registered");
         }
 
-        // Validate the password strength
-        if (!validatePasswordStrength(password)) {
-            throw new Exception("Invalid password. Must be at least 6 characters long and contain letters and digits");
+        // Associate the user with the roles
+        user.getRoles().clear();
+        for (String role : roles) {
+            user.getRoles().add(findRoleByName(role));
         }
 
-        // E-mail used as salt for now
-        SaltedPasswordHash saltedPassword = new SaltedPasswordHash();
-        saltedPassword.setPassword(password, user.getEmail());
-        user.setPassword(saltedPassword);
-
-        // Associate the user with the "user" role
-        Role userRole = findRoleByName("user");
-        user.getRoles().add(userRole);
+        // Set a reset-password token
+        user.setResetPasswordToken(UUID.randomUUID().toString());
 
         // Persist the user
-        saveEntity(user);
+        user = saveEntity(user);
+
+        Map<String, Object> data = new HashMap<>();
+        data.put("token", user.getResetPasswordToken());
+        data.put("name", user.getName());
+        data.put("email", user.getEmail());
+
+        mailService.sendMail("user-activation.ftl", data, "Welcome to MSI-NM", user.getEmail());
 
         return user;
     }
@@ -149,18 +162,11 @@ public class UserService extends BaseService {
 
         if (existnigUser == null) {
             // Create a new user
-            user.setResetPasswordToken(UUID.randomUUID().toString());
-            existnigUser = registerUser(user, "G0bbledyg00k");
-
-            Map<String, Object> data = new HashMap<>();
-            data.put("token", user.getResetPasswordToken());
-            data.put("name", user.getName());
-            data.put("email", user.getEmail());
-
-            mailService.sendMail("user-activation.ftl", data, "Welcome to MSI-NM", user.getEmail());
+            existnigUser = registerUserWithRoles(user, roles);
 
         } else {
 
+            // Update the existing user
             existnigUser.setFirstName(user.getFirstName());
             existnigUser.setLastName(user.getLastName());
             existnigUser.getRoles().clear();
@@ -218,6 +224,10 @@ public class UserService extends BaseService {
         // Validate the password strength
         if (!validatePasswordStrength(password)) {
             throw new Exception("Invalid password. Must be at least 6 characters long and contain letters and digits");
+        }
+
+        if (user.getPassword() == null) {
+            user.setPassword(new SaltedPasswordHash());
         }
 
         // E-mail used as salt for now

@@ -18,9 +18,6 @@ package dk.dma.msinm.user;
 import dk.dma.msinm.common.model.VersionedEntity;
 import org.apache.commons.lang.StringUtils;
 
-import javax.json.Json;
-import javax.json.JsonArrayBuilder;
-import javax.json.JsonObjectBuilder;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.security.Principal;
@@ -52,6 +49,10 @@ public class User extends VersionedEntity<Integer> implements Principal {
     SaltedPasswordHash password;
 
     String resetPasswordToken;
+
+    String mmsi;
+
+    String vesselName;
 
     @NotNull
     @ManyToMany(fetch= FetchType.LAZY, cascade = {CascadeType.PERSIST})
@@ -140,6 +141,22 @@ public class User extends VersionedEntity<Integer> implements Principal {
         this.resetPasswordToken = resetPasswordToken;
     }
 
+    public String getMmsi() {
+        return mmsi;
+    }
+
+    public void setMmsi(String mmsi) {
+        this.mmsi = mmsi;
+    }
+
+    public String getVesselName() {
+        return vesselName;
+    }
+
+    public void setVesselName(String vesselName) {
+        this.vesselName = vesselName;
+    }
+
     public List<Role> getRoles() {
         return roles;
     }
@@ -155,21 +172,4 @@ public class User extends VersionedEntity<Integer> implements Principal {
     public boolean hasPassword() {
         return (password != null && password.isDefined());
     }
-
-    /**
-     * Creates a Json representation of this entity
-     * @return the Json representation
-     */
-    public JsonObjectBuilder toJson() {
-        JsonArrayBuilder rolesJson = Json.createArrayBuilder();
-        getRoles().forEach(role -> rolesJson.add(role.getName()));
-
-        return Json.createObjectBuilder()
-                .add("id", getId())
-                .add("email", email)
-                .add("firstName", firstName)
-                .add("lastName", lastName)
-                .add("roles", rolesJson);
-    }
-
 }

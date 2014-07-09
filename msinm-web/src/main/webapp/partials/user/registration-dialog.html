@@ -9,9 +9,8 @@
         <div class="alert alert-danger" ng-show="error">{{error}}</div>
 
         <form name="registration_form" ng-show="viewMode != 'info'">
-            <p>
-                Please fill out the form below, and click Register.
-            </p>
+            <p>Please fill out the form below, and click Register.</p>
+            <p>Subsequently, you will receive an activation e-mail,<br/>which you can use to set a password of your own choice.</p>
 
             <div class="form-controls">
                 <div class="form-group">
@@ -35,22 +34,22 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="passwordfield">Password <small style="font-weight: lighter; color: gray;">- at least 6 mixed characters and numbers</small></label>
-                    <input type="password" id="passwordfield" name="passwordfield" class="form-control input-sm"
-                           pw-check="newUser.password" ng-model="newUser.password" required
-                           ng-class="{'ng-invalid':registration_form.passwordfield.$error.pwmatch}" />
-                </div>
-
-                <div class="form-group">
-                    <label for="passwordfield2">Repeat password</label>
-                    <input type="password" id="passwordfield2" name="passwordfield2" class="form-control input-sm"
-                           pw-check="newUser.password" ng-model="newUser.password2" required
-                           ng-class="{'ng-invalid':registration_form.passwordfield2.$error.pwmatch}"/>
+                    <label for="mmsi">Vessel (optional)</label>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <input type="text" id="mmsi" name="mmsi" class="form-control input-sm"
+                                   ng-model="newUser.mmsi" placeholder="MMSI" required />
+                        </div>
+                        <div class="col-sm-8">
+                            <input type="text" id="vesselName" name="vesselName" class="form-control input-sm"
+                                   ng-model="newUser.vesselName" placeholder="Vessel Name" required />
+                        </div>
+                    </div>
                 </div>
 
                 <div style="margin-top: 24px">
                     <button type="submit" class="btn btn-sm btn-primary"
-                            ng-disabled="!(registration_form.emailfield.$valid && registration_form.passwordfield.$valid && registration_form.passwordfield2.$valid)"
+                            ng-disabled="!(registration_form.emailfield.$valid)"
                             ng-click="register()">Register</button>
                     <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
                 </div>
