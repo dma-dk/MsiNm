@@ -17,11 +17,6 @@
     -o-user-select: none;
 }
 
-.map-btn {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-}
 
 .sortable:hover {
     cursor: pointer;

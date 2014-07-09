@@ -21,21 +21,9 @@ angular.module('msinm.map')
             /*********************************/
             /* Layers                        */
             /*********************************/
-            var wmsLayer = new OpenLayers.Layer.WMS("WMS", "/wms/", {
-                layers : 'cells',
-                servicename : 'soe_enc',
-                transparent : 'true',
-                styles : 'default',
-                login : 'StatSofart',
-                password : '114karls'
-            }, {
-
-                isBaseLayer : false,
-                visibility : false,
-                projection : 'EPSG:3857'
-            });
 
             var locLayer = new OpenLayers.Layer.Vector("Location", {
+                displayInLayerSwitcher: false,
                 styleMap: new OpenLayers.StyleMap({
                     "default": new OpenLayers.Style({
                         fillColor: "#080",
@@ -64,9 +52,10 @@ angular.module('msinm.map')
                 graphicOffset: function(feature) {
                     return -msiContext.graphicSize() / 2;
                 }
-            }
+            };
 
             var msiLayer  = new OpenLayers.Layer.Vector( "Msi-Nm", {
+                displayInLayerSwitcher: false,
                 styleMap: new OpenLayers.StyleMap({
                     "default": new OpenLayers.Style({
                         externalGraphic : "img/msi.png",
@@ -84,27 +73,31 @@ angular.module('msinm.map')
                 })
             });
 
+            // Build the array of layers to include
+            var layers = [];
+            // addBaseMapLayers() will add the base layers configured in conf/base-layers.js
+            addBaseMapLayers(layers);
+            // Add the mandatory layers
+            layers.push(msiLayer);
+            layers.push(locLayer);
+
             /*********************************/
             /* Map                           */
             /*********************************/
 
-            var testLayer = new OpenLayers.Layer.OSM("MsiLayer", "http://localhost:8080/msi/${z}/${x}/${y}.png", {'isBaseLayer': false});
-
             var map = new OpenLayers.Map({
                 div: element[0],
                 theme: null,
-                layers: [
-                    new OpenLayers.Layer.OSM("OpenStreetMap"),
-                    wmsLayer,
-                    testLayer,
-                    msiLayer,
-                    locLayer
-                ],
+                layers: layers,
                 units : "degrees",
                 projection : projmerc,
                 center: new OpenLayers.LonLat(lon, lat).transform(proj4326, projmerc),
                 zoom: zoom
             });
+
+            map.addControl(new OpenLayers.Control.LayerSwitcher({
+                'div' : OpenLayers.Util.getElement('search-layerswitcher')
+            }));
 
             /*********************************/
             /* Update the location feature   */
@@ -157,13 +150,6 @@ angular.module('msinm.map')
                     }
                     msiLayer.addFeatures(features);
                 }
-            });
-
-            /*********************************/
-            /* Update the location feature   */
-            /*********************************/
-            scope.$watch(attrs.showWms, function (value) {
-                wmsLayer.setVisibility(value);
             });
 
             /*********************************/

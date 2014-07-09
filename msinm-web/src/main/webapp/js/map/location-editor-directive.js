@@ -38,6 +38,7 @@ angular.module('msinm.map')
                 /* Layers                        */
                 /*********************************/
                 var locLayer = new OpenLayers.Layer.Vector("Location", {
+                    displayInLayerSwitcher: false,
                     styleMap: new OpenLayers.StyleMap({
                         "default": new OpenLayers.Style({
                             fillColor: "#080",
@@ -50,21 +51,29 @@ angular.module('msinm.map')
                     })
                 });
 
+                // Build the array of layers to include
+                var layers = [];
+                // addBaseMapLayers() will add the base layers configured in conf/base-layers.js
+                addBaseMapLayers(layers);
+                // Add the mandatory layers
+                layers.push(locLayer);
+
                 /*********************************/
                 /* Map                           */
                 /*********************************/
                 var map = new OpenLayers.Map({
                     div: angular.element(element.children()[0])[0],
                     theme: null,
-                    layers: [
-                        new OpenLayers.Layer.OSM("OpenStreetMap"),
-                        locLayer
-                    ],
+                    layers: layers,
                     units: "degrees",
                     projection: projmerc,
                     center: new OpenLayers.LonLat(lon, lat).transform(proj4326, projmerc),
                     zoom: zoom
                 });
+
+                map.addControl(new OpenLayers.Control.LayerSwitcher({
+                    'div' : OpenLayers.Util.getElement('location-layerswitcher')
+                }));
 
                 /*********************************/
                 /* Mouse location label          */

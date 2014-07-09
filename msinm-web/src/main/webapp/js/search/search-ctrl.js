@@ -28,8 +28,6 @@ angular.module('msinm.search')
         $scope.sortBy = 'ID';
         $scope.sortDesc = false;
 
-        $scope.showWms = false;
-
         $scope.viewMode = $location.path().endsWith("/map") ? "map" :
                 ($location.path().endsWith("/table") ? "table" : "grid");
 

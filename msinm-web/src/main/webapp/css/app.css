@@ -248,3 +248,29 @@ input[readonly] {
     font-weight: bold;
     vertical-align: middle;
 }
+
+/**
+ * Layerswitcher styles
+ */
+
+.layer-switcher {
+    display: none;
+}
+
+.layer-switcher .baseLbl, .layer-switcher .dataLbl {
+    display: none;
+}
+
+@media (min-width: 800px) {
+    .layer-switcher {
+        display: block;
+        position: absolute;
+        bottom: 20px;
+        left: 20px;
+        background-color: rgba(255,255,255,0.6);
+        font-size: 11px;
+        padding: 10px;
+        border-radius:5px;
+        box-shadow: 0 0 1px 2px rgba(0, 0, 0, .1);
+    }
+}
