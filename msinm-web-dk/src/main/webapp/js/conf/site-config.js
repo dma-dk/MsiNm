@@ -13,9 +13,10 @@ angular.module('msinm.conf')
         $rootScope.modelLanguages = [ 'en', 'da' ];
         $rootScope.siteLanguages = [ 'en', 'da' ];
         $rootScope.language =
-            ($window.localStorage.lang && $.inArray($window.localStorage.lang, $rootScope.languages))
+            ($window.localStorage.lang && $.inArray($window.localStorage.lang, $rootScope.siteLanguages) > 0)
                 ? $window.localStorage.lang
                 : $rootScope.siteLanguages[0];
+        $window.localStorage.lang = $rootScope.language;
         $translate.use($rootScope.language);
 
     }]);

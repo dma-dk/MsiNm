@@ -182,6 +182,7 @@
         <module>msinm-web</module>
         <module>msinm-legacy-dk</module>
         <module>msinm-web-dk</module>
+        <module>msinm-web-uk</module>
     </modules>
 
     <prerequisites>
