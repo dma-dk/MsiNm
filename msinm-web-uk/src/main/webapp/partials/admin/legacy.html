@@ -20,9 +20,35 @@
                 <p>
                     Notices to Mariners can be imported by from weekly xml files
                 </p>
-                <button type="button" class="btn btn-sm btn-default">
-                    Import Legacy NM...
-                </button>
+                <form name="import_form">
+
+                    <div class="form-controls" ng-controller="LegacyCtrl">
+
+                        <div class="form-group">
+                            <msi-file-upload repo-folder="'/rest/import/legacy-nm-import/upload-weekly-xml'" drop-text="or drop .xml file here"
+                                             file-types="'xml'" auto-upload="false" remove-after-upload="true"
+                                             data="importData" success="xmlFileUploaded(result)">
+
+                                <div class="form-group" style="margin: 10px;">
+                                    <label for="year" class="col-sm-2 control-label">Year</label>
+                                    <div class="col-sm-10">
+                                        <input id="year" type="number" class="form-control input-sm" placeholder="Year" ng-model="importData.year">
+                                    </div>
+                                </div>
+                                <div class="form-group" style="margin: 10px;">
+                                    <label for="week" class="col-sm-2 control-label">Week</label>
+                                    <div class="col-sm-10">
+                                        <input id="week" type="number" class="form-control input-sm" placeholder="Week" ng-model="importData.week">
+                                    </div>
+                                </div>
+                            </msi-file-upload>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label" for="importResult">Result</label>
+                            <textarea ng-model="importResult" id="importResult" class="form-control input-sm" style="font-size: 10px;" rows="6" readonly></textarea>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
 

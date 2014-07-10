@@ -4,9 +4,29 @@
  */
 angular.module('msinm.admin')
 
-/**
- * Legacy Controller
- */
+    .factory('LegacyService', [ '$http', function($http) {
+        'use strict';
+
+        return {
+
+            importMsiNm: function(success, error) {
+                $http.get('/rest/import/legacy-ws-msi')
+                    .success(success)
+                    .error(error);
+            },
+
+            importLegacyMsi: function(count, success, error) {
+                $http.get('/rest/import/legacy-db-msi?limit=' + count)
+                    .success(success)
+                    .error(error);
+            }
+        };
+    }])
+
+
+    /**
+     * Legacy Controller
+     */
     .controller('LegacyCtrl', ['$scope', '$location', '$modal', 'LegacyService',
         function ($scope, $location, $modal, LegacyService) {
             'use strict';

@@ -18,19 +18,10 @@ package dk.dma.msinm.vo;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
-import dk.dma.msinm.model.Chart;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.SeriesIdentifier;
-import dk.dma.msinm.model.Status;
-import dk.dma.msinm.model.Type;
+import dk.dma.msinm.model.*;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Value object for the {@code Message} model entity
@@ -45,7 +36,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     AreaVo area;
     List<CategoryVo> categories = new ArrayList<>();
     List<LocationVo> locations = new ArrayList<>();
-    List<Chart> charts = new ArrayList<>();
+    List<ChartVo> charts = new ArrayList<>();
     String horizontalDatum;
     Date validFrom;
     Date validTo;
@@ -84,7 +75,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         if (copyOp.copy("details")) {
             status = message.getStatus();
             message.getCategories().forEach(cat -> categories.add(new CategoryVo(cat, CopyOp.get(CopyOp.PARENT))));
-            charts.addAll(message.getCharts());
+            message.getCharts().forEach(chart -> charts.add(new ChartVo(chart)));
             horizontalDatum = message.getHorizontalDatum();
             cancellationDate = message.getCancellationDate();
             message.getReferences().forEach(ref -> references.add(new ReferenceVo(ref)));
@@ -110,7 +101,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         locations.stream()
                 .filter(loc -> loc.getPoints().size() > 0)
                 .forEach(loc -> message.getLocations().add(loc.toEntity()));
-        message.getCharts().addAll(charts);
+        charts.forEach(chart -> message.getCharts().add(chart.toEntity()));
         message.setHorizontalDatum(horizontalDatum);
         message.setValidFrom(validFrom);
         message.setValidTo(validTo);
@@ -129,9 +120,10 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
      */
     @Override
     public MessageDescVo createDesc(String lang) {
-        MessageDescVo message = new MessageDescVo();
-        message.setLang(lang);
-        return message;
+        MessageDescVo desc = new MessageDescVo();
+        getDescs().add(desc);
+        desc.setLang(lang);
+        return desc;
     }
 
     // ************ Getters and setters *************
@@ -192,11 +184,11 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         this.locations = locations;
     }
 
-    public List<Chart> getCharts() {
+    public List<ChartVo> getCharts() {
         return charts;
     }
 
-    public void setCharts(List<Chart> charts) {
+    public void setCharts(List<ChartVo> charts) {
         this.charts = charts;
     }
 

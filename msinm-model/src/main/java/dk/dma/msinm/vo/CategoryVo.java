@@ -109,9 +109,10 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
      */
     @Override
     public CategoryDescVo createDesc(String lang) {
-        CategoryDescVo category = new CategoryDescVo();
-        category.setLang(lang);
-        return category;
+        CategoryDescVo desc = new CategoryDescVo();
+        getDescs().add(desc);
+        desc.setLang(lang);
+        return desc;
     }
 
     /**

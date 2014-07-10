@@ -23,6 +23,12 @@
             <groupId>dk.dma.msinm</groupId>
             <artifactId>msinm-lucene</artifactId>
             <version>1.0-SNAPSHOT</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>xerces</groupId>
+                    <artifactId>xercesImpl</artifactId>
+                </exclusion>
+            </exclusions>
         </dependency>
         <dependency>
             <groupId>dk.dma.msinm</groupId>
@@ -45,6 +51,15 @@
             <version>1.0-SNAPSHOT</version>
             <type>war</type>
             <!--scope>runtime</scope-->
+        </dependency>
+
+        <!-- Fix awful wildfly error when performing xslt:
+            https://community.jboss.org/thread/242194
+        -->
+        <dependency>
+            <groupId>xalan</groupId>
+            <artifactId>xalan</artifactId>
+            <version>2.5.1</version>
         </dependency>
 
     </dependencies>

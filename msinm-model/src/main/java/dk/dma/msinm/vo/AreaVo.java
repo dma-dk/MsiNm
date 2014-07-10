@@ -127,9 +127,10 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
      */
     @Override
     public AreaDescVo createDesc(String lang) {
-        AreaDescVo area = new AreaDescVo();
-        area.setLang(lang);
-        return area;
+        AreaDescVo desc = new AreaDescVo();
+        desc.setLang(lang);
+        getDescs().add(desc);
+        return desc;
     }
 
     /**

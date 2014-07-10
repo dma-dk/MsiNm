@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<messages>
+    <message>
+        <descs xsi:type="messageDescVo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+            <lang>en</lang>
+            <description>&lt;p&gt;Mariners are advised to navigate with caution in the area.&lt;/p&gt;</description>
+            <title>Data collection buoy</title>
+        </descs>
+        <area>
+            <descs xsi:type="areaDescVo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                <lang>en</lang>
+                <name>Trinidad and Tobago</name>
+            </descs>
+            <parent>
+                <descs xsi:type="areaDescVo" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+                    <lang>en</lang>
+                    <name>WEST INDIES</name>
+                </descs>
+            </parent>
+        </area>
+        <originalInformation>false</originalInformation>
+        <seriesIdentifier>
+            <authority>UKHO</authority>
+            <number>3421</number>
+            <year>2014</year>
+        </seriesIdentifier>
+        <type>PRELIMINARY_NOTICE</type>
+    </message>
+</messages>

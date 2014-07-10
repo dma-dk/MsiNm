@@ -112,9 +112,10 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
      */
     @Override
     public LocationDescVo createDesc(String lang) {
-        LocationDescVo location = new LocationDescVo();
-        location.setLang(lang);
-        return location;
+        LocationDescVo desc = new LocationDescVo();
+        getDescs().add(desc);
+        desc.setLang(lang);
+        return desc;
     }
 
     /**

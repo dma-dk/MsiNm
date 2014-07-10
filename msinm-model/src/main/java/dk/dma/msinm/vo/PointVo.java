@@ -120,9 +120,10 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
      */
     @Override
     public PointDescVo createDesc(String lang) {
-        PointDescVo point = new PointDescVo();
-        point.setLang(lang);
-        return point;
+        PointDescVo desc = new PointDescVo();
+        getDescs().add(desc);
+        desc.setLang(lang);
+        return desc;
     }
 
     /**

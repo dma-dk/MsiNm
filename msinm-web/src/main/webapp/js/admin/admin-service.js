@@ -5,25 +5,6 @@
 angular.module('msinm.admin')
 
 
-    .factory('LegacyService', [ '$http', function($http) {
-        'use strict';
-
-        return {
-
-            importMsiNm: function(success, error) {
-                $http.get('/rest/import/legacy-ws-msi')
-                    .success(success)
-                    .error(error);
-            },
-
-            importLegacyMsi: function(count, success, error) {
-                $http.get('/rest/import/legacy-db-msi?limit=' + count)
-                    .success(success)
-                    .error(error);
-            }
-        };
-    }])
-
     .factory('AdminUserService', [ '$http', function($http) {
         'use strict';
 
