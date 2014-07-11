@@ -1,8 +1,7 @@
 package uk.ukho.msinm.legacy;
 
 
-import dk.dma.msinm.vo.AreaVo;
-import dk.dma.msinm.vo.MessageVo;
+import dk.dma.msinm.vo.*;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -35,7 +34,8 @@ public class Messages {
     public static JAXBContext getJAXBContext() throws JAXBException {
         return JAXBContext.newInstance(
                 Messages.class, MessageVo.class, MessageVo.MessageDescVo.class,
-                AreaVo.class, AreaVo.AreaDescVo.class
+                AreaVo.class, AreaVo.AreaDescVo.class, LocationVo.class, LocationVo.LocationDescVo.class,
+                PointVo.class, PointVo.PointDescVo.class, CategoryVo.class, CategoryVo.CategoryDescVo.class
         );
     }
 

@@ -16,6 +16,7 @@
 package dk.dma.msinm.web;
 
 import dk.dma.msinm.common.db.Sql;
+import dk.dma.msinm.common.db.SqlScriptService;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
@@ -23,18 +24,12 @@ import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.CategoryService;
 import dk.dma.msinm.user.User;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.StringReader;
 
 /**
  * When the application starts up, this bean will check for the presence of various entities,
@@ -55,6 +50,9 @@ public class BaseDataLoader extends BaseService {
 
     @Inject
     CategoryService categoryService;
+
+    @Inject
+    SqlScriptService sqlScriptService;
 
     @Inject
     @Sql("/sql/base-users.sql")
@@ -101,7 +99,6 @@ public class BaseDataLoader extends BaseService {
      * @param importSql the sql to execute, if the table is empty
      * @return if data was imported
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     private boolean checkLoadBaseData(Class<?> entityClass, String importSql) {
 
         String table = entityClass.getSimpleName();
@@ -112,7 +109,7 @@ public class BaseDataLoader extends BaseService {
                 log.info("Table " + table + " contains " + count +  " rows. Not importing base data.");
             } else {
                 log.info("Table " + table + " is empty. Import SQL executed");
-                int updateCount = executeScript(importSql);
+                int updateCount = sqlScriptService.executeScript(importSql);
                 log.info("Import SQL executed. " + updateCount + " rows affected");
                 return true;
             }
@@ -120,22 +117,5 @@ public class BaseDataLoader extends BaseService {
             log.error("Failed updating table " + table, e);
         }
         return false;
-    }
-
-    /**
-     * Executes the SQL script by splitting it into single statements (lines).
-     * @param importSql the SQL script to execute
-     * @return the number of updated rows
-     */
-    private int executeScript(String importSql) throws IOException {
-        int updateCount = 0;
-        BufferedReader reader = new BufferedReader(new StringReader(importSql));
-        for (String line = reader.readLine(); line != null; line = reader.readLine()) {
-            line = line.trim();
-            if (StringUtils.isNotBlank(line) && !line.startsWith("--")) {
-                updateCount += em.createNativeQuery(line).executeUpdate();
-            }
-        }
-        return updateCount;
     }
 }

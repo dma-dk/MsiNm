@@ -16,6 +16,7 @@
 package dk.dma.msinm.vo;
 
 import dk.dma.msinm.common.vo.BaseVo;
+import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.ReferenceType;
 import dk.dma.msinm.model.SeriesIdentifier;
@@ -57,6 +58,12 @@ public class ReferenceVo extends BaseVo<Reference> {
         reference.setId(id);
         reference.setSeriesIdentifier(seriesIdentifier);
         reference.setType(type);
+        return reference;
+    }
+
+    public Reference toEntity(Message message) {
+        Reference reference = toEntity();
+        reference.setMessage(message);
         return reference;
     }
 

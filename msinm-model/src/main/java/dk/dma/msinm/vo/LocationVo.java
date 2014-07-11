@@ -148,7 +148,7 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
         public LocationDesc toEntity() {
             LocationDesc desc = new LocationDesc();
             desc.setLang(getLang());
-            desc.setDescription(description);
+            desc.setDescription(StringUtils.trim(description));
             return desc;
         }
 

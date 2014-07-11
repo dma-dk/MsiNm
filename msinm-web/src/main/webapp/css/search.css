@@ -115,6 +115,10 @@
     padding-top: 5px;
 }
 
+.table-item-value ol {
+    padding-left: 0;
+}
+
 /**
  * Map search result
  */

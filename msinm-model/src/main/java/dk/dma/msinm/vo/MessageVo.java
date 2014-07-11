@@ -96,7 +96,17 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         message.setSeriesIdentifier(seriesIdentifier);
         message.setStatus(status);
         message.setType(type);
-        message.setArea((area == null) ? null : area.toEntity());
+        Area msgArea = null;
+        for (AreaVo areaVo = area; areaVo != null; areaVo = areaVo.getParent()) {
+            Area childArea = msgArea;
+            msgArea = areaVo.toEntity();
+            if (childArea != null) {
+                childArea.setParent(msgArea);
+                msgArea.getChildren().add(childArea);
+            } else {
+                message.setArea(msgArea);
+            }
+        }
         categories.forEach(cat -> message.getCategories().add(cat.toEntity()));
         locations.stream()
                 .filter(loc -> loc.getPoints().size() > 0)
@@ -106,7 +116,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         message.setValidFrom(validFrom);
         message.setValidTo(validTo);
         message.setCancellationDate(cancellationDate);
-        references.forEach(ref -> message.getReferences().add(ref.toEntity()));
+        references.forEach(ref -> message.getReferences().add(ref.toEntity(message)));
         message.getLightsListNumbers().addAll(lightsListNumbers);
         message.setOriginalInformation(originalInformation);
         getDescs().stream()
@@ -292,14 +302,14 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         public MessageDesc toEntity() {
             MessageDesc desc = new MessageDesc();
             desc.setLang(getLang());
-            desc.setTitle(title);
-            desc.setDescription(description);
-            desc.setOtherCategories(otherCategories);
-            desc.setTime(time);
-            desc.setVicinity(vicinity);
-            desc.setNote(note);
-            desc.setPublication(publication);
-            desc.setSource(source);
+            desc.setTitle(StringUtils.trim(title));
+            desc.setDescription(StringUtils.trim(description));
+            desc.setOtherCategories(StringUtils.trim(otherCategories));
+            desc.setTime(StringUtils.trim(time));
+            desc.setVicinity(StringUtils.trim(vicinity));
+            desc.setNote(StringUtils.trim(note));
+            desc.setPublication(StringUtils.trim(publication));
+            desc.setSource(StringUtils.trim(source));
             return desc;
         }
 
@@ -314,13 +324,13 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
          * @return if this is welldefined
          */
         public boolean isDefined() {
-            return StringUtils.isNotBlank(title) &&
-                    StringUtils.isNotBlank(description) &&
-                    StringUtils.isNotBlank(otherCategories) &&
-                    StringUtils.isNotBlank(time) &&
-                    StringUtils.isNotBlank(vicinity) &&
-                    StringUtils.isNotBlank(note) &&
-                    StringUtils.isNotBlank(publication) &&
+            return StringUtils.isNotBlank(title) ||
+                    StringUtils.isNotBlank(description) ||
+                    StringUtils.isNotBlank(otherCategories) ||
+                    StringUtils.isNotBlank(time) ||
+                    StringUtils.isNotBlank(vicinity) ||
+                    StringUtils.isNotBlank(note) ||
+                    StringUtils.isNotBlank(publication) ||
                     StringUtils.isNotBlank(source);
         }
 

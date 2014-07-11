@@ -156,7 +156,7 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
         public PointDesc toEntity() {
             PointDesc desc = new PointDesc();
             desc.setLang(getLang());
-            desc.setDescription(description);
+            desc.setDescription(StringUtils.trim(description));
             return desc;
         }
 

@@ -163,7 +163,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         public AreaDesc toEntity() {
             AreaDesc desc = new AreaDesc();
             desc.setLang(getLang());
-            desc.setName(name);
+            desc.setName(StringUtils.trim(name));
             return desc;
         }
 

@@ -145,7 +145,7 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
         public CategoryDesc toEntity() {
             CategoryDesc desc = new CategoryDesc();
             desc.setLang(getLang());
-            desc.setName(name);
+            desc.setName(StringUtils.trim(name));
             return desc;
         }
 

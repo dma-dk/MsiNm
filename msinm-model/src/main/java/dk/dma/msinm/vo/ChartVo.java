@@ -2,6 +2,7 @@ package dk.dma.msinm.vo;
 
 import dk.dma.msinm.common.vo.BaseVo;
 import dk.dma.msinm.model.Chart;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * Value object for charts
@@ -34,9 +35,9 @@ public class ChartVo extends BaseVo<Chart> {
     public Chart toEntity() {
         Chart chart = new Chart();
         chart.setId(id);
-        chart.setChartNumber(chartNumber);
+        chart.setChartNumber(StringUtils.trim(chartNumber));
         chart.setInternationalNumber(internationalNumber);
-        chart.setHorizontalDatum(horizontalDatum);
+        chart.setHorizontalDatum(StringUtils.trim(horizontalDatum));
         return chart;
     }
 
