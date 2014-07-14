@@ -202,6 +202,16 @@ public class WeeklyNmImportService {
         // Some NM's do not have descriptions. Use the title instead
         message.getDescs().forEach(desc -> desc.setDescription(StringUtils.defaultIfBlank(desc.getDescription(), desc.getTitle())));
 
+        // Update the location type, depending on the number of points
+        // By default, they have been set to be polygons.
+        message.getLocations().forEach(loc -> {
+            if (loc.getPoints().size() == 1) {
+                loc.setType(Location.LocationType.POINT);
+            } else if (loc.getPoints().size() == 2) {
+                loc.setType(Location.LocationType.POLYLINE);
+            }
+        });
+
         try {
             // Make sure all charts are saved
             List<Chart> charts = findOrCreateCharts(message.getCharts());
