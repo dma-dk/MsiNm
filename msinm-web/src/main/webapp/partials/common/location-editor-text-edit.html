@@ -1,0 +1,40 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Edit locations</h2>
+    </div>
+
+    <div class="modal-body">
+
+        <form name="edit_form">
+
+            <p>
+                Edit the locations as plain text. The format is as follows:
+            </p>
+            <ul>
+                <li>Each location must start with a "Type: " field.</li>
+                <li>Circles must specify a "Radius: " field.</li>
+                <li>The location may have a description fields starting with "[language id]:"</li>
+                <li>The points have the format: 56 06.993N  007 33.018E</li>
+                <li>Points may have descriptions associated by appending ",[language id]: description" to the lines.</li>
+            </ul>
+
+            <div class="form-controls">
+
+                <div class="form-group">
+                    <label for="locationsTxt">Locations</label>
+                    <textarea id="locationsTxt" name="locationsTxt" class="form-control input-sm"
+                              rows="20" style="font-family: 'courier new'; font-size: 10px; font-weight: bold;"
+                              focus="focusMe" ng-model="locationsTxt" required ></textarea>
+                </div>
+
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-click="$close(locationsTxt)">Update</button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

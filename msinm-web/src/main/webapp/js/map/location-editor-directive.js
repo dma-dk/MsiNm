@@ -359,7 +359,7 @@ angular.module('msinm.map')
 
                 // Toggle show/hide the description fields of the given point or location
                 scope.toggleShowDesc = function (elm) {
-                    elm.showDesc = !elm.showDesc;
+                    elm.showDesc = (elm.showDesc) ? !elm.showDesc : true;
                 };
 
                 // Adds a new empty location of the given type
@@ -408,6 +408,33 @@ angular.module('msinm.map')
                 // Zoom to the extent of the location layer
                 scope.zoomToExtent = function() {
                     MapService.zoomToExtent(map, locLayer);
+                };
+
+                // Provides an option to edit the locations as plain text
+                scope.editAsText = function() {
+                    scope.modalInstance = $modal.open({
+                        templateUrl: "/partials/common/location-editor-text-edit.html",
+                        controller: function ($scope) {
+                            $scope.locationsTxt = MapService.formatLocationsAsText(scope.locations);
+                        }
+                    });
+
+                    // Get the KML pasted into a textarea
+                    scope.modalInstance.result.then(function(result) {
+                        var data = MapService.parseLocationsFromText(result);
+                        if (data) {
+                            scope.clearLocations();
+                            for (var i in data) {
+                                scope.locations.push(data[i]);
+                            }
+                            initLocations();
+                            scope.deactivateDrawControls(true);
+                        }
+                    }, function() {
+                        // Cancelled
+                    })['finally'](function(){
+                        scope.modalInstance = undefined;
+                    });
                 };
 
                 // Open modal dialog to import via KML by pasting it into a text area

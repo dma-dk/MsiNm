@@ -182,7 +182,84 @@ angular.module('msinm.map')
             }
 
             map.zoomToExtent(extent);
+        },
+
+        formatLocationsAsText : function(locations) {
+            var txt = '';
+            for (var l in locations) {
+                var loc = locations[l];
+                txt += "Type: " + loc.type + '\n';
+                for (var d in loc.descs) {
+                    txt += "[" + loc.descs[d].lang + "]: " + loc.descs[d].description + '\n';
+                }
+                if (loc.type == "CIRCLE") {
+                    txt += "Radius: " + loc.radius + ' nm\n';
+                }
+                for (var p in loc.points) {
+                    var pt = loc.points[p];
+                    txt += formatLonLat(pt);
+                    for (var pd in pt.descs) {
+                        txt += ",[" + pt.descs[pd].lang + "]: " + pt.descs[pd].description;
+                    }
+                    txt += '\n';
+                }
+                txt += '\n';
+            }
+            return txt;
+        },
+
+        parseLocationsFromText : function(txt) {
+            var locations = [];
+            var lines = txt.split('\n');
+            var loc = undefined;
+
+            var desc = undefined;
+            for (var l in lines) {
+                var line = lines[l];
+
+                // Check if this is the start of a new location
+                var newLocMatch = line.toUpperCase().match(/^TYPE: (POINT|CIRCLE|POLYGON|POLYLINE)$/);
+                if (newLocMatch) {
+                    loc = { type: newLocMatch[1], descs: [], points: [] };
+                    desc = undefined;
+                    locations.push(loc);
+                }
+
+                // Check if the line is a location description
+                var descMatch = line.match(/^\[(\w\w)\]:(.*)$/);
+                if (loc && descMatch) {
+                    desc = { lang: descMatch[1], description: descMatch[2].trim() };
+                    loc.descs.push(desc);
+                }
+
+                // Check if the line is a radius
+                var radiusMatch = line.match(/^Radius: (\d+)(.*)$/i);
+                if (loc != null && radiusMatch) {
+                    var radius = parseInt(radiusMatch[1]);
+                    if (radiusMatch.length > 2 && radiusMatch[2].toUpperCase().trim() == "KM") {
+                        radius = km2nm(radius);
+                    }
+                    loc.radius = radius;
+                }
+
+                // 55 04.424N  007 58.066E,[da]: bla bla bla,[en]: goobledygook
+                var posMatch =  line.match(/^((\d{1,3}) (\d{1,2}(\.\d{1,3})?)(N|S))\s+((\d{1,3}) (\d{1,2}(\.\d{1,3})?)(E|W))(.*)$/i);
+                if (loc != null && posMatch && posMatch.length > 10) {
+                    var pt = { lat: parseLatitude(posMatch[1]), lon: parseLongitude(posMatch[6]), index: loc.points.length + 1, descs:[] };
+                    loc.points.push(pt);
+
+                    var descsMatch,
+                        re = /(?:,\[(\w\w)\]:([^,\[]*))/g;
+                    while (descsMatch = re.exec(posMatch[11])) {
+                        desc = { lang: descsMatch[1], description: descsMatch[2].trim() };
+                        pt.descs.push(desc);
+                    }
+                }
+
+            }
+            return locations;
         }
+
     }
 }]);
 
