@@ -20,6 +20,7 @@ import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.AreaDesc;
@@ -245,7 +246,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // Add language specific fields
             message.getDescs().forEach(desc -> {
                 addPhraseSearchField(doc, searchField, desc.getTitle());
-                addPhraseSearchField(doc, searchField, desc.getDescription());
+                addPhraseSearchField(doc, searchField, TextUtils.html2txt(desc.getDescription()));
                 addPhraseSearchField(doc, searchField, desc.getNote());
                 addPhraseSearchField(doc, searchField, desc.getOtherCategories());
                 addPhraseSearchField(doc, searchField, desc.getVicinity());

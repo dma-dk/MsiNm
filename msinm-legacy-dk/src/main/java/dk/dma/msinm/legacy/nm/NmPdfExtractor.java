@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.legacy.nm;
 
+import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.model.*;
 import org.apache.commons.lang.StringUtils;
 import org.apache.pdfbox.pdmodel.PDDocument;
@@ -326,7 +327,7 @@ public class NmPdfExtractor {
                 }
                 break;
             case DETAILS:
-                desc.setDescription(line);
+                desc.setDescription(TextUtils.txt2html(line));
                 break;
             case NOTE:
                 desc.setNote(line);

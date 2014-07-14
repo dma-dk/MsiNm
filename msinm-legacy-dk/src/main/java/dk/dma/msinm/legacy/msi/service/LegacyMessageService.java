@@ -18,6 +18,7 @@ package dk.dma.msinm.legacy.msi.service;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
 import dk.dma.msinm.model.*;
 import dk.dma.msinm.service.AreaService;
@@ -182,7 +183,7 @@ public class LegacyMessageService extends BaseService {
         Arrays.asList(app.getLanguages()).forEach(message::createDesc);
         message.getDescs().forEach(desc -> {
             desc.setTitle(StringUtils.defaultString(msi.getEncText(), msi.getNavWarning()));
-            desc.setDescription(msi.getNavWarning());
+            desc.setDescription(TextUtils.txt2html(msi.getNavWarning()));
         });
 
         message.getLocations().clear();

@@ -17,6 +17,7 @@ package dk.dma.msinm.legacy.nm;
 
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.repo.RepositoryService;
+import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Message;
@@ -230,8 +231,8 @@ public class LegacyNmImportService {
         template.setPriority(Priority.NONE);
         template.setStatus(Status.ACTIVE);
 
-        // Some NM's do not have descriptions. Use the title instead
-        template.getDescs().forEach(desc -> desc.setDescription(StringUtils.defaultIfBlank(desc.getDescription(), desc.getTitle())));
+        // Some NM's do not have descriptions. Use the (html'ified) title instead
+        template.getDescs().forEach(desc -> desc.setDescription(StringUtils.defaultIfBlank(desc.getDescription(), TextUtils.txt2html(desc.getTitle()))));
 
         try {
             // Make sure all charts are saved

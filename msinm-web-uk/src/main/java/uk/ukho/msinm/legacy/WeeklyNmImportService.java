@@ -199,8 +199,14 @@ public class WeeklyNmImportService {
         message.setPriority(Priority.NONE);
         message.setStatus(Status.ACTIVE);
 
+        // Trim the NM titles, as the XSLT has left them with newlines, etc
+        message.getDescs().stream()
+                .filter(desc -> StringUtils.isNotBlank(desc.getTitle()))
+                .forEach(desc -> desc.setTitle(desc.getTitle().replaceAll("\\s+", " ")));
+
         // Some NM's do not have descriptions. Use the title instead
-        message.getDescs().forEach(desc -> desc.setDescription(StringUtils.defaultIfBlank(desc.getDescription(), desc.getTitle())));
+        message.getDescs()
+                .forEach(desc -> desc.setDescription(StringUtils.defaultIfBlank(desc.getDescription(), desc.getTitle())));
 
         // Update the location type, depending on the number of points
         // By default, they have been set to be polygons.

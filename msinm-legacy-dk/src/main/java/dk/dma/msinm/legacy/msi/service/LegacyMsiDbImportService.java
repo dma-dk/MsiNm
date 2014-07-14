@@ -21,6 +21,7 @@ import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
+import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
@@ -204,12 +205,12 @@ public class LegacyMsiDbImportService {
                     // Message Desc
                     MessageDesc descEn = message.createDesc("en");
                     descEn.setTitle(StringUtils.defaultString(title, descriptionEn));
-                    descEn.setDescription(descriptionEn);
+                    descEn.setDescription(TextUtils.txt2html(descriptionEn));
                     descEn.setVicinity(area3En);
 
                     MessageDesc descDa = message.createDesc("da");
                     descDa.setTitle(StringUtils.defaultString(title, descriptionDa));
-                    descDa.setDescription(descriptionDa);
+                    descDa.setDescription(TextUtils.txt2html(descriptionDa));
                     descDa.setVicinity(area3Da);
 
                     // Areas
