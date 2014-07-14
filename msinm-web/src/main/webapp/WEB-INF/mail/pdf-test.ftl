@@ -58,6 +58,10 @@
             width: 100%;
         }
 
+        .field-value ol {
+            padding-left: 0;
+        }
+
     </style>
 
 </head>
