@@ -95,7 +95,8 @@ angular.module('msinm.search')
         };
 
         $scope.pdf = function () {
-            $window.location = '/rest/message/pdf?lang=da'
+            $window.location = '/rest/message/pdf?'
+            + 'lang=' + $scope.language
             + '&q=' + encodeURIComponent($scope.query)
             + '&status=' + encodeURIComponent($scope.status)
             + '&type=' + encodeURIComponent($scope.type)
