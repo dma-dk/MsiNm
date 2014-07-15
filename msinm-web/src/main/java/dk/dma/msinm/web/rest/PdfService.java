@@ -15,8 +15,9 @@
  */
 package dk.dma.msinm.web.rest;
 
-import freemarker.template.Configuration;
-import freemarker.template.Template;
+import dk.dma.msinm.common.templates.TemplateContext;
+import dk.dma.msinm.common.templates.TemplateService;
+import dk.dma.msinm.common.templates.TemplateType;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.tidy.Tidy;
@@ -39,21 +40,18 @@ public class PdfService {
     Logger log;
 
     @Inject
-    Configuration mailTemplateConfiguration; // TODO PDF template
+    TemplateService templateService;
 
 
-    public void generatePdf(Map<String, Object> data, String template, OutputStream out) throws Exception {
-        Template fmTemplate;
+    public void generatePdf(Map<String, Object> data, String template, String language, String bundleName, OutputStream out) throws Exception {
+
+        TemplateContext ctx = templateService.getTemplateContext(TemplateType.PDF, template, data, language, bundleName);
         try {
-            fmTemplate = mailTemplateConfiguration.getTemplate(template);
 
-            StringWriter html = new StringWriter();
-            fmTemplate.process(data, html);
-
-            Document xhtmlContent = cleanHtml(html.toString());
+            String html = templateService.process(ctx);
+            Document xhtmlContent = cleanHtml(html);
 
             String baseUri = "http://localhost:8080";
-            data.put("baseUri", baseUri);
 
             long t0 = System.currentTimeMillis();
             log.info("Generating PDF for " + baseUri);

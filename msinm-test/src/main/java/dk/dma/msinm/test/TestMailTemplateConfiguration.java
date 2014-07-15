@@ -28,7 +28,7 @@ public class TestMailTemplateConfiguration {
     private static Configuration cfg;
 
     @Produces
-    public synchronized Configuration getMailTemplateConfiguration() {
+    public synchronized Configuration getTemplateConfiguration() {
         if (cfg == null) {
             cfg = new Configuration();
             //cfg.setServletContextForTemplateLoading(context, MAIL_TEMPLATE_FOLDER);

@@ -2,7 +2,7 @@
 <head>
 
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>Insert title here</title>
+    <title>${text("title")}</title>
 
     <style type="text/css" media="all">
 
@@ -67,7 +67,7 @@
 </head>
 <body>
 
-<h1>Messages</h1>
+<h1>${text("title")}</h1>
 <table class="message-table">
     <#list messages as msg>
     <tr>
@@ -82,8 +82,7 @@
             </#if>
             <div>
                 <strong>${msg.seriesIdentifier.number?c}-${msg.seriesIdentifier.year?c}</strong>.
-                ${msg.area.descs[0].name} -
-                ${msg.descs[0].title}
+                <#if msg.area.descs?has_content>${msg.area.descs[0].name} - ${msg.descs[0].title}</#if>
             </div>
 
             <table>
@@ -93,20 +92,20 @@
                 <tr>
                     <td class="field-name">
                         <#if ref.type == 'REFERENCE'>
-                            EfS reference
+                            ${text("nm.reference")}
                         <#else>
-                            Former EfS.
+                            ${text("former.nm")}
                         </#if>
                     </td>
                     <td class="field-value">
                         ${ref.seriesIdentifier.number?c}-${'' + ref.seriesIdentifier.year?c}
 
                         <#if ref.type == 'REPETITION'>
-                            (repitition)
+                            (${text("nm.ref.repitition")})
                         <#elseif ref.type == 'REPETITION'>
-                            (cancelled)
+                            (${text("nm.ref.cancelled")})
                         <#elseif ref.type == 'UPDATE'>
-                            (updated)
+                            (${text("nm.ref.updated")})
                         </#if>
                     </td>
                 </tr>
@@ -114,9 +113,9 @@
 
 
                 <!-- Time line -->
-                <#if msg.descs[0].time?has_content>
+                <#if msg.descs?has_content && msg.descs[0].time?has_content>
                 <tr>
-                    <td class="field-name">Time</td>
+                    <td class="field-name">${text("nm.field.time")}</td>
                     <td class="field-value">
                         ${msg.descs[0].time}
                     </td>
@@ -126,7 +125,7 @@
                 <!-- Location line -->
                 <#if msg.locations?has_content>
                     <tr>
-                        <td class="field-name">Location</td>
+                        <td class="field-name">${text("nm.field.position")}</td>
                         <td class="field-value">
                             <#list msg.locations as loc>
                                 <#if loc.descs?has_content>
@@ -143,9 +142,9 @@
                 </#if>
 
                 <!-- Details line -->
-                <#if msg.descs[0].description?has_content>
+                <#if msg.descs?has_content && msg.descs[0].description?has_content>
                     <tr>
-                        <td class="field-name">Details</td>
+                        <td class="field-name">${text("nm.field.details")}</td>
                         <td class="field-value">
                             ${msg.descs[0].description}
                         </td>
@@ -153,9 +152,9 @@
                 </#if>
 
                 <!-- Note line -->
-                <#if msg.descs[0].note?has_content>
+                <#if msg.descs?has_content && msg.descs[0].note?has_content>
                     <tr>
-                        <td class="field-name">Note</td>
+                        <td class="field-name">${text("nm.field.note")}</td>
                         <td class="field-value">
                         ${msg.descs[0].note}
                         </td>
@@ -165,7 +164,7 @@
                 <!-- Charts line -->
                 <#if msg.charts?has_content>
                     <tr>
-                        <td class="field-name">Charts</td>
+                        <td class="field-name">${text("nm.field.charts")}</td>
                         <td class="field-value">
                             <#list msg.charts as chart>
                                 ${chart.chartNumber}
@@ -177,9 +176,9 @@
                 </#if>
 
                 <!-- Publication line -->
-                <#if msg.descs[0].publication?has_content>
+                <#if msg.descs?has_content && msg.descs[0].publication?has_content>
                     <tr>
-                        <td class="field-name">Publication</td>
+                        <td class="field-name">${text("nm.field.publication")}</td>
                         <td class="field-value">
                         ${msg.descs[0].publication}
                         </td>
@@ -187,7 +186,7 @@
                 </#if>
 
                 <!-- Source line -->
-                <#if msg.descs[0].source?has_content>
+                <#if msg.descs?has_content && msg.descs[0].source?has_content>
                     <tr>
                         <td class="field-name" colspan="2">
                         (${msg.descs[0].source})

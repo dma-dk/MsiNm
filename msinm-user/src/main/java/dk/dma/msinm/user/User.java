@@ -48,6 +48,8 @@ public class User extends VersionedEntity<Integer> implements Principal {
     @Embedded
     SaltedPasswordHash password;
 
+    String language;
+
     String resetPasswordToken;
 
     String mmsi;
@@ -131,6 +133,14 @@ public class User extends VersionedEntity<Integer> implements Principal {
 
     public void setPassword(SaltedPasswordHash password) {
         this.password = password;
+    }
+
+    public String getLanguage() {
+        return language;
+    }
+
+    public void setLanguage(String language) {
+        this.language = language;
     }
 
     public String getResetPasswordToken() {

@@ -1,4 +1,4 @@
 @Vetoed
-package dk.dma.msinm.common.mail.conf;
+package dk.dma.msinm.common.templates.conf;
 
 import javax.enterprise.inject.Vetoed;

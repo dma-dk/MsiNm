@@ -17,9 +17,9 @@
             <#nested/>
 
             <p>
-                Best regards, <br/>
-                <strong>Danish Maritime Authority</strong><br/>
-                <a href="http://www.dma.dk" title="Danish Maritime Authority">www.dma.dk</a>
+               ${text("greetings.best.regards")}, <br/>
+                <strong>${text("greetings.sender.name")}</strong><br/>
+                <a href="http://${text("greetings.sender.url")}" title="${text("greetings.sender.name")}">${text("greetings.sender.url")}</a>
             </p>
         </div>
 

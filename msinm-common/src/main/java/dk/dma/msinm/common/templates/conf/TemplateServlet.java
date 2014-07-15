@@ -13,8 +13,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.common.mail.conf;
+package dk.dma.msinm.common.templates.conf;
 
+import dk.dma.msinm.common.templates.TemplateContext;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateExceptionHandler;
@@ -33,7 +34,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Servlet called to generate HTML mails.
+ * Servlet called to generate Freemarker templates.
  * As a security precaution, this servlet can only be accessed via port 8080
  *
  * <p>
@@ -41,10 +42,8 @@ import java.util.Map;
  * can be CDI @Vetoed from the test project.
  * </p>
  */
-@WebServlet(value = "/mail/*", loadOnStartup = 1)
-public class MailServlet  extends HttpServlet {
-
-    private static final String MAIL_TEMPLATE_FOLDER = "/WEB-INF/mail/";
+@WebServlet(value = "/template/*", loadOnStartup = 1)
+public class TemplateServlet extends HttpServlet {
 
     private static Configuration cfg;
 
@@ -55,10 +54,11 @@ public class MailServlet  extends HttpServlet {
     ServletContext context;
 
     @Produces
-    public synchronized Configuration getMailTemplateConfiguration() {
+    public synchronized Configuration getTemplateConfiguration() {
         if (cfg == null) {
             cfg = new Configuration();
-            cfg.setServletContextForTemplateLoading(context, MAIL_TEMPLATE_FOLDER);
+            cfg.setLocalizedLookup(true);
+            cfg.setServletContextForTemplateLoading(context, TemplateContext.TEMPLATE_ROOT);
             cfg.setTemplateUpdateDelay(0);
             cfg.setTemplateExceptionHandler(TemplateExceptionHandler.HTML_DEBUG_HANDLER);
         }
@@ -77,7 +77,7 @@ public class MailServlet  extends HttpServlet {
 
         // We only allow access via port 8080
         if (request.getServerPort() != 8080) {
-            log.warn("Illegal access to mail servlet on port " + request.getServerPort());
+            log.warn("Illegal access to template servlet on port " + request.getServerPort());
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             return;
         }
@@ -85,9 +85,9 @@ public class MailServlet  extends HttpServlet {
         String template = request.getPathInfo();
         if (template.endsWith(".ftl")) {
             try {
-                log.info("Processing mail freemarker template: " + template);
+                log.info("Processing freemarker template: " + template);
 
-                Template fmTemplate = getMailTemplateConfiguration().getTemplate(template);
+                Template fmTemplate = getTemplateConfiguration().getTemplate(template);
                 Map<String, Object> data = new HashMap<>();
 
                 // Add request parameters as data
@@ -104,7 +104,7 @@ public class MailServlet  extends HttpServlet {
                 fmTemplate.process(data, response.getWriter());
 
             } catch (Exception e) {
-                log.error("Error processing mail freemarker template: " + template, e);
+                log.error("Error processing freemarker template: " + template, e);
             }
         } else {
             log.warn("Invalid template " + template);

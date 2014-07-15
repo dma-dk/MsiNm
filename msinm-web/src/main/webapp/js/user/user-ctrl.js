@@ -70,7 +70,6 @@ angular.module('msinm.user')
         };
 
         $scope.registerDlg = function() {
-            $scope.newUser = {  email: '', firstName: '', lastName: '', mmsi: undefined, vesselName: undefined };
             $modal.open({
                 controller: "UserCtrl",
                 templateUrl : "/partials/user/registration-dialog.html"
@@ -82,6 +81,7 @@ angular.module('msinm.user')
                 $scope.newUser.email,
                 $scope.newUser.firstName,
                 $scope.newUser.lastName,
+                $scope.newUser.language,
                 $scope.newUser.mmsi,
                 $scope.newUser.vesselName,
                 function(data) {
@@ -175,6 +175,7 @@ angular.module('msinm.user')
                 $scope.user.email,
                 $scope.user.firstName,
                 $scope.user.lastName,
+                $scope.user.language,
                 roles,
                 function(data) {
                     $modalInstance.close();

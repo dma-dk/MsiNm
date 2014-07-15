@@ -22,6 +22,7 @@ import javax.ejb.Lock;
 import javax.ejb.LockType;
 import javax.ejb.Singleton;
 import javax.inject.Inject;
+import java.util.Locale;
 
 /**
  * Common settings and functionality for the MsiNm app
@@ -38,6 +39,10 @@ public class MsiNmApp {
     @Inject
     @Setting(value = "organization", defaultValue = "N/A")
     String organization;
+
+    @Inject
+    @Setting(value = "baseUri", defaultValue = "http://localhost:8080")
+    String baseUri;
 
     /**
      * Returns the list of languages supported by the MSI-NM application
@@ -71,10 +76,28 @@ public class MsiNmApp {
     }
 
     /**
+     * Ensures that the given language is a supported language and
+     * returns the default locale if not
+     * @param lang the language to check
+     * @return the associated locale if supported, otherwise the default locale
+     */
+    public Locale getLocale(String lang) {
+        return new Locale(lang);
+    }
+
+    /**
      * Returns the organization running the MSI-NM system
      * @return the organization running the MSI-NM system
      */
     public String getOrganization() {
         return organization;
+    }
+
+    /**
+     * Returns the base URI used to access this application
+     * @return the base URI used to access this application
+     */
+    public String getBaseUri() {
+        return baseUri;
     }
 }

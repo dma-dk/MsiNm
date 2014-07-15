@@ -19,7 +19,6 @@ package dk.dma.msinm.user;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.db.SqlProducer;
 import dk.dma.msinm.common.mail.MailService;
-import dk.dma.msinm.common.mail.conf.MailServlet;
 import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;

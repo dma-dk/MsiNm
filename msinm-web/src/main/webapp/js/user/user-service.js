@@ -174,9 +174,9 @@ angular.module('msinm.user')
                     });
             },
 
-            registerUser: function(email, firstName, lastName, mmsi, vesselName, success, error) {
+            registerUser: function(email, firstName, lastName, language, mmsi, vesselName, success, error) {
                 $http
-                    .post('/rest/user/register-user', { email: email, firstName: firstName, lastName: lastName, mmsi: mmsi, vesselName: vesselName })
+                    .post('/rest/user/register-user', { email: email, firstName: firstName, lastName: lastName, language: language, mmsi: mmsi, vesselName: vesselName })
                     .success(function (data) {
                         success(data);
                     })
@@ -185,9 +185,9 @@ angular.module('msinm.user')
                     });
             },
 
-            createOrUpdateUser: function(email, firstName, lastName, roles, success, error) {
+            createOrUpdateUser: function(email, firstName, lastName, language, roles, success, error) {
                 $http
-                    .post('/rest/user/create-or-update-user', { email: email, firstName: firstName, lastName: lastName, roles: roles })
+                    .post('/rest/user/create-or-update-user', { email: email, firstName: firstName, lastName: lastName, language: language, roles: roles })
                     .success(function (data) {
                         success(data);
                     })

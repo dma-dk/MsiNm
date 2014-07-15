@@ -164,6 +164,7 @@ public class UserRestService {
         String email;
         String firstName;
         String lastName;
+        String language;
         String mmsi;
         String vesselName;
         List<String> roles = new ArrayList<>();
@@ -184,6 +185,7 @@ public class UserRestService {
             this.email = entity.getEmail();
             this.firstName = entity.getFirstName();
             this.lastName = entity.getLastName();
+            this.language = entity.getLanguage();
             this.mmsi = entity.getMmsi();
             this.vesselName = entity.getVesselName();
             entity.getRoles().forEach(role -> roles.add(role.getName()));
@@ -199,6 +201,7 @@ public class UserRestService {
             user.setEmail(email);
             user.setFirstName(firstName);
             user.setLastName(lastName);
+            user.setLanguage(language);
             user.setMmsi(mmsi);
             user.setVesselName(vesselName);
             return user;
@@ -226,6 +229,14 @@ public class UserRestService {
 
         public void setLastName(String lastName) {
             this.lastName = lastName;
+        }
+
+        public String getLanguage() {
+            return language;
+        }
+
+        public void setLanguage(String language) {
+            this.language = language;
         }
 
         public String getMmsi() {

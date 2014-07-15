@@ -16,8 +16,6 @@
 package dk.dma.msinm.common.mail;
 
 import dk.dma.msinm.common.settings.annotation.Setting;
-import freemarker.template.Configuration;
-import freemarker.template.Template;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -30,8 +28,6 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
-import java.io.StringWriter;
-import java.util.Map;
 
 /**
  * Interface for sending emails
@@ -41,10 +37,6 @@ public class MailService {
 
     @Resource(name = "java:jboss/mail/MsiNm")
     Session mailSession;
-
-    @Inject
-    @Setting(value = "mailBaseUri", defaultValue = "http://localhost:8080")
-    String baseUri;
 
     @Inject
     @Setting(value = "mailSender", defaultValue = "peder@carolus.dk")
@@ -60,9 +52,6 @@ public class MailService {
     @Inject
     MailAttachmentCache mailAttachmentCache;
 
-    @Inject
-    Configuration mailTemplateConfiguration;
-
     @PostConstruct
     public void start() {
     }
@@ -72,24 +61,16 @@ public class MailService {
     }
 
     /**
-     * Sends an email based on a Freemarker template
-     * @param template the template
-     * @param data the email data
+     * Sends an email
+     * @param content the HTML content
      * @param title the title of the email
+     * @param baseUri the base URI
      * @param recipients the list of recipients
      */
-    public void sendMail(String template, Map<String, Object> data, String title, String... recipients) throws Exception {
-        Template fmTemplate;
+    public void sendMail(String content, String title, String baseUri, String... recipients) throws Exception {
         try {
-            fmTemplate = mailTemplateConfiguration.getTemplate(template);
 
-            // Standard data properties
-            data.put("baseUri", baseUri);
-
-            StringWriter html = new StringWriter();
-            fmTemplate.process(data, html);
-
-            Mail mail = HtmlMail.fromHtml(html.toString(), baseUri, true, true)
+            Mail mail = HtmlMail.fromHtml(content, baseUri, true, true)
                     .doSetSender(new InternetAddress(mailSender))
                     .addFrom(new InternetAddress(mailSender))
                     .doSetSubject(title);
@@ -103,7 +84,7 @@ public class MailService {
 
 
         } catch (Exception e) {
-            log.error("error sending email from template " + template, e);
+            log.error("error sending email: " + title, e);
             throw e;
         }
     }

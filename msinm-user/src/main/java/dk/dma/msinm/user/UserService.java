@@ -17,6 +17,9 @@ package dk.dma.msinm.user;
 
 import dk.dma.msinm.common.mail.MailService;
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.common.templates.TemplateContext;
+import dk.dma.msinm.common.templates.TemplateService;
+import dk.dma.msinm.common.templates.TemplateType;
 import dk.dma.msinm.user.security.JbossJaasCacheFlusher;
 import org.slf4j.Logger;
 
@@ -43,6 +46,9 @@ public class UserService extends BaseService {
     private MailService mailService;
 
     @Inject
+    private TemplateService templateService;
+
+    @Inject
     private JbossJaasCacheFlusher jbossJaasCacheFlusher;
 
     /**
@@ -62,7 +68,7 @@ public class UserService extends BaseService {
     }
 
     /**
-     * Looks up the {@code User} with the given email addressand preloads the roles
+     * Looks up the {@code User} with the given email address and pre-loads the roles
      *
      * @param email the email
      * @return the user or null
@@ -139,12 +145,13 @@ public class UserService extends BaseService {
         // Persist the user
         user = saveEntity(user);
 
+        // Send registration email
         Map<String, Object> data = new HashMap<>();
         data.put("token", user.getResetPasswordToken());
         data.put("name", user.getName());
         data.put("email", user.getEmail());
 
-        mailService.sendMail("user-activation.ftl", data, "Welcome to MSI-NM", user.getEmail());
+        sendEmail(data, "user-activation.ftl", "user.registration.subject", user);
 
         return user;
     }
@@ -195,12 +202,33 @@ public class UserService extends BaseService {
         user.setResetPasswordToken(UUID.randomUUID().toString());
         saveEntity(user);
 
+        // Send reset-password email
         Map<String, Object> data = new HashMap<>();
         data.put("token", user.getResetPasswordToken());
         data.put("name", user.getName());
         data.put("email", user.getEmail());
+        sendEmail(data, "reset-password.ftl", "reset.password.subject", user);
+    }
 
-        mailService.sendMail("reset-password.ftl", data, "Reset Password", email);
+    /**
+     * Sends an email based on the parameters
+     * @param data the email data
+     * @param template the Freemarker template
+     * @param subjectKey the subject key
+     * @param user the recipient user
+     */
+    private void sendEmail(Map<String, Object> data, String template, String subjectKey, User user) throws Exception {
+        TemplateContext ctx = templateService.getTemplateContext(
+                TemplateType.MAIL,
+                template,
+                data,
+                user.getLanguage(),
+                "Mails");
+
+        String subject = ctx.getBundle().getString(subjectKey);
+        String content = templateService.process(ctx);
+        String baseUri = (String)ctx.getData().get("baseUri");
+        mailService.sendMail(content, subject, baseUri, user.getEmail());
     }
 
     /**

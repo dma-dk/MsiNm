@@ -43,13 +43,10 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -212,20 +209,16 @@ public class MessageRestService {
         MessageSearchResult result = messageSearchService.search(params);
 
         String template = "pdf-test.ftl";
+        String bundle = "MessageList";
+        Map<String, Object> data = new HashMap<>();
+        data.put("messages", result.getMessages());
+
         try {
-            // Standard data properties
-            Map<String, Object> data = new HashMap<>();
-            data.put("messages", result.getMessages());
-
-            StreamingOutput stream = new StreamingOutput() {
-                @Override
-                public void write(OutputStream os) throws IOException, WebApplicationException {
-
-                    try {
-                        pdfService.generatePdf(data, template, os);
-                    } catch (Exception e) {
-                        throw new WebApplicationException("Error generating PDF", e);
-                    }
+            StreamingOutput stream = os -> {
+                try {
+                    pdfService.generatePdf(data, template, language, bundle, os);
+                } catch (Exception e) {
+                    throw new WebApplicationException("Error generating PDF", e);
                 }
             };
 

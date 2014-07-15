@@ -40,6 +40,18 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="language">Preferred Language</label>
+                    <div class="row">
+                        <div class="col-sm-4">
+                            <select id="language" name="language" class="form-control input-sm" required
+                                    ng-model="user.language"
+                                    ng-options="'LANG_' + lang | uppercase | translate for lang in siteLanguages">
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
                     <label for="roles">Roles</label>
                     <div class="row" id="roles">
                         <div class="col-sm-8 btn-group">
