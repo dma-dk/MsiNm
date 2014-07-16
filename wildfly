@@ -22,57 +22,54 @@ SCRIPT_DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
 
 echo $SCRIPT_DIR
 
-
-exit
-
-export JBOSS_HOME=$JBOSS7_HOME
+export WILDFLY_HOME=$SCRIPT_DIR/wildfly-8.1.0.Final
 
 #define the user under which jboss will run, or use 'RUNASIS' to run as the current user
-JBOSS_USER=${JBOSS_USER:-"enav"}
+WILDFLY_USER=${WILDFLY_USER:-"enav"}
 
 #server config file
 SERVER_CONFIG="standalone.xml"
 
 #define the script to use to start jboss
-JBOSSSH=${JBOSSSH:-"$JBOSS_HOME/bin/standalone.sh --server-config $SERVER_CONFIG"}
+WILDFLYSH=${WILDFLYSH:-"$WILDFLY_HOME/bin/standalone.sh --server-config $SERVER_CONFIG"}
 
 #define the script to use to stop jboss
-JBOSSSTOP="$JBOSS_HOME/bin/jboss-cli.sh --connect command=:shutdown"
+WILDFLYSTOP="$WILDFLY_HOME/bin/jboss-cli.sh --connect command=:shutdown"
 
-if [ "$JBOSS_USER" = "$USER" ]; then
+if [ "$WILDFLY_USER" = "$USER" ]; then
   SUBIT=""
 else
-  SUBIT="su - $JBOSS_USER -c "
+  SUBIT="su - $WILDFLY_USER -c "
 fi
 
-if [ -n "$JBOSS_CONSOLE" -a ! -d "$JBOSS_CONSOLE" ]; then
+if [ -n "$WILDFLY_CONSOLE" -a ! -d "$WILDFLY_CONSOLE" ]; then
   # ensure the file exists
-  touch $JBOSS_CONSOLE
+  touch $WILDFLY_CONSOLE
   if [ ! -z "$SUBIT" ]; then
-    chown $JBOSS_USER $JBOSS_CONSOLE
+    chown $WILDFLY_USER $WILDFLY_CONSOLE
   fi 
 fi
 
-if [ -n "$JBOSS_CONSOLE" -a ! -f "$JBOSS_CONSOLE" ]; then
-  echo "WARNING: location for saving console log invalid: $JBOSS_CONSOLE"
+if [ -n "$WILDFLY_CONSOLE" -a ! -f "$WILDFLY_CONSOLE" ]; then
+  echo "WARNING: location for saving console log invalid: $WILDFLY_CONSOLE"
   echo "WARNING: ignoring it and using /dev/null"
-  JBOSS_CONSOLE="/dev/null"
+  WILDFLY_CONSOLE="/dev/null"
 fi
 
 #define what will be done with the console log
-JBOSS_CONSOLE=${JBOSS_CONSOLE:-"/dev/null"}
+WILDFLY_CONSOLE=${WILDFLY_CONSOLE:-"/dev/null"}
 
-JBOSS_CMD_START="cd $JBOSS_HOME/bin; $JBOSSSH"
+WILDFLY_CMD_START="cd $WILDFLY_HOME/bin; $WILDFLYSH"
 
-if [ ! -d "$JBOSS_HOME" ]; then
-  echo JBOSS_HOME does not exist as a valid directory : $JBOSS_HOME
+if [ ! -d "$WILDFLY_HOME" ]; then
+  echo WILDFLY_HOME does not exist as a valid directory : $WILDFLY_HOME
   exit 1
 fi
 
 procrunning () {
    procid=0
-   for procid in `pidof -x $JBOSS_HOME/bin/standalone.sh`; do
-       ps -fp $procid | grep "${JBOSSSH% *}" > /dev/null && pid=$procid
+   for procid in `pidof -x $WILDFLY_HOME/bin/standalone.sh`; do
+       ps -fp $procid | grep "${WILDFLYSH% *}" > /dev/null && pid=$procid
    done
 }
 
@@ -90,9 +87,9 @@ stop () {
     
     # Try to use client to shutdown
     if [ -z "$SUBIT" ]; then
-        $JBOSSSTOP
+        $WILDFLYSTOP
     else
-        $SUBIT "$JBOSSSTOP"
+        $SUBIT "$WILDFLYSTOP"
     fi
 
     sleep 5
@@ -133,11 +130,11 @@ stop () {
 
 case "$1" in
 start)
-    cd $JBOSS_HOME/bin
+    cd $WILDFLY_HOME/bin
     if [ -z "$SUBIT" ]; then
-        eval $JBOSS_CMD_START >${JBOSS_CONSOLE} 2>&1 &
+        eval $WILDFLY_CMD_START >${WILDFLY_CONSOLE} 2>&1 &
     else
-        $SUBIT "$JBOSS_CMD_START >${JBOSS_CONSOLE} 2>&1 &" 
+        $SUBIT "$WILDFLY_CMD_START >${WILDFLY_CONSOLE} 2>&1 &" 
     fi
     ;;
 stop)
