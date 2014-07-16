@@ -20,8 +20,6 @@
 # source local environment
 SCRIPT_DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
 
-echo $SCRIPT_DIR
-
 export WILDFLY_HOME=$SCRIPT_DIR/wildfly-8.1.0.Final
 
 #define the user under which jboss will run, or use 'RUNASIS' to run as the current user
@@ -31,7 +29,7 @@ WILDFLY_USER=${WILDFLY_USER:-"enav"}
 SERVER_CONFIG="standalone.xml"
 
 #define the script to use to start jboss
-WILDFLYSH=${WILDFLYSH:-"$WILDFLY_HOME/bin/standalone.sh --server-config $SERVER_CONFIG"}
+WILDFLYSH=${WILDFLYSH:-"$WILDFLY_HOME/bin/standalone.sh -b=0.0.0.0 -bmanagement=0.0.0.0 --server-config $SERVER_CONFIG"}
 
 #define the script to use to stop jboss
 WILDFLYSTOP="$WILDFLY_HOME/bin/jboss-cli.sh --connect command=:shutdown"
