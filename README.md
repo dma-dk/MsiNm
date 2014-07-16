@@ -38,6 +38,26 @@ Build the project and deploy e.g. the Danish flavoured MSI-NM web application:
 
 You can now access the web application on: http://localhost:8080/
 
+### Remote deployment
+
+Configure management user
+
+    ./wildfly-8.1.0.Final/bin/add-user.sh 
+    
+Make wildfly listen on public interfaces
+
+    ./wildfly-8.1.0.Final/bin/standalone.sh -b=0.0.0.0 -bmanagement=0.0.0.0
+    
+To deploy
+
+    mvn wildfly:deploy -Dwildfly.hostname=remote-server
+    
+Available properties
+
+    wildfly.hostname
+    wildfly.port
+    wildfly.username
+    wildfly.password
 
 ## Idea Intellij setup
 
