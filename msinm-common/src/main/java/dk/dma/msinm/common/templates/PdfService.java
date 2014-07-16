@@ -13,27 +13,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.web.rest;
+package dk.dma.msinm.common.templates;
 
-import dk.dma.msinm.common.templates.TemplateContext;
-import dk.dma.msinm.common.templates.TemplateService;
-import dk.dma.msinm.common.templates.TemplateType;
+import dk.dma.msinm.common.MsiNmApp;
 import org.slf4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.tidy.Tidy;
 import org.xhtmlrenderer.pdf.ITextRenderer;
 
 import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.io.OutputStream;
 import java.io.StringReader;
 import java.io.StringWriter;
 import java.util.Map;
 
 /**
- * Handles generation of PDF
+ * Handles generating PDF files based on a FreeMarker template
  */
-@Singleton
 public class PdfService {
 
     @Inject
@@ -42,26 +38,36 @@ public class PdfService {
     @Inject
     TemplateService templateService;
 
+    @Inject
+    MsiNmApp app;
 
+    /**
+     * Generates a PDF based on the Freemarker template and streams it to the output stream
+     *
+     * @param data the data to use in the Freemarker template
+     * @param template the Freemarker template
+     * @param language the language
+     * @param bundleName the resource bundle name to load
+     * @param out the output stream
+     */
     public void generatePdf(Map<String, Object> data, String template, String language, String bundleName, OutputStream out) throws Exception {
 
+        // Looks up the PDF template
         TemplateContext ctx = templateService.getTemplateContext(TemplateType.PDF, template, data, language, bundleName);
         try {
 
+            // Process the template and clean up the resulting html
             String html = templateService.process(ctx);
             Document xhtmlContent = cleanHtml(html);
 
-            String baseUri = "http://localhost:8080";
-
+            String baseUri = app.getBaseUri();
             long t0 = System.currentTimeMillis();
             log.info("Generating PDF for " + baseUri);
 
+            // Generate PDF from the HTML
             ITextRenderer renderer = new ITextRenderer();
-            // Add font for: font-family: "Arial Unicode MS"
-            //renderer.getFontResolver().addFont("/Users/peder/Desktop/xbrt/ARIALUNI.TTF", BaseFont.IDENTITY_H, BaseFont.NOT_EMBEDDED);
             renderer.setDocument(xhtmlContent, baseUri);
             renderer.layout();
-
             renderer.createPDF(out);
 
             log.info("Completed PDF generation in " + (System.currentTimeMillis() - t0) + " ms");
@@ -74,6 +80,11 @@ public class PdfService {
 
     }
 
+    /**
+     * Use JTidy to clean up the HTML
+     * @param html the HTML to clean up
+     * @return the resulting XHTML
+     */
     public Document cleanHtml(String html) {
         Tidy tidy = new Tidy();
 

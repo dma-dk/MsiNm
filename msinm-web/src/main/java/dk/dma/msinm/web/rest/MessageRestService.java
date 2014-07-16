@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.web.rest;
 
+import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
