@@ -419,7 +419,7 @@ angular.module('msinm.map')
                         }
                     });
 
-                    // Get the KML pasted into a textarea
+                    // Parse the location text from the textarea
                     scope.modalInstance.result.then(function(result) {
                         var data = MapService.parseLocationsFromText(result);
                         if (data) {

@@ -67,6 +67,18 @@
 </head>
 <body>
 
+<#macro areaLineage area>
+    <#if area??>
+        <#if area.parent??>
+            <@areaLineage area=area.parent /> -
+        </#if>
+        <#if area.descs?has_content>${area.descs[0].name}</#if>
+    </#if>
+</#macro>
+
+<#assign formatPos = "dk.dma.msinm.templates.LatLonDirective"?new()>
+
+
 <h1>${text("title")}</h1>
 <table class="message-table">
     <#list messages as msg>
@@ -82,7 +94,9 @@
             </#if>
             <div>
                 <strong>${msg.seriesIdentifier.number?c}-${msg.seriesIdentifier.year?c}</strong>.
-                <#if msg.area.descs?has_content>${msg.area.descs[0].name} - ${msg.descs[0].title}</#if>
+                <@areaLineage area=msg.area />
+                <#if msg.descs?has_content && msg.descs[0].vicinity?has_content> - ${msg.descs[0].vicinity}</#if>
+                <#if msg.descs?has_content && msg.descs[0].title?has_content> - ${msg.descs[0].title}</#if>
             </div>
 
             <table>
@@ -133,7 +147,7 @@
                                 </#if>
                                 <#list loc.points as point>
                                     <div>
-                                        ${point.lon} ${point.lon}<#if point.descs?has_content>, ${point.descs[0].description}</#if>
+                                        <@formatPos lat=point.lat lon=point.lon /><#if point.descs?has_content>, ${point.descs[0].description}</#if>
                                     </div>
                                 </#list>
                             </#list>
