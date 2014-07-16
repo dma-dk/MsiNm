@@ -209,7 +209,7 @@ public class MessageRestService {
         MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, Integer.MAX_VALUE, 0, sortBy, sortOrder);
         MessageSearchResult result = messageSearchService.search(params);
 
-        String template = "pdf-test.ftl";
+        String template = "message-list.ftl";
         String bundle = "MessageList";
         Map<String, Object> data = new HashMap<>();
         data.put("messages", result.getMessages());
