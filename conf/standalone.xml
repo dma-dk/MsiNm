@@ -302,7 +302,7 @@
         <subsystem xmlns="urn:jboss:domain:jsf:1.0"/>
         <subsystem xmlns="urn:jboss:domain:mail:2.0">
 			<mail-session name="gmail" jndi-name="java:jboss/mail/MsiNm" from="msinm.dma@gmail.com">
-				<smtp-server ssl="true" outbound-socket-binding-ref="mail-smtp-gmail" username="msinm.dma@gmail.com" password="msinm1234"/>
+				<smtp-server outbound-socket-binding-ref="mail-smtp-msinm"/>
 			</mail-session>
             <mail-session name="default" jndi-name="java:jboss/mail/Default">
                 <smtp-server outbound-socket-binding-ref="mail-smtp"/>
@@ -506,8 +506,8 @@
         <outbound-socket-binding name="mail-smtp">
             <remote-destination host="localhost" port="25"/>
         </outbound-socket-binding>
-		<outbound-socket-binding name="mail-smtp-gmail">
-			<remote-destination host="smtp.gmail.com" port="465"/>
+		<outbound-socket-binding name="mail-smtp-msinm">
+			<remote-destination host="homer.e-navigation.net" port="25"/>
 		</outbound-socket-binding>
     </socket-binding-group>
 </server>
