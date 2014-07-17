@@ -1,3 +1,4 @@
+<%@ page import="java.util.Enumeration" %>
 <html>
 <head>
     <title>Debug</title>
@@ -21,6 +22,16 @@
         <li>Local Addr: <%= request.getLocalAddr() %></li>
         <li>Server name: <%= request.getServerName() %></li>
         <li>Server port: <%= request.getServerPort() %></li>
+        <li>Headers:<br>
+        <%
+            StringBuilder str = new StringBuilder();
+            for (Enumeration<String> it = request.getHeaderNames(); it.hasMoreElements(); ) {
+                String name = it.nextElement();
+                String value = request.getHeader(name);
+                %>&nbsp;&nbsp;&nbsp;<b><%= name %>:</b> <%= value %><br><%
+            }
+        %>
+        </li>
     </ul>
 
 </body>
