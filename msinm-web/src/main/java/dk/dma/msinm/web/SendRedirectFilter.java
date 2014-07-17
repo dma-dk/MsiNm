@@ -61,10 +61,9 @@ public class SendRedirectFilter  implements Filter {
  */
 class SendRedirectResponse extends HttpServletResponseWrapper {
 
-    public static final String HEADER_ORIGINAL_SCHEME = "originalScheme";
+    private static final String HEADER_ORIGINAL_SCHEME = "originalScheme";
 
     private HttpServletRequest request;
-    private String prefix = null;
 
     /**
      * Constructor
@@ -85,7 +84,7 @@ class SendRedirectResponse extends HttpServletResponseWrapper {
 
         // Only tamper with relative locations
         int offset = request.getRequestURL().indexOf(request.getRequestURI());
-        boolean wasHttps = "https".equalsIgnoreCase(request.getHeader("originalScheme"));
+        boolean wasHttps = "https".equalsIgnoreCase(request.getHeader(HEADER_ORIGINAL_SCHEME));
         if (!location.toLowerCase().startsWith("http") &&
                 wasHttps &&
                 offset != -1) {
