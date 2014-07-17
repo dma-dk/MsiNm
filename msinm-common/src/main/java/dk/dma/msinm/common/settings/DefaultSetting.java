@@ -24,38 +24,27 @@ public class DefaultSetting implements Setting {
 
     String settingName;
     String defaultValue;
-    Source source;
     Long cacheTimeout;
     boolean substituteSystemProperties;
 
     /**
      * Designated constructor
      */
-    public DefaultSetting(String settingName, String defaultValue, Source source, Long cacheTimeout, boolean substituteSystemProperties) {
+    public DefaultSetting(String settingName, String defaultValue, Long cacheTimeout, boolean substituteSystemProperties) {
         Objects.requireNonNull(settingName);
-        Objects.requireNonNull(source);
 
         this.settingName = settingName;
         this.defaultValue = defaultValue;
-        this.source = source;
         this.cacheTimeout = cacheTimeout;
         this.substituteSystemProperties = substituteSystemProperties;
     }
 
-    public DefaultSetting(String settingName, String defaultValue, Source source) {
-        this(settingName, defaultValue, source, null, false);
-    }
-
     public DefaultSetting(String settingName, String defaultValue) {
-        this(settingName, defaultValue, Source.DATABASE);
-    }
-
-    public DefaultSetting(String settingName, Source source) {
-        this(settingName, null, source);
+        this(settingName, defaultValue, null, false);
     }
 
     public DefaultSetting(String settingName) {
-        this(settingName, null, Source.DATABASE);
+        this(settingName, null);
     }
 
     /**
@@ -72,14 +61,6 @@ public class DefaultSetting implements Setting {
     @Override
     public String defaultValue() {
         return defaultValue;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Source getSource() {
-        return source;
     }
 
     /**

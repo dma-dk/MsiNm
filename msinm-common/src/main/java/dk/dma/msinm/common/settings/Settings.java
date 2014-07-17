@@ -34,8 +34,6 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 
-import static dk.dma.msinm.common.settings.Source.DATABASE;
-
 /**
  * Interface for accessing settings.
  * <p/>
@@ -85,24 +83,23 @@ public class Settings {
     public String get(Setting setting) {
         Objects.requireNonNull(setting, "Must specify valid setting");
 
-        // Look for a cached value
+        // If a corresponding system property is set, it takes precedence
+        if (System.getProperty(setting.getSettingName()) != null) {
+            return System.getProperty(setting.getSettingName());
+        }
+
+                // Look for a cached value
         CacheElement<String> value = settingsCache.getCache().get(setting.getSettingName());
 
         // No cached value
         if (value == null) {
-            // Either load from database or System property
-            if (setting.getSource() == DATABASE) {
-                SettingsEntity result = em.find(SettingsEntity.class, setting.getSettingName());
-                if (result == null) {
-                    result = new SettingsEntity(setting);
-                    em.persist(result);
-                }
-                value = new CacheElement<>(result.getValue());
-
-            } else {
-                // Tied to a system property
-                value = new CacheElement<>(System.getProperty(setting.getSettingName(), setting.defaultValue()));
+            SettingsEntity result = em.find(SettingsEntity.class, setting.getSettingName());
+            if (result == null) {
+                result = new SettingsEntity(setting);
+                em.persist(result);
             }
+            value = new CacheElement<>(result.getValue());
+
 
             // Cache it. NB: We cannot cache null, so use a placeholder constant
             if (setting.getCacheTimeout() == null) {
@@ -242,7 +239,7 @@ public class Settings {
                 ip.getAnnotated().getAnnotation(dk.dma.msinm.common.settings.annotation.Setting.class);
         String name = StringUtils.isBlank(ann.value()) ? ip.getMember().getName() : ann.value();
         Long cacheTimeout = ann.cacheTimeout() == -1 ? null : ann.cacheTimeout();
-        return new DefaultSetting(name, ann.defaultValue(), ann.source(), cacheTimeout, ann.substituteSystemProperties());
+        return new DefaultSetting(name, ann.defaultValue(), cacheTimeout, ann.substituteSystemProperties());
     }
 
 }

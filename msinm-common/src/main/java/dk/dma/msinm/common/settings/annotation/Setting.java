@@ -15,8 +15,6 @@
  */
 package dk.dma.msinm.common.settings.annotation;
 
-import dk.dma.msinm.common.settings.Source;
-
 import javax.enterprise.util.Nonbinding;
 import javax.inject.Qualifier;
 import java.lang.annotation.Retention;
@@ -34,7 +32,6 @@ import static java.lang.annotation.ElementType.*;
 public @interface Setting {
     @Nonbinding String value() default "";
     @Nonbinding String defaultValue() default "";
-    @Nonbinding Source source() default Source.DATABASE;
     @Nonbinding long cacheTimeout() default -1;
     @Nonbinding boolean substituteSystemProperties() default false;
 }

@@ -35,14 +35,6 @@ public interface Setting {
     }
 
     /**
-     * Returns the source
-     * @return the source
-     */
-    public default Source getSource() {
-        return Source.DATABASE;
-    }
-
-    /**
      * Returns an optional non-default cache timeout in seconds.
      * If null is returned, the default value is used.
      * @return the optional non-default cache timeout in seconds.

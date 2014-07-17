@@ -82,7 +82,7 @@ public class MsiNmApp {
      * @return the associated locale if supported, otherwise the default locale
      */
     public Locale getLocale(String lang) {
-        return new Locale(lang);
+        return new Locale(getLanguage(lang));
     }
 
     /**
