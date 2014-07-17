@@ -12,7 +12,15 @@ import java.io.IOException;
  * Response.sendRedirect() will not work properly when redirecting to a relative path.
  * Since the Servlet container receives a HTTP request, the redirect URL will be
  * using HTTP as well.
- *
+ * <p>
+ *     If, however, the port-443 VirtualHost is configured to set the header originalScheme=https,
+ *     then this filter will ensure that https is used in relative redirects.
+ * </p>
+ * <p>Example configuration:</p>
+ * <pre>
+ *     Header add originalScheme "https"
+ *     RequestHeader set originalScheme "https"
+ * </pre>
  */
 @WebFilter(urlPatterns={"/*"})
 public class SendRedirectFilter  implements Filter {
@@ -53,6 +61,8 @@ public class SendRedirectFilter  implements Filter {
  */
 class SendRedirectResponse extends HttpServletResponseWrapper {
 
+    public static final String HEADER_ORIGINAL_SCHEME = "originalScheme";
+
     private HttpServletRequest request;
     private String prefix = null;
 
@@ -75,9 +85,16 @@ class SendRedirectResponse extends HttpServletResponseWrapper {
 
         // Only tamper with relative locations
         int offset = request.getRequestURL().indexOf(request.getRequestURI());
-        if (!location.toLowerCase().startsWith("http") && offset != -1) {
+        boolean wasHttps = "https".equalsIgnoreCase(request.getHeader("originalScheme"));
+        if (!location.toLowerCase().startsWith("http") &&
+                wasHttps &&
+                offset != -1) {
             // Convert to absolute URL
             location = request.getRequestURL().substring(0, offset) + location;
+            // Change the scheme to https
+            if (location.toLowerCase().startsWith("http://")) {
+                location = "https://" + location.substring("http://".length());
+            }
         }
 
         super.sendRedirect(location);
