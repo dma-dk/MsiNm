@@ -503,4 +503,55 @@ angular.module('msinm.admin')
                 });
         }
 
+    }])
+
+
+    /**
+     * Settings Controller
+     */
+    .controller('SettingsCtrl', ['$scope', 'DialogService', 'SettingsService',
+        function ($scope, DialogService, SettingsService) {
+        'use strict';
+
+        $scope.settings = [];
+
+        $scope.loadSettings = function() {
+            SettingsService.getSettings(
+                function (data) {
+                    $scope.settings = data;
+                },
+                function () {
+                    console.log("Error fetching settings");
+                });
+        };
+
+        $scope.editSetting = function (setting) {
+            $scope.setting = angular.copy(setting);
+            $scope.settingDlg();
+        };
+
+        $scope.settingDlg = function () {
+            var modalOptions = {
+                closeButtonText: 'Cancel',
+                actionButtonText: 'Update',
+                headerText: 'Edit Setting',
+                setting: $scope.setting,
+                templateUrl: "editSetting.html"
+            };
+
+            DialogService.showDialog({}, modalOptions).then(function (result) {
+                SettingsService.updateSetting(
+                    $scope.setting,
+                    function (data) {
+                        $scope.loadSettings();
+                    },
+                    function (data) {
+                        console.error("ERROR " + data);
+                    }
+                )
+
+            });
+
+        };
+
     }]);

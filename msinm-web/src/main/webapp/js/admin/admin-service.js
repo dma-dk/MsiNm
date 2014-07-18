@@ -153,5 +153,24 @@ angular.module('msinm.admin')
                     .error(error);
             }
         };
+    }])
+
+    .factory('SettingsService', [ '$http', function($http) {
+        'use strict';
+
+        return {
+            getSettings: function(success, error) {
+                $http.get('/rest/admin/settings/all')
+                    .success(success)
+                    .error(error);
+            },
+
+            updateSetting: function(setting, success, error) {
+                $http.put('/rest/admin/settings/setting', setting)
+                    .success(success)
+                    .error(error);
+            }
+        };
     }]);
+
 

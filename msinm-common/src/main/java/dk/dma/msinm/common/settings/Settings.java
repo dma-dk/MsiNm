@@ -27,8 +27,11 @@ import javax.enterprise.inject.Produces;
 import javax.enterprise.inject.spi.InjectionPoint;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
 import java.util.concurrent.TimeUnit;
@@ -71,6 +74,38 @@ public class Settings {
         } catch (Exception e) {
             // Ignore
         }
+    }
+
+    /**
+     * Returns all settings from the database
+     * @return all settings from the database
+     */
+    public List<SettingsEntity> getAll() {
+        CriteriaBuilder cb = em.getCriteriaBuilder();
+        CriteriaQuery<SettingsEntity> cq = cb.createQuery(SettingsEntity.class);
+        cq.from(SettingsEntity.class);
+        return em.createQuery(cq).getResultList();
+    }
+
+    /**
+     * Updates the database value of the given setting
+     * @param template the setting to update
+     * @return the updated setting
+     */
+    public SettingsEntity updateSetting(SettingsEntity template) {
+        SettingsEntity setting = em.find(SettingsEntity.class, template.getKey());
+        if (setting == null) {
+            throw new IllegalArgumentException("Non-existing setting " + template.getKey());
+        }
+
+        // Update the DB
+        setting.setValue(template.getValue());
+        setting = em.merge(setting);
+
+        // Invalidate the cache
+        settingsCache.getCache().remove(setting.getKey());
+
+        return setting;
     }
 
     /**
