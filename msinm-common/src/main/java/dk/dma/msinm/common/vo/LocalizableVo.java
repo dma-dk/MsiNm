@@ -26,7 +26,7 @@ import java.util.List;
  */
 public abstract class LocalizableVo<E extends BaseEntity & ILocalizable, D extends LocalizedDescVo> extends BaseVo<E> implements ILocalizable<D> {
 
-    List<D> descs = new ArrayList<>();
+    List<D> descs;
 
     /**
      * Constructor

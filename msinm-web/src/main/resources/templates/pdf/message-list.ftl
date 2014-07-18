@@ -102,28 +102,30 @@
             <table>
 
                 <!-- Reference lines -->
-                <#list msg.references as ref>
-                <tr>
-                    <td class="field-name">
-                        <#if ref.type == 'REFERENCE'>
-                            ${text("nm.reference")}
-                        <#else>
-                            ${text("former.nm")}
-                        </#if>
-                    </td>
-                    <td class="field-value">
-                        ${ref.seriesIdentifier.number?c}-${'' + ref.seriesIdentifier.year?c}
+                <#if msg.references?has_content>
+                    <#list msg.references as ref>
+                    <tr>
+                        <td class="field-name">
+                            <#if ref.type == 'REFERENCE'>
+                                ${text("nm.reference")}
+                            <#else>
+                                ${text("former.nm")}
+                            </#if>
+                        </td>
+                        <td class="field-value">
+                            ${ref.seriesIdentifier.number?c}-${'' + ref.seriesIdentifier.year?c}
 
-                        <#if ref.type == 'REPETITION'>
-                            (${text("nm.ref.repitition")})
-                        <#elseif ref.type == 'REPETITION'>
-                            (${text("nm.ref.cancelled")})
-                        <#elseif ref.type == 'UPDATE'>
-                            (${text("nm.ref.updated")})
-                        </#if>
-                    </td>
-                </tr>
-                </#list>
+                            <#if ref.type == 'REPETITION'>
+                                (${text("nm.ref.repitition")})
+                            <#elseif ref.type == 'REPETITION'>
+                                (${text("nm.ref.cancelled")})
+                            <#elseif ref.type == 'UPDATE'>
+                                (${text("nm.ref.updated")})
+                            </#if>
+                        </td>
+                    </tr>
+                    </#list>
+                </#if>
 
 
                 <!-- Time line -->

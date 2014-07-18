@@ -15,7 +15,6 @@
  */
 package dk.dma.msinm.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
@@ -29,12 +28,11 @@ import java.util.List;
 /**
  * Value object for the {@code Area} model entity
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
 public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     Integer id;
     AreaVo parent;
-    List<LocationVo> locations = new ArrayList<>();
-    List<AreaVo> children = new ArrayList<>();
+    List<LocationVo> locations;
+    List<AreaVo> children;
 
     /**
      * Constructor
@@ -54,11 +52,11 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         id = area.getId();
 
         if (copyOp.copy("locations")) {
-            area.getLocations().forEach(loc -> locations.add(new LocationVo(loc, copyOp)));
+            area.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, copyOp)));
         }
 
         if (copyOp.copy(CopyOp.CHILDREN)) {
-            area.getChildren().forEach(child -> children.add(new AreaVo(child, copyOp)));
+            area.getChildren().forEach(child -> checkCreateChildren().add(new AreaVo(child, copyOp)));
         }
 
         if (copyOp.copy(CopyOp.PARENT) && area.getParent() != null) {
@@ -70,7 +68,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
 
         area.getDescs().stream()
             .filter(copyOp::copyLang)
-            .forEach(desc -> getDescs().add(new AreaDescVo(desc)));
+            .forEach(desc -> checkCreateDescs().add(new AreaDescVo(desc)));
     }
 
     /**
@@ -80,14 +78,42 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     public Area toEntity() {
         Area area = new Area();
         area.setId(id);
-        locations.stream()
-                .filter(loc -> loc.getPoints().size() > 0)
-                .forEach(loc -> area.getLocations().add(loc.toEntity()));
-        getDescs().stream()
-                .filter(desc -> StringUtils.isNotBlank(desc.getName()))
-                .forEach(desc -> area.getDescs().add(desc.toEntity(area)));
+        if (locations != null) {
+            locations.stream()
+                    .filter(loc -> loc.getPoints().size() > 0)
+                    .forEach(loc -> area.getLocations().add(loc.toEntity()));
+        }
+        if (getDescs() != null) {
+            getDescs().stream()
+                    .filter(desc -> StringUtils.isNotBlank(desc.getName()))
+                    .forEach(desc -> area.getDescs().add(desc.toEntity(area)));
+        }
+
         return area;
     }
+
+    /**
+     * Returns or creates the list of locations
+     * @return the list of locations
+     */
+    public List<LocationVo> checkCreateLocations() {
+        if (locations == null) {
+            locations = new ArrayList<>();
+        }
+        return locations;
+    }
+
+    /**
+     * Returns or creates the list of child areas
+     * @return the list of child areas
+     */
+    public List<AreaVo> checkCreateChildren() {
+        if (children == null) {
+            children = new ArrayList<>();
+        }
+        return children;
+    }
+
 
     public Integer getId() {
         return id;
@@ -129,7 +155,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     public AreaDescVo createDesc(String lang) {
         AreaDescVo desc = new AreaDescVo();
         desc.setLang(lang);
-        getDescs().add(desc);
+        checkCreateDescs().add(desc);
         return desc;
     }
 

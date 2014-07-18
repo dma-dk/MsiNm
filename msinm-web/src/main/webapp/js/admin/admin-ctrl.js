@@ -143,6 +143,9 @@ angular.module('msinm.admin')
                 function(data) {
                     $scope.action = "edit";
                     $scope.area = LangService.checkDescs(data, ensureNameField);
+                    if (!$scope.area.locations) {
+                        $scope.area.locations = [];
+                    }
                     $scope.editArea = angular.copy($scope.area);
                     $scope.areaForm.$setPristine();
                     if(!$scope.$$phase) {

@@ -47,31 +47,31 @@ public class LegacyImportTest {
         msg.setArea(area);
 
         CategoryVo cat = new CategoryVo();
-        msg.getCategories().add(cat);
+        msg.checkCreateCategories().add(cat);
         cat.createDesc("en").setName("Submarine power cable");
 
         LocationVo loc = new LocationVo();
-        msg.getLocations().add(loc);
+        msg.checkCreateLocations().add(loc);
         loc.setType("POLYGON");
         loc.setRadius(0);
         loc.createDesc("en").setDescription("Some location");
         PointVo pt = new PointVo();
-        loc.getPoints().add(pt);
+        loc.checkCreatePoints().add(pt);
         pt.createDesc("en").setDescription("First point");
         pt.setLon(55.12);
         pt.setLat(11.11);
         pt = new PointVo();
-        loc.getPoints().add(pt);
+        loc.checkCreatePoints().add(pt);
         pt.setLon(55.20);
         pt.setLat(11.14);
 
         ChartVo chartVo = new ChartVo();
-        msg.getCharts().add(chartVo);
+        msg.checkCreateCharts().add(chartVo);
         chartVo.setChartNumber("1423");
         chartVo.setInternationalNumber(1045);
 
         ReferenceVo ref = new ReferenceVo();
-        msg.getReferences().add(ref);
+        msg.checkCreateReferences().add(ref);
         ref.setSeriesIdentifier(id);
         ref.setType(ReferenceType.CANCELLATION);
 

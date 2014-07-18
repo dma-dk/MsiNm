@@ -15,7 +15,6 @@
  */
 package dk.dma.msinm.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Category;
@@ -28,11 +27,10 @@ import java.util.List;
 /**
  * Value object for the {@code Category} model entity
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
 public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescVo> {
     Integer id;
     CategoryVo parent;
-    List<CategoryVo> children = new ArrayList<>();
+    List<CategoryVo> children;
 
     /**
      * Constructor
@@ -52,7 +50,7 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
         id = category.getId();
 
         if (copyOp.copy(CopyOp.CHILDREN)) {
-            category.getChildren().forEach(child -> children.add(new CategoryVo(child, copyOp)));
+            category.getChildren().forEach(child -> checkCreateChildren().add(new CategoryVo(child, copyOp)));
         }
 
         if (copyOp.copy(CopyOp.PARENT) && category.getParent() != null) {
@@ -64,7 +62,7 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
 
         category.getDescs().stream()
             .filter(copyOp::copyLang)
-            .forEach(desc -> getDescs().add(new CategoryDescVo(desc)));
+            .forEach(desc -> checkCreateDescs().add(new CategoryDescVo(desc)));
     }
 
     /**
@@ -74,10 +72,23 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
     public Category toEntity() {
         Category category = new Category();
         category.setId(id);
-        getDescs().stream()
-                .filter(desc -> StringUtils.isNotBlank(desc.getName()))
-                .forEach(desc -> category.getDescs().add(desc.toEntity(category)));
+        if (getDescs() != null) {
+            getDescs().stream()
+                    .filter(desc -> StringUtils.isNotBlank(desc.getName()))
+                    .forEach(desc -> category.getDescs().add(desc.toEntity(category)));
+        }
         return category;
+    }
+
+    /**
+     * Returns or creates the list of child categories
+     * @return the list of child categories
+     */
+    public List<CategoryVo> checkCreateChildren() {
+        if (children == null) {
+            children = new ArrayList<>();
+        }
+        return children;
     }
 
     public Integer getId() {
@@ -110,7 +121,7 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
     @Override
     public CategoryDescVo createDesc(String lang) {
         CategoryDescVo desc = new CategoryDescVo();
-        getDescs().add(desc);
+        checkCreateDescs().add(desc);
         desc.setLang(lang);
         return desc;
     }

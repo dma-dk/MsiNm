@@ -18,7 +18,6 @@ package dk.dma.msinm.service;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.CategoryDesc;
 import dk.dma.msinm.vo.CategoryVo;
@@ -82,7 +81,7 @@ public class CategoryService extends BaseService {
         // Add non-roots as child categories to their parent category
         categoryLookup.values().stream()
                 .filter(categoryVo -> categoryVo.getParent() != null)
-                .forEach(categoryVo -> categoryLookup.get(categoryVo.getParent().getId()).getChildren().add(categoryVo));
+                .forEach(categoryVo -> categoryLookup.get(categoryVo.getParent().getId()).checkCreateChildren().add(categoryVo));
 
         // Return roots
         return categoryLookup.values().stream()

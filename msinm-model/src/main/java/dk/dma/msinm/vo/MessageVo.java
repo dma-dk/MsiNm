@@ -15,7 +15,6 @@
  */
 package dk.dma.msinm.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.*;
@@ -26,7 +25,6 @@ import java.util.*;
 /**
  * Value object for the {@code Message} model entity
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
 public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     Integer id;
@@ -34,15 +32,15 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     Type type;
     Status status;
     AreaVo area;
-    List<CategoryVo> categories = new ArrayList<>();
-    List<LocationVo> locations = new ArrayList<>();
-    List<ChartVo> charts = new ArrayList<>();
+    List<CategoryVo> categories;
+    List<LocationVo> locations;
+    List<ChartVo> charts;
     String horizontalDatum;
     Date validFrom;
     Date validTo;
     Date cancellationDate;
-    Set<ReferenceVo> references = new HashSet<>();
-    List<String> lightsListNumbers = new ArrayList<>();
+    Set<ReferenceVo> references;
+    List<String> lightsListNumbers;
     boolean originalInformation;
 
 
@@ -65,21 +63,23 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         seriesIdentifier = message.getSeriesIdentifier();
         type = message.getType();
         area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), copyOp);
-        message.getLocations().forEach(loc -> locations.add(new LocationVo(loc, copyOp)));
+        message.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, copyOp)));
         validFrom = message.getValidFrom();
         validTo = message.getValidTo();
         message.getDescs().stream()
                 .filter(copyOp::copyLang)
-                .forEach(desc -> getDescs().add(new MessageDescVo(desc)));
+                .forEach(desc -> checkCreateDescs().add(new MessageDescVo(desc)));
 
         if (copyOp.copy("details")) {
             status = message.getStatus();
-            message.getCategories().forEach(cat -> categories.add(new CategoryVo(cat, CopyOp.get(CopyOp.PARENT))));
-            message.getCharts().forEach(chart -> charts.add(new ChartVo(chart)));
+            message.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, CopyOp.get(CopyOp.PARENT))));
+            message.getCharts().forEach(chart -> checkCreateCharts().add(new ChartVo(chart)));
             horizontalDatum = message.getHorizontalDatum();
             cancellationDate = message.getCancellationDate();
-            message.getReferences().forEach(ref -> references.add(new ReferenceVo(ref)));
-            lightsListNumbers.addAll(message.getLightsListNumbers());
+            message.getReferences().forEach(ref -> checkCreateReferences().add(new ReferenceVo(ref)));
+            if (message.getLightsListNumbers().size() > 0) {
+                checkCreateLightsListNumbers().addAll(message.getLightsListNumbers());
+            }
             originalInformation = message.isOriginalInformation();
         }
     }
@@ -107,21 +107,33 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
                 message.setArea(msgArea);
             }
         }
-        categories.forEach(cat -> message.getCategories().add(cat.toEntity()));
-        locations.stream()
-                .filter(loc -> loc.getPoints().size() > 0)
-                .forEach(loc -> message.getLocations().add(loc.toEntity()));
-        charts.forEach(chart -> message.getCharts().add(chart.toEntity()));
+        if (categories != null) {
+            categories.forEach(cat -> message.getCategories().add(cat.toEntity()));
+        }
+        if (locations != null) {
+            locations.stream()
+                    .filter(loc -> loc.getPoints().size() > 0)
+                    .forEach(loc -> message.getLocations().add(loc.toEntity()));
+        }
+        if (charts != null) {
+            charts.forEach(chart -> message.getCharts().add(chart.toEntity()));
+        }
         message.setHorizontalDatum(horizontalDatum);
         message.setValidFrom(validFrom);
         message.setValidTo(validTo);
         message.setCancellationDate(cancellationDate);
-        references.forEach(ref -> message.getReferences().add(ref.toEntity(message)));
-        message.getLightsListNumbers().addAll(lightsListNumbers);
+        if (references != null) {
+            references.forEach(ref -> message.getReferences().add(ref.toEntity(message)));
+        }
+        if (lightsListNumbers != null) {
+            message.getLightsListNumbers().addAll(lightsListNumbers);
+        }
         message.setOriginalInformation(originalInformation);
-        getDescs().stream()
-                .filter(MessageDescVo::isDefined)
-                .forEach(desc -> message.getDescs().add(desc.toEntity(message)));
+        if (getDescs() != null) {
+            getDescs().stream()
+                    .filter(MessageDescVo::isDefined)
+                    .forEach(desc -> message.getDescs().add(desc.toEntity(message)));
+        }
         return message;
     }
 
@@ -131,9 +143,64 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     @Override
     public MessageDescVo createDesc(String lang) {
         MessageDescVo desc = new MessageDescVo();
-        getDescs().add(desc);
+        checkCreateDescs().add(desc);
         desc.setLang(lang);
         return desc;
+    }
+
+    /**
+     * Returns or creates the list of categories
+     * @return the list of categories
+     */
+    public List<CategoryVo> checkCreateCategories() {
+        if (categories == null) {
+            categories = new ArrayList<>();
+        }
+        return categories;
+    }
+
+    /**
+     * Returns or creates the list of locations
+     * @return the list of locations
+     */
+    public List<LocationVo> checkCreateLocations() {
+        if (locations == null) {
+            locations = new ArrayList<>();
+        }
+        return locations;
+    }
+
+    /**
+     * Returns or creates the list of charts
+     * @return the list of charts
+     */
+    public List<ChartVo> checkCreateCharts() {
+        if (charts == null) {
+            charts = new ArrayList<>();
+        }
+        return charts;
+    }
+
+    /**
+     * Returns or creates the list of references
+     * @return the list of references
+     */
+    public Set<ReferenceVo> checkCreateReferences() {
+        if (references == null) {
+            references = new HashSet<>();
+        }
+        return references;
+    }
+
+    /**
+     * Returns or creates the list of light numbers
+     * @return the list of light numbers
+     */
+    public List<String> checkCreateLightsListNumbers() {
+        if (lightsListNumbers == null) {
+            lightsListNumbers = new ArrayList<>();
+        }
+        return lightsListNumbers;
     }
 
     // ************ Getters and setters *************

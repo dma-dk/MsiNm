@@ -16,6 +16,7 @@
 package dk.dma.msinm.common.model;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,9 +24,28 @@ import java.util.List;
  */
 public interface ILocalizable<D extends ILocalizedDesc> {
 
+    /**
+     * Returns the list of localized descriptions
+     * @return the list of localized descriptions
+     */
     public List<D> getDescs();
 
+    /**
+     * Sets the list of localized descriptions
+     * @param descs the list of localized descriptions
+     */
     public void setDescs(List<D> descs);
+
+    /**
+     * Returns the list of localized descriptions and creates the list if necessary
+     * @return the list of localized descriptions
+     */
+    default public List<D> checkCreateDescs() {
+        if (getDescs() == null) {
+            setDescs(new ArrayList<>());
+        }
+        return getDescs();
+    }
 
     /**
      * Returns the localized description for the given language.
@@ -36,9 +56,11 @@ public interface ILocalizable<D extends ILocalizedDesc> {
      */
     @Transient
     default public D getDesc(String lang) {
-        for (D desc : getDescs()) {
-            if (desc.getLang().equalsIgnoreCase(lang)) {
-                return desc;
+        if (getDescs() != null) {
+            for (D desc : getDescs()) {
+                if (desc.getLang().equalsIgnoreCase(lang)) {
+                    return desc;
+                }
             }
         }
         return null;
@@ -62,7 +84,7 @@ public interface ILocalizable<D extends ILocalizedDesc> {
      * @return the localized description for the given language
      */
     @Transient
-    default public D getOrCreateDesc(String lang) {
+    default public D checkCreateDesc(String lang) {
         D desc = getDesc(lang);
         if (desc == null) {
             desc = createDesc(lang);
@@ -75,6 +97,8 @@ public interface ILocalizable<D extends ILocalizedDesc> {
      * @param descs the description entities to copy
      */
     default public void copyDescs(List<D> descs) {
-        descs.forEach(desc -> getOrCreateDesc(desc.getLang()).copyDesc(desc));
+        if (descs != null && descs.size() > 0) {
+            descs.forEach(desc -> checkCreateDesc(desc.getLang()).copyDesc(desc));
+        }
     }
 }

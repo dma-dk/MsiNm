@@ -58,7 +58,7 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
         index = point.getIndex();
         point.getDescs().stream()
             .filter(copyOp::copyLang)
-            .forEach(desc -> getDescs().add(new PointDescVo(desc)));
+            .forEach(desc -> checkCreateDescs().add(new PointDescVo(desc)));
     }
 
     /**
@@ -70,9 +70,11 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
         point.setLat(lat);
         point.setLon(lon);
         point.setIndex(index);
-        getDescs().stream()
-                .filter(desc -> StringUtils.isNotBlank(desc.getDescription()))
-                .forEach(desc -> point.getDescs().add(desc.toEntity(point)));
+        if (getDescs() != null) {
+            getDescs().stream()
+                    .filter(desc -> StringUtils.isNotBlank(desc.getDescription()))
+                    .forEach(desc -> point.getDescs().add(desc.toEntity(point)));
+        }
         return point;
     }
 
@@ -121,7 +123,7 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
     @Override
     public PointDescVo createDesc(String lang) {
         PointDescVo desc = new PointDescVo();
-        getDescs().add(desc);
+        checkCreateDescs().add(desc);
         desc.setLang(lang);
         return desc;
     }

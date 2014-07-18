@@ -32,7 +32,7 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
 
     String type;
     Integer radius;
-    List<PointVo> points = new ArrayList<>();
+    List<PointVo> points;
 
     /**
      * Constructor
@@ -59,10 +59,10 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
 
         type = location.getType().toString();
         radius = location.getRadius();
-        location.getPoints().forEach(point -> points.add(new PointVo(point, copyOp)));
+        location.getPoints().forEach(point -> checkCreatePoints().add(new PointVo(point, copyOp)));
         location.getDescs().stream()
                 .filter(copyOp::copyLang)
-                .forEach(desc -> getDescs().add(new LocationDescVo(desc)));
+                .forEach(desc -> checkCreateDescs().add(new LocationDescVo(desc)));
     }
 
     /**
@@ -73,13 +73,28 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
         Location location = new Location();
         location.setType(Location.LocationType.valueOf(type));
         location.setRadius(radius);
-        points.stream()
-                .filter(PointVo::isDefined)
-                .forEach(pt -> location.getPoints().add(pt.toEntity(location)));
-        getDescs().stream()
-                .filter(desc -> StringUtils.isNotBlank(desc.getDescription()))
-                .forEach(desc -> location.getDescs().add(desc.toEntity(location)));
+        if (points != null) {
+            points.stream()
+                    .filter(PointVo::isDefined)
+                    .forEach(pt -> location.getPoints().add(pt.toEntity(location)));
+        }
+        if (getDescs() != null) {
+            getDescs().stream()
+                    .filter(desc -> StringUtils.isNotBlank(desc.getDescription()))
+                    .forEach(desc -> location.getDescs().add(desc.toEntity(location)));
+        }
         return location;
+    }
+
+    /**
+     * Returns or creates the list of points
+     * @return the list of points
+     */
+    public List<PointVo> checkCreatePoints() {
+        if (points == null) {
+            points = new ArrayList<>();
+        }
+        return points;
     }
 
     public String getType() {
@@ -113,7 +128,7 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
     @Override
     public LocationDescVo createDesc(String lang) {
         LocationDescVo desc = new LocationDescVo();
-        getDescs().add(desc);
+        checkCreateDescs().add(desc);
         desc.setLang(lang);
         return desc;
     }

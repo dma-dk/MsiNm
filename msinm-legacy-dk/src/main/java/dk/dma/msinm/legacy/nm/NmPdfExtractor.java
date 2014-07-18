@@ -256,7 +256,7 @@ public class NmPdfExtractor {
      */
     private void readNotice(BufferedReader br, String line, String lang, Message notice) throws IOException {
 
-        MessageDesc desc = notice.getOrCreateDesc(lang);
+        MessageDesc desc = notice.checkCreateDesc(lang);
 
         LinePart<Line> nextLine;
         do {
@@ -412,7 +412,7 @@ public class NmPdfExtractor {
             // Update the Danish names
             area = notice.getArea();
             for (int x = areaNames.length - 1; x >= 0 && area != null; x--) {
-                area.getOrCreateDesc("en").setName(areaNames[x].trim());
+                area.checkCreateDesc("en").setName(areaNames[x].trim());
                 area = area.getParent();
             }
         }
@@ -490,7 +490,7 @@ public class NmPdfExtractor {
                     ));
                     String desc = m.group(i).trim();
                     if (StringUtils.isNotBlank(desc)) {
-                        pt.getOrCreateDesc(lang).setDescription(desc);
+                        pt.checkCreateDesc(lang).setDescription(desc);
                     }
                 } catch (ParseException e) {
                     e.printStackTrace();
