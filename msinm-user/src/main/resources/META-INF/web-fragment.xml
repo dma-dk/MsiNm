@@ -16,4 +16,24 @@
         <dispatcher>INCLUDE</dispatcher>
         <dispatcher>ERROR</dispatcher>
     </filter-mapping>
+
+    <servlet>
+        <servlet-name>OAuthLogin</servlet-name>
+        <servlet-class>dk.dma.msinm.user.security.oauth.OAuthLoginServlet</servlet-class>
+    </servlet>
+    <servlet>
+        <servlet-name>OAuthCallback</servlet-name>
+        <servlet-class>dk.dma.msinm.user.security.oauth.OAuthCallbackServlet</servlet-class>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>OAuthLogin</servlet-name>
+        <url-pattern>/oauth/login/*</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OAuthCallback</servlet-name>
+        <url-pattern>/oauth/callback/*</url-pattern>
+    </servlet-mapping>
+
+
 </web-fragment>
