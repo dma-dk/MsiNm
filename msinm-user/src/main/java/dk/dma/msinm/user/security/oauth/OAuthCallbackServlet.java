@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.util.Arrays;
 import java.util.Base64;
 
@@ -37,32 +38,45 @@ public class OAuthCallbackServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        log.info("Received callback request from " + request.getPathInfo());
-        request.getParameterMap().forEach((k,v) -> log.info("Param " + k + " = " + Arrays.asList(v)));
+        response.setContentType("text/html");
 
-        String oauthVerifier = request.getParameter("code");
-        Verifier verifier = new Verifier(oauthVerifier);
+        // Actual logic goes here.
+        PrintWriter out = response.getWriter();
+        out.println("<h1>OAuth test</h1>");
 
-        OAuthService service = new ServiceBuilder()
-                .provider(GoogleApiProvider.class)
-                .apiKey("959114872597-87n65nunkr6hm8qf3japiighcb0p15q2.apps.googleusercontent.com")
-                .apiSecret("-g_wyNtY6bQM65iIDhv-4WRl")
-                .scope("openid email")
-                .callback(app.getBaseUri() + "/oauth/callback/google")
-                .build();
 
-        //Token requestToken = (Token)request.getSession().getAttribute("googleOauthRequestToken");
-        Token accessToken = service.getAccessToken(OAuthConstants.EMPTY_TOKEN, verifier);
-        log.info("Access Granted to Google with token " + accessToken);
+        try {
+            log.info("Received callback request from " + request.getPathInfo());
+            request.getParameterMap().forEach((k,v) -> out.println("<pre>Param " + k + " = " + Arrays.asList(v) + "</pre>"));
 
-        // check
-        // https://github.com/haklop/myqapp/blob/b005df2e100f8aff7c1529097b651b1fd7ce6a4c/src/main/java/com/infoq/myqapp/controller/GoogleController.java
-        String idToken = GoogleApiProvider.getIdToken(accessToken.getRawResponse());
-        String userIdToken = idToken.split("\\.")[1];
-        log.info("Received ID token " + userIdToken);
-        log.info("Decoded " + Base64.getDecoder().decode(userIdToken));
+            String oauthVerifier = request.getParameter("code");
+            Verifier verifier = new Verifier(oauthVerifier);
 
-        response.sendRedirect("/");
+            OAuthService service = new ServiceBuilder()
+                    .provider(GoogleApiProvider.class)
+                    .apiKey("959114872597-87n65nunkr6hm8qf3japiighcb0p15q2.apps.googleusercontent.com")
+                    .apiSecret("-g_wyNtY6bQM65iIDhv-4WRl")
+                    .scope("openid email")
+                    .callback(app.getBaseUri() + "/oauth/callback/google")
+                    .build();
+
+            //Token requestToken = (Token)request.getSession().getAttribute("googleOauthRequestToken");
+            Token accessToken = service.getAccessToken(OAuthConstants.EMPTY_TOKEN, verifier);
+            out.println("<p>Access Granted to Google with token " + accessToken + "</p>");
+
+            // check
+            // https://github.com/haklop/myqapp/blob/b005df2e100f8aff7c1529097b651b1fd7ce6a4c/src/main/java/com/infoq/myqapp/controller/GoogleController.java
+            String idToken = GoogleApiProvider.getIdToken(accessToken.getRawResponse());
+            String userIdToken = idToken.split("\\.")[1];
+            out.println("<p>Received ID token " + userIdToken + "</p>");
+            out.println("<p>Decoded " + new String(Base64.getDecoder().decode(userIdToken)) + "</p>");
+        } catch (Exception e) {
+            out.println("<pre>");
+            e.printStackTrace(out);
+            out.println("</pre>");
+        }
+
+        //response.sendRedirect("/");
     }
 
 }
