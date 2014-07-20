@@ -138,9 +138,9 @@ angular.module('msinm.user')
 
         return {
 
-            authenticate: function(user, success, error) {
+            authenticate: function(payload, success, error) {
                 $http
-                    .post('/auth', user)
+                    .post('/auth', payload)
                     .success(function (data, status, headers, config) {
                         // Save the JWT token
                         Auth.login(data);

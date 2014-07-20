@@ -20,6 +20,8 @@ var app = angular.module('msinm.home', [
             templateUrl: 'partials/home/home.html'
         }).when('/resetPassword/:email/:token', {
             templateUrl: 'partials/home/home.html'
+        }).when('/auth/:authToken', {
+            templateUrl: 'partials/home/home.html'
         }).otherwise({
             redirectTo: '/'
         });

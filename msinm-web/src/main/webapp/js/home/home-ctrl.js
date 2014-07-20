@@ -2,8 +2,8 @@
  * The home controller
  */
 angular.module('msinm.common')
-    .controller('HomeCtrl', ['$scope', '$routeParams', '$modal', 'SearchService',
-        function ($scope, $routeParams, $modal, SearchService) {
+    .controller('HomeCtrl', ['$scope', '$routeParams', '$modal', 'SearchService', 'UserService',
+        function ($scope, $routeParams, $modal, SearchService, UserService) {
             'use strict';
 
             $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
@@ -11,29 +11,33 @@ angular.module('msinm.common')
             // Reset password parameters
             $scope.email = $routeParams.email;
             $scope.token = $routeParams.token;
+            $scope.authToken = $routeParams.authToken;
 
 
             $scope.init = function () {
-                // Update the list of active warnings
-                SearchService.search(
-                    '', // query
-                    'ACTIVE',
-                    '', // type
-                    '[]', // location
-                    '', // area
-                    '', // from date
-                    '', // to date
-                    100,
-                    0,
-                    'DATE',
-                    'DESC',
-                    function (data) {
-                        $scope.searchResult = data;
-                    },
-                    function () {
-                        // Ignore errors
-                    }
-                );
+
+                if (!$scope.authToken) {
+                    // Update the list of active warnings
+                    SearchService.search(
+                        '', // query
+                        'ACTIVE',
+                        '', // type
+                        '[]', // location
+                        '', // area
+                        '', // from date
+                        '', // to date
+                        100,
+                        0,
+                        'DATE',
+                        'DESC',
+                        function (data) {
+                            $scope.searchResult = data;
+                        },
+                        function () {
+                            // Ignore errors
+                        }
+                    );
+                }
 
                 // Check if a reset password has been issued
                 if ($scope.email && $scope.token) {
@@ -50,7 +54,22 @@ angular.module('msinm.common')
                             }
                         }
                     });
+                }
+
+                // Check if this is an Auth token login
+                if ($scope.authToken) {
+                    UserService.authenticate(
+                        $scope.authToken,
+                        function(data) {
+                            console.log("SUCCESS");
+                            location.href = "/";
+                        },
+                        function(data, status) {
+                            console.log("ERROR");
+                            location.href = "/";
+                        });
 
                 }
+
             };
         }]);

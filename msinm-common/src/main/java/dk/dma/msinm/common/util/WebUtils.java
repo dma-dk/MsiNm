@@ -19,6 +19,9 @@ import org.apache.commons.lang.ArrayUtils;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.BufferedReader;
+import java.io.IOException;
 
 /**
  * Web-related utility functions
@@ -83,5 +86,36 @@ public class WebUtils {
     public static String getCookieValue(HttpServletRequest request, String name) {
         Cookie c = getCookie(request, name);
         return (c == null) ? null : c.getValue();
+    }
+
+    /**
+     * Reads the body of a posted request
+     * @param request the request
+     * @return the body
+     */
+    public static String readRequestBody(HttpServletRequest request) throws IOException {
+        StringBuilder result = new StringBuilder();
+
+        String line;
+        BufferedReader reader = request.getReader();
+        while ((line = reader.readLine()) != null) {
+            result.append(line).append("\n");
+        }
+
+        return result.toString();
+    }
+
+
+    /**
+     * Add headers to the response to ensure no caching takes place
+     * @param response the response
+     * @return the response
+     */
+    public static HttpServletResponse nocache(HttpServletResponse response) {
+        response.setHeader("Cache-Control","no-cache");
+        response.setHeader("Cache-Control","no-store");
+        response.setHeader("Pragma","no-cache");
+        response.setDateHeader ("Expires", 0);
+        return response;
     }
 }

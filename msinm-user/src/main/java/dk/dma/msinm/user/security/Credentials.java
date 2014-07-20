@@ -22,6 +22,7 @@ import javax.json.JsonObject;
 import javax.json.JsonReader;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
+import java.io.StringReader;
 
 /**
  * User credentials
@@ -52,16 +53,16 @@ public class Credentials {
 
     /**
      * Attempts to parse the request JSON payload as Credentials, and returns null if it fails
-     * @param request the request
+     * @param requestBody the request
      * @return the parsed credentials or null
      */
-    public static Credentials fromRequest(HttpServletRequest request) {
+    public static Credentials fromRequest(String requestBody) {
         Credentials credentials = new Credentials();
-        try (JsonReader jsonReader = Json.createReader(request.getReader())) {
+        try (JsonReader jsonReader = Json.createReader(new StringReader(requestBody))) {
             JsonObject jsonObject = jsonReader.readObject();
             credentials.setEmail(jsonObject.getString("email"));
             credentials.setPassword(jsonObject.getString("password"));
-        } catch (IOException e) {
+        } catch (Exception e) {
             // No valid credentials
         }
         return (credentials.isValid()) ? credentials : null;

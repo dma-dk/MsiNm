@@ -44,7 +44,7 @@ public class OAuthLoginServlet extends HttpServlet {
                 .provider(GoogleApiProvider.class)
                 .apiKey("959114872597-87n65nunkr6hm8qf3japiighcb0p15q2.apps.googleusercontent.com")
                 .apiSecret("-g_wyNtY6bQM65iIDhv-4WRl")
-                .scope("openid email")
+                .scope("openid profile email")
                 .callback(app.getBaseUri() + "/oauth/callback/google")
                 .build();
 

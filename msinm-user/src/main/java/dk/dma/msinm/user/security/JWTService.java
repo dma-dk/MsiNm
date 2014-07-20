@@ -139,12 +139,24 @@ public class JWTService {
     /**
      * Generates a temporary password token. This is generated in the SecurityServletFilter
      * and used in the JbossLoginModule in the same synchronous request.
+     * The token is associated with the current thread.
+     *
      * @param prefix a prefix
      * @return the temporary password token
      */
-    public String generateTempJwtPwdToken(String prefix) {
-        String pwd = StringUtils.defaultString(prefix) + UUID.randomUUID().toString();
+    public String issueTempJwtPwdToken(String prefix) {
+        String pwd = createTempJwtPwdToken(prefix);
         THREAD_TEMP_JWT_PWD_TOKEN.set(pwd);
+        return pwd;
+    }
+
+    /**
+     * Generates a temporary password token.
+     * @param prefix a prefix
+     * @return the temporary password token
+     */
+    public String createTempJwtPwdToken(String prefix) {
+        String pwd = StringUtils.defaultString(prefix) + UUID.randomUUID().toString();
         return pwd;
     }
 

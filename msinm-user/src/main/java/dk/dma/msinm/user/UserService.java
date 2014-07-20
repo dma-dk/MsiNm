@@ -116,7 +116,18 @@ public class UserService extends BaseService {
      * @return the updated user
      */
     public User registerUser(User user) throws Exception {
-        return registerUserWithRoles(user, "user");
+        return registerUserWithRoles(user, true, "user");
+    }
+
+    /**
+     * Called when a user has logged in via OAuth and did not exist in advance.
+     * No activation email is sent.
+     *
+     * @param user the template user entity
+     * @return the updated user
+     */
+    public User registerOAuthOnlyUser(User user) throws Exception {
+        return registerUserWithRoles(user, false, "user");
     }
 
     /**
@@ -124,10 +135,11 @@ public class UserService extends BaseService {
      * Sends an activation email to the user.
      *
      * @param user the template user entity
+     * @param sendEmail whether to send activation email or not
      * @param roles the list of roles to assign the user
      * @return the updated user
      */
-    private User registerUserWithRoles(User user, String... roles) throws Exception {
+    private User registerUserWithRoles(User user, boolean sendEmail, String... roles) throws Exception {
         // Validate that the email address is not already registered
         if (findByEmail(user.getEmail()) != null) {
             throw new Exception("Email " + user.getEmail() + " is already registered");
@@ -140,18 +152,22 @@ public class UserService extends BaseService {
         }
 
         // Set a reset-password token
-        user.setResetPasswordToken(UUID.randomUUID().toString());
+        if (sendEmail) {
+            user.setResetPasswordToken(UUID.randomUUID().toString());
+        }
 
         // Persist the user
         user = saveEntity(user);
 
         // Send registration email
-        Map<String, Object> data = new HashMap<>();
-        data.put("token", user.getResetPasswordToken());
-        data.put("name", user.getName());
-        data.put("email", user.getEmail());
+        if (sendEmail) {
+            Map<String, Object> data = new HashMap<>();
+            data.put("token", user.getResetPasswordToken());
+            data.put("name", user.getName());
+            data.put("email", user.getEmail());
 
-        sendEmail(data, "user-activation.ftl", "user.registration.subject", user);
+            sendEmail(data, "user-activation.ftl", "user.registration.subject", user);
+        }
 
         return user;
     }
@@ -169,7 +185,7 @@ public class UserService extends BaseService {
 
         if (existnigUser == null) {
             // Create a new user
-            existnigUser = registerUserWithRoles(user, roles);
+            existnigUser = registerUserWithRoles(user, true, roles);
 
         } else {
 

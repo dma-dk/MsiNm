@@ -18,13 +18,19 @@ package dk.dma.msinm.user.security;
 
 import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.common.util.WebUtils;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.servlet.annotation.WebFilter;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -56,6 +62,9 @@ public class SecurityServletFilter implements Filter {
 
     @Inject
     private JWTService jwtService;
+
+    @Inject
+    private AuthCache authCache;
 
     @Inject
     private UserService userService;
@@ -110,9 +119,9 @@ public class SecurityServletFilter implements Filter {
             // Handle JWT
             if (securityConf.supportsJwtAuth()) {
 
-                // Check if the request is a user-pwd login attempt
+                // Check if the request is a user-pwd or auth token login attempt
                 if (securityConf.isJwtAuthEndpoint(request)) {
-                    handleJwtUserPasswordAuth(request, response);
+                    handleJwtUserCredentialsOrAuthTokenLogin(request, response);
                     return;
                 }
 
@@ -196,7 +205,7 @@ public class SecurityServletFilter implements Filter {
 
                 // Before logging in, generate a one-time password token tied to the current thread.
                 // This is verified in the JbossLoginModule
-                String tempPwd = jwtService.generateTempJwtPwdToken(JbossLoginModule.BEARER_TOKEN_LOGIN);
+                String tempPwd = jwtService.issueTempJwtPwdToken(JbossLoginModule.BEARER_TOKEN_LOGIN);
                 request = SecurityUtils.login(userService, request, jwtInfo.getSubject(), tempPwd);
                 log.trace("Found JWT user " + request.getUserPrincipal().getName());
 
@@ -218,15 +227,23 @@ public class SecurityServletFilter implements Filter {
     }
 
     /**
-     * Checks if the request is an attempt to perform user-password authentication
+     * Checks if the request is an attempt to perform user-password or Auth token authentication.
+     * <p></p>
+     * For user-password login attempts, the request payload will be a JSON credential object.
+     * <p></p>
+     * For auth token login attempts, the request payload will be the token itself. The token
+     * must have an "auth_" prefix, and the associated JWT token must be found in the AuthCache.
      *
      * @param request the servlet request
      * @param response the servlet response
      * @return the request
      */
-    public HttpServletRequest handleJwtUserPasswordAuth(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    public HttpServletRequest handleJwtUserCredentialsOrAuthTokenLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        Credentials credentials = Credentials.fromRequest(request);
+        String requestBody = WebUtils.readRequestBody(request);
+
+        // Check if this is a user credential login attempt
+        Credentials credentials = Credentials.fromRequest(requestBody);
         if (credentials != null) {
             log.info("Logging in with email " + credentials.getEmail());
 
@@ -235,12 +252,25 @@ public class SecurityServletFilter implements Filter {
                 request = SecurityUtils.login(userService, request, credentials.getEmail(), credentials.getPassword());
 
                 JWTToken jwt = jwtService.createSignedJWT(getJwtIssuer(request), (User) request.getUserPrincipal());
-                response.setContentType("application/json");
-                response.setHeader("Cache-Control", "no-cache") ;
-                response.setHeader("Expires", "0") ;
+                WebUtils.nocache(response).setContentType("application/json");
                 response.getWriter().write(jwt.toJson());
                 auditor.info("User %s logged in. Issued token %s", credentials.getEmail(), jwt.getToken());
                 return request;
+            } catch (Exception ex) {
+            }
+
+        } else {
+            // Check if this is an auth token login attempt
+            try {
+                String token = requestBody.trim();
+                if (token.startsWith(AuthCache.AUTH_TOKEN_PREFIX) && authCache.getCache().containsKey(token)) {
+                    // The tokens are one-off. Remove it as we read it
+                    JWTToken jwt = authCache.getCache().remove(token);
+                    WebUtils.nocache(response).setContentType("application/json");
+                    response.getWriter().write(jwt.toJson());
+                    auditor.info("User %s logged in via auth token. Issued token %s", jwt.getEmail(), jwt.getToken());
+                    return request;
+                }
             } catch (Exception ex) {
             }
         }
