@@ -86,7 +86,9 @@ public class OAuthCallbackServlet extends HttpServlet {
             try (JsonReader jsonReader = Json.createReader(new StringReader(profile))) {
                 JsonObject json = jsonReader.readObject();
 
-                String email = json.getString("email");
+                String email = json.containsKey("email") ? json.getString("email") : null;
+                String firstName = json.containsKey("given_name") ? json.getString("given_name") : null;
+                String lastName = json.containsKey("family_name") ? json.getString("family_name") : null;
                 if (StringUtils.isBlank(email)) {
                     throw new Exception("No email found in OAuth token");
                 }
@@ -97,8 +99,8 @@ public class OAuthCallbackServlet extends HttpServlet {
                     user = new User();
                     user.setEmail(email);
                     user.setLanguage("en");
-                    user.setFirstName("N/A");
-                    user.setLastName("N/A");
+                    user.setFirstName(firstName);
+                    user.setLastName(StringUtils.isBlank(lastName) ? email : lastName);
                     user = userService.registerOAuthOnlyUser(user);
                 }
 
