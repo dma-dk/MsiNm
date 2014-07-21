@@ -15,7 +15,9 @@
  */
 package dk.dma.msinm.common;
 
-import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.common.settings.DefaultSetting;
+import dk.dma.msinm.common.settings.Setting;
+import dk.dma.msinm.common.settings.Settings;
 
 import javax.ejb.DependsOn;
 import javax.ejb.Lock;
@@ -32,24 +34,20 @@ import java.util.Locale;
 @DependsOn("Settings")
 public class MsiNmApp {
 
-    @Inject
-    @Setting(value = "languages", defaultValue = "en")
-    String[] languages;
+    private final static Setting LANGUAGES      = new DefaultSetting("languages", "en");
+    private final static Setting ORGANIZATION   = new DefaultSetting("organization", "N/A");
+    private final static Setting BASE_URI       = new DefaultSetting("baseUri", "http://localhost:8080");
 
     @Inject
-    @Setting(value = "organization", defaultValue = "N/A")
-    String organization;
-
-    @Inject
-    @Setting(value = "baseUri", defaultValue = "http://localhost:8080")
-    String baseUri;
+    Settings settings;
 
     /**
      * Returns the list of languages supported by the MSI-NM application
      * @return the list of languages supported by the MSI-NM application
      */
     public String[] getLanguages() {
-        return (languages == null || languages.length == 0) ? new String[] { "en" } : languages;
+        String[] languages = settings.getArray(LANGUAGES);
+        return (languages == null || languages.length == 0) ? new String[]{"en"} : languages;
     }
 
     /**
@@ -90,7 +88,7 @@ public class MsiNmApp {
      * @return the organization running the MSI-NM system
      */
     public String getOrganization() {
-        return organization;
+        return settings.get(ORGANIZATION);
     }
 
     /**
@@ -98,6 +96,6 @@ public class MsiNmApp {
      * @return the base URI used to access this application
      */
     public String getBaseUri() {
-        return baseUri;
+        return settings.get(BASE_URI);
     }
 }
