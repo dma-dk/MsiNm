@@ -50,7 +50,7 @@
                         <a ng-click="zoomToLocation(loc)"><i class="glyphicon glyphicon-arrow-right" style="cursor: pointer;"></i></a>
                     </td>
                     <td align="right">
-                        <a ng-click="deleteLocation(loc)"><i class="glyphicon glyphicon-minus-sign"></i></a>
+                        <a ng-click="deleteLocation(loc)"><i class="glyphicon glyphicon-minus-sign red"></i></a>
                         <a ng-if="editDescs" ng-click="toggleShowDesc(loc)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
@@ -78,7 +78,7 @@
                     <td><input latitude type="text" ng-model="pt.lat"  placeholder="Latitude" required></td>
                     <td><input longitude type="text" ng-model="pt.lon" placeholder="Longitude" required></td>
                     <td align="right">
-                        <a ng-click="deletePoint(loc, pt)" ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'"><i class="glyphicon glyphicon-minus-sign"></i></a>
+                        <a ng-click="deletePoint(loc, pt)" ng-if="loc.type == 'POLYGON' || loc.type == 'POLYLINE'"><i class="glyphicon glyphicon-minus-sign red"></i></a>
                         <a ng-if="editDescs" ng-click="toggleShowDesc(pt)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
@@ -97,7 +97,7 @@
                     <td><input latitude type="text" ng-model="loc.newPt.lat" placeholder="Latitude"></td>
                     <td><input longitude type="text" ng-model="loc.newPt.lon" placeholder="Longitude"></td>
                     <td align="right">
-                        <a ng-click="addPoint(loc, loc.newPt)"><i class="glyphicon glyphicon-plus-sign"></i></a>
+                        <a ng-click="addPoint(loc, loc.newPt)"><i class="glyphicon glyphicon-plus-sign green"></i></a>
                         <a ng-if="editDescs" ng-click="toggleShowDesc(loc.newPt)"><i class="glyphicon glyphicon-info-sign"></i></a>
                     </td>
                 </tr>
