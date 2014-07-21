@@ -34,7 +34,7 @@ import java.util.List;
 @Cacheable
 @NamedQueries({
         @NamedQuery(name="User.findByEmail",
-                query="SELECT u FROM User u left join fetch u.roles where u.email = :email",
+                query="SELECT u FROM User u left join fetch u.roles where lower(u.email) = lower(:email)",
                 hints=@QueryHint(name="org.hibernate.cacheable",value="true")),
         @NamedQuery(name="User.findById",
                 query="SELECT u FROM User u left join fetch u.roles where u.id = :id",
