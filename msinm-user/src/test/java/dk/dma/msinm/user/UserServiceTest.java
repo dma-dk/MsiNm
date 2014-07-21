@@ -35,7 +35,6 @@ import org.junit.runner.RunWith;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
-import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -56,7 +55,7 @@ public class UserServiceTest extends MsiNmUnitTest {
     @BeforeClass
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {
         prepareEntityManagerFactory(
-                SequenceEntity.class, SettingsEntity.class, User.class, Role.class
+                SequenceEntity.class, SettingsEntity.class
         );
     }
 

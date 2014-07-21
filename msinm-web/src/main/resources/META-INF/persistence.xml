@@ -12,12 +12,21 @@
         <jar-file>lib/${msinm-model.jar}</jar-file>
         <jar-file>lib/${msinm-user.jar}</jar-file>
 
+        <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+
         <properties>
             <!--property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/-->
             <property name="hibernate.hbm2ddl.auto" value="update"/>
+
             <property name="hibernate.show_sql" value="false"/>
             <property name="hibernate.format_sql" value="false"/>
+
+            <!-- caching -->
+            <property name="hibernate.cache.use_second_level_cache" value="true"/>
+            <property name="hibernate.cache.use_query_cache" value="true"/>
+            <property name="hibernate.cache.infinispan.cachemanager" value="java:jboss/infinispan/container/hibernate"/>
+
             <property name="javax.persistence.schema-generation.create-source" value="metadata"/>
             <property name="javax.persistence.schema-generation.drop-source" value="metadata"/>
             <property name="javax.persistence.sql-load-script-source" value="META-INF/load.sql"/>

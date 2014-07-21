@@ -59,9 +59,11 @@ public class UserService extends BaseService {
      */
     public User findById(Integer id) {
         try {
-            return em.createNamedQuery("User.findById", User.class)
+            User user = em.createNamedQuery("User.findById", User.class)
                     .setParameter("id", id)
                     .getSingleResult();
+            user.preload();
+            return user;
         } catch (Exception e) {
             return null;
         }
@@ -75,9 +77,11 @@ public class UserService extends BaseService {
      */
     public User findByEmail(String email) {
         try {
-            return em.createNamedQuery("User.findByEmail", User.class)
+            User user = em.createNamedQuery("User.findByEmail", User.class)
                     .setParameter("email", email)
                     .getSingleResult();
+            user.preload();
+            return user;
         } catch (Exception e) {
             return null;
         }

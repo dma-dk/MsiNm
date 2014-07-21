@@ -15,8 +15,11 @@
  */
 package dk.dma.msinm.user;
 
+import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
 import org.apache.commons.lang.StringUtils;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -28,13 +31,16 @@ import java.util.List;
  * Implementation of a user entity
  */
 @Entity
+@Cacheable
 @NamedQueries({
         @NamedQuery(name="User.findByEmail",
-                query="SELECT u FROM User u left join fetch u.roles where u.email = :email"),
+                query="SELECT u FROM User u left join fetch u.roles where u.email = :email",
+                hints=@QueryHint(name="org.hibernate.cacheable",value="true")),
         @NamedQuery(name="User.findById",
-                query="SELECT u FROM User u left join fetch u.roles where u.id = :id")
+                query="SELECT u FROM User u left join fetch u.roles where u.id = :id",
+                hints=@QueryHint(name="org.hibernate.cacheable",value="true"))
 })
-public class User extends VersionedEntity<Integer> implements Principal {
+public class User extends VersionedEntity<Integer> implements Principal, IPreloadable {
 
     @Column(name="email", unique=true)
     private String email;
@@ -57,6 +63,7 @@ public class User extends VersionedEntity<Integer> implements Principal {
     String vesselName;
 
     @NotNull
+    @Cache(usage = CacheConcurrencyStrategy.TRANSACTIONAL)
     @ManyToMany(fetch= FetchType.LAZY, cascade = {CascadeType.PERSIST})
     List<Role> roles = new ArrayList<>();
 
@@ -181,5 +188,13 @@ public class User extends VersionedEntity<Integer> implements Principal {
      */
     public boolean hasPassword() {
         return (password != null && password.isDefined());
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void preload() {
+        getRoles().forEach(r -> {});
     }
 }
