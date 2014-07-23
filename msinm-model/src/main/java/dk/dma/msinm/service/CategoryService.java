@@ -274,4 +274,36 @@ public class CategoryService extends BaseService {
     }
 
 
+    /**
+     * Ensures that the template category and it's parents exists
+     * @param templateCategory the template category
+     * @return the category
+     */
+    public Category findOrCreateCategory(Category templateCategory) {
+        // Sanity checks
+        if (templateCategory == null || templateCategory.getDescs().size() == 0) {
+            return null;
+        }
+
+        // Recursively, resolve the parent categories
+        Category parent = null;
+        if (templateCategory.getParent() != null) {
+            parent = findOrCreateCategory(templateCategory.getParent());
+        }
+        Integer parentId = (parent == null) ? null : parent.getId();
+
+        // Check if we can find the given category
+        Category category = null;
+        for (int x = 0; category == null && x < templateCategory.getDescs().size(); x++) {
+            CategoryDesc desc = templateCategory.getDescs().get(x);
+            category = findByName(desc.getName(), desc.getLang(), parentId);
+        }
+
+        // Create the category if no matching category was found
+        if (category == null) {
+            category = createCategory(templateCategory, parentId);
+        }
+        return category;
+    }
+
 }

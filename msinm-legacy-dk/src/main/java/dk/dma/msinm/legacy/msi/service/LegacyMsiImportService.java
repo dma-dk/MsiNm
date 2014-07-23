@@ -185,7 +185,6 @@ public class LegacyMsiImportService extends BaseService {
     private List<LegacyMessage> importMsi(List<Integer> ids, Connection conn, List<LegacyMessage> result) {
         log.info("Start importing at most " + LIMIT + " legacy MSI warnings from local DB");
         long t0 = System.currentTimeMillis();
-        int count = 0;
 
         Statement stmt = null;
         try {
@@ -236,7 +235,7 @@ public class LegacyMsiImportService extends BaseService {
                 }
 
                 if (legacyMessage != null && !legacyMessage.getLegacyId().equals(id)) {
-                    saveMessage(legacyMessage, count++);
+                    legacyMessageService.saveLegacyMessage(legacyMessage);
                     legacyMessage = null;
                 }
 
@@ -326,15 +325,15 @@ public class LegacyMsiImportService extends BaseService {
                     }
 
                     // Areas
-                    Area area = legacyMessageService.findOrCreateArea(area1En, area1Da, null);
-                    area = legacyMessageService.findOrCreateArea(area2En, area2Da, area);
+                    Area area = createAreaTemplate(area1En, area1Da, null);
+                    area = createAreaTemplate(area2En, area2Da, area);
                     message.setArea(area);
 
                     // Categories
-                    Category category = legacyMessageService.findOrCreateCategory(category1En, category1Da, null);
-                    category = legacyMessageService.findOrCreateCategory(category2En, category2Da, category);
+                    message.getCategories().clear();
+                    Category category = createCategoryTemplate(category1En, category1Da, null);
+                    category = createCategoryTemplate(category2En, category2Da, category);
                     if (category != null) {
-                        message.getCategories().clear();
                         message.getCategories().add(category);
                     }
 
@@ -369,7 +368,7 @@ public class LegacyMsiImportService extends BaseService {
             }
 
             if (legacyMessage != null) {
-                saveMessage(legacyMessage, count++);
+                legacyMessageService.saveLegacyMessage(legacyMessage);
             }
 
             log.info(String.format("Import completed in %d ms", System.currentTimeMillis() - t0));
@@ -387,26 +386,52 @@ public class LegacyMsiImportService extends BaseService {
         return result;
     }
 
+    /**
+     * Creates an Area template based on the given Danish and English name
+     * and optionally a parent Area
+     * @param nameEn English name
+     * @param nameDa Danish name
+     * @param parent parent area
+     * @return the Area template, or null if the names are empty
+     */
+    public Area createAreaTemplate(String nameEn, String nameDa, Area parent) {
+        Area area = null;
+        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
+            area = new Area();
+            if (StringUtils.isNotBlank(nameEn)) {
+                area.createDesc("en").setName(nameEn);
+            }
+            if (StringUtils.isNotBlank(nameDa)) {
+                area.createDesc("da").setName(nameDa);
+            }
+            area.setParent(parent);
+        }
+        return area;
+    }
 
     /**
-     * Persists the legacy message
-     * @param legacyMsg the legacy message to persist
-     * @param count the message index
+     * Creates an Category template based on the given Danish and English name
+     * and optionally a parent Category
+     * @param nameEn English name
+     * @param nameDa Danish name
+     * @param parent parent area
+     * @return the Category template, or null if the names are empty
      */
-    private void saveMessage(LegacyMessage legacyMsg, int count) {
-        try {
-            // Check the location to make it valid
-            Location loc = legacyMsg.getMessage().getLocations().get(0);
-            if (loc != null && loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() < 3) {
-                loc.setType(Location.LocationType.POLYLINE);
+    public Category createCategoryTemplate(String nameEn, String nameDa, Category parent) {
+        Category category = null;
+        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
+            category = new Category();
+            if (StringUtils.isNotBlank(nameEn)) {
+                category.createDesc("en").setName(nameEn);
             }
-
-            legacyMessageService.saveLegacyMessage(legacyMsg);
-            log.info("Saved message " + count);
-        } catch (Exception ex) {
-            log.error("Failed persisting message " + legacyMsg, ex);
+            if (StringUtils.isNotBlank(nameDa)) {
+                category.createDesc("da").setName(nameDa);
+            }
+            category.setParent(parent);
         }
+        return category;
     }
+
 
     private String getString(ResultSet rs, String key) throws SQLException {
         String val = rs.getString(key);

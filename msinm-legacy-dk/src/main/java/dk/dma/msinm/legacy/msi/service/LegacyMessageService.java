@@ -19,12 +19,11 @@ import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
-import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.CategoryService;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
@@ -54,29 +53,6 @@ public class LegacyMessageService extends BaseService {
     CategoryService categoryService;
 
     /**
-     * Saves the legacy message in a new transaction
-     * @param legacyMessage the legacy message to save
-     * @return the result
-     */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public LegacyMessage saveLegacyMessage(LegacyMessage legacyMessage) {
-
-        // We don't want to pass detached entities to persist. Refresh area and category
-        Message message = legacyMessage.getMessage();
-
-        Area area = getByPrimaryKey(Area.class, message.getArea().getId());
-        message.setArea(area);
-
-        if (message.getCategories().size() > 0) {
-            Category category = getByPrimaryKey(Category.class, message.getCategories().get(0).getId());
-            message.getCategories().clear();
-            message.getCategories().add(category);
-        }
-
-        return saveEntity(legacyMessage);
-    }
-
-    /**
      * Looks for a LegacyMessage with the given id. Returns null if not found
      * @param legacyId the id of the LegacyMessage to search for
      * @return the LegacyMessage or null
@@ -95,67 +71,40 @@ public class LegacyMessageService extends BaseService {
     }
 
     /**
-     * Looks up or creates an Area with the given name under the given parent Area
-     * @param nameEn the english name
-     * @param nameDa the Danish name
-     * @param parent the parent Area
-     * @return the Area
+     * Saves the legacy message in a new transaction
+     * @param legacyMessage the legacy message to save
+     * @return the result
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Area findOrCreateArea(String nameEn, String nameDa, Area parent) {
-        Integer parentId = (parent == null) ? null : parent.getId();
+    public LegacyMessage saveLegacyMessage(LegacyMessage legacyMessage) {
 
-        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
-            Area area = areaService.findByName(nameEn, "en", parentId);
-            if (area == null) {
-                area = areaService.findByName(nameDa, "da", parentId);
+        try {
+            Message message = legacyMessage.getMessage();
+
+            // Check the location to make it valid
+            Location loc = message.getLocations().get(0);
+            if (loc != null && loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() < 3) {
+                loc.setType(Location.LocationType.POLYLINE);
             }
-            if (area == null) {
-                area = new Area();
-                if (StringUtils.isNotBlank(nameEn)) {
-                    area.createDesc("en").setName(nameEn);
+
+            // Substitute the template area with a persisted one
+            message.setArea(areaService.findOrCreateArea(message.getArea()));
+
+            // Substitute the template category with a persisted one
+            if (!message.getCategories().isEmpty()) {
+                Category category = categoryService.findOrCreateCategory(message.getCategories().get(0));
+                message.getCategories().clear();
+                if (category != null) {
+                    message.getCategories().add(category);
                 }
-                if (StringUtils.isNotBlank(nameDa)) {
-                    area.createDesc("da").setName(nameDa);
-                }
-                area = areaService.createArea(area, parentId);
-                log.info("Created area " + area);
             }
-            return area;
+
+            legacyMessage = saveEntity(legacyMessage);
+            log.info("Persisted legacy message " + legacyMessage);
+        } catch (Exception e) {
+            log.error("Error importing legacy message " + legacyMessage.getLegacyId(), e);
         }
-        return parent;
+
+        return legacyMessage;
     }
-
-    /**
-     * Looks up or creates a Category with the given name under the given parent Category
-     * @param nameEn the english name
-     * @param nameDa the Danish name
-     * @param parent the parent Category
-     * @return the Category
-     */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public Category findOrCreateCategory(String nameEn, String nameDa, Category parent) {
-        Integer parentId = (parent == null) ? null : parent.getId();
-
-        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
-            Category category = categoryService.findByName(nameEn, "en", parentId);
-            if (category == null) {
-                category = categoryService.findByName(nameDa, "da", parentId);
-            }
-            if (category == null) {
-                category = new Category();
-                if (StringUtils.isNotBlank(nameEn)) {
-                    category.createDesc("en").setName(nameEn);
-                }
-                if (StringUtils.isNotBlank(nameDa)) {
-                    category.createDesc("da").setName(nameDa);
-                }
-                category = categoryService.createCategory(category, parentId);
-                log.info("Created category " + category);
-            }
-            return category;
-        }
-        return parent;
-    }
-
 }

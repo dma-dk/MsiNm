@@ -305,5 +305,36 @@ public class AreaService extends BaseService {
         return result.size() > 0 ? result.get(0) : null;
     }
 
+    /**
+     * Ensures that the template area and it's parents exists
+     * @param templateArea the template area
+     * @return the area
+     */
+    public Area findOrCreateArea(Area templateArea) {
+        // Sanity checks
+        if (templateArea == null || templateArea.getDescs().size() == 0) {
+            return null;
+        }
+
+        // Recursively, resolve the parent areas
+        Area parent = null;
+        if (templateArea.getParent() != null) {
+            parent = findOrCreateArea(templateArea.getParent());
+        }
+        Integer parentId = (parent == null) ? null : parent.getId();
+
+        // Check if we can find the given area
+        Area area = null;
+        for (int x = 0; area == null && x < templateArea.getDescs().size(); x++) {
+            AreaDesc desc = templateArea.getDescs().get(x);
+            area = findByName(desc.getName(), desc.getLang(), parentId);
+        }
+
+        // Create the area if no matching area was found
+        if (area == null) {
+            area = createArea(templateArea, parentId);
+        }
+        return area;
+    }
 
 }

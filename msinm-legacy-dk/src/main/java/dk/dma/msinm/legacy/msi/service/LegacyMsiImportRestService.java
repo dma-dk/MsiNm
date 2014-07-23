@@ -82,6 +82,10 @@ public class LegacyMsiImportRestService {
         return getLegacyMsiImportType().name();
     }
 
+    /**
+     * Updates the legacy import type
+     * @param type the legacy import type
+     */
     @PUT
     @Path("/import-type")
     @RolesAllowed({ "admin" })
