@@ -39,11 +39,11 @@ import javax.inject.Inject;
 import javax.persistence.EntityManager;
 
 /**
- * Tests the {@linkplain dk.dma.msinm.legacy.msi.service.LegacyMsiImportService} class
+ * Tests the {@linkplain LegacyMsiImportRestService} class
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, SqlProducer.class, LegacyMsiImportService.class, LegacyMessageService.class, Settings.class,
+        TestDatabaseConfiguration.class, SqlProducer.class, LegacyMsiImportRestService.class, LegacyMessageService.class, Settings.class,
         Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class, MsiNmApp.class
 })
 public class LegacyMsiServiceTest extends MsiNmUnitTest
@@ -53,7 +53,7 @@ public class LegacyMsiServiceTest extends MsiNmUnitTest
     Logger log;
 
     @Inject
-    LegacyMsiImportService msiService;
+    LegacyMsiImportRestService msiService;
 
     @BeforeClass
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {

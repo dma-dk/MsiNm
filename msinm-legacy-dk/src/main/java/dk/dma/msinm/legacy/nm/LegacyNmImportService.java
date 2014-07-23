@@ -103,7 +103,6 @@ public class LegacyNmImportService {
      * @param templateArea the template area
      * @return the area
      */
-    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     private Area findOrCreateArea(Area templateArea) {
         Area parent = null;
         if (templateArea.getParent() != null) {
@@ -123,7 +122,6 @@ public class LegacyNmImportService {
      * @param templateCharts the template charts
      * @return the actual charts
      */
-    //@TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     private List<Chart> findOrCreateCharts(List<Chart> templateCharts) {
         List<Chart> result = new ArrayList<>();
         templateCharts.forEach(templateChart -> {

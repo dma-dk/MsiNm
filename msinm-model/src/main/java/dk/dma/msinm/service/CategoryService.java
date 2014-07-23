@@ -26,15 +26,8 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Path;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -129,7 +122,6 @@ public class CategoryService extends BaseService {
      * @param parentId the id of the parent category
      * @return the created category
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Category createCategory(Category category, Integer parentId) {
 
         if (parentId != null) {
@@ -154,7 +146,6 @@ public class CategoryService extends BaseService {
      * @param parentId the id of the parent category
      * @return the updated category
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Category moveCategory(Integer categoryId, Integer parentId) {
         Category category = getByPrimaryKey(Category.class, categoryId);
 
@@ -183,7 +174,6 @@ public class CategoryService extends BaseService {
     /**
      * Update lineages for all categories
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public void updateLineages() {
 
         log.info("Update category lineages");

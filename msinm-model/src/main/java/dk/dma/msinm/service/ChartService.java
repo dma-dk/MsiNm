@@ -20,8 +20,6 @@ import dk.dma.msinm.model.Chart;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
-import javax.ejb.TransactionAttribute;
-import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.util.List;
 
@@ -79,7 +77,6 @@ public class ChartService extends BaseService {
      * @param chart the chart to create
      * @return the created chart
      */
-    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Chart createChart(Chart chart) {
 
         return saveEntity(chart);

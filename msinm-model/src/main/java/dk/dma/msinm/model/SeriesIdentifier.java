@@ -15,10 +15,7 @@
  */
 package dk.dma.msinm.model;
 
-import javax.persistence.Embeddable;
-import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.persistence.UniqueConstraint;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
@@ -32,6 +29,7 @@ public class SeriesIdentifier implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     private SeriesIdType mainType;
 
     @NotNull
