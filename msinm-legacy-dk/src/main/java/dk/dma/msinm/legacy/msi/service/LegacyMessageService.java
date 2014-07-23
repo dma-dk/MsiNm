@@ -71,6 +71,71 @@ public class LegacyMessageService extends BaseService {
     }
 
     /**
+     * Looks for a LegacyMessages with the given message id. Returns the latest version if present.
+     * @param legacyMessageId the id of the LegacyMessage to search for
+     * @return the latest LegacyMessages matching the message id
+     */
+    public LegacyMessage findLatestByLegacyMessageId(Integer legacyMessageId) {
+        if (legacyMessageId == null) {
+            return null;
+        }
+
+        // Look up a  matching LegacyMessage - NB: Ordered descending by version number
+        try {
+            return em
+                    .createNamedQuery("LegacyMessage.findByLegacyMessageId", LegacyMessage.class)
+                    .setParameter("legacyMessageId", legacyMessageId)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Initializes a LegacyMessage to be used for the given id, message id and version.
+     * <p></p>
+     * If the message should be skipped, null is returned instead.
+     *
+     * @param legacyId the id of the LegacyMessage
+     * @param legacyMessageId the id of the LegacyMessage. May be null.
+     * @param version the version of the legacy message
+     *
+     * @return the legacy message to update, or null if it should be skipped
+     */
+    public LegacyMessage initLegacyMessage(Integer legacyId, Integer legacyMessageId, Integer version) {
+
+        // Look for an existing legacy message with the same id
+        LegacyMessage legacyMessage = findByLegacyId(legacyId);
+
+        if (legacyMessage != null && legacyMessage.getVersion() >= version) {
+            // We already have a newer version. Skip this version
+            return null;
+        }
+
+        // Check if there are any legacy messages with the same messge id
+        if (legacyMessage == null && legacyMessageId != null) {
+            legacyMessage = findLatestByLegacyMessageId(legacyMessageId);
+            if (legacyMessage != null && legacyMessage.getVersion() >= version) {
+                // We already have a newer version for this message id. Skip this version
+                return null;
+            }
+        }
+
+        // If no matching legacy message is found, create a new one
+        if (legacyMessage == null) {
+            legacyMessage = new LegacyMessage();
+            legacyMessage.setMessage(new Message());
+
+        } else {
+            // Pre-load the message and detach it from the entity manager
+            legacyMessage.getMessage().preload();
+            em.detach(legacyMessage);
+        }
+
+        return legacyMessage;
+    }
+
+    /**
      * Saves the legacy message in a new transaction
      * @param legacyMessage the legacy message to save
      * @return the result
@@ -82,9 +147,11 @@ public class LegacyMessageService extends BaseService {
             Message message = legacyMessage.getMessage();
 
             // Check the location to make it valid
-            Location loc = message.getLocations().get(0);
-            if (loc != null && loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() < 3) {
-                loc.setType(Location.LocationType.POLYLINE);
+            if (message.getLocations().size() > 0) {
+                Location loc = message.getLocations().get(0);
+                if (loc != null && loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() < 3) {
+                    loc.setType(Location.LocationType.POLYLINE);
+                }
             }
 
             // Substitute the template area with a persisted one

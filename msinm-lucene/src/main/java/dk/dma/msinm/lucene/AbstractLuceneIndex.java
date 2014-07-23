@@ -250,7 +250,7 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
         Date lastUpdated = getLastUpdated();
 
         long t0 = System.currentTimeMillis();
-        log.info(String.format("Indexing at most %d changed entities since %s", maxIndexCount, lastUpdated));
+        log.debug(String.format("Indexing at most %d changed entities since %s", maxIndexCount, lastUpdated));
 
         IndexWriter writer = null;
         try {

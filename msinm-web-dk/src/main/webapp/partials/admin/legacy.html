@@ -14,18 +14,39 @@
         <h1 class="page-header">Legacy Integration</h1>
 
         <div class="row">
-            <div class="col-sm-5">
+            <div class="col-sm-5" ng-controller="LegacyCtrl" ng-init="loadMsiImportStatus()">
                 <h2>MSI</h2>
                 <p>
                     You can import all legacy MSI, only the active MSI, or no MSI at all.
                 </p>
-                <div class="btn-group" ng-controller="LegacyCtrl" ng-init="loadSettings()">
-                    <select class="form-control input-sm"
-                            ng-model="legacyMsiImportType"
-                            ng-options="type for type in legacyMsiImportTypes"
-                            ng-change="updateSettings()">
-                        <option value="">-- choose type --</option>
-                    </select>
+                <div class="btn-group">
+                    <table class='table table-condensed'>
+                        <tr>
+                            <th>Status</th>
+                            <td>
+                                <input type="checkbox" ng-model="msiImportStatus.active" /> &nbsp; Import legacy MSI
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Start date</th>
+                            <td>
+                                <input type="text" id="msiStartDate" name="msiStartDate" class="form-control input-sm"
+                                       ng-model="msiImportStatus.startDateStr" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Last update</th>
+                            <td>
+                                <input type="text" name="lastUpdate" class="form-control input-sm"
+                                       ng-model="msiImportStatus.lastUpdateStr" disabled/>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-sm btn-default" ng-click="updateMsiImportStatus()">
+                        Change Status...
+                    </button>
                 </div>
             </div>
 
@@ -43,3 +64,9 @@
 
     </div>
 </div>
+
+<script>
+    $(document).ready(function() {
+        $("#msiStartDate").datepicker({ format: "dd-mm-yyyy" });
+    });
+</script>

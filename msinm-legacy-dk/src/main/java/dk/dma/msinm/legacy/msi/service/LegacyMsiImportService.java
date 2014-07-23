@@ -26,6 +26,7 @@ import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
 import dk.dma.msinm.common.util.TextUtils;
+import dk.dma.msinm.common.util.TimeUtils;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
 import dk.dma.msinm.model.*;
 import dk.dma.msinm.service.MessageService;
@@ -49,15 +50,31 @@ import java.util.List;
 @Stateless
 public class LegacyMsiImportService extends BaseService {
 
-    static final int LIMIT = 100; // Import at most 1000 MSI at a time
+    static final int LIMIT = 1000; // Import at most 1000 MSI at a time
 
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final Setting DB_URL     = new DefaultSetting("legacyMsiDbUrl", "jdbc:mysql://localhost:3306/oldmsi");
     static final Setting DB_USER    = new DefaultSetting("legacyMsiDbUser", "oldmsi");
     static final Setting DB_PWD     = new DefaultSetting("legacyMsiDbPassword", "oldmsi");
 
-    static final Setting OLD_MSG_FIRST_DATE   = new DefaultSetting("legacyMsiFirstChangeDate"); // Defaults to today
-    static final Setting ACTIVE_MSG_LAST_DATE = new DefaultSetting("legacyMsiLastChangeDate", "0"); // init with 1970
+    /**
+     * Defines whether the import is active or not.
+     * By default, the import is not active
+     */
+    public static final Setting LEGACY_MSI_ACTIVE = new DefaultSetting("legacyMsiImportActive", "false");
+
+    /**
+     * Registers the start date of the legacy message import.
+     * By default, pick the first day of the year
+     */
+    public static final Setting LEGACY_MSI_START_DATE = new DefaultSetting("legacyMsiImportStartDate", String.valueOf(getJanFirstThisYear().getTime()));
+
+    /**
+     * Registers the last update date of the legacy messages that has been processed.
+     * By default, pick the first day of the year
+     */
+    public static final Setting LEGACY_MSI_LAST_UPDATE = new DefaultSetting("legacyMsiImportLastUpdate", String.valueOf(getJanFirstThisYear().getTime()));
+
 
     @Inject
     Logger log;
@@ -79,12 +96,8 @@ public class LegacyMsiImportService extends BaseService {
     String legacyMsiDataSql;
 
     @Inject
-    @Sql("/sql/active_legacy_msi.sql")
-    String activeLegacyMsiSql;
-
-    @Inject
-    @Sql("/sql/old_legacy_msi.sql")
-    String oldLegacyMsiSql;
+    @Sql("/sql/all_legacy_msi.sql")
+    String allLegacyMsiSql;
 
     @Inject
     Settings settings;
@@ -98,27 +111,31 @@ public class LegacyMsiImportService extends BaseService {
     }
 
     /**
-     * Import active MSI warnings
+     * Import all MSI warnings
      * @return the imported/updated MSI warnings
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public List<LegacyMessage> importActiveMsiWarnings() {
-        String sql = activeLegacyMsiSql
-                .replace(":limit", String.valueOf(LIMIT));
+    public List<LegacyMessage> importAllMsiWarnings() {
 
-        Date validFrom = new Date();
-        Date lastRegisteredUpdateDate = settings.getDate(ACTIVE_MSG_LAST_DATE);
-        List<LegacyMessage> result = importMsi(sql, "active", validFrom, lastRegisteredUpdateDate);
+        // Check if the integration is active
+        if (!settings.getBoolean(LEGACY_MSI_ACTIVE)) {
+            return new ArrayList<>();
+        }
 
-        // Register the new last update time
-        Date lastUpdateDate = result.stream()
-                        .map(LegacyMessage::getUpdated)
-                        .max(Date::compareTo)
-                        .orElse(lastRegisteredUpdateDate);
-        settings.updateSetting(new SettingsEntity(
-                ACTIVE_MSG_LAST_DATE.getSettingName(),
-                String.valueOf(lastUpdateDate.getTime())
+        // Import the legacy MSI from the last registered update time until now
+        // Note that at most LIMIT messages are processed
+        Date lastRegisteredUpdateDate = settings.getDate(LEGACY_MSI_LAST_UPDATE);
+        Date now = new Date();
+        List<LegacyMessage> result = new ArrayList<>();
+        Date lastUpdate = importMsi(result, allLegacyMsiSql, "all", lastRegisteredUpdateDate, now);
+
+        // And register the last update time
+        if (lastUpdate != null) {
+            settings.updateSetting(new SettingsEntity(
+                    LEGACY_MSI_LAST_UPDATE.getSettingName(),
+                    String.valueOf(lastUpdate.getTime())
             ));
+        }
 
         return result;
     }
@@ -126,12 +143,12 @@ public class LegacyMsiImportService extends BaseService {
     /**
      * Import active MSI warnings
      * @param sql the sql for fetching IDS
-     * @return the imported/updated MSI warnings
+     * @return the last updated date
      */
-    public List<LegacyMessage> importMsi(String sql, String type, Date... dataParams) {
+    public Date importMsi(List<LegacyMessage> result, String sql, String type, Date... dataParams) {
         log.info("Start importing at most " + LIMIT + " " + type + " legacy MSI warnings from local DB");
-        List<LegacyMessage> result = new ArrayList<>();
 
+        Date lastUpdate = null;
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
@@ -149,7 +166,7 @@ public class LegacyMsiImportService extends BaseService {
             }
             stmt.setInt(dataParams.length + 1, LIMIT);
 
-            log.info("Executing SQL\n" + sql);
+            log.debug("Executing SQL\n" + sql);
             long t0 = System.currentTimeMillis();
 
             // Fetch ID's of active MSI
@@ -163,7 +180,7 @@ public class LegacyMsiImportService extends BaseService {
 
             // Import the MSI's
             if (ids.size() > 0) {
-                importMsi(ids, conn, result);
+                lastUpdate = importMsi(ids, conn, result);
             }
 
         } catch(Exception ex) {
@@ -173,7 +190,7 @@ public class LegacyMsiImportService extends BaseService {
             try { conn.close(); } catch (Exception ex) { }
         }
 
-        return result;
+        return lastUpdate;
     }
 
     /**
@@ -182,10 +199,11 @@ public class LegacyMsiImportService extends BaseService {
      * @param conn the DB connection
      * @return the result
      */
-    private List<LegacyMessage> importMsi(List<Integer> ids, Connection conn, List<LegacyMessage> result) {
+    private Date importMsi(List<Integer> ids, Connection conn, List<LegacyMessage> result) {
         log.info("Start importing at most " + LIMIT + " legacy MSI warnings from local DB");
         long t0 = System.currentTimeMillis();
 
+        Date lastUpdate = null;
         Statement stmt = null;
         try {
             stmt = conn.createStatement();
@@ -230,6 +248,11 @@ public class LegacyMsiImportService extends BaseService {
                 Double  pointLongitude      = getDouble(rs,  "pointLongitude");
                 Integer pointRadius         = getInt(rs,     "pointRadius");
 
+                // Update the lastUpdate
+                if (lastUpdate == null || lastUpdate.before(updated)) {
+                    lastUpdate = updated;
+                }
+
                 if (skipId != null && skipId.intValue() == id.intValue()) {
                     continue;
                 }
@@ -242,21 +265,13 @@ public class LegacyMsiImportService extends BaseService {
                 // Handle first record of a new message
                 if (legacyMessage == null) {
 
-                    // First check if a legacy message with the given id already exists
-                    legacyMessage = legacyMessageService.findByLegacyId(id);
-                    if (legacyMessage != null && legacyMessage.getVersion() >= version) {
+                    // Initialize the legacy message to update.
+                    // If null is returned, the message should be skipped.
+                    legacyMessage = legacyMessageService.initLegacyMessage(id, messageId, version);
+                    if (legacyMessage == null) {
                         // Skip the import
-                        legacyMessage = null;
                         skipId = id;
                         continue;
-
-                    } else if (legacyMessage == null) {
-                        // Create a new legacy message
-                        legacyMessage = new LegacyMessage();
-                        legacyMessage.setMessage(new Message());
-                    } else if (legacyMessage != null) {
-                        legacyMessage.getMessage().preload();
-                        em.detach(legacyMessage);
                     }
 
                     result.add(legacyMessage);
@@ -264,6 +279,7 @@ public class LegacyMsiImportService extends BaseService {
 
                     // Update legacy message
                     legacyMessage.setLegacyId(id);
+                    legacyMessage.setLegacyMessageId(messageId);
                     legacyMessage.setNavtexNo(navtexNo);
                     legacyMessage.setVersion(version);
                     legacyMessage.setUpdated(updated);
@@ -301,7 +317,22 @@ public class LegacyMsiImportService extends BaseService {
                     } else {
                         message.setType(Type.COSTAL_WARNING);
                     }
-                    message.setStatus(deleted != null ? Status.DELETED : (statusDraft ? Status.DRAFT : Status.PUBLISHED));
+
+                    Date now = new Date();
+                    Status status = Status.PUBLISHED;
+                    if (deleted != null && statusDraft) {
+                        status = Status.DELETED;
+                    } else if (deleted != null && validTo != null && deleted.after(validTo)) {
+                        status = Status.EXPIRED;
+                    } else if (deleted != null) {
+                        status = Status.CANCELLED;
+                    } else if (statusDraft) {
+                        status = Status.DRAFT;
+                    } else if (validTo != null && now.after(validTo)) {
+                        status = Status.EXPIRED;
+                    }
+                    message.setStatus(status);
+
                     message.setValidFrom(validFrom);
                     message.setValidTo((validTo != null) ? validTo : deleted);
                     try {
@@ -383,7 +414,7 @@ public class LegacyMsiImportService extends BaseService {
             try { conn.close(); } catch (Exception ex) { }
         }
 
-        return result;
+        return lastUpdate;
     }
 
     /**
@@ -457,5 +488,16 @@ public class LegacyMsiImportService extends BaseService {
     private Boolean getBoolean(ResultSet rs, String key) throws SQLException {
         boolean val = rs.getBoolean(key);
         return rs.wasNull() ? null : val;
+    }
+
+    /**
+     * Computes the first day of the current year
+     * @return the first day of the current year
+     */
+    private static Date getJanFirstThisYear() {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.DAY_OF_MONTH,1);
+        cal.set(Calendar.MONTH,0);
+        return TimeUtils.resetTime(cal.getTime());
     }
 }

@@ -9,19 +9,14 @@ angular.module('msinm.admin')
 
         return {
 
-            getMsiImportType: function(success, error) {
-                $http.get('/rest/import/legacy-msi/import-type')
+            getMsiImportStatus: function(success, error) {
+                $http.get('/rest/import/legacy-msi/import-status')
                     .success(success)
                     .error(error);
             },
 
-            setMsiImportType: function(type, success, error) {
-                $http({
-                    method: 'PUT',
-                    url: '/rest/import/legacy-msi/import-type',
-                    data: $.param({type: type}),
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
-                })
+            setMsiImportStatus: function(status, success, error) {
+                $http.put('/rest/import/legacy-msi/import-status', status)
                     .success(success)
                     .error(error);
             }
@@ -36,26 +31,45 @@ angular.module('msinm.admin')
         function ($scope, $location, $modal, LegacyService) {
             'use strict';
 
-            $scope.legacyMsiImportType = 'NONE';
-            $scope.legacyMsiImportTypes = [ 'NONE', 'ACTIVE', 'ALL' ];
+            $scope.msiImportStatus = { active: false, startDate: undefined, lastUpdate: undefined  };
 
-            $scope.loadSettings = function() {
-                LegacyService.getMsiImportType(function(data) {
-                        $scope.legacyMsiImportType = data;
+
+            function setStatus(data) {
+                $scope.msiImportStatus = { active: false, startDate: undefined, lastUpdate: undefined  };
+                if (data) {
+                    $scope.msiImportStatus.active = data.active;
+                    $scope.msiImportStatus.startDate = new Date(data.startDate);
+                    $scope.msiImportStatus.startDateStr = $scope.msiImportStatus.startDate.ddmmyyyy();
+                    $scope.msiImportStatus.lastUpdate = new Date(data.lastUpdate);
+                    $scope.msiImportStatus.lastUpdateStr = $scope.msiImportStatus.lastUpdate.ddmmyyyy();
+                }
+            }
+
+            $scope.loadMsiImportStatus = function() {
+                LegacyService.getMsiImportStatus(function(data) {
+                        setStatus(data);
                     },
                     function () {
-                        console.log("Error getting legacy MSI import type");
+                        console.log("Error getting legacy MSI import status");
                     });
             };
 
-            $scope.updateSettings = function() {
-                console.log("Update settings ");
-                LegacyService.setMsiImportType(
-                    $scope.legacyMsiImportType,
+            $scope.updateMsiImportStatus = function() {
+
+                // TODO: Figure out why the hell this does not work!
+                // var date = $("#msiStartDate").datepicker("getDate");
+
+                // Assume dd-mm-yyyy
+                var dateStr = $("#msiStartDate").val().split("-");
+                $scope.msiImportStatus.startDate = new Date(parseInt(dateStr[2]), parseInt(dateStr[1]) - 1, parseInt(dateStr[0]));
+
+                LegacyService.setMsiImportStatus(
+                    $scope.msiImportStatus,
                     function(data) {
+                        setStatus(data);
                     },
                     function () {
-                        console.log("Error setting legacy MSI import type");
+                        console.log("Error setting legacy MSI import status");
                     });
             };
 

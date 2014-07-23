@@ -29,7 +29,9 @@ import java.util.Date;
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "legacyId"}))
 @NamedQueries({
         @NamedQuery(name= "LegacyMessage.findByLegacyId",
-                query="SELECT msg FROM LegacyMessage msg where msg.legacyId = :legacyId")
+                query="SELECT msg FROM LegacyMessage msg where msg.legacyId = :legacyId"),
+        @NamedQuery(name= "LegacyMessage.findByLegacyMessageId",
+                query="SELECT msg FROM LegacyMessage msg where msg.legacyMessageId = :legacyMessageId ORDER BY msg.version DESC")
 })
 public class LegacyMessage extends BaseEntity<Integer> {
 
@@ -37,6 +39,8 @@ public class LegacyMessage extends BaseEntity<Integer> {
 
     @NotNull
     private Integer legacyId;
+
+    private Integer legacyMessageId;
 
     private String navtexNo;
 
@@ -49,7 +53,6 @@ public class LegacyMessage extends BaseEntity<Integer> {
 
     @NotNull
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name="updated")
     Date updated;
 
     /**
@@ -66,6 +69,14 @@ public class LegacyMessage extends BaseEntity<Integer> {
 
     public void setLegacyId(Integer legacyId) {
         this.legacyId = legacyId;
+    }
+
+    public Integer getLegacyMessageId() {
+        return legacyMessageId;
+    }
+
+    public void setLegacyMessageId(Integer legacyMessageId) {
+        this.legacyMessageId = legacyMessageId;
     }
 
     public String getNavtexNo() {
