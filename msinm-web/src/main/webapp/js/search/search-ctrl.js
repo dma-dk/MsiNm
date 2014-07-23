@@ -14,7 +14,7 @@ angular.module('msinm.search')
         $scope.locationTool = 'navigation';
 
         $scope.query = '';
-        $scope.status = 'ACTIVE';
+        $scope.status = 'PUBLISHED';
         $scope.type = '';
         $scope.locations = [];
         $scope.areas = '';
@@ -59,7 +59,7 @@ angular.module('msinm.search')
         };
 
         $scope.resetType = function () {
-            $scope.status = 'ACTIVE';
+            $scope.status = 'PUBLISHED';
             $scope.type = '';
             $("#roles").select2('data', null);
         };
@@ -74,7 +74,7 @@ angular.module('msinm.search')
             $scope.filterOnLocation = true;
             if(!$scope.$$phase) {
                 $scope.$apply();
-            };
+            }
         };
 
         $scope.resetDate = function () {

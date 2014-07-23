@@ -18,16 +18,10 @@ package dk.dma.msinm.model;
 import dk.dma.msinm.common.model.ILocalizable;
 import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
-import dk.dma.msinm.common.sequence.DefaultSequence;
-import dk.dma.msinm.common.sequence.Sequence;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Abstract base class for MSI-NM messages
@@ -36,21 +30,19 @@ import java.util.Set;
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @NamedQueries({
     @NamedQuery(name="Message.findBySeriesIdentifier",
-                query="SELECT msg FROM Message msg where msg.seriesIdentifier.number = :number " +
+                query="SELECT msg FROM Message msg where msg.seriesIdentifier.mainType = :type and msg.seriesIdentifier.number = :number " +
                       " and msg.seriesIdentifier.year = :year and msg.seriesIdentifier.authority = :authority"),
     @NamedQuery(name="Message.findUpdateMessages",
                 query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
     @NamedQuery(name="Message.findActive",
-                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' order by msg.validFrom asc"),
+                query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' order by msg.validFrom asc"),
     @NamedQuery(name="Message.findActiveTempPrelimNotices",
-                query="SELECT msg FROM Message msg where msg.status = 'ACTIVE' and (msg.type = 'TEMPORARY_NOTICE' or msg.type = 'PRELIMINARY_NOTICE') " +
+                query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and (msg.type = 'TEMPORARY_NOTICE' or msg.type = 'PRELIMINARY_NOTICE') " +
                       " and msg.validFrom < :date and (msg.validTo is null or msg.validTo > :date)")
 })
 public class Message extends VersionedEntity<Integer> implements ILocalizable<MessageDesc>, IPreloadable {
 
     private static final long serialVersionUID = 1L;
-
-    public static final Sequence MESSAGE_SEQUENCE = new DefaultSequence("msinm-message-id", 1);
 
     @NotNull
     @Embedded
@@ -64,13 +56,13 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
     @Enumerated(EnumType.STRING)
     Status status;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     Area area;
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     List<Category> categories = new ArrayList<>();
 
-    @ManyToMany
+    @ManyToMany(cascade = CascadeType.ALL)
     List<Chart> charts = new ArrayList<>();
 
     String horizontalDatum;

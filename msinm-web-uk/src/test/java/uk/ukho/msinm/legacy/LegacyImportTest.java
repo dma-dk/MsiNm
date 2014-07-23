@@ -1,6 +1,7 @@
 package uk.ukho.msinm.legacy;
 
 import dk.dma.msinm.model.ReferenceType;
+import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Type;
 import dk.dma.msinm.vo.*;
@@ -29,6 +30,7 @@ public class LegacyImportTest {
 
         SeriesIdentifier id = new SeriesIdentifier();
         msg.setSeriesIdentifier(id);
+        id.setMainType(SeriesIdType.NM);
         id.setAuthority("UKHO");
         id.setNumber(3421);
         id.setYear(2014);

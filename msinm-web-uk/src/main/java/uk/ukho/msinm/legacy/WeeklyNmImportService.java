@@ -183,6 +183,7 @@ public class WeeklyNmImportService {
     private Message importMessage(MessageVo template, Date weekStartDate, StringBuilder txt) {
         // Check if the message already exists
         Message existingMessage = messageService.findBySeriesIdentifier(
+                template.getSeriesIdentifier().getMainType(),
                 template.getSeriesIdentifier().getNumber(),
                 template.getSeriesIdentifier().getYear(),
                 template.getSeriesIdentifier().getAuthority()
@@ -197,7 +198,7 @@ public class WeeklyNmImportService {
         Message message = template.toEntity();
         message.setValidFrom(weekStartDate);
         message.setPriority(Priority.NONE);
-        message.setStatus(Status.ACTIVE);
+        message.setStatus(Status.PUBLISHED);
 
         // Trim the NM titles, as the XSLT has left them with newlines, etc
         message.getDescs().stream()

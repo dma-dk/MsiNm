@@ -16,6 +16,7 @@
         <message>
 
             <seriesIdentifier>
+                <mainType>NM</mainType>
                 <authority><xsl:value-of select="$authority"/></authority>
                 <number><xsl:value-of select="@nm_number"/></number>
                 <year><xsl:value-of select="@year"/></year>

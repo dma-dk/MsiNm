@@ -165,6 +165,12 @@ angular.module('msinm.admin')
                     .error(error);
             },
 
+            getSetting: function(key, success, error) {
+                $http.get('/rest/admin/settings/setting/' + key)
+                    .success(success)
+                    .error(error);
+            },
+
             updateSetting: function(setting, success, error) {
                 $http.put('/rest/admin/settings/setting', setting)
                     .success(success)

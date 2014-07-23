@@ -3,6 +3,7 @@ package dk.dma.msinm.web.rest;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -48,12 +49,25 @@ public class SettingsRestService {
                 .collect(Collectors.toList());
     }
 
+    @GET
+    @Path("/setting/{key}")
+    @Produces("application/json")
+    public SettingsVo getSetting(@PathParam("key") String key) throws Exception {
+        if (StringUtils.isBlank(key)) {
+            throw new IllegalArgumentException("Invalid empty key");
+        }
+        log.info("Getting setting " + key);
+        SettingsVo setting = new SettingsVo();
+        setting.setKey(key);
+        setting.setValue(settings.get(key.trim()));
+        return setting;
+    }
 
     @PUT
     @Path("/setting")
     @Consumes("application/json")
     @Produces("application/json")
-    public String updateChart(SettingsVo settingVo) throws Exception {
+    public String updateSetting(SettingsVo settingVo) throws Exception {
         SettingsEntity setting = settingVo.toEntity();
         log.info("Updating setting " + setting);
         settings.updateSetting(setting);

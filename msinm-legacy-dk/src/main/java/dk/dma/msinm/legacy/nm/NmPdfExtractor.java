@@ -236,6 +236,7 @@ public class NmPdfExtractor {
                 // Extract the number
                 LinePart<String> parts = readFirstPart(line);
                 SeriesIdentifier id = new SeriesIdentifier();
+                id.setMainType(SeriesIdType.NM);
                 id.setYear(year);
                 id.setAuthority(organization);
                 id.setNumber(Integer.valueOf(parts.part));
@@ -378,6 +379,7 @@ public class NmPdfExtractor {
         Matcher m = Pattern.compile("[-\\d]+/(\\d+) (\\d+).*").matcher(ref);
         if (m.matches()) {
             SeriesIdentifier id = new SeriesIdentifier();
+            id.setMainType(SeriesIdType.NM);
             id.setAuthority(organization);
             id.setNumber(Integer.valueOf(m.group(1)));
             id.setYear(Integer.valueOf(m.group(2)));

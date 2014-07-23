@@ -9,14 +9,19 @@ angular.module('msinm.admin')
 
         return {
 
-            importMsiNm: function(success, error) {
-                $http.get('/rest/import/legacy-ws-msi')
+            getMsiImportType: function(success, error) {
+                $http.get('/rest/import/legacy-msi/import-type')
                     .success(success)
                     .error(error);
             },
 
-            importLegacyMsi: function(count, success, error) {
-                $http.get('/rest/import/legacy-db-msi?limit=' + count)
+            setMsiImportType: function(type, success, error) {
+                $http({
+                    method: 'PUT',
+                    url: '/rest/import/legacy-msi/import-type',
+                    data: $.param({type: type}),
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+                })
                     .success(success)
                     .error(error);
             }
@@ -31,36 +36,27 @@ angular.module('msinm.admin')
         function ($scope, $location, $modal, LegacyService) {
             'use strict';
 
-            $scope.importCount = 500;
+            $scope.legacyMsiImportType = 'NONE';
+            $scope.legacyMsiImportTypes = [ 'NONE', 'ACTIVE', 'ALL' ];
 
-            $scope.importActiveMsi = function () {
-                LegacyService.importMsiNm(function(data) {
-                        console.log("Imported legacy MSI");
+            $scope.loadSettings = function() {
+                LegacyService.getMsiImportType(function(data) {
+                        $scope.legacyMsiImportType = data;
                     },
                     function () {
-                        console.log("Error importing legacy MSI");
+                        console.log("Error getting legacy MSI import type");
                     });
             };
 
-            $scope.legacyMsiImportDlg = function() {
-
-                $scope.importLegacyMsiDialog = $modal.open({
-                    templateUrl : "/partials/admin/import-legacy-msi-dialog.html"
-                });
-                return $scope.importLegacyMsiDialog;
-            };
-
-            $scope.legacyMsiImport = function() {
-                LegacyService.importLegacyMsi(
-                    $scope.importCount,
+            $scope.updateSettings = function() {
+                console.log("Update settings ");
+                LegacyService.setMsiImportType(
+                    $scope.legacyMsiImportType,
                     function(data) {
-                        console.log("Imported legacy DB MSI");
                     },
                     function () {
-                        console.log("Error importing legacy DB MSI");
+                        console.log("Error setting legacy MSI import type");
                     });
-
-                $scope.$close();
             };
 
             // Open modal dialog for uploading and importing legacy NM PDF's.

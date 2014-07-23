@@ -172,7 +172,7 @@ public class MessageRestService {
     public MessageSearchResult search(
             @QueryParam("lang") String language,
             @QueryParam("q") String query,
-            @QueryParam("status") @DefaultValue("ACTIVE") String status,
+            @QueryParam("status") @DefaultValue("PUBLISHED") String status,
             @QueryParam("type") String type,
             @QueryParam("loc") String loc,
             @QueryParam("areas") String areas,
@@ -197,7 +197,7 @@ public class MessageRestService {
     public Response generatePdf(
             @QueryParam("lang") String language,
             @QueryParam("q") String query,
-            @QueryParam("status") @DefaultValue("ACTIVE") String status,
+            @QueryParam("status") @DefaultValue("PUBLISHED") String status,
             @QueryParam("type") String type,
             @QueryParam("loc") String loc,
             @QueryParam("areas") String areas,

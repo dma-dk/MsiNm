@@ -72,7 +72,7 @@ public class LegacyNmImportServiceTest extends MsiNmUnitTest
     Logger log;
 
     @Inject
-    LegacyNmImportService nmImportService;
+    LegacyNmImportRestService nmImportService;
 
     @BeforeClass
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {

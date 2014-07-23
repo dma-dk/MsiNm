@@ -17,61 +17,50 @@ package dk.dma.msinm.legacy.msi.service;
 
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
+import dk.dma.msinm.common.sequence.DefaultSequence;
+import dk.dma.msinm.common.sequence.Sequence;
 import dk.dma.msinm.common.sequence.Sequences;
+import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
+import dk.dma.msinm.common.settings.SettingsEntity;
 import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
-import dk.dma.msinm.model.Area;
-import dk.dma.msinm.model.Category;
-import dk.dma.msinm.model.Location;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.SeriesIdentifier;
-import dk.dma.msinm.model.Status;
-import dk.dma.msinm.model.Type;
-import dk.dma.msinm.model.Point;
-import dk.dma.msinm.model.Priority;
-import dk.dma.msinm.service.AreaService;
-import dk.dma.msinm.service.CategoryService;
+import dk.dma.msinm.model.*;
 import dk.dma.msinm.service.MessageService;
 import org.apache.commons.lang.StringUtils;
-import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
-import javax.annotation.security.RolesAllowed;
+import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import javax.ws.rs.DefaultValue;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.QueryParam;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.sql.Timestamp;
+import java.sql.*;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Imports data from a local db dump of the Danish MSI database
  */
-@Path("/import/legacy-db-msi")
 @Stateless
-@SecurityDomain("msinm-policy")
-@RolesAllowed({ "admin" })
-public class LegacyMsiDbImportService {
+public class LegacyMsiDbImportService extends BaseService {
+
+    static final int LIMIT = 100; // Import at most 1000 MSI at a time
 
     static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
     static final Setting DB_URL     = new DefaultSetting("legacyMsiDbUrl", "jdbc:mysql://localhost:3306/oldmsi");
     static final Setting DB_USER    = new DefaultSetting("legacyMsiDbUser", "oldmsi");
     static final Setting DB_PWD     = new DefaultSetting("legacyMsiDbPassword", "oldmsi");
 
+    static final Setting OLD_MSG_FIRST_DATE   = new DefaultSetting("legacyMsiFirstChangeDate"); // Defaults to today
+    static final Setting ACTIVE_MSG_LAST_DATE = new DefaultSetting("legacyMsiLastChangeDate", "0"); // init with 1970
+
     @Inject
-    private Logger log;
+    Logger log;
 
     @Inject
     MsiNmApp app;
@@ -80,51 +69,135 @@ public class LegacyMsiDbImportService {
     MessageService messageService;
 
     @Inject
-    AreaService areaService;
-
-    @Inject
-    CategoryService categoryService;
-
-    @Inject
     LegacyMessageService legacyMessageService;
 
     @Inject
     Sequences sequences;
 
     @Inject
-    @Sql("/sql/legacy_messages.sql") String msiSql;
+    @Sql("/sql/legacy_msi_data.sql")
+    String legacyMsiDataSql;
+
+    @Inject
+    @Sql("/sql/active_legacy_msi.sql")
+    String activeLegacyMsiSql;
+
+    @Inject
+    @Sql("/sql/old_legacy_msi.sql")
+    String oldLegacyMsiSql;
 
     @Inject
     Settings settings;
 
-    @GET
-    public String importMsiWarnings(
-            @QueryParam("limit") @DefaultValue("100") int limit,
-            @QueryParam("offset") @DefaultValue("0") int offset
-    ) {
-        log.info("Start importing at most " + limit + " legacy MSI warnings from local DB");
-        long t0 = System.currentTimeMillis();
-        int count = 0;
+    /**
+     * Ensure that the DB driver is loaded
+     */
+    @PostConstruct
+    public void init() throws ClassNotFoundException {
+        Class.forName(JDBC_DRIVER);
+    }
+
+    /**
+     * Import active MSI warnings
+     * @return the imported/updated MSI warnings
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public List<LegacyMessage> importActiveMsiWarnings() {
+        String sql = activeLegacyMsiSql
+                .replace(":limit", String.valueOf(LIMIT));
+
+        Date validFrom = new Date();
+        Date lastRegisteredUpdateDate = settings.getDate(ACTIVE_MSG_LAST_DATE);
+        List<LegacyMessage> result = importMsi(sql, "active", validFrom, lastRegisteredUpdateDate);
+
+        // Register the new last update time
+        Date lastUpdateDate = result.stream()
+                        .map(LegacyMessage::getUpdated)
+                        .max(Date::compareTo)
+                        .orElse(lastRegisteredUpdateDate);
+        settings.updateSetting(new SettingsEntity(
+                ACTIVE_MSG_LAST_DATE.getSettingName(),
+                String.valueOf(lastUpdateDate.getTime())
+            ));
+
+        return result;
+    }
+
+    /**
+     * Import active MSI warnings
+     * @param sql the sql for fetching IDS
+     * @return the imported/updated MSI warnings
+     */
+    public List<LegacyMessage> importMsi(String sql, String type, Date... dataParams) {
+        log.info("Start importing at most " + LIMIT + " " + type + " legacy MSI warnings from local DB");
+        List<LegacyMessage> result = new ArrayList<>();
 
         Connection conn = null;
-        Statement stmt = null;
+        PreparedStatement stmt = null;
         try {
-            Class.forName(JDBC_DRIVER);
-
             conn = DriverManager.getConnection(
                     settings.get(DB_URL),
                     settings.get(DB_USER),
                     settings.get(DB_PWD));
 
+            stmt = conn.prepareStatement(sql);
+
+            // Set the parameters, which must consist of a set of data parameters,
+            // and lastly a limit parameter
+            for (int x = 0; x < dataParams.length; x++) {
+                stmt.setTimestamp(x + 1, new Timestamp(dataParams[x].getTime()));
+            }
+            stmt.setInt(dataParams.length + 1, LIMIT);
+
+            log.info("Executing SQL\n" + sql);
+            long t0 = System.currentTimeMillis();
+
+            // Fetch ID's of active MSI
+            List<Integer> ids = new ArrayList<>();
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                ids.add(rs.getInt("id"));
+            }
+            rs.close();
+            log.info(String.format("Fetched %d ID's for %s legacy MSI in %d ms", ids.size(), type, System.currentTimeMillis() - t0));
+
+            // Import the MSI's
+            if (ids.size() > 0) {
+                importMsi(ids, conn, result);
+            }
+
+        } catch(Exception ex) {
+            log.error("Failed fetching active legacy MSI messages from database ", ex);
+        } finally {
+            try { stmt.close(); } catch (Exception ex) { }
+            try { conn.close(); } catch (Exception ex) { }
+        }
+
+        return result;
+    }
+
+    /**
+     * Import the legacy MSI with the given ID's
+     * @param ids the ID's of the MSI to import
+     * @param conn the DB connection
+     * @return the result
+     */
+    private List<LegacyMessage> importMsi(List<Integer> ids, Connection conn, List<LegacyMessage> result) {
+        log.info("Start importing at most " + LIMIT + " legacy MSI warnings from local DB");
+        long t0 = System.currentTimeMillis();
+        int count = 0;
+
+        Statement stmt = null;
+        try {
             stmt = conn.createStatement();
 
-            String sql = msiSql
-                    .replace(":limit", String.valueOf(limit))
-                    .replace(":offset", String.valueOf(offset));
+            String sql = legacyMsiDataSql
+                    .replace(":ids", StringUtils.join(ids, ","));
 
             log.info("Executing SQL\n" + sql);
             ResultSet rs = stmt.executeQuery(sql);
 
+            Integer skipId = null;
             LegacyMessage legacyMessage = null;
             while (rs.next()) {
                 Integer id                  = getInt(rs,     "id");
@@ -139,6 +212,7 @@ public class LegacyMsiDbImportService {
                 Date    created             = getDate(rs,    "created");
                 Date    updated             = getDate(rs,    "updated");
                 Date    deleted             = getDate(rs,    "deleted");
+                Integer version             = getInt(rs,     "version");
                 String  priority            = getString(rs,  "priority");
                 String  messageType         = getString(rs,  "messageType");
                 String  category1En         = getString(rs,  "category1_en");
@@ -157,45 +231,80 @@ public class LegacyMsiDbImportService {
                 Double  pointLongitude      = getDouble(rs,  "pointLongitude");
                 Integer pointRadius         = getInt(rs,     "pointRadius");
 
+                if (skipId != null && skipId.intValue() == id.intValue()) {
+                    continue;
+                }
+
                 if (legacyMessage != null && !legacyMessage.getLegacyId().equals(id)) {
                     saveMessage(legacyMessage, count++);
                     legacyMessage = null;
                 }
 
+                // Handle first record of a new message
                 if (legacyMessage == null) {
+
                     // First check if a legacy message with the given id already exists
-                    if (legacyMessageService.findByLegacyId(id) != null) {
+                    legacyMessage = legacyMessageService.findByLegacyId(id);
+                    if (legacyMessage != null && legacyMessage.getVersion() >= version) {
                         // Skip the import
+                        legacyMessage = null;
+                        skipId = id;
                         continue;
+
+                    } else if (legacyMessage == null) {
+                        // Create a new legacy message
+                        legacyMessage = new LegacyMessage();
+                        legacyMessage.setMessage(new Message());
+                    } else if (legacyMessage != null) {
+                        legacyMessage.getMessage().preload();
+                        em.detach(legacyMessage);
                     }
 
+                    result.add(legacyMessage);
+                    Message message = legacyMessage.getMessage();
 
-                    legacyMessage = new LegacyMessage();
+                    // Update legacy message
                     legacyMessage.setLegacyId(id);
                     legacyMessage.setNavtexNo(navtexNo);
-                    legacyMessage.setVersion(1);
+                    legacyMessage.setVersion(version);
+                    legacyMessage.setUpdated(updated);
 
-                    Message message = new Message();
-                    legacyMessage.setMessage(message);
+                    // Create the message series identifier
+                    SeriesIdentifier identifier = new SeriesIdentifier();
+                    identifier.setMainType(SeriesIdType.MSI);
+                    message.setSeriesIdentifier(identifier);
+                    if (StringUtils.isNotBlank(navtexNo) && navtexNo.split("-").length == 3) {
+                        // Extract the series identifier from the navtext number
+                        String[] parts = navtexNo.split("-");
+                        identifier.setAuthority(parts[0]);
+                        identifier.setNumber(Integer.valueOf(parts[1]));
+                        identifier.setYear(2000 + Integer.valueOf(parts[2]));
 
-                    SeriesIdentifier identifier = message.getSeriesIdentifier();
-                    if (identifier == null) {
-                        identifier = new SeriesIdentifier();
-                        message.setSeriesIdentifier(identifier);
-                        identifier.setNumber((int) sequences.getNextValue(Message.MESSAGE_SEQUENCE));
-                        identifier.setAuthority(app.getOrganization());
+                    } else {
+                        // Some legacy MSI do not have a navtex number.
+                        // Give them a number > 1000, since these are unused
                         Calendar cal = Calendar.getInstance();
                         cal.setTime(validFrom);
-                        identifier.setYear(cal.get(Calendar.YEAR));
+                        int year = cal.get(Calendar.YEAR);
+
+                        Sequence sequence = new DefaultSequence("LEGACY_MESSAGE_SERIES_ID_MSI_" + app.getOrganization() + "_" + year, 1000);
+
+                        identifier.setNumber((int) sequences.getNextValue(sequence));
+                        identifier.setAuthority(app.getOrganization());
+                        identifier.setYear(year);
                     }
 
-                    // Message
+                    // Message data
                     message.setCreated(created);
                     message.setUpdated(updated);
-                    message.setType(Type.NAVAREA_WARNING);
-                    message.setStatus(deleted != null ? Status.DELETED : (statusDraft ? Status.DRAFT : Status.ACTIVE));
+                    if ("Navtex".equals(messageType) || "Navwarning".equals(messageType)) {
+                        message.setType(Type.SUBAREA_WARNING);
+                    } else {
+                        message.setType(Type.COSTAL_WARNING);
+                    }
+                    message.setStatus(deleted != null ? Status.DELETED : (statusDraft ? Status.DRAFT : Status.PUBLISHED));
                     message.setValidFrom(validFrom);
-                    message.setValidTo(validTo);
+                    message.setValidTo((validTo != null) ? validTo : deleted);
                     try {
                         message.setPriority(Priority.valueOf(priority));
                     } catch (Exception ex) {
@@ -203,26 +312,37 @@ public class LegacyMsiDbImportService {
                     }
 
                     // Message Desc
-                    MessageDesc descEn = message.createDesc("en");
-                    descEn.setTitle(StringUtils.defaultString(title, descriptionEn));
-                    descEn.setDescription(TextUtils.txt2html(descriptionEn));
-                    descEn.setVicinity(area3En);
-
-                    MessageDesc descDa = message.createDesc("da");
-                    descDa.setTitle(StringUtils.defaultString(title, descriptionDa));
-                    descDa.setDescription(TextUtils.txt2html(descriptionDa));
-                    descDa.setVicinity(area3Da);
+                    if (StringUtils.isNotBlank(title) || StringUtils.isNotBlank(descriptionEn) || StringUtils.isNotBlank(area3En)) {
+                        MessageDesc descEn = message.checkCreateDesc("en");
+                        descEn.setTitle(StringUtils.defaultString(title, descriptionEn));
+                        descEn.setDescription(TextUtils.txt2html(descriptionEn));
+                        descEn.setVicinity(area3En);
+                    }
+                    if (StringUtils.isNotBlank(title) || StringUtils.isNotBlank(descriptionDa) || StringUtils.isNotBlank(area3Da)) {
+                        MessageDesc descDa = message.checkCreateDesc("da");
+                        descDa.setTitle(StringUtils.defaultString(title, descriptionDa));
+                        descDa.setDescription(TextUtils.txt2html(descriptionDa));
+                        descDa.setVicinity(area3Da);
+                    }
 
                     // Areas
-                    Area area = findOrCreateArea(area1En, area1Da, null);
-                    area = findOrCreateArea(area2En, area2Da, area);
+                    int msgVersion = message.getVersion();
+                    Area area = legacyMessageService.findOrCreateArea(area1En, area1Da, null);
+                    area = legacyMessageService.findOrCreateArea(area2En, area2Da, area);
                     message.setArea(area);
 
                     // Categories
-                    Category category = findOrCreateCategory(category1En, category1Da, null);
-                    category = findOrCreateCategory(category2En, category2Da, category);
-                    message.getCategories().add(category);
+                    Category category = legacyMessageService.findOrCreateCategory(category1En, category1Da, null);
+                    category = legacyMessageService.findOrCreateCategory(category2En, category2Da, category);
+                    if (category != null) {
+                        message.getCategories().clear();
+                        message.getCategories().add(category);
+                    }
 
+                    message.setVersion(msgVersion);
+
+                    // Locations
+                    message.getLocations().clear();
                     if (pointLatitude != null) {
                         Location.LocationType type;
                         switch (locationType) {
@@ -241,7 +361,12 @@ public class LegacyMsiDbImportService {
                 }
 
                 if (pointLatitude != null) {
-                    Location loc1 =legacyMessage.getMessage().getLocations().get(0);
+                    Location loc1 = legacyMessage.getMessage().getLocations().get(0);
+                    // If the type of the location is POINT, there must only be one point per location
+                    if (loc1.getType() == Location.LocationType.POINT && loc1.getPoints().size() > 0) {
+                        loc1 = new Location(Location.LocationType.POINT);
+                        legacyMessage.getMessage().getLocations().add(loc1);
+                    }
                     loc1.addPoint(new Point(loc1, pointLatitude, pointLongitude, pointIndex));
                 }
             }
@@ -262,57 +387,23 @@ public class LegacyMsiDbImportService {
             try { conn.close(); } catch (Exception ex) { }
         }
 
-        return "Imported " + count + " messages";
+        return result;
     }
 
-    private Area findOrCreateArea(String nameEn, String nameDa, Area parent) {
-        Integer parentId = (parent == null) ? null : parent.getId();
 
-        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
-            Area area = areaService.findByName(nameEn, "en", parentId);
-            if (area == null) {
-                area = areaService.findByName(nameDa, "da", parentId);
-            }
-            if (area == null) {
-                area = new Area();
-                if (StringUtils.isNotBlank(nameEn)) {
-                    area.createDesc("en").setName(nameEn);
-                }
-                if (StringUtils.isNotBlank(nameDa)) {
-                    area.createDesc("da").setName(nameDa);
-                }
-                area = areaService.createArea(area, parentId);
-            }
-            return area;
-        }
-        return parent;
-    }
-
-    private Category findOrCreateCategory(String nameEn, String nameDa, Category parent) {
-        Integer parentId = (parent == null) ? null : parent.getId();
-
-        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
-            Category category = categoryService.findByName(nameEn, "en", parentId);
-            if (category == null) {
-                category = categoryService.findByName(nameDa, "da", parentId);
-            }
-            if (category == null) {
-                category = new Category();
-                if (StringUtils.isNotBlank(nameEn)) {
-                    category.createDesc("en").setName(nameEn);
-                }
-                if (StringUtils.isNotBlank(nameDa)) {
-                    category.createDesc("da").setName(nameDa);
-                }
-                category = categoryService.createCategory(category, parentId);
-            }
-            return category;
-        }
-        return parent;
-    }
-
+    /**
+     * Persists the legacy message
+     * @param legacyMsg the legacy message to persist
+     * @param count the message index
+     */
     private void saveMessage(LegacyMessage legacyMsg, int count) {
         try {
+            // Check the location to make it valid
+            Location loc = legacyMsg.getMessage().getLocations().get(0);
+            if (loc != null && loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() < 3) {
+                loc.setType(Location.LocationType.POLYLINE);
+            }
+
             legacyMessageService.saveLegacyMessage(legacyMsg);
             log.info("Saved message " + count);
         } catch (Exception ex) {

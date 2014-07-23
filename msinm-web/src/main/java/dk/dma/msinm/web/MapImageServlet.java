@@ -168,11 +168,17 @@ public class MapImageServlet extends HttpServlet  {
             // Draw each location
             locations.forEach(loc -> {
                 // Point
-                if (loc.getType() == LocationType.POINT) {
+                if (loc.getType() == LocationType.POINT && loc.getPoints().size() == 1) {
                     int iconSize = 24;
+
+                    Point pt = loc.getPoints().get(0);
+                    int xy[] = mercator.LatLonToPixels(pt.getLat(), pt.getLon(), zoom);
+                    int px = xy[0] - cxy[0] - rx0 - iconSize / 2;
+                    int py = cxy[1] - xy[1] - ry0 - iconSize / 2;
+
                     g2.drawImage(getMessageImage(message),
-                            0 - rx0 - iconSize / 2,
-                            0 - ry0 - iconSize / 2,
+                            px,
+                            py,
                             iconSize,
                             iconSize,
                             null);

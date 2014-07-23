@@ -18,12 +18,12 @@ package dk.dma.msinm.legacy.msi.service;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
-import dk.dma.msinm.model.*;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.Message;
 import dk.dma.msinm.service.AreaService;
-import dk.frv.msiedit.core.webservice.message.MsiDto;
-import dk.frv.msiedit.core.webservice.message.PointDto;
+import dk.dma.msinm.service.CategoryService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -31,8 +31,6 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.util.Arrays;
-import java.util.Calendar;
 
 /**
  * Provides an interface for persisting and fetching legacy Danish MSI messages
@@ -52,8 +50,29 @@ public class LegacyMessageService extends BaseService {
     @Inject
     AreaService areaService;
 
+    @Inject
+    CategoryService categoryService;
+
+    /**
+     * Saves the legacy message in a new transaction
+     * @param legacyMessage the legacy message to save
+     * @return the result
+     */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public LegacyMessage saveLegacyMessage(LegacyMessage legacyMessage) {
+
+        // We don't want to pass detached entities to persist. Refresh area and category
+        Message message = legacyMessage.getMessage();
+
+        Area area = getByPrimaryKey(Area.class, message.getArea().getId());
+        message.setArea(area);
+
+        if (message.getCategories().size() > 0) {
+            Category category = getByPrimaryKey(Category.class, message.getCategories().get(0).getId());
+            message.getCategories().clear();
+            message.getCategories().add(category);
+        }
+
         return saveEntity(legacyMessage);
     }
 
@@ -76,132 +95,67 @@ public class LegacyMessageService extends BaseService {
     }
 
     /**
-     * Create and persist a new MSI warning from a legacy warning
-     *
-     * @param msi the legacy warning
-     * @return if the warning caused a new message or an update
+     * Looks up or creates an Area with the given name under the given parent Area
+     * @param nameEn the english name
+     * @param nameDa the Danish name
+     * @param parent the parent Area
+     * @return the Area
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public boolean createOrUpdateNavwarnMessage(MsiDto msi) {
+    public Area findOrCreateArea(String nameEn, String nameDa, Area parent) {
+        Integer parentId = (parent == null) ? null : parent.getId();
 
-        LegacyMessage legacyMessage = findByLegacyId(msi.getId());
-
-        if (legacyMessage == null) {
-            // No matching LegacyMessage found. Create one
-            legacyMessage = new LegacyMessage();
-            legacyMessage.setLegacyId(msi.getId());
-            legacyMessage.setNavtexNo(msi.getNavtexNo());
-            legacyMessage.setVersion(msi.getVersion());
-
-            Message message = new Message();
-            message.setStatus(Status.ACTIVE);
-            legacyMessage.setMessage(message);
-        } else if (legacyMessage.getVersion() >= msi.getVersion()) {
-            // No further updates...
-            return false;
+        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
+            Area area = areaService.findByName(nameEn, "en", parentId);
+            if (area == null) {
+                area = areaService.findByName(nameDa, "da", parentId);
+            }
+            if (area == null) {
+                area = new Area();
+                if (StringUtils.isNotBlank(nameEn)) {
+                    area.createDesc("en").setName(nameEn);
+                }
+                if (StringUtils.isNotBlank(nameDa)) {
+                    area.createDesc("da").setName(nameDa);
+                }
+                area = areaService.createArea(area, parentId);
+                log.info("Created area " + area);
+            }
+            return area;
         }
-
-        // Update the message from the legacy MSI warning
-        updateMessage(msi, legacyMessage.getMessage());
-
-        // Save the new entity
-        try {
-            saveEntity(legacyMessage);
-            log.info("Persisted new or updated legacy MSI as navwarn message " + msi);
-        } catch (Exception ex) {
-            log.error("Error persisting legacy MSI " + msi, ex);
-            return false;
-        }
-
-        return true;
+        return parent;
     }
 
     /**
-     *  Update the message from the legacy MSI warning
-     * @param msi the legacy warning
-     * @param message the message
+     * Looks up or creates a Category with the given name under the given parent Category
+     * @param nameEn the english name
+     * @param nameDa the Danish name
+     * @param parent the parent Category
+     * @return the Category
      */
-    private void updateMessage(MsiDto msi, Message message) {
-        // Message series identifier
-        SeriesIdentifier identifier = message.getSeriesIdentifier();
-        if (identifier == null) {
-            identifier = new SeriesIdentifier();
-            message.setSeriesIdentifier(identifier);
-            identifier.setNumber((int) sequences.getNextValue(Message.MESSAGE_SEQUENCE));
-            identifier.setAuthority(msi.getOrganisation());
-            identifier.setYear(msi.getCreated().toGregorianCalendar().get(Calendar.YEAR));
-        }
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public Category findOrCreateCategory(String nameEn, String nameDa, Category parent) {
+        Integer parentId = (parent == null) ? null : parent.getId();
 
-        message.setType(Type.NAVAREA_WARNING);
-
-        // Area
-        // Find Denmark
-        Area area = areaService.findByName("denmark", "en", null);
-        if (area == null) {
-            area = new Area();
-            area.createDesc("en").setName("Denmark");
-            area.createDesc("da").setName("Danmark");
-            area = areaService.createArea(area, null);
-        }
-        Integer parentId = area.getId();
-
-        if (StringUtils.isNotBlank(msi.getAreaEnglish())) {
-            area = areaService.findByName(msi.getAreaEnglish(), "en", parentId);
-            if (area == null) {
-                area = new Area();
-                area.createDesc("en").setName(msi.getAreaEnglish());
-                area.createDesc("da").setName(msi.getAreaEnglish());
-                area = areaService.createArea(area, parentId);
+        if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
+            Category category = categoryService.findByName(nameEn, "en", parentId);
+            if (category == null) {
+                category = categoryService.findByName(nameDa, "da", parentId);
             }
-            parentId = area.getId();
-        }
-
-        if (StringUtils.isNotBlank(msi.getSubarea())) {
-            area = areaService.findByName(msi.getAreaEnglish(), "en", parentId);
-            if (area == null) {
-                area = new Area();
-                area.createDesc("en").setName(msi.getSubarea());
-                area.createDesc("da").setName(msi.getSubarea());
-                area = areaService.createArea(area, parentId);
+            if (category == null) {
+                category = new Category();
+                if (StringUtils.isNotBlank(nameEn)) {
+                    category.createDesc("en").setName(nameEn);
+                }
+                if (StringUtils.isNotBlank(nameDa)) {
+                    category.createDesc("da").setName(nameDa);
+                }
+                category = categoryService.createCategory(category, parentId);
+                log.info("Created category " + category);
             }
+            return category;
         }
-        message.setArea(area);
-
-        // Dates
-        message.setValidFrom(msi.getValidFrom().toGregorianCalendar().getTime());
-        if (msi.getValidTo() != null) {
-            message.setValidFrom(msi.getValidFrom().toGregorianCalendar().getTime());
-        }
-
-        if (msi.getDeleted() != null) {
-            message.setCancellationDate(msi.getDeleted().toGregorianCalendar().getTime());
-        } else {
-            message.setCancellationDate(null);
-        }
-
-        // Localized contents - updated da = en
-        Arrays.asList(app.getLanguages()).forEach(message::createDesc);
-        message.getDescs().forEach(desc -> {
-            desc.setTitle(StringUtils.defaultString(msi.getEncText(), msi.getNavWarning()));
-            desc.setDescription(TextUtils.txt2html(msi.getNavWarning()));
-        });
-
-        message.getLocations().clear();
-        if (msi.getPoints() != null && msi.getPoints().getPoint().size() > 0) {
-            Location.LocationType type;
-            switch (msi.getLocationType()) {
-                case "Point":       type = Location.LocationType.POINT; break;
-                case "Polygon":     type = Location.LocationType.POLYGON; break;
-                case "Points":      type = Location.LocationType.POLYLINE; break;
-                case "Polyline":    type = Location.LocationType.POLYLINE; break;
-                default:            type = Location.LocationType.POLYLINE;
-            }
-            Location loc1 = new Location(type);
-            for (PointDto p : msi.getPoints().getPoint()) {
-                loc1.addPoint(new Point(loc1, p.getLatitude(), p.getLongitude(), p.getPtno()));
-            }
-            message.getLocations().add(loc1);
-        }
+        return parent;
     }
 
 }

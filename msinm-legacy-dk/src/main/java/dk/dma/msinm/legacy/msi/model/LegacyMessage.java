@@ -20,6 +20,7 @@ import dk.dma.msinm.model.Message;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Date;
 
 /**
  * Records various information about the legacy MSI messages imported.
@@ -45,6 +46,11 @@ public class LegacyMessage extends BaseEntity<Integer> {
     @NotNull
     @OneToOne(cascade = CascadeType.ALL)
     private Message message;
+
+    @NotNull
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name="updated")
+    Date updated;
 
     /**
      * Constructor
@@ -84,5 +90,13 @@ public class LegacyMessage extends BaseEntity<Integer> {
 
     public void setMessage(Message message) {
         this.message = message;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
     }
 }

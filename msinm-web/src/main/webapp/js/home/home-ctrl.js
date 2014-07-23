@@ -20,7 +20,7 @@ angular.module('msinm.common')
                     // Update the list of active warnings
                     SearchService.search(
                         '', // query
-                        'ACTIVE',
+                        'PUBLISHED',
                         '', // type
                         '[]', // location
                         '', // area

@@ -211,10 +211,18 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
 
             addPhraseSearchField(doc, searchField, message.getStatus());
 
-            // Todo: add reference message series identifiers...
+            // Message series identifier
+            addPhraseSearchField(doc, searchField, message.getSeriesIdentifier().getShortId()); // e.g. "DK-074-14"
+            addPhraseSearchField(doc, searchField, message.getSeriesIdentifier().getFullId());  // e.g. "MSI-DK-074-14"
             addPhraseSearchField(doc, searchField, message.getSeriesIdentifier().getAuthority());
             addPhraseSearchField(doc, searchField, String.valueOf(message.getSeriesIdentifier().getNumber()));
             addPhraseSearchField(doc, searchField, String.valueOf(message.getSeriesIdentifier().getYear()));
+
+            // References
+            message.getReferences().forEach(ref -> {
+                addPhraseSearchField(doc, searchField, ref.getSeriesIdentifier().getShortId());
+                addPhraseSearchField(doc, searchField, ref.getSeriesIdentifier().getFullId());
+            });
 
             // Area
             for (Area area = message.getArea(); area != null; area = area.getParent()) {

@@ -16,38 +16,40 @@
 package dk.dma.msinm.legacy.msi.service;
 
 import dk.dma.msinm.common.audit.Auditor;
-import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
-import dk.frv.enav.msi.ws.warning.MsiService;
-import dk.frv.enav.msi.ws.warning.WarningService;
-import dk.frv.msiedit.core.webservice.message.MsiDto;
+import dk.dma.msinm.common.settings.Settings;
+import dk.dma.msinm.common.settings.SettingsEntity;
+import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
-import javax.annotation.PostConstruct;
+import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 import javax.ejb.*;
 import javax.inject.Inject;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.xml.namespace.QName;
-import javax.xml.ws.BindingProvider;
-import java.util.ArrayList;
-import java.util.List;
+import javax.ws.rs.*;
 
 
 /**
- * Provides an interface for fetching active Danish MSI warnings from the legacy MSI system.
+ * Provides an interface for configuring import of Danish legacy MSI warnings.
  * <p/>
  * Sets up a timer service which performs the legacy import every 5 minutes.
+ * <p></p>
+ * The imported legacy MSI warnings depends on the current MSI import type:
+ * <ul>
+ *     <li>If the type is "none", nothing happens.</li>
+ *     <li>If the type is "active" only active legacy MSI are imported.</li>
+ *     <li>If the type is "all", both active and inactive legacy MSI are imported.</li>
+ * </ul>
  */
 @Singleton
 @Startup
-@Path("/import/legacy-ws-msi")
+@Path("/import/legacy-msi")
+@SecurityDomain("msinm-policy")
+@PermitAll
 public class LegacyMsiImportService {
 
-    private static final String MSI_WSDL = "/wsdl/warning.wsdl";
-
-    private static final Setting LEGACY_MSI_ENDPOINT = new DefaultSetting("legacyMsiEndpoint", "http://msi.dma.dk/msi/ws/warning");
+    static final Setting LEGACY_MSI_IMPORT_TYPE   = new DefaultSetting("legacyMsiImportType", "none");
 
     @Inject
     private Logger log;
@@ -56,80 +58,76 @@ public class LegacyMsiImportService {
     Auditor auditor;
 
     @Inject
-    LegacyMessageService legacyMessageService;
+    LegacyMsiDbImportService legacyMsiDbImportService;
 
     @Inject
     Settings settings;
 
-    String countries = "DK";
-
-    private MsiService msiService;
-
     /**
-     * Called when the bean is initialized
+     * Returns the current legacy MSI import type
+     * @return the current legacy MSI import type
      */
-    @PostConstruct
-    public void init() {
-        msiService = new WarningService(
-                getClass().getResource(MSI_WSDL),
-                new QName("http://enav.frv.dk/msi/ws/warning", "WarningService"))
-                .getMsiServiceBeanPort();
-        log.info("Initialized MSI webservice");
+    public LegacyMsiImportType getLegacyMsiImportType() {
+        String type = settings.get(LEGACY_MSI_IMPORT_TYPE);
+        return LegacyMsiImportType.get(type);
     }
 
-
     /**
-     * Called by clients to import active MSI messages from the legacy webservice
-     * @return the result
+     * Returns the legacy import type
      */
     @GET
-    public String importMsiWarnings() {
-        log.info("Importing legacy MSI warnings");
+    @Path("/import-type")
+    @Produces("application/json")
+    public String getImportType() {
+        return getLegacyMsiImportType().name();
+    }
 
-        int result = importWarnings();
-        auditor.info("Created or updated %s legacy MSI warnings", String.valueOf(result));
+    @PUT
+    @Path("/import-type")
+    @RolesAllowed({ "admin" })
+    public String setImportType(@FormParam("type") String type) {
+        log.info("Setting legacy MSI import type " + type);
 
-        return String.format("Created or updated %d legacy MSI warnings", result);
+        // Make sure the value is valid
+        type = LegacyMsiImportType.get(type).name();
+
+        // Update the setting
+        SettingsEntity setting = new SettingsEntity();
+        setting.setKey(LEGACY_MSI_IMPORT_TYPE.getSettingName());
+        setting.setValue(type);
+        settings.updateSetting(setting);
+        return "OK";
     }
 
 
     /**
-     * Returns the current list of active MSI warnings
-     *
-     * @return the current list of active MSI warnings
+     * Imports the legacy MSI warnings depending on the current MSI import type:
+     * <ul>
+     *     <li>If the type is "none", nothing happens.</li>
+     *     <li>If the type is "active" only active legacy MSI are imported.</li>
+     *     <li>If the type is "all", both active and inactive legacy MSI are imported.</li>
+     * </ul>
+     * @return the number of new or updated warnings
      */
+    @GET
+    @Produces("application/json;charset=UTF-8")
+    @Path("/import")
     @Lock(LockType.READ)
-    public List<MsiDto> getActiveWarnings() {
+    public int importLegacyMsi() {
+        LegacyMsiImportType type = getLegacyMsiImportType();
+        int count = 0;
 
-        // Update the WS endpoint
-        //String endpoint = "http://msi-beta.e-navigation.net/msi/ws/warning";
-        String endpoint = settings.get(LEGACY_MSI_ENDPOINT);
-        ((BindingProvider) msiService).getRequestContext()
-                .put(BindingProvider.ENDPOINT_ADDRESS_PROPERTY, endpoint);
-
-        List<MsiDto> result = new ArrayList<>();
-
-        boolean error = false;
-        for (String country : countries.split(",")) {
-            int count = 0;
-            try {
-                for (MsiDto md : msiService.getActiveWarningCountry(country).getItem()) {
-                    result.add(md);
-                    count++;
-                }
-            } catch (Throwable t) {
-                log.error("Error reading warnings from MSI service: " + endpoint + " for country: " + country, t);
-                error = true;
-            }
-            log.info("Read " + count + " warnings from MSI provider: " + country);
+        // Check if we need to import active legacy MSI
+        if (type == LegacyMsiImportType.ACTIVE || type == LegacyMsiImportType.ALL) {
+            count += legacyMsiDbImportService.importActiveMsiWarnings().size();
         }
-        log.info("Read " + result.size() + " warnings from MSI service: " + endpoint);
-        if (error) {
-            log.error("There was a problem reading MSI warnings from endpoint " + endpoint);
-            throw new RuntimeException();
-        }
-        return result;
 
+        // Check if we need to import old inactive legacy MSI
+        if (type == LegacyMsiImportType.ALL) {
+            // TODO
+        }
+
+        return count;
     }
 
     /**
@@ -137,21 +135,8 @@ public class LegacyMsiImportService {
      * @return the number of new or updated warnings
      */
     @Schedule(persistent = false, second = "13", minute = "*/5", hour = "*", dayOfWeek = "*", year = "*")
-    public int importWarnings() {
-
-        int newOrUpdatedWarnings = 0;
-
-        List<MsiDto> warnings = getActiveWarnings();
-        log.info("Fetched " + warnings.size() + " legacy MSI warnings");
-
-        for (MsiDto msi : warnings) {
-            boolean update = legacyMessageService.createOrUpdateNavwarnMessage(msi);
-            if (update) {
-                newOrUpdatedWarnings++;
-            }
-        }
-        return newOrUpdatedWarnings;
+    public int periodicLegacyMsiImport() {
+        return importLegacyMsi();
     }
 
 }
-

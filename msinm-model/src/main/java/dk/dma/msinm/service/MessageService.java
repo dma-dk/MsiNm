@@ -16,9 +16,14 @@
 package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.db.Sql;
+import dk.dma.msinm.common.sequence.DefaultSequence;
+import dk.dma.msinm.common.sequence.Sequence;
+import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Type;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
@@ -45,6 +50,9 @@ public class MessageService extends BaseService {
 
     @Inject
     private MessageCache messageCache;
+
+    @Inject
+    private Sequences sequences;
 
     @Inject
     @Sql("/sql/active_messages.sql")
@@ -91,16 +99,18 @@ public class MessageService extends BaseService {
     /**
      * Finds the message by the given message series values
      *
+     * @param type the type
      * @param messageNumber the message number
      * @param messageYear the message year
      * @param messageAuthority the message authority
      * @return the message or null if not found
      */
-    public Message findBySeriesIdentifier(int messageNumber, int messageYear, String messageAuthority) {
+    public Message findBySeriesIdentifier(SeriesIdType type, int messageNumber, int messageYear, String messageAuthority) {
         // Execute and return the result
         try {
             return em
                     .createNamedQuery("Message.findBySeriesIdentifier", Message.class)
+                    .setParameter("type", type)
                     .setParameter("number", messageNumber)
                     .setParameter("year", messageYear)
                     .setParameter("authority", messageAuthority)
@@ -108,6 +118,34 @@ public class MessageService extends BaseService {
         } catch (Exception ex) {
             return null;
         }
+    }
+
+    /**
+     * Creates a new series identifier number specific for the given type, authority and year
+     * @param type the message type
+     * @param authority the authority
+     * @param year the year
+     * @return the new series identifier number
+     */
+    public int newSeriesIdentifierNumber(Type type, String authority, int year) {
+        Sequence sequence = new DefaultSequence("MESSAGE_SERIES_ID_" + type.getPrefix() + "_" + authority + "_" + year, 0);
+        return (int)sequences.getNextValue(sequence);
+    }
+
+    /**
+     * Creates a new series identifier specific for the given type, authority and year
+     * @param type the message type
+     * @param authority the authority
+     * @param year the year
+     * @return the new series identifier
+     */
+    public SeriesIdentifier newSeriesIdentifier(Type type, String authority, int year) {
+        SeriesIdentifier identifier = new SeriesIdentifier();
+        identifier.setMainType(type.getSeriesIdType());
+        identifier.setAuthority(authority);
+        identifier.setYear(year);
+        identifier.setNumber(newSeriesIdentifierNumber(type, authority, year));
+        return identifier;
     }
 
     /**

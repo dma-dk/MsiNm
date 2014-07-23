@@ -110,11 +110,12 @@ public class MessageServiceTest extends MsiNmUnitTest {
     public static Message createMessage() throws ParseException {
         Message message = new Message();
 
-        message.setStatus(Status.ACTIVE);
+        message.setStatus(Status.PUBLISHED);
         message.setType(Type.NAVAREA_WARNING);
 
         // Message series identifier
         SeriesIdentifier identifier = new SeriesIdentifier();
+        identifier.setMainType(SeriesIdType.MSI);
         identifier.setAuthority("DMA");
         identifier.setYear(2013);
         identifier.setNumber(new Random(System.currentTimeMillis()).nextInt(1000) + 1);

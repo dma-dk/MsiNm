@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.legacy.nm;
 
+import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.util.PDFTextStripper;
@@ -116,6 +117,7 @@ public class ActiveTempPrelimNmPdfExtractor {
                 Matcher m = p.matcher(line.trim());
                 if (m.matches()) {
                     SeriesIdentifier id = new SeriesIdentifier();
+                    id.setMainType(SeriesIdType.NM);
                     id.setYear(year);
                     id.setNumber(Integer.valueOf(m.group(1)));
                     id.setAuthority(organization);

@@ -43,4 +43,12 @@ public enum Type {
     public boolean isNm() {
         return !msi;
     }
+
+    public String getPrefix() {
+        return isMsi() ? "MSI" : "NM";
+    }
+
+    public SeriesIdType getSeriesIdType() {
+        return isMsi() ? SeriesIdType.MSI : SeriesIdType.NM;
+    }
 }

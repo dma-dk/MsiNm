@@ -26,7 +26,7 @@
             <div translate>FRONT_PAGE_INTEGRATION_1</div>
 <pre style="font-size: 10px;">
 $.getJSON(
-  'http://theserver/rest/message/search?status=ACTIVE',
+  'http://theserver/rest/message/search?status=PUBLISHED',
   function(data) {
     $('#msiList').html(
        '&lt;h2&gt;Behold my ' + data.total + ' messages&lt;/h2&gt;'

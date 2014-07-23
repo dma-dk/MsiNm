@@ -17,6 +17,7 @@ package dk.dma.msinm.model;
 
 import javax.persistence.Embeddable;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -25,10 +26,13 @@ import java.io.Serializable;
  * A unique identifier for an MSI or NtM message
  */
 @Embeddable
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "authority", "number", "year"}))
+@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "mainType", "authority", "number", "year"}))
 public class SeriesIdentifier implements Serializable {
 
     private static final long serialVersionUID = 1L;
+
+    @NotNull
+    private SeriesIdType mainType;
 
     @NotNull
     private String authority;
@@ -38,7 +42,40 @@ public class SeriesIdentifier implements Serializable {
     
     @NotNull
     private Integer year;
-    
+
+    @Override
+    public String toString() {
+        return String.format("[%s %s %d %d]", mainType, authority, number, year);
+    }
+
+    /**
+     * Returns a short id for the series identifier with the format DK-184-14
+     * @return a short id for the series identifier
+     */
+    @Transient
+    public String getShortId() {
+        return String.format("%s-%03d-%02d", authority, number, year - 2000);
+    }
+
+    /**
+     * Returns a full id for the series identifier with the format MSI-DK-184-14
+     * @return a full id for the series identifier
+     */
+    @Transient
+    public String getFullId() {
+        return String.format("%s-%s-%03d-%02d", mainType, authority, number, year - 2000);
+    }
+
+    // *** Getters and setters
+
+    public SeriesIdType getMainType() {
+        return mainType;
+    }
+
+    public void setMainType(SeriesIdType mainType) {
+        this.mainType = mainType;
+    }
+
     public String getAuthority() {
         return authority;
     }
@@ -63,8 +100,4 @@ public class SeriesIdentifier implements Serializable {
         this.year = year;
     }
 
-    @Override
-    public String toString() {
-        return String.format("[%s %d %d]", authority, number, year);
-    }
 }

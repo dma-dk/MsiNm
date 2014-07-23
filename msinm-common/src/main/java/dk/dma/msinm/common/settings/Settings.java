@@ -31,6 +31,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 import java.util.Properties;
@@ -106,6 +107,17 @@ public class Settings {
         settingsCache.getCache().remove(setting.getKey());
 
         return setting;
+    }
+
+    /**
+     * Returns the value associated with the setting.
+     * If it does not exist, it is created
+     *
+     * @param key the setting key
+     * @return the associated value
+     */
+    public String get(String key) {
+        return get(new DefaultSetting(key));
     }
 
     /**
@@ -193,6 +205,17 @@ public class Settings {
     }
 
     /**
+     * Returns the setting as a Date
+     *
+     * @param setting the source
+     * @return the associated value
+     */
+    public Date getDate(Setting setting) {
+        String value = get(setting);
+        return StringUtils.isBlank(value) ? new Date() : new Date(Long.valueOf(value));
+    }
+
+    /**
      * Returns the setting as a Set
      *
      * @param setting the source
@@ -249,6 +272,18 @@ public class Settings {
     @dk.dma.msinm.common.settings.annotation.Setting
     public Path getPath(InjectionPoint ip) {
         return getPath(ip2setting(ip));
+    }
+
+    /**
+     * Injects the Date setting defined by the {@code @Setting} annotation
+     *
+     * @param ip the injection point
+     * @return the Date setting value
+     */
+    @Produces
+    @dk.dma.msinm.common.settings.annotation.Setting
+    public Date getDate(InjectionPoint ip) {
+        return getDate(ip2setting(ip));
     }
 
     /**

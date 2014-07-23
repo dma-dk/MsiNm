@@ -69,8 +69,8 @@ public class LegacyMsiServiceTest extends MsiNmUnitTest
 
     @Test
     public void test() {
-        log.info(String.format("Fetched %d legacy MSI warnings",
-                msiService.importWarnings()));
+        //log.info(String.format("Fetched %d legacy MSI warnings",
+        //        msiService.importWarnings()));
     }
 
 }

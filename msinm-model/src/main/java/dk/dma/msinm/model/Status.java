@@ -19,7 +19,31 @@ package dk.dma.msinm.model;
  * Defines the message status
  */
 public enum Status {
-    ACTIVE,
+
+    /**
+     * Draft is the state of a message before it has been published
+     */
     DRAFT,
+
+    /**
+     * The state of a message that has been published, and has not yet expired
+     */
+    PUBLISHED,
+
+    /**
+     * The state of a message that has been published and subsequently has expired,
+     * i.e. the validTo date has been passed
+     */
+    EXPIRED,
+
+    /**
+     * The state of a message that has been published and subsequently
+     * has been manually cancelled
+     */
+    CANCELLED,
+
+    /**
+     * The state of a draft that has been deleted
+     */
     DELETED
 }

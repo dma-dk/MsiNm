@@ -77,53 +77,6 @@
                 </configuration>
             </plugin>
 
-            <!-- Generate sources from wsdl -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>jaxws-maven-plugin</artifactId>
-                <version>1.12</version>
-                <executions>
-                    <execution>
-                        <id>wsimport-from-jdk</id>
-                        <goals>
-                            <goal>wsimport</goal>
-                        </goals>
-                    </execution>
-                </executions>
-                <configuration>
-                    <!--wsdls file directory -->
-                    <wsdlDirectory>${basedir}/src/main/resources/wsdl</wsdlDirectory>
-                    <!-- which wsdl file -->
-                    <wsdlFiles>
-                        <wsdlFile>warning.wsdl</wsdlFile>
-                    </wsdlFiles>
-                    <!-- Keep generated files -->
-                    <keep>true</keep>
-                    <!-- generated source files destination-->
-                    <sourceDestDir>${basedir}/target/generated</sourceDestDir>
-                    <sei/>
-                </configuration>
-            </plugin>
-
-            <!-- adding generated source -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>build-helper-maven-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>add-source</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>add-source</goal>
-                        </goals>
-                        <configuration>
-                            <sources>
-                                <source>${basedir}/target/generated</source>
-                            </sources>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
         </plugins>
     </build>
 
