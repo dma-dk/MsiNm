@@ -20,16 +20,15 @@ import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.SeriesIdType;
-import dk.dma.msinm.model.SeriesIdentifier;
-import dk.dma.msinm.model.Type;
+import dk.dma.msinm.model.*;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.Date;
@@ -66,6 +65,18 @@ public class MessageService extends BaseService {
     public Message create(Message message) {
         log.info("Creating message " + message);
         return saveEntity(message);
+    }
+
+    /**
+     * Updates the status of the given message
+     * @param msg the message
+     * @param status the status
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public void setStatus(Message msg, Status status) {
+        msg = getByPrimaryKey(Message.class, msg.getId());
+        msg.setStatus(status);
+        saveEntity(msg);
     }
 
     /**
@@ -159,6 +170,16 @@ public class MessageService extends BaseService {
                 .createNamedQuery("Message.findUpdateMessages", Message.class)
                 .setParameter("date", date)
                 .setMaxResults(maxCount)
+                .getResultList();
+    }
+
+    /**
+     * Returns all published messages that have expired
+     * @return all published messages that have expired
+     */
+    public List<Message> findPublishedExpiredMessages() {
+        return em
+                .createNamedQuery("Message.findPublishedExpiredMessages", Message.class)
                 .getResultList();
     }
 
