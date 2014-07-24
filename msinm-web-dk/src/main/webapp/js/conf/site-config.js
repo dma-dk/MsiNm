@@ -10,8 +10,8 @@ angular.module('msinm.conf')
         $rootScope.LEGACY_ADMIN_PAGE = true;
 
         // Set current language
-        $rootScope.modelLanguages = [ 'en', 'da' ];
-        $rootScope.siteLanguages = [ 'en', 'da' ];
+        $rootScope.modelLanguages = [ 'da', 'en' ];
+        $rootScope.siteLanguages = [ 'da', 'en' ];
         $rootScope.language =
             ($window.localStorage.lang && $.inArray($window.localStorage.lang, $rootScope.siteLanguages) > 0)
                 ? $window.localStorage.lang
