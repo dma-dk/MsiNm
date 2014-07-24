@@ -16,6 +16,7 @@
 package dk.dma.msinm.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Area;
@@ -44,30 +45,32 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
      * Constructor
      *
      * @param area the area
-     * @param copyOp what type of data to copy from the entity
+     * @param dataFilter what type of data to include from the entity
      */
-    public AreaVo(Area area, CopyOp copyOp) {
+    public AreaVo(Area area, DataFilter dataFilter) {
         super(area);
+
+        DataFilter compFilter = dataFilter.forComponent(Area.class);
 
         id = area.getId();
 
-        if (copyOp.copy("locations")) {
-            area.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, copyOp)));
+        if (compFilter.includeLocations()) {
+            area.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, compFilter)));
         }
 
-        if (copyOp.copy(CopyOp.CHILDREN)) {
-            area.getChildren().forEach(child -> checkCreateChildren().add(new AreaVo(child, copyOp)));
+        if (compFilter.includeChildren()) {
+            area.getChildren().forEach(child -> checkCreateChildren().add(new AreaVo(child, compFilter)));
         }
 
-        if (copyOp.copy(CopyOp.PARENT) && area.getParent() != null) {
-            parent = new AreaVo(area.getParent(), copyOp);
-        } else if (copyOp.copy(CopyOp.PARENT_ID) && area.getParent() != null) {
+        if (compFilter.includeParent() && area.getParent() != null) {
+            parent = new AreaVo(area.getParent(), compFilter);
+        } else if (compFilter.includeParentId() && area.getParent() != null) {
             parent = new AreaVo();
             parent.setId(area.getParent().getId());
         }
 
         area.getDescs().stream()
-            .filter(copyOp::copyLang)
+            .filter(compFilter::includeLang)
             .forEach(desc -> checkCreateDescs().add(new AreaDescVo(desc)));
     }
 

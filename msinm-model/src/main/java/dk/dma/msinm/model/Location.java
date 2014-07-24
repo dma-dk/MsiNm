@@ -20,6 +20,7 @@ import com.spatial4j.core.distance.DistanceUtils;
 import com.spatial4j.core.exception.InvalidShapeException;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.model.BaseEntity;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizable;
 import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.lucene.LuceneUtils;
@@ -225,8 +226,8 @@ public class Location extends BaseEntity<Integer> implements ILocalizable<Locati
      * {@inheritDoc}
      */
     @Override
-    public void preload() {
-        points.forEach(point -> point.preload());
+    public void preload(DataFilter dataFilter) {
+        points.forEach(point -> point.preload(dataFilter));
         descs.forEach(desc -> {});
     }
 }

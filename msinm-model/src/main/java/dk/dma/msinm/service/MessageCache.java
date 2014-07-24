@@ -34,7 +34,9 @@ import javax.inject.Inject;
 @ApplicationScoped
 public class MessageCache extends BaseCache {
 
-    final static long LIFESPAN = 10 * 60 * 1000; // 10 minutes
+    final static long LIFESPAN = 30 * 60 * 1000;   // 30 minutes
+    final static int MAX_ENTRIES = 20000;          // at most 20.000 messages
+
     final static String CACHE_ID = "messageCache";
 
     @Inject
@@ -65,7 +67,7 @@ public class MessageCache extends BaseCache {
         return new ConfigurationBuilder()
                 .clustering().cacheMode(CacheMode.LOCAL)
                 .locking().isolationLevel(IsolationLevel.REPEATABLE_READ)
-                .eviction().maxEntries(20000).strategy(EvictionStrategy.LRU)
+                .eviction().maxEntries(MAX_ENTRIES).strategy(EvictionStrategy.LRU)
                 .expiration().lifespan(LIFESPAN)
                 .build();
     }

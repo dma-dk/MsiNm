@@ -17,11 +17,12 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
+import dk.dma.msinm.common.db.Sql;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.CategoryDesc;
 import dk.dma.msinm.vo.CategoryVo;
-import dk.dma.msinm.vo.CopyOp;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -44,7 +45,14 @@ public class CategoryService extends BaseService {
     private Logger log;
 
     @Inject
+    private MessageService messageService;
+
+    @Inject
     private MsiNmApp app;
+
+    @Inject
+    @Sql("/sql/category_messages.sql")
+    private String categoryMessagesSql;
 
     /**
      * Returns the hierarchical list of root categories.
@@ -68,7 +76,7 @@ public class CategoryService extends BaseService {
         // Create a lookup map
         Map<Integer, CategoryVo> categoryLookup = new HashMap<>();
         categories.stream()
-                .forEach(category -> categoryLookup.put(category.getId(), new CategoryVo(category, CopyOp.get(CopyOp.PARENT_ID).setLang(language))));
+                .forEach(category -> categoryLookup.put(category.getId(), new CategoryVo(category, DataFilter.get(DataFilter.PARENT_ID).setLang(language))));
 
 
         // Add non-roots as child categories to their parent category
@@ -96,7 +104,7 @@ public class CategoryService extends BaseService {
         }
 
         // NB: No child categories included
-        return new CategoryVo(category, CopyOp.get());
+        return new CategoryVo(category, DataFilter.get());
     }
 
     /**
@@ -113,7 +121,12 @@ public class CategoryService extends BaseService {
         // Update lineage
         original.updateLineage();
 
-        return saveEntity(original);
+        original = saveEntity(original);
+
+        // Evict all cached messages for the category subtree
+        evictCachedMessages(original);
+
+        return original;
     }
 
     /**
@@ -168,7 +181,30 @@ public class CategoryService extends BaseService {
         updateLineages();
 
         // Return the update area
-        return getByPrimaryKey(Category.class, category.getId());
+        category = getByPrimaryKey(Category.class, category.getId());
+
+        // Evict all cached messages for the category subtree
+        evictCachedMessages(category);
+
+        return category;
+    }
+
+    /**
+     * Evict all cached messages for the given subtree of areas
+     * @param category the subtree to evict cached messaged for
+     */
+    private void evictCachedMessages(Category category) {
+        // Sanity check
+        if (category == null || category.getLineage() == null) {
+            return;
+        }
+
+        String sql = categoryMessagesSql.replace(":lineage", "'" + category.getLineage() + "%'");
+
+        List<?> ids = em.createNativeQuery(sql)
+                .getResultList();
+
+        ids.forEach(o -> messageService.evictCachedMessageId(((Number) o).intValue()));
     }
 
     /**

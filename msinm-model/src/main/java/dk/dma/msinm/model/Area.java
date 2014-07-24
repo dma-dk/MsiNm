@@ -15,7 +15,9 @@
  */
 package dk.dma.msinm.model;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizable;
+import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
 
 import javax.persistence.*;
@@ -35,7 +37,7 @@ import java.util.List;
         @NamedQuery(name  = "Area.findAreasWithDescs",
                 query = "select distinct a from Area a left join fetch a.descs")
 })
-public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc> {
+public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc>, IPreloadable {
 
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Area parent;
@@ -94,6 +96,25 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
                 ? "/" + id + "/"
                 : getParent().getLineage() + id + "/";
         return !lineage.equals(oldLineage);
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void preload(DataFilter dataFilter) {
+        DataFilter compFilter = dataFilter.forComponent(Area.class);
+
+        if (compFilter.includeParent() && getParent() != null) {
+            getParent().preload(compFilter);
+        }
+        if (compFilter.includeChildren()) {
+            getChildren().forEach(child -> child.preload(compFilter));
+        }
+        if (compFilter.includeLocations()) {
+            getLocations().forEach(loc -> loc.preload(compFilter));
+        }
+        getDescs().forEach(desc -> {});
     }
 
     /**

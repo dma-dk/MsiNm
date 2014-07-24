@@ -16,7 +16,7 @@
 package dk.dma.msinm.service;
 
 import dk.dma.msinm.model.Message;
-import dk.dma.msinm.vo.CopyOp;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.vo.MessageVo;
 
 import java.io.Serializable;
@@ -39,10 +39,10 @@ public class MessageSearchResult implements Serializable {
     /**
      * Add a list of messages to the search result
      * @param messages the messages to add
-     * @param copyOp what type of data to copy from the entity
+     * @param dataFilter what type of data to copy from the entity
      */
-    public void addMessages(List<Message> messages, CopyOp copyOp) {
-        messages.forEach(msg -> this.messages.add(new MessageVo(msg, copyOp)));
+    public void addMessages(List<Message> messages, DataFilter dataFilter) {
+        messages.forEach(msg -> this.messages.add(new MessageVo(msg, dataFilter)));
     }
 
     /**

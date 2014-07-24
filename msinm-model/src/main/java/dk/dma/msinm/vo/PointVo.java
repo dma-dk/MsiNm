@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.vo;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Location;
@@ -42,22 +43,22 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
      * @param point the point
      */
     public PointVo(Point point) {
-        this(point, new CopyOp());
+        this(point, new DataFilter());
     }
 
     /**
      * Constructor
      * @param point the point
-     * @param copyOp what type of data to copy from the entity
+     * @param dataFilter what type of data to include from the entity
      */
-    public PointVo(Point point, CopyOp copyOp) {
+    public PointVo(Point point, DataFilter dataFilter) {
         super(point);
 
         lat = point.getLat();
         lon = point.getLon();
         index = point.getIndex();
         point.getDescs().stream()
-            .filter(copyOp::copyLang)
+            .filter(dataFilter::includeLang)
             .forEach(desc -> checkCreateDescs().add(new PointDescVo(desc)));
     }
 

@@ -24,6 +24,7 @@ import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.CategoryService;
+import dk.dma.msinm.service.MessageService;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
@@ -51,6 +52,9 @@ public class LegacyMessageService extends BaseService {
 
     @Inject
     CategoryService categoryService;
+
+    @Inject
+    MessageService messageService;
 
     /**
      * Looks for a LegacyMessage with the given id. Returns null if not found
@@ -152,6 +156,9 @@ public class LegacyMessageService extends BaseService {
                 if (loc != null && loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() < 3) {
                     loc.setType(Location.LocationType.POLYLINE);
                 }
+                if (loc != null && loc.getType() == Location.LocationType.POLYLINE && loc.getPoints().size() < 2) {
+                    loc.setType(Location.LocationType.POINT);
+                }
             }
 
             // Substitute the template area with a persisted one
@@ -168,6 +175,10 @@ public class LegacyMessageService extends BaseService {
 
             legacyMessage = saveEntity(legacyMessage);
             log.info("Persisted legacy message " + legacyMessage);
+
+            // Evict the message from the message cache
+            messageService.evictCachedMessage(legacyMessage.getMessage());
+
         } catch (Exception e) {
             log.error("Error importing legacy message " + legacyMessage.getLegacyId(), e);
         }

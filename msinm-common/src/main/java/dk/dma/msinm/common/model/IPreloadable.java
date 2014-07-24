@@ -16,7 +16,7 @@
 package dk.dma.msinm.common.model;
 
 /**
- * Entitites implementing this interface should thus ensure that all realted
+ * Entities implementing this interface should thus ensure that all realted
  * entities get preloaded when the {@code preload()} method gets called.
  */
 public interface IPreloadable {
@@ -24,5 +24,13 @@ public interface IPreloadable {
     /**
      * Pre-load all related entities
      */
-    void preload();
+    default void preload() {
+        preload(new DataFilter(DataFilter.ALL));
+    }
+
+    /**
+     * Pre-load all related entities
+     * @param dataFilter what type of data to preload
+     */
+    void preload(DataFilter dataFilter);
 }

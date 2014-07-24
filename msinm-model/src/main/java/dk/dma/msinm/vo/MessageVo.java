@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.vo;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.*;
@@ -53,26 +54,28 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     /**
      * Constructor
      * @param message the message
-     * @param copyOp what type of data to copy from the entity
+     * @param dataFilter what type of data to include from the entity
      */
-    public MessageVo(Message message, CopyOp copyOp) {
+    public MessageVo(Message message, DataFilter dataFilter) {
         super(message);
+
+        DataFilter compFilter = dataFilter.forComponent(Message.class);
 
         id = message.getId();
 
         seriesIdentifier = message.getSeriesIdentifier();
         type = message.getType();
-        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), copyOp);
-        message.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, copyOp)));
+        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), compFilter);
+        message.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, compFilter)));
         validFrom = message.getValidFrom();
         validTo = message.getValidTo();
         message.getDescs().stream()
-                .filter(copyOp::copyLang)
+                .filter(compFilter::includeLang)
                 .forEach(desc -> checkCreateDescs().add(new MessageDescVo(desc)));
 
-        if (copyOp.copy("details")) {
+        if (compFilter.include("details")) {
             status = message.getStatus();
-            message.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, CopyOp.get(CopyOp.PARENT))));
+            message.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, DataFilter.get(DataFilter.PARENT))));
             message.getCharts().forEach(chart -> checkCreateCharts().add(new ChartVo(chart)));
             horizontalDatum = message.getHorizontalDatum();
             cancellationDate = message.getCancellationDate();

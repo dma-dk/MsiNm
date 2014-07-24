@@ -146,7 +146,7 @@ public class LegacyMsiImportService extends BaseService {
      * @return the last updated date
      */
     public Date importMsi(List<LegacyMessage> result, String sql, String type, Date... dataParams) {
-        log.info("Start importing at most " + LIMIT + " " + type + " legacy MSI warnings from local DB");
+        log.debug("Start importing at most " + LIMIT + " " + type + " legacy MSI warnings from local DB");
 
         Date lastUpdate = null;
         Connection conn = null;
@@ -176,7 +176,7 @@ public class LegacyMsiImportService extends BaseService {
                 ids.add(rs.getInt("id"));
             }
             rs.close();
-            log.info(String.format("Fetched %d ID's for %s legacy MSI in %d ms", ids.size(), type, System.currentTimeMillis() - t0));
+            log.debug(String.format("Fetched %d ID's for %s legacy MSI in %d ms", ids.size(), type, System.currentTimeMillis() - t0));
 
             // Import the MSI's
             if (ids.size() > 0) {
@@ -200,7 +200,7 @@ public class LegacyMsiImportService extends BaseService {
      * @return the result
      */
     private Date importMsi(List<Integer> ids, Connection conn, List<LegacyMessage> result) {
-        log.info("Start importing at most " + LIMIT + " legacy MSI warnings from local DB");
+        log.debug("Start importing at most " + LIMIT + " legacy MSI warnings from local DB");
         long t0 = System.currentTimeMillis();
 
         Date lastUpdate = null;
@@ -211,7 +211,7 @@ public class LegacyMsiImportService extends BaseService {
             String sql = legacyMsiDataSql
                     .replace(":ids", StringUtils.join(ids, ","));
 
-            log.info("Executing SQL\n" + sql);
+            log.debug("Executing SQL\n" + sql);
             ResultSet rs = stmt.executeQuery(sql);
 
             Integer skipId = null;
@@ -402,7 +402,7 @@ public class LegacyMsiImportService extends BaseService {
                 legacyMessageService.saveLegacyMessage(legacyMessage);
             }
 
-            log.info(String.format("Import completed in %d ms", System.currentTimeMillis() - t0));
+            log.info(String.format("Import of %d legacy messages completed in %d ms", result.size(), System.currentTimeMillis() - t0));
 
             rs.close();
             stmt.close();

@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.user;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
 import org.apache.commons.lang.StringUtils;
@@ -194,7 +195,7 @@ public class User extends VersionedEntity<Integer> implements Principal, IPreloa
      * {@inheritDoc}
      */
     @Override
-    public void preload() {
+    public void preload(DataFilter dataFilter) {
         getRoles().forEach(r -> {});
     }
 }

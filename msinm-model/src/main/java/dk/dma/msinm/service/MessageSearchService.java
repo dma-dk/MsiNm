@@ -22,16 +22,8 @@ import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
-import dk.dma.msinm.model.Area;
-import dk.dma.msinm.model.AreaDesc;
-import dk.dma.msinm.model.Category;
-import dk.dma.msinm.model.CategoryDesc;
-import dk.dma.msinm.model.Location;
-import dk.dma.msinm.model.LocationDesc;
-import dk.dma.msinm.model.Message;
-import dk.dma.msinm.model.PointDesc;
-import dk.dma.msinm.model.SeriesIdentifier;
-import dk.dma.msinm.vo.CopyOp;
+import dk.dma.msinm.model.*;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.vo.LocationVo;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.lucene.document.Document;
@@ -49,19 +41,11 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
-import javax.ejb.Schedule;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import javax.ejb.*;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -402,30 +386,11 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // **********************************************************************************/
             // ********** Query 2: Fetch messages with the paged set of id's             ********/
             // **********************************************************************************/
-            tupleQuery = builder.createTupleQuery();
-            msgRoot = tupleQuery.from(Message.class);
-            msgRoot.join("seriesIdentifier", JoinType.LEFT);
-            msgId = msgRoot.get("seriesIdentifier");
 
-            // Build the predicate
-            PredicateHelper<Tuple> msgPredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
-                    .in(msgRoot.get("id"), pagedMsgIds);
+            // Fetch the cached messages
+            List<Message> messages = messageService.getCachedMessages(pagedMsgIds);
 
-            // Complete the query
-            tupleQuery.multiselect(msgRoot, msgId.get("year"), msgId.get("number"))
-                    .distinct(true)
-                    .where(msgPredicateBuilder.where());
-            sortQuery(param, builder, tupleQuery, msgRoot, msgId);
-
-            // Execute the query and update the search result
-            List<Tuple> pagedResult = em
-                    .createQuery(tupleQuery)
-                    .getResultList();
-
-            // Copy the specified language and parent references of the included Area
-            List<Message> messages = new ArrayList<>();
-            pagedResult.stream().forEach(t -> messages.add((Message) t.get(0)));
-            result.addMessages(messages, CopyOp.get(CopyOp.PARENT, "details").setLang(param.getLanguage()));
+            result.addMessages(messages, DataFilter.get("Message.details", "Area.parent", "Category.parent").setLang(param.getLanguage()));
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");

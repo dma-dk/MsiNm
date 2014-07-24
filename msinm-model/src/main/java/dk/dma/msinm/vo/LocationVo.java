@@ -16,6 +16,7 @@
 package dk.dma.msinm.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Location;
@@ -46,22 +47,22 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
      * @param location the location
      */
     public LocationVo(Location location) {
-        this(location, CopyOp.get("points"));
+        this(location, DataFilter.get("points"));
     }
 
     /**
      * Constructor
      * @param location the location
-     * @param copyOp what type of data to copy from the entity
+     * @param dataFilter what type of data to include from the entity
      */
-    public LocationVo(Location location, CopyOp copyOp) {
+    public LocationVo(Location location, DataFilter dataFilter) {
         super(location);
 
         type = location.getType().toString();
         radius = location.getRadius();
-        location.getPoints().forEach(point -> checkCreatePoints().add(new PointVo(point, copyOp)));
+        location.getPoints().forEach(point -> checkCreatePoints().add(new PointVo(point, dataFilter)));
         location.getDescs().stream()
-                .filter(copyOp::copyLang)
+                .filter(dataFilter::includeLang)
                 .forEach(desc -> checkCreateDescs().add(new LocationDescVo(desc)));
     }
 

@@ -23,7 +23,7 @@ import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
-import dk.dma.msinm.vo.CopyOp;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -87,7 +87,7 @@ public class MessageRestService {
     public List<MessageVo> getAll() {
         return messageService.getActive()
                 .stream()
-                .map(message -> new MessageVo(message, CopyOp.get("details")))
+                .map(message -> new MessageVo(message, DataFilter.get("details")))
                 .collect(Collectors.toList());
     }
 

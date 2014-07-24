@@ -31,8 +31,11 @@ public class MessageExpiryService {
     public void checkForExpiredMessages() {
 
         List<Message> messages = messageService.findPublishedExpiredMessages();
-        log.info("Found " + messages.size() + " expired published messages");
+        if (messages.size() == 0) {
+            return;
+        }
 
+        log.info("Found " + messages.size() + " expired published messages");
         messages.forEach(msg -> {
             try {
                 messageService.setStatus(msg, Status.EXPIRED);

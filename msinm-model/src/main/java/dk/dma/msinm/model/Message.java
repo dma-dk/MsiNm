@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.model;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizable;
 import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
@@ -119,14 +120,24 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
      * {@inheritDoc}
      */
     @Override
-    public void preload() {
+    public void preload(DataFilter dataFilter) {
+        DataFilter compFilter = dataFilter.forComponent(Message.class);
+
         getSeriesIdentifier();
-        getLocations().forEach(Location::preload);
+
+        if (compFilter.includeAnyOf("details", DataFilter.LOCATIONS)) {
+            getLocations().forEach(Location::preload);
+        }
+        if (compFilter.include("details")) {
+            getCharts().forEach(chart -> {});
+            getReferences().forEach(id -> {});
+            getLightsListNumbers().forEach(light -> {});
+            getCategories().forEach(cat -> cat.preload(compFilter));
+            if (getArea() != null) {
+                getArea().preload(compFilter);
+            }
+        }
         getDescs().forEach(desc -> {});
-        getCategories().forEach(cat -> {});
-        getCharts().forEach(chart -> {});
-        getArea();
-        getReferences().forEach(id -> {});
     }
 
     /******** Getters and setters *********/

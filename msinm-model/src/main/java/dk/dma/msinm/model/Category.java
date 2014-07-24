@@ -15,7 +15,9 @@
  */
 package dk.dma.msinm.model;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizable;
+import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
 
 import javax.persistence.*;
@@ -32,7 +34,7 @@ import java.util.List;
         @NamedQuery(name  = "Category.findCategoriesWithDescs",
                 query = "select distinct c from Category c left join fetch c.descs")
 })
-public class Category extends VersionedEntity<Integer> implements ILocalizable<CategoryDesc> {
+public class Category extends VersionedEntity<Integer> implements ILocalizable<CategoryDesc>, IPreloadable {
 
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
     private Category parent;
@@ -98,6 +100,22 @@ public class Category extends VersionedEntity<Integer> implements ILocalizable<C
     @Transient
     public boolean isRootCategory() {
         return parent == null;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void preload(DataFilter dataFilter) {
+        DataFilter compFilter = dataFilter.forComponent(Category.class);
+
+        if (compFilter.includeParent() && getParent() != null) {
+            getParent().preload(compFilter);
+        }
+        if (compFilter.includeChildren()) {
+            getChildren().forEach(child -> child.preload(compFilter));
+        }
+        getDescs().forEach(desc -> {});
     }
 
     public Category getParent() {

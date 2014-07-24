@@ -16,6 +16,7 @@
 package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.db.Sql;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
 import dk.dma.msinm.common.sequence.Sequences;
@@ -30,11 +31,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * Business interface for accessing MSI-NM messages
@@ -43,6 +40,8 @@ import java.util.Set;
 @SecurityDomain("msinm-policy")
 @PermitAll
 public class MessageService extends BaseService {
+
+    private static final DataFilter CACHED_MESSAGE_DATA = DataFilter.get("Message.details", "Area.parent", "Category.parent");
 
     @Inject
     private Logger log;
@@ -67,6 +66,20 @@ public class MessageService extends BaseService {
         return saveEntity(message);
     }
 
+    public Message saveMessage(Message message) {
+        boolean wasPersisted = message.isPersisted();
+
+        // Save the message
+        message = saveEntity(message);
+
+        // If it is not a new message, evict it from the message cache
+        if (wasPersisted) {
+            evictCachedMessage(message);
+        }
+
+        return message;
+    }
+
     /**
      * Updates the status of the given message
      * @param msg the message
@@ -77,6 +90,9 @@ public class MessageService extends BaseService {
         msg = getByPrimaryKey(Message.class, msg.getId());
         msg.setStatus(status);
         saveEntity(msg);
+
+        // Un-cache the message
+        evictCachedMessage(msg);
     }
 
     /**
@@ -189,18 +205,75 @@ public class MessageService extends BaseService {
      * @param id the id of the message
      * @return the cached message
      */
-    @SuppressWarnings("unused")
     public Message getCachedMessage(Integer id) {
         Message message = messageCache.getCache().get(id);
         if (message == null) {
             message = findById(id);
             if (message != null) {
-                message.preload();
+                message.preload(CACHED_MESSAGE_DATA);
                 em.detach(message);
                 messageCache.getCache().put(id, message);
             }
         }
         return message;
+    }
+
+    /**
+     * Fetches and caches the messages with the given ids.
+     * Related data structures, such as locations are pre-fetched for the message
+     * @param ids the id of the message
+     * @return the cached messages
+     */
+    public List<Message> getCachedMessages(List<Integer> ids) {
+        List<Message> messages = new ArrayList<>();
+        ids.forEach(id -> {
+            Message message = getCachedMessage(id);
+            if (message != null) {
+                messages.add(message);
+            }
+        });
+        return messages;
+    }
+
+    /**
+     * Evicts the message with the given id from the cache
+     * @param id the id of the message to evict
+     */
+    public void evictCachedMessageId(Integer id) {
+        if (id != null) {
+            messageCache.getCache().remove(id);
+        }
+    }
+
+    /**
+     * Evicts the messages with the given ids from the cache
+     * @param ids the ids of the messages to evict
+     */
+    public void evictCachedMessageIds(List<Integer> ids) {
+        if (ids != null) {
+            ids.forEach(this::evictCachedMessageId);
+        }
+    }
+
+    /**
+     *
+     * Evicts the message from the cache
+     * @param message the message to evict
+     */
+    public void evictCachedMessage(Message message) {
+        if (message != null) {
+            evictCachedMessageId(message.getId());
+        }
+    }
+
+    /**
+     * Evicts the messages from the cache
+     * @param messages the messages to evict
+     */
+    public void evictCachedMessages(List<Message> messages) {
+        if (messages != null) {
+            messages.forEach(this::evictCachedMessage);
+        }
     }
 
     /**

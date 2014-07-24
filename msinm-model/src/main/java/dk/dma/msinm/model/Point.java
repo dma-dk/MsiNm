@@ -16,6 +16,7 @@
 package dk.dma.msinm.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizable;
 import dk.dma.msinm.common.model.IPreloadable;
 
@@ -159,7 +160,7 @@ public class Point extends BaseEntity<Integer> implements ILocalizable<PointDesc
      * {@inheritDoc}
      */
     @Override
-    public void preload() {
+    public void preload(DataFilter dataFilter) {
         descs.forEach(desc -> {});
     }
 }

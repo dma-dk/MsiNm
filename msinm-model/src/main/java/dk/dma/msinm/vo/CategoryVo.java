@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.vo;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Category;
@@ -42,26 +43,28 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
      * Constructor
      *
      * @param category the category
-     * @param copyOp what type of data to copy from the entity
+     * @param dataFilter what type of data to include from the entity
      */
-    public CategoryVo(Category category, CopyOp copyOp) {
+    public CategoryVo(Category category, DataFilter dataFilter) {
         super(category);
+
+        DataFilter compFilter = dataFilter.forComponent(Category.class);
 
         id = category.getId();
 
-        if (copyOp.copy(CopyOp.CHILDREN)) {
-            category.getChildren().forEach(child -> checkCreateChildren().add(new CategoryVo(child, copyOp)));
+        if (compFilter.includeChildren()) {
+            category.getChildren().forEach(child -> checkCreateChildren().add(new CategoryVo(child, compFilter)));
         }
 
-        if (copyOp.copy(CopyOp.PARENT) && category.getParent() != null) {
-            parent = new CategoryVo(category.getParent(), copyOp);
-        } else if (copyOp.copy(CopyOp.PARENT_ID) && category.getParent() != null) {
+        if (compFilter.includeParent() && category.getParent() != null) {
+            parent = new CategoryVo(category.getParent(), compFilter);
+        } else if (compFilter.includeParentId() && category.getParent() != null) {
             parent = new CategoryVo();
             parent.setId(category.getParent().getId());
         }
 
         category.getDescs().stream()
-            .filter(copyOp::copyLang)
+            .filter(compFilter::includeLang)
             .forEach(desc -> checkCreateDescs().add(new CategoryDescVo(desc)));
     }
 

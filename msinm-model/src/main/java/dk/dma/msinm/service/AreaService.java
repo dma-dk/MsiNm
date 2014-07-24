@@ -17,11 +17,12 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
+import dk.dma.msinm.common.db.Sql;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.AreaDesc;
 import dk.dma.msinm.vo.AreaVo;
-import dk.dma.msinm.vo.CopyOp;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -44,7 +45,14 @@ public class AreaService extends BaseService {
     private Logger log;
 
     @Inject
+    MessageService messageService;
+
+    @Inject
     private MsiNmApp app;
+
+    @Inject
+    @Sql("/sql/area_messages.sql")
+    private String areaMessagesSql;
 
     /**
      * Searchs for areas matching the given term in the given language
@@ -64,8 +72,8 @@ public class AreaService extends BaseService {
                     .setMaxResults(limit)
                     .getResultList();
 
-            CopyOp copyOp = CopyOp.get(CopyOp.PARENT).setLang(lang);
-            areas.forEach(area -> result.add(new AreaVo(area, copyOp)));
+            DataFilter dataFilter = DataFilter.get(DataFilter.PARENT).setLang(lang);
+            areas.forEach(area -> result.add(new AreaVo(area, dataFilter)));
         }
         return result;
     }
@@ -94,7 +102,7 @@ public class AreaService extends BaseService {
         //        .collect(Collectors.toMap(Area::getId, area -> new AreaVo(area, language)));
         Map<Integer, AreaVo> areaLookup = new HashMap<>();
         areas.stream()
-                .forEach(area -> areaLookup.put(area.getId(), new AreaVo(area, CopyOp.get(CopyOp.PARENT_ID).setLang(language))));
+                .forEach(area -> areaLookup.put(area.getId(), new AreaVo(area, DataFilter.get(DataFilter.PARENT_ID).setLang(language))));
 
 
         // Add non-roots as child areas to their parent area
@@ -122,7 +130,7 @@ public class AreaService extends BaseService {
         }
 
         // NB: No child areas included
-        return new AreaVo(area, CopyOp.get("locations"));
+        return new AreaVo(area, DataFilter.get("locations"));
     }
 
     /**
@@ -143,7 +151,12 @@ public class AreaService extends BaseService {
         // Update lineage
         original.updateLineage();
 
-        return saveEntity(original);
+        original = saveEntity(original);
+
+        // Evict all cached messages for the area subtree
+        evictCachedMessages(original);
+
+        return original;
     }
 
     /**
@@ -199,7 +212,30 @@ public class AreaService extends BaseService {
         updateLineages();
 
         // Return the update area
-        return getByPrimaryKey(Area.class, area.getId());
+        area = getByPrimaryKey(Area.class, area.getId());
+
+        // Evict all cached messages for the area subtree
+        evictCachedMessages(area);
+
+        return area;
+    }
+
+    /**
+     * Evict all cached messages for the given subtree of areas
+     * @param area the subtree to evict cacahed messaged for
+     */
+    private void evictCachedMessages(Area area) {
+        // Sanity check
+        if (area == null || area.getLineage() == null) {
+            return;
+        }
+
+        String sql = areaMessagesSql.replace(":lineage", "'" + area.getLineage() + "%'");
+
+        List<?> ids = em.createNativeQuery(sql)
+                .getResultList();
+
+        ids.forEach(o -> messageService.evictCachedMessageId(((Number) o).intValue()));
     }
 
     /**
