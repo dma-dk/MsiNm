@@ -69,8 +69,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
             parent.setId(area.getParent().getId());
         }
 
-        area.getDescs().stream()
-            .filter(compFilter::includeLang)
+        area.getDescs(compFilter).stream()
             .forEach(desc -> checkCreateDescs().add(new AreaDescVo(desc)));
     }
 

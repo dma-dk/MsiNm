@@ -37,6 +37,35 @@ public interface ILocalizable<D extends ILocalizedDesc> {
     public void setDescs(List<D> descs);
 
     /**
+     * Returns the list of localized descriptions as specified by the data filter.
+     * <p>
+     *     If no description matches the filter, the first available description is included.
+     * </p>
+     *
+     * @param dataFilter defines the languages to include from the entity
+     * @return the list of localized descriptions as specified by the data filter
+     */
+    @Transient
+    default public List<D> getDescs(DataFilter dataFilter) {
+        // Sanity checks
+        if (dataFilter == null || getDescs() == null) {
+            return getDescs();
+        }
+
+        // Collect the matching descriptions
+        List<D> result = new ArrayList<>();
+        getDescs().stream()
+                .filter(dataFilter::includeLang)
+                .forEach(result::add);
+
+        // If no match is found, pick the first available
+        if (result.isEmpty() && !getDescs().isEmpty()) {
+            result.add(getDescs().get(0));
+        }
+        return result;
+    }
+
+    /**
      * Returns the list of localized descriptions and creates the list if necessary
      * @return the list of localized descriptions
      */

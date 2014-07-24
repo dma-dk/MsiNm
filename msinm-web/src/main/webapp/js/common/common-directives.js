@@ -34,14 +34,12 @@ angular.module('msinm.common')
             template: "<img height='16' ng-click='copyText()'/>",
             replace: true,
             scope: {
-                country: "=",
-                copyFrom: "@",
-                copyTo: "@",
+                lang: "=",
                 style: "@"
             },
             link: function(scope, element, attrs) {
                 scope.$watch(function() {
-                        return scope.country;
+                        return scope.lang;
                     },
                     function(newValue) {
                         if (newValue) {
@@ -51,12 +49,6 @@ angular.module('msinm.common')
 
                 if (scope.style) {
                     element.attr('style', scope.style);
-                }
-
-                scope.copyText = function() {
-                    if (scope.copyFrom && scope.copyTo) {
-                        $('#' + scope.copyTo).val($('#' + scope.copyFrom).val());
-                    }
                 }
             }
         };

@@ -61,8 +61,7 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
         type = location.getType().toString();
         radius = location.getRadius();
         location.getPoints().forEach(point -> checkCreatePoints().add(new PointVo(point, dataFilter)));
-        location.getDescs().stream()
-                .filter(dataFilter::includeLang)
+        location.getDescs(dataFilter).stream()
                 .forEach(desc -> checkCreateDescs().add(new LocationDescVo(desc)));
     }
 

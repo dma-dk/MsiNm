@@ -12,6 +12,9 @@
                 <div>
                     <strong msi-message-id="msg"></strong>.
                     <strong msi-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
+                    <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
+                        ( <flag lang="msg.descs[0].lang" style="height: 12px;" style="opacity: 0.5;"></flag> )
+                    </span>
                 </div>
 
                 <!-- Reference lines -->

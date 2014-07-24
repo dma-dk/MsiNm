@@ -57,8 +57,7 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
         lat = point.getLat();
         lon = point.getLon();
         index = point.getIndex();
-        point.getDescs().stream()
-            .filter(dataFilter::includeLang)
+        point.getDescs(dataFilter).stream()
             .forEach(desc -> checkCreateDescs().add(new PointDescVo(desc)));
     }
 

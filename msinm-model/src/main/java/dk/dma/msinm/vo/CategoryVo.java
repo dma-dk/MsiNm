@@ -63,8 +63,7 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
             parent.setId(category.getParent().getId());
         }
 
-        category.getDescs().stream()
-            .filter(compFilter::includeLang)
+        category.getDescs(compFilter).stream()
             .forEach(desc -> checkCreateDescs().add(new CategoryDescVo(desc)));
     }
 

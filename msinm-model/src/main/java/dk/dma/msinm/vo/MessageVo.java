@@ -69,13 +69,12 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         message.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, compFilter)));
         validFrom = message.getValidFrom();
         validTo = message.getValidTo();
-        message.getDescs().stream()
-                .filter(compFilter::includeLang)
+        message.getDescs(compFilter).stream()
                 .forEach(desc -> checkCreateDescs().add(new MessageDescVo(desc)));
 
         if (compFilter.include("details")) {
             status = message.getStatus();
-            message.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, DataFilter.get(DataFilter.PARENT))));
+            message.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, compFilter)));
             message.getCharts().forEach(chart -> checkCreateCharts().add(new ChartVo(chart)));
             horizontalDatum = message.getHorizontalDatum();
             cancellationDate = message.getCancellationDate();
