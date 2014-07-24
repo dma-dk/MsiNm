@@ -36,8 +36,11 @@
                 </div>
             </div>
             <hr/>
-            <div style="font-size: small">
-                Or log in using <a class="fa fa-google" href="/oauth/login/google"> google</a>
+            <div style="font-size: small" ng-if="OAUTH_LOGINS">
+                Or log in using
+                <span ng-repeat="oauth in OAUTH_LOGINS">
+                    <a class="{{oauth.icon}}" href="/oauth/login/{{oauth.id}}"> {{oauth.name}}</a>
+                </span>
             </div>
         </form>
 

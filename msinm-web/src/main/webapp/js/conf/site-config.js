@@ -8,6 +8,7 @@ angular.module('msinm.conf')
     .run(['$rootScope', '$translate', '$window', function ($rootScope, $translate, $window) {
 
         $rootScope.LEGACY_ADMIN_PAGE = false;
+        $rootScope.OAUTH_LOGINS = [];
 
         $rootScope.modelLanguages = [ 'en' ];
         $rootScope.siteLanguages = [ 'en' ];
