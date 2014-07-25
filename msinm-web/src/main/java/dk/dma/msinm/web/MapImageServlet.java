@@ -74,6 +74,10 @@ public class MapImageServlet extends HttpServlet  {
     Long mapImageSize;
 
     @Inject
+    @Setting(value = "mapImageIndent", defaultValue = "22")
+    Long mapImageIndent;
+
+    @Inject
     @Setting(value = "mapImageZoomLevel", defaultValue = "8")
     Long zoomLevel;
 
@@ -129,6 +133,37 @@ public class MapImageServlet extends HttpServlet  {
         response.sendRedirect(IMAGE_PLACEHOLDER);
     }
 
+    /**
+     * Fetches the map image and crops it if specified
+     * @param centerPt the center point
+     * @param zoom the zoom level
+     * @return the image
+     */
+    private BufferedImage fetchMapImage(Point centerPt, int zoom) throws  IOException {
+        // Fetch the image
+        long fetchSize = mapImageSize + 2 * mapImageIndent;
+        String url = String.format(
+                STATIC_IMAGE_URL,
+                centerPt.getLat(),
+                centerPt.getLon(),
+                zoom,
+                fetchSize,
+                fetchSize);
+
+        BufferedImage image = ImageIO.read(new URL(url));
+
+        // Check if we need to crop the image (e.g. to remove watermarks)
+        if (mapImageIndent > 0) {
+            // NB: sub-images share the same image buffer as the source image
+            image = image.getSubimage(
+                    mapImageIndent.intValue(),
+                    mapImageIndent.intValue(),
+                    mapImageSize.intValue(),
+                    mapImageSize.intValue());
+        }
+
+        return image;
+    }
 
     /**
      * Attempts to create a map image for the message at the given path
@@ -155,9 +190,7 @@ public class MapImageServlet extends HttpServlet  {
                      : computeZoomLevel(bounds, maxWH, maxWH, 12, 4);
 
             // Fetch the image
-            String url = String.format(STATIC_IMAGE_URL, centerPt.getLat(), centerPt.getLon(), zoom, mapImageSize, mapImageSize);
-
-            BufferedImage image = ImageIO.read(new URL(url));
+            BufferedImage image = fetchMapImage(centerPt, zoom);
             Graphics2D g2 = image.createGraphics();
             GraphicsUtils.antialias(g2);
             g2.setStroke(new BasicStroke(2.0f));
