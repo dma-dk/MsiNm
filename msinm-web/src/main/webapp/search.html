@@ -43,19 +43,21 @@
 <div class="container-fluid"  style="overflow: visible;">
 
     <!-- Search result type menu bar -->
-    <div class="row-fluid searchResultTypeBar">
-        <span class="searchResultTypeBtn" ng-click="go('/search/grid')" check-active="/search/grid">
-            <span class="glyphicon glyphicon-th"></span> <span class="searchResultTypeText">Grid</span>
-        </span>
-        <span class="searchResultTypeBtn" ng-click="go('/search/details')" check-active="/search/details">
-            <span class="glyphicon glyphicon-th-list"></span> <span class="searchResultTypeText">Details</span>
-        </span>
-        <span class="searchResultTypeBtn" ng-click="go('/search/table')" check-active="/search/table">
-            <span class="glyphicon glyphicon-align-justify"></span> <span class="searchResultTypeText">Table</span>
-        </span>
-        <span class="searchResultTypeBtn" ng-click="go('/search/map')" check-active="/search/map">
-            <span class="glyphicon glyphicon-globe"></span> <span class="searchResultTypeText">Map</span>
-        </span>
+    <div class="row-fluid searchResultTypeBar visibleOnMap">
+        <div class="input-group col-xs-12 col-sm-8 col-md-6 col-lg-6 center">
+            <span class="searchResultTypeBtn" ng-click="go('/search/grid')" check-active="/search/grid">
+                <span class="glyphicon glyphicon-th"></span> <span class="searchResultTypeText">Grid</span>
+            </span>
+            <span class="searchResultTypeBtn" ng-click="go('/search/details')" check-active="/search/details">
+                <span class="glyphicon glyphicon-th-list"></span> <span class="searchResultTypeText">Details</span>
+            </span>
+            <span class="searchResultTypeBtn" ng-click="go('/search/table')" check-active="/search/table">
+                <span class="glyphicon glyphicon-align-justify"></span> <span class="searchResultTypeText">Table</span>
+            </span>
+            <span class="searchResultTypeBtn" ng-click="go('/search/map')" check-active="/search/map">
+                <span class="glyphicon glyphicon-globe"></span> <span class="searchResultTypeText">Map</span>
+            </span>
+        </div>
     </div>
 
     <form class="search-form form-horizontal" style="padding-top: 20px;" role="form" novalidate>
@@ -63,31 +65,33 @@
 
 
             <!-- Search field -->
-            <div class="input-group">
-                <div class="input-group-btn">
-                    <button type="submit" class="btn btn-primary" ng-click="newSearch()">
-                        <span class="glyphicon glyphicon-search"></span> Search
-                    </button>
-                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
-                        <span class="caret"></span>
-                    </button>
-                    <ul class="dropdown-menu" role="menu" style="font-size: 12px;">
-                        <li style="color: lightgray;">&nbsp;Filter by</li>
-                        <li><a href ng-click="toggleFilterOnDate()">Date</a></li>
-                        <li><a href ng-click="toggleFilterOnLocation()">Location</a></li>
-                        <li><a href ng-click="toggleFilterOnType()">Type</a></li>
-                        <li class="divider"></li>
-                        <li><a href ng-click="pdf()">Generate PDF</a></li>
-                    </ul>
+            <div class="visibleOnMap" style="z-index: 300;">
+                <div class="input-group">
+                    <div class="input-group-btn">
+                        <button type="submit" class="btn btn-primary" ng-click="newSearch()">
+                            <span class="glyphicon glyphicon-search"></span> Search
+                        </button>
+                        <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu" style="font-size: 12px;">
+                            <li style="color: lightgray;">&nbsp;Filter by</li>
+                            <li><a href ng-click="toggleFilterOnDate()">Date</a></li>
+                            <li><a href ng-click="toggleFilterOnLocation()">Location</a></li>
+                            <li><a href ng-click="toggleFilterOnType()">Type</a></li>
+                            <li class="divider"></li>
+                            <li><a href ng-click="pdf()">Generate PDF</a></li>
+                        </ul>
+                    </div>
+                    <input id="query" type="text" class="form-control" placeholder="Search Terms" ng-model="query"
+                           focus="focusMe"
+                           data-content='Search using e.g. <code>+important</code>, <code>-excluded</code>, <code>par*ly</code> or <code>"exact match"</code>'
+                           data-placement="bottom" data-html="true" data-trigger="hover">
                 </div>
-                <input id="query" type="text" class="form-control" placeholder="Search Terms" ng-model="query"
-                       focus="focusMe"
-                       data-content='Search using e.g. <code>+important</code>, <code>-excluded</code>, <code>par*ly</code> or <code>"exact match"</code>'
-                       data-placement="bottom" data-html="true" data-trigger="hover">
             </div>
 
             <!-- Date fields -->
-            <div class="searchFilterPanel" ng-show="filterOnDate">
+            <div class="searchFilterPanel visibleOnMap" ng-show="filterOnDate">
                 <div class="row">
                     <div class="col-xs-6 col-sm-5 col-md-4">
                         <input class="form-control input-sm" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
@@ -101,7 +105,7 @@
             </div>
 
             <!-- Location field -->
-            <div class="searchFilterPanel" ng-show="filterOnLocation">
+            <div class="searchFilterPanel visibleOnMap" ng-show="filterOnLocation">
                 <div class="row">
                     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-5">
                         <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
@@ -120,7 +124,7 @@
             </div>
 
             <!-- Type fields -->
-            <div class="searchFilterPanel" ng-show="filterOnType">
+            <div class="searchFilterPanel visibleOnMap" ng-show="filterOnType">
                 <div class="row">
                     <div class="select2-bootstrap-prepend col-sm-12">
                         <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
@@ -159,7 +163,7 @@
 
 
     <!-- Pagination -->
-    <div class="row searchResultPagination">
+    <div class="row searchResultPagination visibleOnMap">
         <div class="col-sm-12">
             <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="20"
                         ng-model="currentPage" ng-change="pageChanged()"

@@ -28,9 +28,6 @@ angular.module('msinm.search')
         $scope.sortBy = 'ID';
         $scope.sortDesc = false;
 
-        $scope.viewMode = $location.path().endsWith("/map") ? "map" :
-                ($location.path().endsWith("/table") ? "table" : "grid");
-
         $scope.newSearch = function () {
             $scope.currentPage = 1;
             $scope.search();
@@ -57,6 +54,16 @@ angular.module('msinm.search')
                 }
             );
         };
+
+        $scope.$watch(function () {
+            return $location.path();
+        }, function (newValue, oldValue) {
+            if (newValue.endsWith("/map")) {
+                $(".searchFilterPanel").addClass("box-shadow-small");
+            } else if (oldValue.endsWith("/map")) {
+                $(".searchFilterPanel").removeClass("box-shadow-small");
+            }
+        });
 
         $scope.toggleFilterOnType = function () {
             $scope.filterOnType = !$scope.filterOnType;
