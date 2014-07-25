@@ -40,10 +40,10 @@
 </div>
 
 
-<div class="container-fluid"  style="overflow: visible;">
+<div class="container-fluid mouse-off"  style="overflow: visible;">
 
     <!-- Search result type menu bar -->
-    <div class="row-fluid searchResultTypeBar visibleOnMap">
+    <div class="row-fluid searchResultTypeBar visibleOnMap mouse-on">
         <div class="input-group col-xs-12 col-sm-8 col-md-6 col-lg-6 center">
             <span class="searchResultTypeBtn" ng-click="go('/search/grid')" check-active="/search/grid">
                 <span class="glyphicon glyphicon-th"></span> <span class="searchResultTypeText">Grid</span>
@@ -61,7 +61,7 @@
     </div>
 
     <form class="search-form form-horizontal" style="padding-top: 20px;" role="form" novalidate>
-        <div class="input-group col-xs-12 col-sm-8 col-md-6 col-lg-6 center">
+        <div class="input-group col-xs-12 col-sm-8 col-md-6 col-lg-6 center mouse-on">
 
 
             <!-- Search field -->
@@ -164,7 +164,7 @@
 
     <!-- Pagination -->
     <div class="row searchResultPagination visibleOnMap">
-        <div class="col-sm-12">
+        <span class="mouse-on">
             <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="20"
                         ng-model="currentPage" ng-change="pageChanged()"
                         class="pagination pagination-sm"
