@@ -295,7 +295,9 @@ public class MessageService extends BaseService {
                 .filter(msg -> !excludeIds.contains(msg.getSeriesIdentifier()))
                 .forEach(msg -> {
                     msg.setValidTo(date);
+                    msg.setStatus(Status.CANCELLED);
                     saveEntity(msg);
+                    evictCachedMessage(msg);
                     deactivated.add(msg);
                 });
 

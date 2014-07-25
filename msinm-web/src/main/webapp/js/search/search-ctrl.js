@@ -7,11 +7,11 @@ angular.module('msinm.search')
         function ($scope, $window, $location, $modal, SearchService, $http, growlNotifications) {
         'use strict';
 
+        $scope.focusMe = true;
+
         $scope.filterOnType = false;
         $scope.filterOnDate = false;
         $scope.filterOnLocation = false;
-
-        $scope.locationTool = 'navigation';
 
         $scope.query = '';
         $scope.status = 'PUBLISHED';
@@ -58,30 +58,36 @@ angular.module('msinm.search')
             );
         };
 
-        $scope.resetType = function () {
-            $scope.status = 'PUBLISHED';
-            $scope.type = '';
-            $("#roles").select2('data', null);
+        $scope.toggleFilterOnType = function () {
+            $scope.filterOnType = !$scope.filterOnType;
+            if (!$scope.filterOnType) {
+                $scope.status = 'PUBLISHED';
+                $scope.type = '';
+                $("#roles").select2('data', null);
+            }
+        };
+
+        $scope.toggleFilterOnLocation = function () {
+            $scope.filterOnLocation = !$scope.filterOnLocation;
+            if (!$scope.filterOnLocation) {
+                $scope.locations = [];
+                $scope.areas = '';
+                $("#messageArea").select2('data', null);
+            }
         };
 
         $scope.resetLocation = function () {
             $scope.locations = [];
-            $scope.areas = '';
-            $("#messageArea").select2('data', null);
         };
 
-        $scope.showLocation = function () {
-            $scope.filterOnLocation = true;
-            if(!$scope.$$phase) {
-                $scope.$apply();
+        $scope.toggleFilterOnDate = function () {
+            $scope.filterOnDate = !$scope.filterOnDate;
+            if (!$scope.filterOnDate) {
+                $scope.dateFrom = '';
+                $scope.dateTo = '';
+                $("#messageDateFrom").val('');
+                $("#messageDateTo").val('');
             }
-        };
-
-        $scope.resetDate = function () {
-            $scope.dateFrom = '';
-            $scope.dateTo = '';
-            $("#messageDateFrom").val('');
-            $("#messageDateTo").val('');
         };
 
         $scope.pageChanged = function() {

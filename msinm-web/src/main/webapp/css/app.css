@@ -50,6 +50,11 @@ div.growl-notifications {
     color: rgb(42, 100, 150);
 }
 
+.center {
+    float: none;
+    margin-left: auto;
+    margin-right: auto;
+}
 
 /* set a max-width for horizontal fluid layout */
 .container-fluid {

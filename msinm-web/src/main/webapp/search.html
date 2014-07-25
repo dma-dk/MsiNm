@@ -40,119 +40,131 @@
 </div>
 
 
-<div class="container-fluid">
+<div class="container-fluid"  style="overflow: visible;">
 
-    <form class="search-form form-horizontal panel panel-default" style="padding-top: 20px;" role="form" novalidate>
+    <!-- Search result type menu bar -->
+    <div class="row-fluid searchResultTypeBar">
+        <span class="searchResultTypeBtn" ng-click="go('/search/grid')" check-active="/search/grid">
+            <span class="glyphicon glyphicon-th"></span> <span class="searchResultTypeText">Grid</span>
+        </span>
+        <span class="searchResultTypeBtn" ng-click="go('/search/details')" check-active="/search/details">
+            <span class="glyphicon glyphicon-th-list"></span> <span class="searchResultTypeText">Details</span>
+        </span>
+        <span class="searchResultTypeBtn" ng-click="go('/search/table')" check-active="/search/table">
+            <span class="glyphicon glyphicon-align-justify"></span> <span class="searchResultTypeText">Table</span>
+        </span>
+        <span class="searchResultTypeBtn" ng-click="go('/search/map')" check-active="/search/map">
+            <span class="glyphicon glyphicon-globe"></span> <span class="searchResultTypeText">Map</span>
+        </span>
+    </div>
 
-        <!-- Search field -->
-        <div class="form-group">
-            <label for="query" class="col-sm-2 control-label">Search terms</label>
+    <form class="search-form form-horizontal" style="padding-top: 20px;" role="form" novalidate>
+        <div class="input-group col-xs-12 col-sm-8 col-md-6 col-lg-6 center">
 
-            <div class="col-sm-4">
-                <input id="query" type="text" class="form-control input-lg" placeholder="Search" ng-model="query"
+
+            <!-- Search field -->
+            <div class="input-group">
+                <div class="input-group-btn">
+                    <button type="submit" class="btn btn-primary" ng-click="newSearch()">
+                        <span class="glyphicon glyphicon-search"></span> Search
+                    </button>
+                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                        <span class="caret"></span>
+                    </button>
+                    <ul class="dropdown-menu" role="menu" style="font-size: 12px;">
+                        <li style="color: lightgray;">&nbsp;Filter by</li>
+                        <li><a href ng-click="toggleFilterOnDate()">Date</a></li>
+                        <li><a href ng-click="toggleFilterOnLocation()">Location</a></li>
+                        <li><a href ng-click="toggleFilterOnType()">Type</a></li>
+                        <li class="divider"></li>
+                        <li><a href ng-click="pdf()">Generate PDF</a></li>
+                    </ul>
+                </div>
+                <input id="query" type="text" class="form-control" placeholder="Search Terms" ng-model="query"
+                       focus="focusMe"
                        data-content='Search using e.g. <code>+important</code>, <code>-excluded</code>, <code>par*ly</code> or <code>"exact match"</code>'
                        data-placement="bottom" data-html="true" data-trigger="hover">
             </div>
-            <div class="col-sm-1">
-                <button type="submit" class="btn btn-primary btn-lg" ng-click="newSearch()">
-                    <span class="glyphicon glyphicon-search"></span> Search
-                </button>
-            </div>
-        </div>
 
-        <!-- Date fields -->
-        <div class="form-group row" collapse="!filterOnDate">
-            <label for="messageDateFrom" class="col-sm-2 control-label">Created</label>
-            <div class="col-sm-2">
-                <input class="form-control" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
-            </div>
-            <div class="col-sm-2">
-                <input class="form-control" placeholder="To Date" type="text" value="" id="messageDateTo" ng-model="dateTo">
-            </div>
-        </div>
-
-        <!-- Location field -->
-        <div class="form-group" collapse="!filterOnLocation">
-            <div class="row">
-                <label class="col-sm-2 control-label">Location</label>
-                <div class="col-sm-4">
-                    <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
+            <!-- Date fields -->
+            <div class="searchFilterPanel" ng-show="filterOnDate">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-5 col-md-4">
+                        <input class="form-control input-sm" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
+                    </div>
+                    <div class="col-xs-6 col-sm-5 col-md-4">
+                        <input class="form-control input-sm" placeholder="To Date" type="text" value="" id="messageDateTo" ng-model="dateTo">
+                    </div>
                 </div>
-                <div class="col-sm-6 btn-group">
-                    <button href class="btn btn-primary btn-sm" ng-click="showLocationEditor(true)">
-                        <span class="glyphicon glyphicon-map-marker"></span> Edit locations
-                    </button>
-                    <button href class="btn btn-primary btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">
-                        <span class="glyphicon glyphicon-trash"></span>
-                    </button>
+
+                <a ng-click="toggleFilterOnDate()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
+            </div>
+
+            <!-- Location field -->
+            <div class="searchFilterPanel" ng-show="filterOnLocation">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-6 col-lg-5">
+                        <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-5 btn-group">
+                        <button href class="btn btn-default btn-sm" ng-click="showLocationEditor(true)">
+                            <span class="glyphicon glyphicon-map-marker"></span> Edit locations
+                        </button>
+                        <button href class="btn btn-default btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </div>
                 </div>
+
+                <a ng-click="toggleFilterOnLocation()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
+            </div>
+
+            <!-- Type fields -->
+            <div class="searchFilterPanel" ng-show="filterOnType">
+                <div class="row">
+                    <div class="select2-bootstrap-prepend col-sm-12">
+                        <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
+                        <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft &nbsp;
+                        <input type="radio" value="EXPIRED" ng-model="status">&nbsp;Expired &nbsp;
+                        <input type="radio" value="CANCELLED" ng-model="status">&nbsp;Cancelled &nbsp;
+                        <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted &nbsp;
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
+                        <select multiple class="form-control input-sm select2-multiple" id="messageType" ng-model="type">
+                            <option></option>
+                            <optgroup label="Notices to mariners">
+                                <option value="PERMANENT_NOTICE">Permanent NtM</option>
+                                <option value="TEMPORARY_NOTICE">Temporary NtM</option>
+                                <option value="PRELIMINARY_NOTICE">Preliminary NtM</option>
+                                <option value="MISCELLANEOUS_NOTICE">Miscellaneous NtM</option>
+                            </optgroup>
+                            <optgroup label="MSI">
+                                <option value="COSTAL_WARNING">Coastal Warning</option>
+                                <option value="SUBAREA_WARNING">Subarea Warning</option>
+                                <option value="NAVAREA_WARNING">Navarea Warning</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                </div>
+
+                <a ng-click="toggleFilterOnType()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
             </div>
 
 
         </div>
-
-        <!-- Type fields -->
-        <div class="form-group" collapse="!filterOnType">
-            <div class="row">
-                <label for="messageStatus" class="col-sm-2 control-label">Status</label>
-                <div class="select2-bootstrap-prepend col-sm-6">
-                    <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
-                    <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft &nbsp;
-                    <input type="radio" value="EXPIRED" ng-model="status">&nbsp;Expired &nbsp;
-                    <input type="radio" value="CANCELLED" ng-model="status">&nbsp;Cancelled &nbsp;
-                    <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted &nbsp;
-                </div>
-            </div>
-
-            <div class="row">
-                <label for="messageType" class="col-sm-2 control-label">Type</label>
-                <div class="col-sm-6">
-                    <select multiple class="form-control select2-multiple" id="messageType" ng-model="type">
-                        <option></option>
-                        <optgroup label="Notices to mariners">
-                            <option value="PERMANENT_NOTICE">Permanent NtM</option>
-                            <option value="TEMPORARY_NOTICE">Temporary NtM</option>
-                            <option value="PRELIMINARY_NOTICE">Preliminary NtM</option>
-                            <option value="MISCELLANEOUS_NOTICE">Miscellaneous NtM</option>
-                        </optgroup>
-                        <optgroup label="MSI">
-                            <option value="COSTAL_WARNING">Coastal Warning</option>
-                            <option value="SUBAREA_WARNING">Subarea Warning</option>
-                            <option value="NAVAREA_WARNING">Navarea Warning</option>
-                        </optgroup>
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Filter selection -->
-        <div class="form-group row">
-            <label for="filterTypes" class="col-sm-2 control-label">Filters</label>
-            <div class="col-sm-2 btn-group" id="filterTypes">
-                <label class="btn btn-primary btn-sm" ng-model="filterOnDate" ng-click="resetDate()" btn-checkbox>Date</label>
-                <label class="btn btn-primary btn-sm" ng-model="filterOnLocation" ng-click="resetLocation()" btn-checkbox>Location</label>
-                <label class="btn btn-primary btn-sm" ng-model="filterOnType" ng-click="resetType()" btn-checkbox>Type</label>
-            </div>
-
-            <label for="viewMode" class="col-sm-1 control-label">Result</label>
-            <div class="col-sm-3 btn-group" id="viewMode">
-                <label class="btn btn-primary btn-sm" ng-model="viewMode" btn-radio="'grid'" ng-click="go('/search/grid')">Grid</label>
-                <label class="btn btn-primary btn-sm" ng-model="viewMode" btn-radio="'details'" ng-click="go('/search/details')">Details</label>
-                <label class="btn btn-primary btn-sm" ng-model="viewMode" btn-radio="'table'" ng-click="go('/search/table')">Table</label>
-                <label class="btn btn-primary btn-sm" ng-model="viewMode" btn-radio="'map'" ng-click="go('/search/map')">Map</label>
-                <label class="btn btn-primary btn-sm" ng-click="pdf()">PDF</label>
-            </div>
-        </div>
-
     </form>
 
 
     <!-- Pagination -->
-    <div class="row">
-        <div class="col-sm-10">
+    <div class="row searchResultPagination">
+        <div class="col-sm-12">
             <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="20"
                         ng-model="currentPage" ng-change="pageChanged()"
-                        class="pagination pagination-sm" previous-text="&lsaquo;"  next-text="&rsaquo;"
+                        class="pagination pagination-sm"
+                        previous-text="&lsaquo;"  next-text="&rsaquo;"
                         boundary-links="true" first-text="&laquo;" last-text="&raquo;">
             </pagination>
         </div>
