@@ -17,8 +17,8 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.model.Location;
-import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Point;
+import dk.dma.msinm.vo.LocationVo;
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
@@ -31,9 +31,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 
 import javax.inject.Inject;
-import javax.json.Json;
-import javax.json.JsonArray;
-import javax.json.JsonArrayBuilder;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -50,8 +47,12 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
@@ -68,7 +69,10 @@ public class LocationRestService {
     ServletContext servletContext;
 
     /**
-     * Parses the KML and returns a JSON list of locations
+     * Parses the KML and returns a JSON list of locations.
+     *
+     * TDOD: Handle MultiGeometry.
+     * Example: http://www.microformats.dk/2008/11/02/kommunegrænserne-til-de-98-danske-kommuner/
      *
      * @param kml the KML to parse
      * @return the corresponding list of locations
@@ -76,11 +80,19 @@ public class LocationRestService {
     @POST
     @Path("/parse-kml")
     @Produces("application/json")
-    public JsonArray parseKml(String kml) {
+    public List<LocationVo> parseKml(String kml) throws UnsupportedEncodingException {
 
-        JsonArrayBuilder result = Json.createArrayBuilder();
+        // Strip BOM from UTF-8 with BOM
+        if (kml.startsWith("\uFEFF")) {
+            kml = kml.replace("\uFEFF", "");
+        }
+
+        // Extract the default namespace
+        String namespace = extractDefaultNamespace(kml);
+
+        List<LocationVo> result = new ArrayList<>();
         XPath xpath = XPathFactory.newInstance().newXPath();
-        xpath.setNamespaceContext(new KmlNamespaceContext());
+        xpath.setNamespaceContext(new KmlNamespaceContext(namespace));
         InputSource inputSource = new InputSource(new StringReader(kml));
 
         try {
@@ -93,11 +105,7 @@ public class LocationRestService {
                 // Extract the name for the Placemark
                 Node name = (Node) xpath.evaluate("kml:name", nodes.item(i), XPathConstants.NODE);
                 if (name != null && StringUtils.isNotBlank(name.getTextContent())) {
-                    LocationDesc desc = new LocationDesc();
-                    desc.setEntity(loc);
-                    desc.setLang("en");
-                    desc.setDescription(name.getTextContent());
-                    loc.getDescs().add(desc);
+                    loc.createDesc("en").setDescription(name.getTextContent());
                 }
 
                 // Try to match either POINT, POLYLINE or POLYGON
@@ -142,7 +150,7 @@ public class LocationRestService {
                             loc.getPoints().remove(loc.getPoints().size() - 1);
                         }
 
-                        result.add(loc.toJson());
+                        result.add(new LocationVo(loc));
                     }
                 }
             }
@@ -151,7 +159,22 @@ public class LocationRestService {
             log.error("Error parsing kml", e);
         }
 
-        return result.build();
+        return result;
+    }
+
+    /**
+     * Annoyingly, different versions of KML use different default namespaces.
+     * Hence, attempt to extract the default namespace
+     * @param kml the xml
+     * @return the default KML namespace
+     */
+    private String extractDefaultNamespace(String kml) {
+        Pattern p = Pattern.compile(".*<kml xmlns=\"([^\"]*)\".*", Pattern.CASE_INSENSITIVE | Pattern.DOTALL | Pattern.MULTILINE);
+        Matcher m = p.matcher(kml);
+        if (m.matches()) {
+            return m.group(1);
+        }
+        return "http://www.opengis.net/kml/2.2";
     }
 
     /**
@@ -164,7 +187,7 @@ public class LocationRestService {
     @javax.ws.rs.Path("/upload-kml")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces("application/json;charset=UTF-8")
-    public JsonArray uploadKml(@Context HttpServletRequest request) throws FileUploadException, IOException {
+    public List<LocationVo> uploadKml(@Context HttpServletRequest request) throws FileUploadException, IOException {
         FileItemFactory factory = RepositoryService.newDiskFileItemFactory(servletContext);
         ServletFileUpload upload = new ServletFileUpload(factory);
         List<FileItem> items = upload.parseRequest(request);
@@ -212,7 +235,7 @@ public class LocationRestService {
         }
 
         // Return an empty result
-        return Json.createArrayBuilder().build();
+        return new ArrayList<>();
     }
 
 
@@ -221,9 +244,15 @@ public class LocationRestService {
      */
     private static class KmlNamespaceContext implements NamespaceContext {
 
+        String namespace;
+
+        public KmlNamespaceContext(String namespace) {
+            this.namespace = namespace;
+        }
+
         public String getNamespaceURI(String prefix) {
             if("kml".equals(prefix)) {
-                return "http://www.opengis.net/kml/2.2";
+                return namespace;
             }
             return null;
         }

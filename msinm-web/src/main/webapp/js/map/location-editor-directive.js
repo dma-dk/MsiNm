@@ -452,6 +452,7 @@ angular.module('msinm.map')
                                 for (var i in result) {
                                     scope.locations.push(result[i]);
                                 }
+                                initLocations();
                                 scope.deactivateDrawControls(true);
                                 if(!scope.$$phase) {
                                     scope.$apply();
@@ -471,6 +472,7 @@ angular.module('msinm.map')
                                     for (var i in data) {
                                         scope.locations.push(data[i]);
                                     }
+                                    initLocations();
                                     scope.deactivateDrawControls(true);
                                 },
                                 function (data) {
