@@ -40,7 +40,7 @@
 </div>
 
 
-<div class="container-fluid mouse-off"  style="overflow: visible;">
+<div class="container-fluid mouse-off"  style="overflow: visible; padding-bottom: 10px;">
 
     <!-- Search result type menu bar -->
     <div class="row-fluid searchResultTypeBar visibleOnMap mouse-on">
@@ -91,7 +91,7 @@
             </div>
 
             <!-- Date fields -->
-            <div class="searchFilterPanel visibleOnMap" ng-show="filterOnDate">
+            <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnDate">
                 <div class="row">
                     <div class="col-xs-6 col-sm-5 col-md-4">
                         <input class="form-control input-sm" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
@@ -105,7 +105,7 @@
             </div>
 
             <!-- Location field -->
-            <div class="searchFilterPanel visibleOnMap" ng-show="filterOnLocation">
+            <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnLocation">
                 <div class="row">
                     <div class="col-xs-6 col-sm-6 col-md-6 col-lg-5">
                         <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
@@ -124,7 +124,7 @@
             </div>
 
             <!-- Type fields -->
-            <div class="searchFilterPanel visibleOnMap" ng-show="filterOnType">
+            <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnType">
                 <div class="row">
                     <div class="select2-bootstrap-prepend col-sm-12">
                         <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
@@ -163,7 +163,7 @@
 
 
     <!-- Pagination -->
-    <div class="row searchResultPagination visibleOnMap">
+    <div class="row searchResultPagination visibleOnMap" ng-show="paginationVisible">
         <span class="mouse-on">
             <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="20"
                         ng-model="currentPage" ng-change="pageChanged()"
@@ -171,7 +171,7 @@
                         previous-text="&lsaquo;"  next-text="&rsaquo;"
                         boundary-links="true" first-text="&laquo;" last-text="&raquo;">
             </pagination>
-        </div>
+        </span>
     </div>
 
 </div>

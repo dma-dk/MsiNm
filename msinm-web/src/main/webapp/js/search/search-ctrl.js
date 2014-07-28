@@ -24,9 +24,14 @@ angular.module('msinm.search')
         $scope.pageSize = 100;
         $scope.currentPage = 1;
         $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
+        $scope.paginationVisible = false;
 
         $scope.sortBy = 'ID';
         $scope.sortDesc = false;
+
+        // Remove the style="display: none" attribute. A trick
+        // used to avoid the panel being visible when reloading the page.
+        $(".searchFilterPanel").removeAttr('style');
 
         $scope.newSearch = function () {
             $scope.currentPage = 1;
@@ -48,6 +53,7 @@ angular.module('msinm.search')
                 $scope.sortDesc ? 'DESC' : 'ASC',
                 function(data) {
                     $scope.searchResult = data;
+                    $scope.paginationVisible = (data && data.total > $scope.pageSize);
                 },
                 function () {
                     growlNotifications.add('<h4>Search failed</h4>', 'danger', 3000);
