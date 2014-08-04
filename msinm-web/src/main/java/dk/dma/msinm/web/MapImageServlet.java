@@ -15,7 +15,6 @@
  */
 package dk.dma.msinm.web;
 
-import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.common.util.GraphicsUtils;
 import dk.dma.msinm.model.Location;
@@ -42,7 +41,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static dk.dma.msinm.common.repo.RepositoryService.HashFolderLevels.ONE;
 import static dk.dma.msinm.model.Location.LocationType;
 
 /**
@@ -54,7 +52,6 @@ import static dk.dma.msinm.model.Location.LocationType;
 public class MapImageServlet extends HttpServlet  {
 
     private static String STATIC_IMAGE_URL = "http://staticmap.openstreetmap.de/staticmap.php?center=%f,%f&zoom=%d&size=%dx%d";
-    private static String IMAGE_REPO_FOLDER = "map_images";
     private static String IMAGE_PLACEHOLDER = "/img/map_image_placeholder.png";
 
     private static GlobalMercator mercator = new GlobalMercator();
@@ -62,9 +59,6 @@ public class MapImageServlet extends HttpServlet  {
 
     @Inject
     Logger log;
-
-    @Inject
-    RepositoryService repositoryService;
 
     @Inject
     MessageService messageService;
@@ -101,12 +95,10 @@ public class MapImageServlet extends HttpServlet  {
             List<Location> locations = getMessageLocations(message);
             if (locations.size() > 0) {
                 // Construct the image file name for the messsage
-                String imageName = String.format("%d_%d.png", id, mapImageSize);
+                String imageName = String.format("map_%d.png", mapImageSize);
 
                 // Create a hashed sub-folder for the image file
-                Path imageFolder = repositoryService.getHashedSubfolder(ONE, IMAGE_REPO_FOLDER, imageName);
-                Path imageRepoPath = imageFolder.resolve(imageName);
-                Path imageUrl = repositoryService.getRepoRoot().relativize(imageRepoPath);
+                Path imageRepoPath = messageService.getMessageFileRepoPath(message, imageName);
 
                 // If the image file does not exist or if the message has been updated after the image file
                 // generate a new image file
@@ -119,7 +111,7 @@ public class MapImageServlet extends HttpServlet  {
                 // Either return the image file, or a place holder image
                 if (imageFileExists) {
                     // Redirect the the repository streaming service
-                    String uri = "/rest/repo/" + imageUrl.toString().replace('\\', '/');
+                    String uri = messageService.getMessageFileRepoUri(message, imageName);
                     response.sendRedirect(uri);
                     return;
                 }

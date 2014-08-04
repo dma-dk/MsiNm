@@ -25,6 +25,7 @@ import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -85,6 +86,17 @@ public class UserService extends BaseService {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    /**
+     * Looks up the {@code User} based on the given principal
+     *
+     * @param principal the principal
+     * @return the user or null
+     */
+    public User findByPrincipal(Principal principal) {
+        // Throughout MSI-NM, the email is used as the Principal name
+        return findByEmail(principal.getName());
     }
 
     /**

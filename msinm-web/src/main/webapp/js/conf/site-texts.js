@@ -13,6 +13,7 @@ angular.module('msinm.conf')
             'MENU_BRAND': 'MSI-NM',
             'MENU_HOME': 'Home',
             'MENU_SEARCH': 'Search',
+            'MENU_REPORT': 'Report',
             'MENU_ADMIN': 'Admin',
             'MENU_LOGIN': 'Login',
             'MENU_LOGOUT': 'Logout',
@@ -29,7 +30,9 @@ angular.module('msinm.conf')
             'FRONT_PAGE_INTEGRATION_2': '<p>Furthermore, the API contains functionality that may be used by registered users.</p>'
                 + '<h3>Open Source</h3><p>The MSI-NM project is Open Source. You can download the entire project and customize it for your own needs.</p>'
                 + '<ul><li><a href="https://github.com/dma-dk/MsiNm" target="_blank">MsiNm at Github</a></li></ul>',
-            'FRONT_PAGE_MISC': '<h2>Other sources</h2><p>Please find the official MSI and NM\'s for the Danish Maritime Area at:</p>'
+            'FRONT_PAGE_MISC': '<h2>Report Observations</h2><p>If you observe an incident relevant to the maritime community, '
+                + 'please file a report in the <a href="/report.html">Report</a> section</p>'
+                + '<h2>Other sources</h2><p>Please find the official MSI and NM\'s for the Danish Maritime Area at:</p>'
                 + '<ul><li><a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/Advarsler/Sider/default.aspx" target="_blank">Active MSI - DK</a></li>'
                 + '<li><a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/EfterretningerForSoefarende/Sider/Default.aspx" target="_blank">Current and Historical NM - DK</a></li></ul>'
         });

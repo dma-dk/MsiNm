@@ -11,6 +11,7 @@
         <jar-file>lib/${msinm-common.jar}</jar-file>
         <jar-file>lib/${msinm-model.jar}</jar-file>
         <jar-file>lib/${msinm-user.jar}</jar-file>
+        <jar-file>lib/${msinm-reporting.jar}</jar-file>
         <jar-file>lib/${msinm-legacy-dk.jar}</jar-file>
 
         <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>

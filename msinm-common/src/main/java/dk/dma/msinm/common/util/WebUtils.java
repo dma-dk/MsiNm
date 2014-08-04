@@ -22,6 +22,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 
 /**
  * Web-related utility functions
@@ -117,5 +119,41 @@ public class WebUtils {
         response.setHeader("Pragma","no-cache");
         response.setDateHeader ("Expires", 0);
         return response;
+    }
+
+    /**
+     * Encode identically to the javascript encodeURIComponent() method
+     * @param s the string to encode
+     * @return the encoded string
+     */
+    public static String encodeURIComponent(String s) {
+        String result;
+
+        try {
+            result = URLEncoder.encode(s, "UTF-8")
+                    .replaceAll("\\+", "%20")
+                    .replaceAll("\\%21", "!")
+                    .replaceAll("\\%27", "'")
+                    .replaceAll("\\%28", "(")
+                    .replaceAll("\\%29", ")")
+                    .replaceAll("\\%7E", "~");
+        } catch (UnsupportedEncodingException e) {
+            result = s;
+        }
+
+        return result;
+    }
+
+    /**
+     * Encode identically to the javascript encodeURI() method
+     * @param s the string to encode
+     * @return the encoded string
+     */
+    public static String encodeURI(String s) {
+        return encodeURIComponent(s)
+                    .replaceAll("\\%3A", ":")
+                    .replaceAll("\\%2F", "/")
+                    .replaceAll("\\%3B", ";")
+                    .replaceAll("\\%3F", "?");
     }
 }

@@ -99,8 +99,16 @@ angular.module('msinm.user')
                         $scope.$apply();
                     }
                 });
-        }
+        };
 
+        $scope.checkLoggedIn = function(path) {
+            if ($rootScope.currentUser) {
+                window.location = path;
+            } else {
+                $rootScope.$broadcast('Login', "Please login first");
+            }
+
+        }
 
     }])
 

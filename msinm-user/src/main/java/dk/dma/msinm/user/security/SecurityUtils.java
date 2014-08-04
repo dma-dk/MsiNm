@@ -24,7 +24,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletRequestWrapper;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.security.Principal;
 import java.util.Formatter;
 

@@ -1,0 +1,30 @@
+
+<div class="container-fluid report-page">
+
+    <div class="col-md-5">
+        <h1 class="page-header">Report Observation</h1>
+        <p>Please help us keeping the maritime community safe.</p>
+        <p>
+            If you observe anything relevant for the safety of the maritime community,
+            please submit a report via the link below.
+        </p>
+        <p>Examples of observations:</p>
+        <ul>
+            <li>Drifting buoys</li>
+            <li>Wrecks</li>
+            <li>Reduced depth</li>
+            <li>Sea monsters</li>
+            <li>Etc...</li>
+        </ul>
+
+        <button href class="btn btn-primary btn-sm" ng-controller="UserCtrl" ng-click="checkLoggedIn('report.html#/report/submit-report')">
+            Submit Report...
+        </button>
+    </div>
+
+    <div class="col-md-7 report-teaser-image text-right">
+        <img src="/img/report.png"/>
+    </div>
+
+</div>
+

@@ -1,0 +1,102 @@
+
+<div class="container-fluid report-page" ng-controller="ReportCtrl" ng-init="init()">
+
+    <h1 class="page-header">Report Observation</h1>
+
+    <form method="post" name="reportForm">
+
+        <div class="row report-section">
+            <div class="col-sm-12 col-md-3">
+                <h4>1. Locations</h4>
+                <p>
+                    Please indicate the approximate locations of the observation by adding the area to the map.
+                </p>
+                <p>
+                    You may also specify the general area:<br>
+                    <input type="text" class="form-control input-sm" id="messageArea" ng-model="report.areaId" />
+                </p>
+            </div>
+            <div class="col-sm-12 col-md-9">
+                <div msi-location-editor locations="report.locations" edit-descs="true" class="report-locations">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row report-section">
+            <div class="col-sm-12 col-md-3">
+                <h4>2. Description</h4>
+                Please describe the observation.
+            </div>
+            <div class="col-sm-12 col-md-9">
+                <textarea class="report-description" id="tinymce" ui-tinymce="tinymceOptions" ng-model="report.description"></textarea>
+            </div>
+        </div>
+
+        <div class="row report-section">
+            <div class="col-sm-12 col-md-3">
+                <h4>3. Images</h4>
+                <p>
+                    If relevant and available, please upload images relating to the observation.
+                </p>
+            </div>
+            <div class="col-sm-12 col-md-9">
+                <div class="report-attachments">
+                    <span class="report-file-upload">
+                        <msi-file-upload repo-folder="uploadUri" drop-text="or drop images here"
+                                         file-types="'jpg,jpeg,png,gif'" auto-upload="true" remove-after-upload="true"
+                                         success="attachmentUploaded(result)"></msi-file-upload>
+                    </span>
+
+                    <span class="report-attachment" ng-repeat="file in attachments">
+                        <msi-attachment file="file" size="64"></msi-attachment>
+                    </span>
+                </div>
+            </div>
+        </div>
+
+        <div class="row report-section">
+            <div class="col-sm-12 col-md-3">
+                <h4>4. Contact</h4>
+                Provide additional contact details.
+            </div>
+            <div class="col-sm-12 col-md-9">
+                <textarea class="report-contact" ng-model="report.contact"></textarea>
+            </div>
+        </div>
+
+        <div class="row report-section">
+            <div class="col-sm-12 col-md-3">
+                <h4>5. Submit Report</h4>
+                Submit the report.
+            </div>
+            <div class="col-sm-12 col-md-9">
+                <button href class="btn btn-primary btn-sm" ng-click="submitReport()" ng-disabled="reportForm.$pristine || reportForm.$invalid">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> Submit Report
+                </button>
+                &nbsp;&nbsp;
+                <input type="checkbox" ng-model="report.sendEmail"/> Send copy to {{currentUser.email}}
+            </div>
+        </div>
+
+    </form>
+
+
+    <script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title">Select an image</h3>
+        </div>
+        <div class="modal-body">
+            <div class="report-attachments">
+                <span class="report-attachment" ng-repeat="file in files" ng-click="ok(file)">
+                    <msi-attachment file="file" size="64"></msi-attachment>
+                </span>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
+</div>
+

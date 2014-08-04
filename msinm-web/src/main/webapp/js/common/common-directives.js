@@ -3,6 +3,7 @@
  */
 angular.module('msinm.common')
 
+
     .directive('focus', ['$timeout', function ($timeout) {
         'use strict';
 
@@ -14,6 +15,7 @@ angular.module('msinm.common')
             }, true);
         };
     }])
+
 
     .directive('dynamic', ['$compile', function ($compile) {
         return {
@@ -27,6 +29,7 @@ angular.module('msinm.common')
             }
         };
     }])
+
 
     .directive('flag', [function () {
         return {
@@ -54,6 +57,7 @@ angular.module('msinm.common')
         };
     }])
 
+
     .directive('langFlag', ['$rootScope', function ($rootScope) {
         return {
             restrict: 'A',
@@ -70,6 +74,24 @@ angular.module('msinm.common')
             }
         };
     }])
+
+
+    .directive('msiAttachment', [function () {
+        return {
+            restrict: 'E',
+            templateUrl: '/partials/common/attachment.html',
+            replace: true,
+            scope: {
+                file: "=",
+                size: "@"
+            },
+            link: function(scope, element, attrs) {
+                scope.thumbnailUrl = "/rest/repo/thumb/" + scope.file.path + "?size=" + scope.size;
+                scope.imageClass = "attachment-image size-" + scope.size;
+            }
+        };
+    }])
+
 
     /**
      * Replaces the content of the element with the area description of the message
@@ -94,6 +116,7 @@ angular.module('msinm.common')
             }
         };
     }])
+
 
     /**
      * Displays the composite identifier of the message
@@ -127,7 +150,8 @@ angular.module('msinm.common')
         };
     }])
 
-/**
+
+    /**
      * Show element active/inactive depending on the current location.
      * Usage:
      * <pre>
@@ -165,6 +189,7 @@ angular.module('msinm.common')
             }
         };
     }])
+
 
     /**
      * Checks that two password fields match up and that the password is strong
@@ -289,9 +314,11 @@ angular.module('msinm.common')
                         }
                     };
 
-                    scope.$watch(attrs.repoFolder, function (value) {
+                    scope.$watch(function() {
+                        return scope.repoFolder;
+                    }, function (value) {
                         uploader.url = value;
-                    }, true);
+                     }, true);
 
                     // Success call-back
                     if (scope.success) {
@@ -312,6 +339,7 @@ angular.module('msinm.common')
 
         }
     }])
+
 
     /**
      * Directive that wraps the fancytree jQuery plugin

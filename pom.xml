@@ -175,8 +175,9 @@
     <modules>
         <module>msinm-common</module>
         <module>msinm-test</module>
-        <module>msinm-model</module>
         <module>msinm-user</module>
+        <module>msinm-model</module>
+        <module>msinm-reporting</module>
         <module>msinm-lucene</module>
         <module>msinm-cloud</module>
         <module>msinm-web</module>

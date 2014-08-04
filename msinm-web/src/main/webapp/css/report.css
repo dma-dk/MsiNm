@@ -1,0 +1,68 @@
+/**
+ * Report CSS styles
+ */
+
+.report-page {
+    padding: 20px;
+}
+
+.report-teaser-image {
+    display: none;
+}
+@media (min-width: 1000px) {
+    .report-teaser-image {
+        display: block;
+    }
+}
+
+.report-teaser-image img {
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+    border: 4px solid #fff;
+}
+
+
+.page-header {
+    margin-top: 0;
+    text-align: left;
+    border-bottom: 1px solid lightgray;
+}
+
+.report-section {
+    margin-top: 20px;
+}
+
+.report-locations {
+    width: 100%;
+    height: 300px;
+    border: 1px solid lightgray;
+}
+
+.report-description {
+    height: 150px;
+}
+
+.report-attachments {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid lightgray;
+}
+
+.report-attachment {
+    display: inline-block;
+    margin: 4px;
+    vertical-align: top;
+}
+
+.report-file-upload {
+    display: inline-block;
+    vertical-align: top;
+    width: 240px;
+    margin: 10px;
+}
+
+.report-contact {
+    width: 100%;
+    height: 60px;
+    border: 1px solid lightgray;
+}
+

@@ -17,11 +17,16 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
-import dk.dma.msinm.model.*;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.SeriesIdType;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Status;
+import dk.dma.msinm.model.Type;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
@@ -31,7 +36,13 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.util.*;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Business interface for accessing MSI-NM messages
@@ -41,6 +52,7 @@ import java.util.*;
 @PermitAll
 public class MessageService extends BaseService {
 
+    public static String MESSAGE_REPO_FOLDER = "messages";
     private static final DataFilter CACHED_MESSAGE_DATA = DataFilter.get("Message.details", "Area.parent", "Category.parent");
 
     @Inject
@@ -48,6 +60,9 @@ public class MessageService extends BaseService {
 
     @Inject
     private MessageCache messageCache;
+
+    @Inject
+    private RepositoryService repositoryService;
 
     @Inject
     private Sequences sequences;
@@ -66,6 +81,11 @@ public class MessageService extends BaseService {
         return saveEntity(message);
     }
 
+    /**
+     * Saves the message and evicts the message from the cache
+     * @param message the message to save
+     * @return the saved message
+     */
     public Message saveMessage(Message message) {
         boolean wasPersisted = message.isPersisted();
 
@@ -200,6 +220,38 @@ public class MessageService extends BaseService {
     }
 
     /**
+     * Inactivate all active P&T NM messages created before the given date, excluding the given noticeIds
+     * @param noticeIds the P&T NM notices that should no be inactivated
+     * @param date the date
+     * @return the messages actually deactivated
+     */
+    public List<Message> inactivateTempPrelimNmMessages(List<SeriesIdentifier> noticeIds, Date date) {
+        List<Message> messages =
+                em.createNamedQuery("Message.findActiveTempPrelimNotices", Message.class)
+                        .setParameter("date", date)
+                        .getResultList();
+        List<Message> deactivated = new ArrayList<>();
+        Set<SeriesIdentifier> excludeIds = new HashSet<>();
+        excludeIds.addAll(noticeIds);
+
+        messages.stream()
+                .filter(msg -> !excludeIds.contains(msg.getSeriesIdentifier()))
+                .forEach(msg -> {
+                    msg.setValidTo(date);
+                    msg.setStatus(Status.CANCELLED);
+                    saveEntity(msg);
+                    evictCachedMessage(msg);
+                    deactivated.add(msg);
+                });
+
+        return deactivated;
+    }
+
+    /***************************************/
+    /** Cache methods                     **/
+    /***************************************/
+
+    /**
      * Fetches and caches the message with the given id.
      * Related data structures, such as locations are pre-fetched for the message
      * @param id the id of the message
@@ -276,31 +328,47 @@ public class MessageService extends BaseService {
         }
     }
 
+    /***************************************/
+    /** Repo methods                      **/
+    /***************************************/
+
     /**
-     * Inactivate all active P&T NM messages created before the given date, excluding the given noticeIds
-     * @param noticeIds the P&T NM notices that should no be inactivated
-     * @param date the date
-     * @return the messages actually deactivated
+     * Returns the repository folder for the given message
+     * @param id the id of the message
+     * @return the associated repository folder
      */
-    public List<Message> inactivateTempPrelimNmMessages(List<SeriesIdentifier> noticeIds, Date date) {
-        List<Message> messages =
-                em.createNamedQuery("Message.findActiveTempPrelimNotices", Message.class)
-                .setParameter("date", date)
-                .getResultList();
-        List<Message> deactivated = new ArrayList<>();
-        Set<SeriesIdentifier> excludeIds = new HashSet<>();
-        excludeIds.addAll(noticeIds);
-
-        messages.stream()
-                .filter(msg -> !excludeIds.contains(msg.getSeriesIdentifier()))
-                .forEach(msg -> {
-                    msg.setValidTo(date);
-                    msg.setStatus(Status.CANCELLED);
-                    saveEntity(msg);
-                    evictCachedMessage(msg);
-                    deactivated.add(msg);
-                });
-
-        return deactivated;
+    public Path getMessageRepoFolder(Integer id) throws IOException {
+        return  repositoryService.getHashedSubfolder(MESSAGE_REPO_FOLDER, String.valueOf(id), true);
     }
+
+    /**
+     * Returns the repository folder for the given message
+     * @param message the message
+     * @return the associated repository folder
+     */
+    public Path getMessageRepoFolder(Message message) throws IOException {
+        return  getMessageRepoFolder(message.getId());
+    }
+
+    /**
+     * Returns the repository file for the given message file
+     * @param message the message
+     * @param name the file name
+     * @return the associated repository file
+     */
+    public Path getMessageFileRepoPath(Message message, String name) throws IOException {
+        return  getMessageRepoFolder(message).resolve(name);
+    }
+
+    /**
+     * Returns the repository URI for the given message file
+     * @param message the message
+     * @param name the file name
+     * @return the associated repository URI
+     */
+    public String getMessageFileRepoUri(Message message, String name) throws IOException {
+        Path file = getMessageRepoFolder(message).resolve(name);
+        return repositoryService.getRepoUri(file);
+    }
+
 }
