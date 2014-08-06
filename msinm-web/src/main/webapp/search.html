@@ -128,10 +128,12 @@
                 <div class="row">
                     <div class="select2-bootstrap-prepend col-sm-12">
                         <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
-                        <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft &nbsp;
                         <input type="radio" value="EXPIRED" ng-model="status">&nbsp;Expired &nbsp;
                         <input type="radio" value="CANCELLED" ng-model="status">&nbsp;Cancelled &nbsp;
-                        <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted &nbsp;
+                        <span ng-show="hasRole('admin')">
+                            <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft &nbsp;
+                            <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted &nbsp;
+                        </span>
                     </div>
                 </div>
 
@@ -139,7 +141,7 @@
                     <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
                         <select multiple class="form-control input-sm select2-multiple" id="messageType" ng-model="type">
                             <option></option>
-                            <optgroup label="Notices to mariners">
+                            <optgroup label="Notices to Mariners">
                                 <option value="PERMANENT_NOTICE">Permanent NtM</option>
                                 <option value="TEMPORARY_NOTICE">Temporary NtM</option>
                                 <option value="PRELIMINARY_NOTICE">Preliminary NtM</option>

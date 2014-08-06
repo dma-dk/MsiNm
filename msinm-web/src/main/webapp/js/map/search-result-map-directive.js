@@ -58,7 +58,7 @@ angular.module('msinm.map')
                 displayInLayerSwitcher: false,
                 styleMap: new OpenLayers.StyleMap({
                     "default": new OpenLayers.Style({
-                        externalGraphic : "img/msi.png",
+                        externalGraphic : "${icon}",
                         graphicWidth : "${graphicSize}",
                         graphicHeight : "${graphicSize}",
                         graphicYOffset : "${graphicOffset}",
@@ -136,16 +136,17 @@ angular.module('msinm.map')
 
                     for (var i in value.messages) {
                         var msg = value.messages[i];
+                        var icon = "img/" + msg.seriesIdentifier.mainType.toLowerCase() + ".png";
 
                         for (var j in msg.locations) {
                             var loc = msg.locations[j];
 
                             var title = (msg.descs && msg.descs.length > 0) ? msg.descs[0].title : "N/A";
-                            var bgAttr = { id : i, description: title, type : "msi", msi : msg, bg:true  };
+                            var bgAttr = { id : i, description: title, type : "msi", msi : msg, icon: icon, bg:true  };
                             MapService.createLocationFeature(loc, bgAttr, features);
 
                             // Flick the "showVertices to true to show icons for each vertex
-                            var attr = { id : i, description: title, type : "msi", msi : msg, showVertices:false  };
+                            var attr = { id : i, description: title, type : "msi", msi : msg, icon: icon, showVertices:false  };
                             MapService.createLocationFeature(loc, attr, features);
                         }
                     }
