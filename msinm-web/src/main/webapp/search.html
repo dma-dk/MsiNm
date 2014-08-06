@@ -141,13 +141,15 @@
                     <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
                         <select multiple class="form-control input-sm select2-multiple" id="messageType" ng-model="type">
                             <option></option>
-                            <optgroup label="Notices to Mariners">
-                                <option value="PERMANENT_NOTICE">Permanent NtM</option>
-                                <option value="TEMPORARY_NOTICE">Temporary NtM</option>
-                                <option value="PRELIMINARY_NOTICE">Preliminary NtM</option>
-                                <option value="MISCELLANEOUS_NOTICE">Miscellaneous NtM</option>
+                            <option value="NM">NM</option>
+                            <option value="MSI">MSI</option>
+                            <optgroup label="Specific NM:">
+                                <option value="PERMANENT_NOTICE">Permanent NM</option>
+                                <option value="TEMPORARY_NOTICE">Temporary NM</option>
+                                <option value="PRELIMINARY_NOTICE">Preliminary NM</option>
+                                <option value="MISCELLANEOUS_NOTICE">Miscellaneous NM</option>
                             </optgroup>
-                            <optgroup label="MSI">
+                            <optgroup label="Specific MSI:">
                                 <option value="COSTAL_WARNING">Coastal Warning</option>
                                 <option value="SUBAREA_WARNING">Subarea Warning</option>
                                 <option value="NAVAREA_WARNING">Navarea Warning</option>

@@ -19,11 +19,20 @@ import com.spatial4j.core.context.SpatialContext;
 import com.spatial4j.core.shape.Shape;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.PredicateHelper;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.lucene.AbstractLuceneIndex;
-import dk.dma.msinm.model.*;
-import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.AreaDesc;
+import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.CategoryDesc;
+import dk.dma.msinm.model.Location;
+import dk.dma.msinm.model.LocationDesc;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.PointDesc;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Type;
 import dk.dma.msinm.vo.LocationVo;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.lucene.document.Document;
@@ -41,19 +50,29 @@ import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.PreDestroy;
-import javax.ejb.*;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -327,8 +346,19 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                     .equals(msgRoot.get("status"), param.getStatus())
                     .between(msgRoot.get("created"), param.getFrom(), param.getTo());
 
-            if (param.getTypes().size() > 0) {
-                tuplePredicateBuilder.in(msgRoot.get("type"), param.getTypes());
+            // Compute the type closure
+            Set<Type> types = new HashSet<>();
+            types.addAll(param.getTypes());
+            param.getMainTypes().forEach(mt -> {
+                for (Type t : Type.values()) {
+                    if (t.getSeriesIdType() == mt) {
+                        types.add(t);
+                    }
+                }
+            });
+
+            if (types.size() > 0) {
+                tuplePredicateBuilder.in(msgRoot.get("type"), types);
             }
 
             // Search the Lucene index for free text search and location information

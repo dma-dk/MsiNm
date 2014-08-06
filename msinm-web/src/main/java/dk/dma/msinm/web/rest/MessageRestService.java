@@ -17,6 +17,7 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.model.Location;
+import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
 import dk.dma.msinm.service.MessageSearchParams;
@@ -134,7 +135,11 @@ public class MessageRestService {
 
         if (StringUtils.isNotBlank(type)) {
             for (String msgType : type.split(",")) {
-                params.getTypes().add(Type.valueOf(msgType));
+                if (msgType.equals("MSI") || msgType.equals("NM")) {
+                    params.getMainTypes().add(SeriesIdType.valueOf(msgType));
+                } else {
+                    params.getTypes().add(Type.valueOf(msgType));
+                }
             }
         }
 
