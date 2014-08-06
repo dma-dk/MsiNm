@@ -29,6 +29,7 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -316,6 +317,7 @@ public class RepositoryService {
     @GET
     @javax.ws.rs.Path("/list/{folder:.+}")
     @Produces("application/json;charset=UTF-8")
+    @NoCache
     public List<RepoFileVo> listFiles(@PathParam("folder") String path) throws IOException {
 
         List<RepoFileVo> result = new ArrayList<>();
@@ -376,8 +378,10 @@ public class RepositoryService {
 
         for (FileItem item : items) {
             if (!item.isFormField()) {
-                File destFile = getUniqueFile(folder, item.getName()).toFile();
-                log.info("File " + item.getName() + " is uploaded to " + destFile);
+                // Argh - IE includes the path in the item.getName()!
+                String fileName = Paths.get(item.getName()).getFileName().toString();
+                File destFile = getUniqueFile(folder, fileName).toFile();
+                log.info("File " + fileName + " is uploaded to " + destFile);
                 try (BufferedOutputStream out = new BufferedOutputStream(new FileOutputStream(destFile))) {
                     InputStream in = new BufferedInputStream(item.getInputStream());
                     byte[] buffer = new byte[1024];
@@ -390,7 +394,7 @@ public class RepositoryService {
                 }
 
                 // Return the repo-relative path as a result
-                result.add(Paths.get(path, item.getName()).toString());
+                result.add(Paths.get(path, fileName).toString());
             }
         }
 

@@ -148,6 +148,10 @@ input.ng-invalid-pwmatch {
     display: block;
 }
 
+.nv-file-over {
+    border: dotted 3px red;
+}
+
 .file-upload-drop-zone {
     border: dotted 2px lightgray;
 }

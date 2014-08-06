@@ -103,7 +103,7 @@ angular.module('msinm.user')
 
         $scope.checkLoggedIn = function(path) {
             if ($rootScope.currentUser) {
-                window.location = path;
+                $rootScope.go(path);
             } else {
                 $rootScope.$broadcast('Login', "Please login first");
             }

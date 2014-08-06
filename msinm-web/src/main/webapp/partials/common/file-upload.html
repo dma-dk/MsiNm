@@ -1,12 +1,12 @@
 
-<div ng-file-drop>
+<div nv-file-drop uploader="uploader">
 
     <div>
-        <div class="well-sm file-upload-drop-zone" ng-file-over="file-upload-file-over">
+        <div class="well-sm file-upload-drop-zone" over-class="file-upload-file-over" nv-file-drop="" nv-file-over="" uploader="uploader">
             <div class="file-input btn btn-xs btn-primary btn-file">
                 Browse&hellip;
-                <input ng-file-select ng-if="multiple" type="file" multiple>
-                <input ng-file-select ng-if="!multiple" type="file">
+                <input nv-file-select uploader="uploader" ng-if="multiple" type="file" multiple>
+                <input nv-file-select uploader="uploader" ng-if="!multiple" type="file">
             </div>
             &nbsp; {{dropText}}
         </div>

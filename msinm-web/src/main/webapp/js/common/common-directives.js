@@ -241,7 +241,7 @@ angular.module('msinm.common')
      *   <li>error(status, statusText): Error callback function. Optional.</li>
      * </ul>
      */
-    .directive('msiFileUpload', ['$fileUploader', 'Auth', function ($fileUploader, Auth) {
+    .directive('msiFileUpload', ['FileUploader', 'Auth', function (FileUploader, Auth) {
         'use strict';
 
         return {
@@ -269,72 +269,78 @@ angular.module('msinm.common')
                 }
 
                 // Return link function
-                return function (scope, element, attrs) {
-                    // create a uploader with options
-                    var uploader = scope.uploader = $fileUploader.create({
-                        scope: scope,
-                        url: scope.repoFolder,
-                        data: { uploadData: scope.data },
-                        filters: []
-                    });
-
-                    if (scope.data) {
-                        uploader.bind('beforeupload', function (event, item) {
-                            item.formData.push({ data: JSON.stringify(scope.data) });
+                return {
+                    pre: function (scope, element, attrs) {
+                        // create a uploader with options
+                        scope.uploader = new FileUploader({
+                            scope: scope,
+                            url: scope.repoFolder,
+                            data: { uploadData: scope.data },
+                            filters: []
                         });
-                    }
+                    },
 
-                    // Check if file-types are defined
-                    if (scope.fileTypes) {
-                        uploader.filters.push(function(item) {
-                            return $.inArray(item.name.extension(), scope.fileTypes.split(",")) > -1;
-                        });
-                    }
+                    post: function (scope, element, attrs) {
 
-                    // Auto-upload
-                    if (scope.autoUpload) {
-                        uploader.autoUpload = scope.autoUpload;
-                    }
-
-                    // Remove after upload
-                    if (scope.removeAfterUpload) {
-                        uploader.removeAfterUpload = scope.removeAfterUpload;
-                    }
-
-                    // Handle authenticaiton
-                    if (Auth.isLoggedIn()) {
-                        uploader.headers.Authorization = Auth.authorizationHeader();
-                    }
-
-                    scope.cancelOrRemove = function(item) {
-                        if (item.isUploading) {
-                            item.cancel();
-                        } else {
-                            item.remove();
+                        if (scope.data) {
+                            scope.uploader.onBeforeUploadItem = function (item) {
+                                item.formData.push({ data: JSON.stringify(scope.data) });
+                            };
                         }
-                    };
 
-                    scope.$watch(function() {
-                        return scope.repoFolder;
-                    }, function (value) {
-                        uploader.url = value;
-                     }, true);
+                        // Check if file-types are defined
+                        if (scope.fileTypes) {
+                            scope.uploader.filters.push({
+                                name: 'filterName',
+                                fn: function (item, options) {
+                                    return $.inArray(item.name.extension(), scope.fileTypes.split(",")) > -1;
+                                }});
+                        }
 
-                    // Success call-back
-                    if (scope.success) {
-                        uploader.bind('success', function (event, xhr, item, response) {
-                            scope.success({ result: response});
-                        });
-                    }
+                        // Auto-upload
+                        if (scope.autoUpload) {
+                            scope.uploader.autoUpload = scope.autoUpload;
+                        }
 
-                    // Error call-back
-                    if (scope.error) {
-                        uploader.bind('error', function (event, xhr, item, response) {
-                            scope.error({ status: xhr.status, statusText: xhr.statusText });
-                        });
+                        // Remove after upload
+                        if (scope.removeAfterUpload) {
+                            scope.uploader.removeAfterUpload = scope.removeAfterUpload;
+                        }
+
+                        // Handle authenticaiton
+                        if (Auth.isLoggedIn()) {
+                            scope.uploader.headers.Authorization = Auth.authorizationHeader();
+                        }
+
+                        scope.cancelOrRemove = function (item) {
+                            if (item.isUploading) {
+                                item.cancel();
+                            } else {
+                                item.remove();
+                            }
+                        };
+
+                        scope.$watch(function () {
+                            return scope.repoFolder;
+                        }, function (value) {
+                            scope.uploader.url = value;
+                        }, true);
+
+                        // Success call-back
+                        if (scope.success) {
+                            scope.uploader.onSuccessItem = function (item, response, status, headers) {
+                                scope.success({ result: response});
+                            };
+                        }
+
+                        // Error call-back
+                        if (scope.error) {
+                            scope.uploader.onErrorItem = function (item, response, status, headers) {
+                                scope.error({ status: status, statusText: response.statusText });
+                            };
+                        }
                     }
                 }
-
             }
 
         }

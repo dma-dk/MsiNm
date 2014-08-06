@@ -3,6 +3,7 @@ package dk.dma.msinm.web.rest;
 import dk.dma.msinm.reporting.ReportService;
 import dk.dma.msinm.reporting.ReportVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
 import javax.annotation.security.RolesAllowed;
@@ -36,6 +37,7 @@ public class ReportRestService {
     @GET
     @Path("/new-report-template")
     @Produces("application/json;charset=UTF-8")
+    @NoCache
     public ReportVo newTemplateReport() {
         return reportService.newTemplateReport();
     }
