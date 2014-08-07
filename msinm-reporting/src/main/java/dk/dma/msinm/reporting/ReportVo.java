@@ -1,9 +1,10 @@
 package dk.dma.msinm.reporting;
 
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.common.vo.BaseVo;
 import dk.dma.msinm.model.Area;
-import dk.dma.msinm.model.Message;
+import dk.dma.msinm.user.UserVo;
 import dk.dma.msinm.vo.AreaVo;
 import dk.dma.msinm.vo.LocationVo;
 
@@ -18,6 +19,7 @@ public class ReportVo extends BaseVo<Report> {
 
     Integer id;
     ReportStatus status;
+    Date created;
     Date dateProcessed;
     AreaVo area;
     String areaId;
@@ -26,6 +28,8 @@ public class ReportVo extends BaseVo<Report> {
     String contact;
     String repoPath;
     boolean sendEmail;
+    UserVo user;
+    List<RepoFileVo> attachments;
 
     /**
      * Constructor
@@ -41,12 +45,14 @@ public class ReportVo extends BaseVo<Report> {
     public ReportVo(Report entity, DataFilter dataFilter) {
         super(entity);
 
-        DataFilter compFilter = dataFilter.forComponent(Message.class);
+        DataFilter compFilter = dataFilter.forComponent(Report.class);
 
         this.id = entity.getId();
         this.status = entity.getStatus();
+        this.created = entity.getCreated();
         this.dateProcessed = entity.getDateProcessed();
         this.description = entity.getDescription();
+        this.user = new UserVo(entity.getUser());
 
         if (compFilter.include("details")) {
             this.area = (entity.getArea() == null) ? null : new AreaVo(entity.getArea(), compFilter);
@@ -126,6 +132,14 @@ public class ReportVo extends BaseVo<Report> {
         this.dateProcessed = dateProcessed;
     }
 
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
     public AreaVo getArea() {
         return area;
     }
@@ -180,6 +194,22 @@ public class ReportVo extends BaseVo<Report> {
 
     public void setSendEmail(boolean sendEmail) {
         this.sendEmail = sendEmail;
+    }
+
+    public UserVo getUser() {
+        return user;
+    }
+
+    public void setUser(UserVo user) {
+        this.user = user;
+    }
+
+    public List<RepoFileVo> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<RepoFileVo> attachments) {
+        this.attachments = attachments;
     }
 }
 

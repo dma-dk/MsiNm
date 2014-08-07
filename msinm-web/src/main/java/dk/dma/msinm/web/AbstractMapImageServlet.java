@@ -18,17 +18,12 @@ package dk.dma.msinm.web;
 import dk.dma.msinm.common.settings.annotation.Setting;
 import dk.dma.msinm.common.util.GraphicsUtils;
 import dk.dma.msinm.model.Location;
-import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Point;
-import dk.dma.msinm.service.MessageService;
 import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
 import javax.inject.Inject;
-import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
@@ -37,31 +32,23 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static dk.dma.msinm.model.Location.LocationType;
 
 /**
- * Returns and caches a thumbnail image for a message.
- * <p></p>
- * Can be used e.g. for a grid layout in search results.
+ * Returns and caches a thumbnail image for given locations.
  */
-@WebServlet(value = "/map-image/*", asyncSupported = true)
-public class MapImageServlet extends HttpServlet  {
+public abstract class AbstractMapImageServlet extends HttpServlet  {
 
-    private static String STATIC_IMAGE_URL = "http://staticmap.openstreetmap.de/staticmap.php?center=%f,%f&zoom=%d&size=%dx%d";
-    private static String IMAGE_PLACEHOLDER = "/img/map_image_placeholder.png";
+    static final String STATIC_IMAGE_URL = "http://staticmap.openstreetmap.de/staticmap.php?center=%f,%f&zoom=%d&size=%dx%d";
+    static final String IMAGE_PLACEHOLDER = "/img/map_image_placeholder.png";
 
-    private static GlobalMercator mercator = new GlobalMercator();
-    private static Image msiImage, nmImage;
+    static GlobalMercator mercator = new GlobalMercator();
 
     @Inject
     Logger log;
-
-    @Inject
-    MessageService messageService;
 
     @Inject
     @Setting(value = "mapImageSize", defaultValue = "256")
@@ -76,62 +63,12 @@ public class MapImageServlet extends HttpServlet  {
     Long zoomLevel;
 
     /**
-     * Main GET method
-     * @param request servlet request
-     * @param response servlet response
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        try {
-            // Strip png path of the request path info to get the id of the message
-            int id = Integer.valueOf(request.getPathInfo().substring(1).split("\\.")[0]);
-
-            // Look up the message
-            Message message = messageService.getCachedMessage(id);
-            if (message == null) {
-                throw new IllegalArgumentException("Message " + id + " does not exist");
-            }
-
-            List<Location> locations = getMessageLocations(message);
-            if (locations.size() > 0) {
-                // Construct the image file name for the messsage
-                String imageName = String.format("map_%d.png", mapImageSize);
-
-                // Create a hashed sub-folder for the image file
-                Path imageRepoPath = messageService.getMessageFileRepoPath(message, imageName);
-
-                // If the image file does not exist or if the message has been updated after the image file
-                // generate a new image file
-                boolean imageFileExists = Files.exists(imageRepoPath);
-                if (!imageFileExists ||
-                        message.getUpdated().getTime() > Files.getLastModifiedTime(imageRepoPath).toMillis()) {
-                    imageFileExists = createMapImage(message, imageRepoPath);
-                }
-
-                // Either return the image file, or a place holder image
-                if (imageFileExists) {
-                    // Redirect the the repository streaming service
-                    String uri = messageService.getMessageFileRepoUri(message, imageName);
-                    response.sendRedirect(uri);
-                    return;
-                }
-            }
-
-        } catch (Exception ex) {
-            log.warn("Error fetching map image for message: " + ex);
-        }
-
-        // Show a placeholder image
-        response.sendRedirect(IMAGE_PLACEHOLDER);
-    }
-
-    /**
      * Fetches the map image and crops it if specified
      * @param centerPt the center point
      * @param zoom the zoom level
      * @return the image
      */
-    private BufferedImage fetchMapImage(Point centerPt, int zoom) throws  IOException {
+    protected BufferedImage fetchMapImage(Point centerPt, int zoom) throws  IOException {
         // Fetch the image
         long fetchSize = mapImageSize + 2 * mapImageIndent;
         String url = String.format(
@@ -158,13 +95,14 @@ public class MapImageServlet extends HttpServlet  {
     }
 
     /**
-     * Attempts to create a map image for the message at the given path
-     * @param message the message
+     * Attempts to create a map image for the locations at the given path
+     * @param locations the locations
      * @param imageRepoPath the path of the image
+     * @param pointIndicator the image to use as a point indicator
+     * @param imageDate the date to set on newly create images
      * @return if the image file was properly created
      */
-    private boolean createMapImage(Message message, Path imageRepoPath) throws IOException {
-        List<Location> locations = getMessageLocations(message);
+    protected boolean createMapImage(List<Location> locations, Path imageRepoPath, Image pointIndicator, Date imageDate) throws IOException {
 
         if (locations.size() > 0) {
 
@@ -201,7 +139,7 @@ public class MapImageServlet extends HttpServlet  {
                     int px = xy[0] - cxy[0] - rx0 - iconSize / 2;
                     int py = cxy[1] - xy[1] - ry0 - iconSize / 2;
 
-                    g2.drawImage(getMessageImage(message),
+                    g2.drawImage(pointIndicator,
                             px,
                             py,
                             iconSize,
@@ -227,7 +165,7 @@ public class MapImageServlet extends HttpServlet  {
                             path.lineTo(px, py);
                         }
                     }
-                    if (loc.getType() == Location.LocationType.POLYGON) {
+                    if (loc.getType() == LocationType.POLYGON) {
                         path.closePath();
                         g2.setColor(fillCol);
                         g2.fill(path);
@@ -248,29 +186,13 @@ public class MapImageServlet extends HttpServlet  {
             image.flush();
 
             // Update the timestamp of the image file to match the change date of the message
-            Files.setLastModifiedTime(imageRepoPath, FileTime.fromMillis(message.getUpdated().getTime()));
+            Files.setLastModifiedTime(imageRepoPath, FileTime.fromMillis(imageDate.getTime()));
 
-            log.info("Saved image for message " + message.getId() + " to file " + imageRepoPath);
+            log.info("Saved image for to file " + imageRepoPath);
             return true;
         }
 
         return false;
-    }
-
-    /**
-     * Extracts the locations from the message
-     * @param message the message
-     * @return the list of locations
-     */
-    public List<Location> getMessageLocations(Message message) {
-        List<Location> result = new ArrayList<>();
-        if (message != null) {
-            result.addAll(message.getLocations()
-                    .stream()
-                    .filter(location -> location.getPoints().size() > 0)
-                    .collect(Collectors.toList()));
-        }
-        return result;
     }
 
     /**
@@ -309,45 +231,5 @@ public class MapImageServlet extends HttpServlet  {
         ));
 
         return new Point[] { minPt, maxPt };
-    }
-
-    /**
-     * Depending on the type of message, return an MSI or an NM image
-     * @param message the  message
-     * @return the corresponding image
-     */
-    public Image getMessageImage(Message message) {
-        return message.getType().isMsi() ? getMsiImage() : getNmImage();
-    }
-
-    /**
-     * Returns the MSI symbol image
-     * @return the MSI symbol image
-     */
-    private synchronized Image getMsiImage() {
-        if (msiImage == null) {
-            try {
-                msiImage = ImageIO.read(new URL("http://localhost:8080/img/msi.png"));
-            } catch (IOException e) {
-                log.error("This should never happen");
-            }
-        }
-        return msiImage;
-    }
-
-
-    /**
-     * Returns the MSI symbol image
-     * @return the MSI symbol image
-     */
-    private synchronized Image getNmImage() {
-        if (nmImage == null) {
-            try {
-                nmImage = ImageIO.read(new URL("http://localhost:8080/img/nm.png"));
-            } catch (IOException e) {
-                log.error("This should never happen");
-            }
-        }
-        return nmImage;
     }
 }

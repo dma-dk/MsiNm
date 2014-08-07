@@ -17,7 +17,8 @@ angular.module('msinm.map')
             scope: {
                 locations: '=locations',
                 visible: '=visible',
-                editDescs: '@editDescs'
+                editDescs: '@editDescs',
+                languages: '=languages'
             },
 
             link: function (scope, element, attrs) {
@@ -309,7 +310,7 @@ angular.module('msinm.map')
                 // If oldElm (location or point) is defined, the existing desc entities are used.
                 // Otherwise, if computeShowDesc is true, the "showDesc" flag is computed for the element
                 function initDescs(elm, oldElm, computeShowDesc) {
-                    LangService.checkDescs(elm, ensureDescriptionField, oldElm);
+                    LangService.checkDescs(elm, ensureDescriptionField, oldElm, scope.languages);
 
                     // Restore the "showDesc" flag from the oldElm
                     if (oldElm && oldElm.showDesc) {

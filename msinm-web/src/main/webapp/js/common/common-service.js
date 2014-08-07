@@ -100,12 +100,15 @@ angular.module('msinm.common')
         // to initialize the fields to include, e.g. "description" or "name",...
         // Optionally, an oldElm can be specified, from which the description entity will be picked
         // if present
-        this.checkDescs = function (elm, initFunc, oldElm) {
+        this.checkDescs = function (elm, initFunc, oldElm, languages) {
             if (!elm.descs) {
                 elm.descs = [];
             }
-            for (var l in $rootScope.modelLanguages) {
-                var lang = $rootScope.modelLanguages[l];
+            if (!languages || languages.length == 0) {
+                languages = $rootScope.modelLanguages;
+            }
+            for (var l in languages) {
+                var lang = languages[l];
                 var desc = this.descForLanguage(elm, lang);
                 if (!desc && oldElm) {
                     desc = this.descForLanguage(oldElm, lang);

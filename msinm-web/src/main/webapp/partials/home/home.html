@@ -15,7 +15,7 @@
             <div translate>FRONT_PAGE_ACTIVE_WARNINGS</div>
             <div class="front-page-msi">
                 <div ng-repeat="msg in searchResult.messages" class="front-page-msi-item">
-                    <div><strong msi-area="msg"/><strong> - {{msg.descs[0].title}}</strong></div>
+                    <div><strong msi-message-area="msg"/><strong> - {{msg.descs[0].title}}</strong></div>
                     <div><small>{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</small></div>
                     <div ng-bind-html="msg.descs[0].description"></div>
                 </div>

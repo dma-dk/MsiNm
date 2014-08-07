@@ -17,7 +17,7 @@
                 </p>
             </div>
             <div class="col-sm-12 col-md-9">
-                <div msi-location-editor locations="report.locations" edit-descs="true" class="report-locations">
+                <div msi-location-editor locations="report.locations" edit-descs="true" languages="languages" class="report-locations">
                 </div>
             </div>
         </div>
@@ -49,7 +49,7 @@
                     </span>
 
                     <span class="report-attachment" ng-repeat="file in attachments">
-                        <msi-attachment file="file" size="64"></msi-attachment>
+                        <msi-attachment file="file" size="64" clickable="true"></msi-attachment>
                     </span>
                 </div>
             </div>
@@ -100,3 +100,6 @@
 
 </div>
 
+<script>
+    initAreaField("#messageArea", false);
+</script>

@@ -83,10 +83,12 @@ angular.module('msinm.common')
             replace: true,
             scope: {
                 file: "=",
-                size: "@"
+                size: "@",
+                clickable: "@"
             },
             link: function(scope, element, attrs) {
                 scope.thumbnailUrl = "/rest/repo/thumb/" + scope.file.path + "?size=" + scope.size;
+                scope.fileUrl = "/rest/repo/file/" + scope.file.path;
                 scope.imageClass = "attachment-image size-" + scope.size;
             }
         };
@@ -96,17 +98,17 @@ angular.module('msinm.common')
     /**
      * Replaces the content of the element with the area description of the message
      */
-    .directive('msiArea', ['LangService', function (LangService) {
+    .directive('msiMessageArea', ['LangService', function (LangService) {
         return {
             restrict: 'A',
             scope: {
-                msiArea: "="
+                msiMessageArea: "="
             },
             link: function(scope, element, attrs) {
-                if (attrs.msiArea) {
-                    var desc = LangService.desc(scope.msiArea);
+                if (attrs.msiMessageArea) {
+                    var desc = LangService.desc(scope.msiMessageArea);
                     var areas = (desc && desc.vicinity) ? desc.vicinity : '';
-                    for (var area = scope.msiArea.area; area; area = area.parent) {
+                    for (var area = scope.msiMessageArea.area; area; area = area.parent) {
                         desc = LangService.desc(area);
                         var areaName = (desc) ? desc.name : '';
                         areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
@@ -117,6 +119,29 @@ angular.module('msinm.common')
         };
     }])
 
+
+    /**
+     * Replaces the content of the element with the area description
+     */
+    .directive('msiArea', ['LangService', function (LangService) {
+        return {
+            restrict: 'A',
+            scope: {
+                msiArea: "="
+            },
+            link: function(scope, element, attrs) {
+                if (attrs.msiArea) {
+                    var areas = '';
+                    for (var area = scope.msiArea; area; area = area.parent) {
+                        desc = LangService.desc(area);
+                        var areaName = (desc) ? desc.name : '';
+                        areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
+                    }
+                    element.html(areas);
+                }
+            }
+        };
+    }])
 
     /**
      * Displays the composite identifier of the message

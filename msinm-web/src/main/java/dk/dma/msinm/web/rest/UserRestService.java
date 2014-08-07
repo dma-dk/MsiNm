@@ -15,10 +15,9 @@
  */
 package dk.dma.msinm.web.rest;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import dk.dma.msinm.common.vo.BaseVo;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
+import dk.dma.msinm.user.UserVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -156,112 +155,4 @@ public class UserRestService {
         }
     }
 
-    /**
-     * Helper class used for creating users
-     */
-    public static class UserVo extends BaseVo<User> {
-        Integer id;
-        String email;
-        String firstName;
-        String lastName;
-        String language;
-        String mmsi;
-        String vesselName;
-        List<String> roles = new ArrayList<>();
-
-        /**
-         * Constructor
-         */
-        public UserVo() {
-        }
-
-        /**
-         * Constructor
-         * @param entity the user entity
-         */
-        public UserVo(User entity) {
-            super(entity);
-            this.id = entity.getId();
-            this.email = entity.getEmail();
-            this.firstName = entity.getFirstName();
-            this.lastName = entity.getLastName();
-            this.language = entity.getLanguage();
-            this.mmsi = entity.getMmsi();
-            this.vesselName = entity.getVesselName();
-            entity.getRoles().forEach(role -> roles.add(role.getName()));
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public User toEntity() {
-            User user = new User();
-            user.setId(id);
-            user.setEmail(email);
-            user.setFirstName(firstName);
-            user.setLastName(lastName);
-            user.setLanguage(language);
-            user.setMmsi(mmsi);
-            user.setVesselName(vesselName);
-            return user;
-        }
-
-        public String getEmail() {
-            return email;
-        }
-
-        public void setEmail(String email) {
-            this.email = email;
-        }
-
-        public String getFirstName() {
-            return firstName;
-        }
-
-        public void setFirstName(String firstName) {
-            this.firstName = firstName;
-        }
-
-        public String getLastName() {
-            return lastName;
-        }
-
-        public void setLastName(String lastName) {
-            this.lastName = lastName;
-        }
-
-        public String getLanguage() {
-            return language;
-        }
-
-        public void setLanguage(String language) {
-            this.language = language;
-        }
-
-        public String getMmsi() {
-            return mmsi;
-        }
-
-        public void setMmsi(String mmsi) {
-            this.mmsi = mmsi;
-        }
-
-        public String getVesselName() {
-            return vesselName;
-        }
-
-        public void setVesselName(String vesselName) {
-            this.vesselName = vesselName;
-        }
-
-        public List<String> getRoles() {
-            return roles;
-        }
-
-        @JsonDeserialize(contentAs = String.class)
-        public void setRoles(List<String> roles) {
-            this.roles = roles;
-        }
-    }
 }

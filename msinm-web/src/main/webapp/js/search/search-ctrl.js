@@ -33,9 +33,6 @@ angular.module('msinm.search')
         // used to avoid the panel being visible when reloading the page.
         $(".searchFilterPanel").removeAttr('style');
 
-        // Init the area selection field
-        initAreaField("#messageArea", true);
-
         $scope.newSearch = function () {
             $scope.currentPage = 1;
             $scope.search();

@@ -37,8 +37,8 @@ import java.util.*;
                 query="SELECT msg FROM Message msg where msg.updated > :date order by msg.updated asc"),
     @NamedQuery(name="Message.findActive",
                 query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' order by msg.validFrom asc"),
-    @NamedQuery(name="Message.findActiveTempPrelimNotices",
-                query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and (msg.type = 'TEMPORARY_NOTICE' or msg.type = 'PRELIMINARY_NOTICE') " +
+    @NamedQuery(name="Message.findActiveNotices",
+                query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and msg.seriesIdentifier.mainType = 'NM'" +
                       " and msg.validFrom < :date and (msg.validTo is null or msg.validTo > :date)"),
     @NamedQuery(name="Message.findPublishedExpiredMessages",
                 query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and msg.validTo is not null and msg.validTo < CURRENT_TIMESTAMP ")

@@ -227,7 +227,7 @@ public class MessageService extends BaseService {
      */
     public List<Message> inactivateTempPrelimNmMessages(List<SeriesIdentifier> noticeIds, Date date) {
         List<Message> messages =
-                em.createNamedQuery("Message.findActiveTempPrelimNotices", Message.class)
+                em.createNamedQuery("Message.findActiveNotices", Message.class)
                         .setParameter("date", date)
                         .getResultList();
         List<Message> deactivated = new ArrayList<>();

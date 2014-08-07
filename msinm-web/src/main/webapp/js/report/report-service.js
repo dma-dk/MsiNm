@@ -21,8 +21,20 @@ angular.module('msinm.report')
                     .error(error);
             },
 
+            updateReportStatus: function(report, success, error) {
+                $http.put('/rest/reports/report', report)
+                    .success(success)
+                    .error(error);
+            },
+
             listFiles: function(dir, success, error) {
                 $http.get('/rest/repo/list/' + dir)
+                    .success(success)
+                    .error(error);
+            },
+
+            getPendingReports: function(lang, success, error) {
+                $http.get('/rest/reports/pending-reports?lang=' + lang)
                     .success(success)
                     .error(error);
             }

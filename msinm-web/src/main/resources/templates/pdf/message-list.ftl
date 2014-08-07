@@ -84,7 +84,7 @@
     <#list messages as msg>
     <tr>
         <td class="table-image">
-            <img src="/map-image/${msg.id?c}.png" width="120" height="120"/>
+            <img src="/message-map-image/${msg.id?c}.png" width="120" height="120"/>
         </td>
         <td class="table-item">
 

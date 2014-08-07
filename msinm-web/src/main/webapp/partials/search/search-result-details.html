@@ -3,7 +3,7 @@
     <table class='table table-condensed'>
         <tr ng-repeat="msg in searchResult.messages">
             <td class="table-image">
-                <img ng-src="/map-image/{{msg.id}}.png" width="180" height="180"/>
+                <img ng-src="/message-map-image/{{msg.id}}.png" width="180" height="180"/>
             </td>
             <td class="table-item">
 
@@ -11,7 +11,7 @@
                 <div ng-if="msg.originalInformation">&#10029;</div>
                 <div>
                     <strong msi-message-id="msg"></strong>.
-                    <strong msi-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
+                    <strong msi-message-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
                     <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
                         ( <flag lang="msg.descs[0].lang" style="height: 12px;" style="opacity: 0.5;"></flag> )
                     </span>

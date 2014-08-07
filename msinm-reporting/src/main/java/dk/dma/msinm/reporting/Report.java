@@ -1,5 +1,7 @@
 package dk.dma.msinm.reporting;
 
+import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.model.IPreloadable;
 import dk.dma.msinm.common.model.VersionedEntity;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Location;
@@ -12,6 +14,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.persistence.NamedQueries;
+import javax.persistence.NamedQuery;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.Temporal;
@@ -25,7 +29,11 @@ import java.util.List;
  * Defines a report, i.e. a user observation reported via the MSI-NM web site.
  */
 @Entity
-public class Report extends VersionedEntity<Integer> {
+@NamedQueries({
+        @NamedQuery(name = "Report.findPendingReports",
+                query = "SELECT r FROM Report r where r.status = 'PENDING'")
+})
+public class Report extends VersionedEntity<Integer> implements IPreloadable {
 
     @NotNull
     @Enumerated(EnumType.STRING)
@@ -52,6 +60,23 @@ public class Report extends VersionedEntity<Integer> {
     @OneToOne
     User user;
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void preload(DataFilter dataFilter) {
+        DataFilter compFilter = dataFilter.forComponent(Report.class);
+
+        if (compFilter.includeAnyOf("details", DataFilter.LOCATIONS)) {
+            getLocations().forEach(Location::preload);
+        }
+        if (compFilter.include("details")) {
+            getUser();
+            if (getArea() != null) {
+                getArea().preload(compFilter);
+            }
+        }
+    }
 
     // ****** Getters and setters
 
@@ -118,4 +143,5 @@ public class Report extends VersionedEntity<Integer> {
     public void setUser(User user) {
         this.user = user;
     }
+
 }

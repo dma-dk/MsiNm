@@ -1,0 +1,82 @@
+
+<h1 class="page-header">Pending Reports</h1>
+<p>List of pending reported observations.</p>
+
+<table class='table table-condensed table-hover' ng-controller="ReportCtrl" ng-init="fetchPendingReports()">
+    <tr ng-repeat="report in pendingReports">
+
+        <td class="table-image">
+            <img ng-src="/report-map-image/{{report.id}}.png" width="180" height="180"/>
+        </td>
+        <td class="table-item">
+
+            <!-- Created line -->
+            <div class="row">
+                <div class="col-sm-2 table-item-field">Created</div>
+                <div class="col-sm-10 table-item-value">
+                    {{report.created | date : 'dd/MM/yy HH:mm'}}
+
+                    <div class="btn-group report-action">
+                        <button type="button" class="btn btn-default btn-xs dropdown-toggle" data-toggle="dropdown">
+                            <span class="glyphicon glyphicon-cog"></span>
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li><a href ng-click="discardReport(report)">Discard...</a></li>
+                            <li><a href onclick="alert('NOT IMPLEMENTED YET')">Create MSI...</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User line -->
+            <div class="row">
+                <div class="col-sm-2 table-item-field">User</div>
+                <div class="col-sm-10 table-item-value">{{report.user.email}}</div>
+            </div>
+
+            <!-- Contact line -->
+            <div class="row" ng-if="report.contact">
+                <div class="col-sm-2 table-item-field">Contact</div>
+                <div class="col-sm-10 table-item-value">{{report.contact}}</div>
+            </div>
+
+            <!-- Area line -->
+            <div class="row" ng-if="report.area">
+                <div class="col-sm-2 table-item-field">Area</div>
+                <div class="col-sm-10 table-item-value" msi-area="report.area"></div>
+            </div>
+
+            <!-- Location line -->
+            <div class="row" ng-if="report.locations">
+                <div class="col-sm-2 table-item-field">Location</div>
+                <div class="col-sm-10 table-item-value">
+                    <div ng-repeat="loc in report.locations">
+                        <div ng-if="loc.descs[0].description">{{loc.descs[0].description}}</div>
+                        <div ng-repeat="pt in loc.points">
+                            {{pt | lonlat}}<span ng-if="pt.descs[0].description">, {{pt.descs[0].description}}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Description line -->
+            <div class="row" ng-if="report.description">
+                <div class="col-sm-2 table-item-field">Details</div>
+                <div class="col-sm-10 table-item-value" ng-bind-html="report.description"></div>
+            </div>
+
+            <!-- Attachments -->
+            <div class="row" ng-if="report.attachments">
+                <div class="col-sm-2 table-item-field">Attachments</div>
+                <div class="col-sm-10 table-item-value">
+                    <span class="report-attachment" ng-repeat="file in report.attachments">
+                        <msi-attachment file="file" size="32" clickable="true"></msi-attachment>
+                    </span>
+                </div>
+            </div>
+
+        </td>
+
+    </tr>
+</table>

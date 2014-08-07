@@ -2,7 +2,7 @@
 <div class="container-fluid report-page">
 
     <div class="col-md-5">
-        <h1 class="page-header">Report Observation</h1>
+        <h1 class="page-header">Report Observations</h1>
         <p>Please help us keeping the maritime community safe.</p>
         <p>
             If you observe anything relevant for the safety of the maritime community,
@@ -20,10 +20,15 @@
         <button class="btn btn-primary btn-sm" ng-controller="UserCtrl" ng-click="checkLoggedIn('/report/submit-report')">
             Submit Report...
         </button>
+        <p>&nbsp;</p>
     </div>
 
-    <div class="col-md-7 report-teaser-image text-right">
+    <div class="col-md-7 report-teaser-image text-right" ng-if="!hasRole('admin')">
         <img src="/img/report.png"/>
+    </div>
+
+    <div class="col-md-1" ng-if="hasRole('admin')"></div>
+    <div class="col-md-6" ng-if="hasRole('admin')" ng-include="'partials/report/pending-reports.html'">
     </div>
 
 </div>

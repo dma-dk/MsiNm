@@ -66,3 +66,46 @@
     border: 1px solid lightgray;
 }
 
+/**
+ * Pending reports
+ */
+
+.table-image img {
+    display: none;
+}
+
+@media (min-width: 400px) {
+    .table-image img {
+        display: block;
+        width: 80px;
+        height: 80px;
+    }
+}
+
+.table-item {
+    width: 100%;
+    font-size: 11px;
+}
+
+.table-item-field {
+    font-style: italic;
+    color: #666;
+    padding-top: 5px;
+}
+
+.table-item-value {
+    padding-top: 5px;
+}
+
+.table-item-value ol {
+    padding-left: 0;
+}
+
+.report-action {
+    text-align: left;
+    margin-left: 40px;
+}
+
+.report-action a {
+    font-size: 10px;
+}

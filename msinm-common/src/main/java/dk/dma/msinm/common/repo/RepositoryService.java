@@ -325,11 +325,12 @@ public class RepositoryService {
 
         if (Files.exists(folder) && Files.isDirectory(folder)) {
 
-            // Filter out hidden files, thumbnails and directories
+            // Filter out directories, hidden files, thumbnails and map images
             DirectoryStream.Filter<Path> filter = file ->
                     Files.isRegularFile(file) &&
                     !file.getFileName().toString().startsWith(".") &&
-                    !file.getFileName().toString().contains("_thumb_");
+                    !file.getFileName().toString().matches(".+_thumb_\\d{1,3}\\.\\w+") && // Thumbnails
+                    !file.getFileName().toString().matches("map_\\d{1,3}\\.png"); // Map image
 
             Files.newDirectoryStream(folder, filter)
                     .forEach(f -> {

@@ -53,7 +53,7 @@ function formatParentAreas(area) {
 function initAreaField(areaId, multiple) {
     $(document).ready(function () {
         $(areaId).select2({
-            placeholder: "Select Areas",
+            placeholder: (multiple) ? "Select Areas" : "Select Area",
             multiple: multiple,
             allowClear: true,
             minimumInputLength: 1,

@@ -126,7 +126,7 @@
             <!-- Type fields -->
             <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnType">
                 <div class="row">
-                    <div class="select2-bootstrap-prepend col-sm-12">
+                    <div class="col-sm-12">
                         <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
                         <input type="radio" value="EXPIRED" ng-model="status">&nbsp;Expired &nbsp;
                         <input type="radio" value="CANCELLED" ng-model="status">&nbsp;Cancelled &nbsp;
@@ -236,6 +236,10 @@
         $("#messageDateTo").datepicker({ format: "dd-mm-yyyy" });
         $('#query').popover();
     });
+
+    // Init the area selection field
+    initAreaField("#messageArea", true);
+
 </script>
 
 </body>

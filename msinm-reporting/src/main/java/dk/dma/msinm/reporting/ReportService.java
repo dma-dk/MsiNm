@@ -1,6 +1,8 @@
 package dk.dma.msinm.reporting;
 
 import dk.dma.msinm.common.mail.MailService;
+import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.common.settings.annotation.Setting;
@@ -17,11 +19,14 @@ import org.slf4j.Logger;
 import javax.annotation.Resource;
 import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
+import javax.ejb.TransactionAttribute;
+import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,6 +36,7 @@ import java.util.Map;
 public class ReportService extends BaseService {
 
     public static String REPORT_REPO_FOLDER = "reports";
+    private static final DataFilter REPORT_VO_DATA = DataFilter.get("Report.details", "Area.parent");
 
     @Resource
     SessionContext ctx;
@@ -71,10 +77,23 @@ public class ReportService extends BaseService {
     }
 
     /**
+     * Fetches, pre-loads and detaches the report with the given id
+     * @param id the id of the report
+     * @return the report or null if not found
+     */
+    public Report fetchReportById(Integer id, DataFilter dataFilter) {
+        Report report = getByPrimaryKey(Report.class, id);
+        report.preload(dataFilter);
+        em.detach(report);
+        return report;
+    }
+
+    /**
      * Creates a new report from the given template
      * @param reportVo the report template
      * @return the new report
      */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Report createReport(ReportVo reportVo) throws Exception {
 
         // Check the calling principal
@@ -117,28 +136,56 @@ public class ReportService extends BaseService {
             report = saveEntity(report);
         }
 
-        // Send an email to the authorities and possibly the user
-        try {
-            sendEmail(report, reportVo.isSendEmail());
-        } catch (Exception e) {
-            log.warn("Failed sending email for report " + report, e);
-        }
+        em.flush();
 
         return report;
     }
 
     /**
+     * Computes the list of recipients for a report email
+     * @param report the report 
+     * @param sendToUser whether to send to the user as well
+     * @return the list of recipients
+     */
+    private String[] getReportMailRecipients(Report report, boolean sendToUser) {
+        List<String> recipients = new ArrayList<>();
+        if (StringUtils.isNotBlank(reportRecipient)) {
+            recipients.add(reportRecipient);
+        }
+        if (sendToUser) {
+            recipients.add(report.getUser().getEmail());
+        }
+        return recipients.toArray(new String[recipients.size()]);
+    }
+
+    /**
      * Sends an email to the authorities and possibly the user
      * @param report the report
-     * @param sendToUser whether to send to the user as well
+     * @param sendToUser whether to send the email to the reporting user or not
      */
-    private void sendEmail(Report report, boolean sendToUser) throws Exception {
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public boolean sendReportEmail(Report report, boolean sendToUser) throws Exception {
+
+        // Refresh the user
+        report = getByPrimaryKey(Report.class, report.getId());
+
+        // Send an email to the authorities and possibly the user
+        String[] recipients = getReportMailRecipients(report,sendToUser);
+        if (recipients.length == 0) {
+            return false;
+        }
+
+        // Get hold of the list of attachments to be used in the email
+        Path reportFolder = getReportRepoFolder(report);
+        String uri = repositoryService.getRepoPath(reportFolder);
+        List<RepoFileVo> attachments = repositoryService.listFiles(uri);
 
         User user = report.getUser();
 
         // Generate the mail HTML
         Map<String, Object> data = new HashMap<>();
         data.put("report", report);
+        data.put("attachments", attachments);
         TemplateContext ctx = templateService.getTemplateContext(
                 TemplateType.MAIL,
                 "report.ftl",
@@ -146,20 +193,67 @@ public class ReportService extends BaseService {
                 user.getLanguage(),
                 "Mails");
 
-        // Determine recipients
-        String[] recipients = (sendToUser)
-                ? new String[] { reportRecipient, user.getEmail() }
-                : new String[] { reportRecipient };
-
         // Send the email
         String content = templateService.process(ctx);
-        String baseUri = (String)ctx.getData().get("baseUri");
-        // TODO: Create mail with attachments...
+        String baseUri = (String) ctx.getData().get("baseUri");
+
+        // Note: The attachments may be large, so, the email links to the attachments
+        // and does NOT have them as attachments
         mailService.sendMail(
                 content,
                 "MSI-NM Report from " + user.getEmail(),
                 baseUri,
                 recipients);
+        return true;
+    }
+
+    /**
+     * Updates the report status
+     * @param id the id of the report
+     * @param status the new status
+     * @return the updated report
+     */
+    public Report updateReportStatus(Integer id, ReportStatus status) {
+        Report report = getByPrimaryKey(Report.class, id);
+        if (report != null && report.getStatus() != status) {
+            report.setStatus(status);
+            report = saveEntity(report);
+        }
+        return report;
+    }
+
+    /**
+     * Returns the list of pending reports
+     * @param lang the language to return
+     * @return the list of pending reports
+     */
+    public List<ReportVo> getPendingReports(String lang) {
+        // Fetch the list of pending reports
+        List<Report> reports = em
+                .createNamedQuery("Report.findPendingReports", Report.class)
+                .getResultList();
+
+        // Start converting them to ReportVos
+        DataFilter filter = new DataFilter(REPORT_VO_DATA).setLang(lang);
+        List<ReportVo> result = new ArrayList<>();
+        reports.forEach(report -> {
+            ReportVo reportVo = new ReportVo(report, filter);
+
+            try {
+                // Look up the attachments associated with the report
+                Path reportFolder = getReportRepoFolder(report);
+                String uri = repositoryService.getRepoPath(reportFolder);
+                List<RepoFileVo> attachments = repositoryService.listFiles(uri);
+                if (attachments.size() > 0) {
+                    reportVo.setAttachments(attachments);
+                }
+            } catch (IOException e) {
+                log.debug("Failed looking up ");
+            }
+
+            result.add(reportVo);
+        });
+        return result;
     }
 
     /***************************************/
@@ -184,4 +278,14 @@ public class ReportService extends BaseService {
         return  getReportRepoFolder(report.getId());
     }
 
+    /**
+     * Returns the repository URI for the given report file
+     * @param report the report
+     * @param name the file name
+     * @return the associated repository URI
+     */
+    public String getReportFileRepoUri(Report report, String name) throws IOException {
+        Path file = getReportRepoFolder(report).resolve(name);
+        return repositoryService.getRepoUri(file);
+    }
 }

@@ -50,6 +50,15 @@ public class DataFilter {
     String lang;
 
     /**
+     * Copy constructor
+     * @param other the data filter to copy
+     */
+    public DataFilter(DataFilter other) {
+        this.lang = other.lang;
+        this.fields.addAll(other.fields);
+    }
+
+    /**
      * Constructor
      * @param fields enlisting of what should be copied
      */
