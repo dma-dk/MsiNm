@@ -4,7 +4,7 @@ FROM
   message m
 WHERE
   m.isLatest = 1
-  AND m.dateTimeUpdated > ?
-  AND m.dateTimeUpdated <= ?
-ORDER BY m.dateTimeUpdated ASC
+  AND greatest(m.dateTimeUpdated, coalesce(m.dateTimeDeleted, m.dateTimeUpdated)) > ?
+  AND greatest(m.dateTimeUpdated, coalesce(m.dateTimeDeleted, m.dateTimeUpdated)) <= ?
+ORDER BY greatest(m.dateTimeUpdated, coalesce(m.dateTimeDeleted, m.dateTimeUpdated)) ASC
 LIMIT ?

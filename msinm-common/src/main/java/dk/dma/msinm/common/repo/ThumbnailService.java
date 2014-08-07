@@ -46,7 +46,7 @@ public class ThumbnailService {
     Logger log;
 
     @Inject
-    @Setting(value = "vipsPath", defaultValue = "/usr/local/bin/vipsthumbnail")
+    @Setting(value = "vipsPath")
     String vipsCmd;
 
     Set<String> vipsFileTypes = new HashSet<>();
