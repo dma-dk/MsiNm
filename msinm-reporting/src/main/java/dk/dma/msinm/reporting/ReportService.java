@@ -148,8 +148,8 @@ public class ReportService extends BaseService {
 
         // Determine recipients
         String[] recipients = (sendToUser)
-                ? new String[] { reportRecipient }
-                : new String[] { reportRecipient, user.getEmail() };
+                ? new String[] { reportRecipient, user.getEmail() }
+                : new String[] { reportRecipient };
 
         // Send the email
         String content = templateService.process(ctx);
