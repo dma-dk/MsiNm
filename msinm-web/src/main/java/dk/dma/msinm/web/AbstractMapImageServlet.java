@@ -258,7 +258,7 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
         // Sanity checks
         if (circle == null || circle.getType() != LocationType.CIRCLE ||
                 circle.getRadius() == null || circle.getPoints().size() != 1) {
-            throw new IllegalArgumentException("Not a proper circle location " + circle);
+            return circle;
         }
 
         Point center = circle.getPoints().get(0);
