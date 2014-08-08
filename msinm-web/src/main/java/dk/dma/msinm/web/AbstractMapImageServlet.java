@@ -34,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static dk.dma.msinm.model.Location.LocationType;
 
@@ -106,6 +107,9 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
 
         if (locations.size() > 0) {
 
+            // Convert circles into polygons
+            locations = convertLocations(locations);
+
             boolean isSinglePoint = locations.size() == 1 && locations.get(0).getType() == LocationType.POINT;
 
             // Compute the bounds of the location and compute the center
@@ -114,10 +118,10 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
 
             // Find zoom level where polygon is at most 80% of bitmap width/height, and zoom level in
             // the range of 12 to 4. See http://wiki.openstreetmap.org/wiki/Zoom_levels
-            int maxWH = (int)(mapImageSize.doubleValue() * 0.8);
+            int maxWH = (int) (mapImageSize.doubleValue() * 0.8);
             int zoom = (isSinglePoint)
-                     ? zoomLevel.intValue()
-                     : computeZoomLevel(bounds, maxWH, maxWH, 12, 4);
+                    ? zoomLevel.intValue()
+                    : computeZoomLevel(bounds, maxWH, maxWH, 12, 3);
 
             // Fetch the image
             BufferedImage image = fetchMapImage(centerPt, zoom);
@@ -125,8 +129,8 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
             GraphicsUtils.antialias(g2);
             g2.setStroke(new BasicStroke(2.0f));
 
-            int rx0 = - mapImageSize.intValue() / 2, ry0 = -mapImageSize.intValue() / 2;
-            int cxy[] =  mercator.LatLonToPixels(centerPt.getLat(), centerPt.getLon(), zoom);
+            int rx0 = -mapImageSize.intValue() / 2, ry0 = -mapImageSize.intValue() / 2;
+            int cxy[] = mercator.LatLonToPixels(centerPt.getLat(), centerPt.getLon(), zoom);
 
             // Draw each location
             locations.forEach(loc -> {
@@ -232,4 +236,49 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
 
         return new Point[] { minPt, maxPt };
     }
+
+    /**
+     * Substitutes all circles in the list with polygons
+     * @param locations the locations to convert
+     * @return the locations sans circles
+     */
+    private List<Location> convertLocations(List<Location> locations) {
+        return locations.stream()
+                .map(loc -> loc.getType() == LocationType.CIRCLE ? circle2polygon(loc, 20) : loc)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Converts a circle into a polygon with the specified number of points
+     * @param circle the circle
+     * @param noPoints the number of points
+     * @return the corresponding polygon
+     */
+    private Location circle2polygon(Location circle, int noPoints) {
+        // Sanity checks
+        if (circle == null || circle.getType() != LocationType.CIRCLE ||
+                circle.getRadius() == null || circle.getPoints().size() != 1) {
+            throw new IllegalArgumentException("Not a proper circle location " + circle);
+        }
+
+        Point center = circle.getPoints().get(0);
+        Location polygon = new Location();
+        polygon.setType(LocationType.POLYGON);
+
+        double lat1 = Math.toRadians(center.getLat());
+        double lon1 = Math.toRadians(center.getLon());
+        double R = 6371.0087714; // earths mean radius
+        double d = circle.getRadius().doubleValue() * 1852.0 / 1000.0; // nm -> km
+        for (int i = 0; i < noPoints; i++) {
+            double brng = Math.PI * 2 * i / noPoints;
+            double lat2 = Math.asin( Math.sin(lat1)*Math.cos(d/R) +
+                    Math.cos(lat1)*Math.sin(d/R)*Math.cos(brng) );
+            double lon2 = lon1 + Math.atan2(Math.sin(brng)*Math.sin(d/R)*Math.cos(lat1),
+                    Math.cos(d/R)-Math.sin(lat1)*Math.sin(lat2));
+
+            polygon.getPoints().add(new Point(Math.toDegrees(lat2), Math.toDegrees(lon2)));
+        }
+        return polygon;
+    }
+
 }
