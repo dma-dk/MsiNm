@@ -6,13 +6,16 @@
             <div class="grid-item" style="width: 260px; height: 260px;">
                 <img class="map-image" ng-src="/message-map-image/{{msg.id}}.png" width="256" height="256"/>
                 <div class="map-image-header">
-                    <strong msi-message-area="msg"></strong>
-                    <strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
-                    <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
-                        <flag lang="msg.descs[0].lang" style="height: 10px;"></flag>
-                    </span>
-                    <br/>
-                    <small>{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</small>
+                    <div class="map-image-title">
+                        <strong msi-message-area="msg"></strong>
+                        <strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
+                        <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
+                            <flag lang="msg.descs[0].lang" style="height: 10px;"></flag>
+                        </span>
+                    </div>
+                    <div class="map-image-date">
+                        <small>{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</small>
+                    </div>
                 </div>
                 <div class="map-image-details">
                     <strong msi-message-id="msg"></strong>: <span ng-bind-html="msg.descs[0].description"/>
