@@ -318,7 +318,8 @@ angular.module('msinm.common')
                             scope.uploader.filters.push({
                                 name: 'filterName',
                                 fn: function (item, options) {
-                                    return $.inArray(item.name.extension(), scope.fileTypes.split(",")) > -1;
+                                    var ext = item.name.extension();
+                                    return ext && $.inArray(ext.toLowerCase(), scope.fileTypes.toLowerCase().split(",")) > -1;
                                 }});
                         }
 
