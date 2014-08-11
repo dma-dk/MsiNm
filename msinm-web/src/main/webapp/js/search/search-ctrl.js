@@ -1,10 +1,10 @@
 
 /**
- * The main controller for the app.
+ * The message search controller for the app.
  */
 angular.module('msinm.search')
-    .controller('SearchCtrl', ['$scope', '$window', '$location', '$modal', 'SearchService', '$http', 'growlNotifications',
-        function ($scope, $window, $location, $modal, SearchService, $http, growlNotifications) {
+    .controller('SearchCtrl', ['$scope', '$window', '$location', '$modal', 'MessageService', '$http', 'growlNotifications',
+        function ($scope, $window, $location, $modal, MessageService, $http, growlNotifications) {
         'use strict';
 
         $scope.focusMe = true;
@@ -39,7 +39,7 @@ angular.module('msinm.search')
         };
 
         $scope.search = function () {
-            SearchService.search(
+            MessageService.search(
                 $scope.query,
                 $scope.status,
                 $scope.type,
@@ -59,6 +59,26 @@ angular.module('msinm.search')
                     growlNotifications.add('<h4>Search failed</h4>', 'danger', 3000);
                 }
             );
+        };
+
+        $scope.showDetails = function (messageId) {
+            MessageService.details(
+                messageId,
+                function (data) {
+                    $modal.open({
+                        controller: "MessageCtrl",
+                        templateUrl : "/partials/search/message-details.html",
+                        size: 'lg',
+                        resolve: {
+                            msg: function(){
+                                return data;
+                            }
+                        }
+                    });
+                },
+                function (data) {
+                    growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
+                });
         };
 
         $scope.$watch(function () {

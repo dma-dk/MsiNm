@@ -17,6 +17,7 @@ package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.model.Location;
+import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
@@ -39,6 +40,7 @@ import javax.inject.Inject;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
@@ -81,17 +83,29 @@ public class MessageRestService {
      * @return returns all message
      */
     @GET
-    @Path("/all")
+    @Path("/{messageId:\\d+}")
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    public List<MessageVo> getAll() {
-        return messageService.getActive()
-                .stream()
-                .map(message -> new MessageVo(message, DataFilter.get("details")))
-                .collect(Collectors.toList());
+    public MessageVo getMessage(@PathParam("messageId") Integer messageId, @QueryParam("lang") String lang) {
+
+        // Sanity check
+        if (messageId == null) {
+            throw new IllegalArgumentException("Must specify message id");
+        }
+
+        MessageVo result = null;
+        Message message = messageService.getCachedMessage(messageId);
+        if (message != null) {
+            DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(lang);
+            result = new MessageVo(message, filter);
+        }
+        return result;
     }
 
+    /**
+     * Parses the request parameters and collects them in a MessageSearchParams entity
+     */
     private MessageSearchParams readParams(
             String language,
             String query,
@@ -242,7 +256,8 @@ public class MessageRestService {
     }
 
     /**
-     * Main search method
+     * Re-creates the message search index.
+     * Requires the "admin" role
      */
     @GET
     @Path("/recreate-search-index")

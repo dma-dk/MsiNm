@@ -7,14 +7,20 @@ angular.module('msinm.search')
     /**
      * Interface for calling the application server
      */
-    .factory('SearchService', [ '$http', '$location', '$rootScope', 'Auth', function($http, $location, $rootScope, Auth) {
+    .factory('MessageService', [ '$http', '$rootScope', function($http, $rootScope) {
         'use strict';
 
         return {
+
+            details: function(id, success, error) {
+                $http.get('/rest/message/' + id + '?lang=' + $rootScope.language)
+                    .success(success)
+                    .error(error);
+            },
+
             search: function(query, status, type, loc, areas, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, success, error) {
-                var host = $location.protocol() + '://' + $location.host() + ':' + $location.port();
                 $http.get(
-                        host + '/rest/message/search?lang=' + $rootScope.language
+                        '/rest/message/search?lang=' + $rootScope.language
                              + '&q=' + encodeURIComponent(query)
                              + '&status=' + encodeURIComponent(status)
                              + '&type=' + encodeURIComponent(type)

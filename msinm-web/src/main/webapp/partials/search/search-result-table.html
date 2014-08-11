@@ -15,7 +15,7 @@
             <th>Title</th>
             <th>Area</th>
         </tr>
-        <tr ng-repeat="msg in searchResult.messages">
+        <tr ng-repeat="msg in searchResult.messages" msi-message-details="msg" style="cursor: pointer">
             <td nowrap><span msi-message-id="msg"></span></td>
             <td nowrap>
                 {{msg.validFrom | date : 'dd/MM/yy'}}

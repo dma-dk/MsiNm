@@ -152,13 +152,19 @@ angular.module('msinm.map')
 
             var e = layer.getDataExtent();
             if (e) {
-                extent.bottom = Math.min(9999999, e.bottom);
-                extent.left = Math.min(9999999, e.left);
-                extent.top = Math.max(-9999999, e.top);
-                extent.right = Math.max(-9999999, e.right);
+                extent.bottom = Math.min(99999999, e.bottom);
+                extent.left = Math.min(99999999, e.left);
+                extent.top = Math.max(-99999999, e.top);
+                extent.right = Math.max(-99999999, e.right);
 
                 var deltaV = extent.top - extent.bottom;
-                var deltaH = extent.right - extent.left;
+                var deltaH =  extent.right - extent.left;
+
+                // Handle point case
+                if (deltaH < 100 && deltaV < 100) {
+                    deltaH = 30000;
+                    deltaV = 30000;
+                }
 
                 extent.bottom -= deltaV * 0.1;
                 extent.left -= deltaH * 0.1;

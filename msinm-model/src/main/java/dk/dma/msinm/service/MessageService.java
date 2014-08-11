@@ -53,7 +53,7 @@ import java.util.Set;
 public class MessageService extends BaseService {
 
     public static String MESSAGE_REPO_FOLDER = "messages";
-    private static final DataFilter CACHED_MESSAGE_DATA = DataFilter.get("Message.details", "Area.parent", "Category.parent");
+    public static final DataFilter CACHED_MESSAGE_DATA = DataFilter.get("Message.details", "Area.parent", "Category.parent");
 
     @Inject
     private Logger log;

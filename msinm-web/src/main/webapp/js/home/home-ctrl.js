@@ -2,8 +2,8 @@
  * The home controller
  */
 angular.module('msinm.common')
-    .controller('HomeCtrl', ['$scope', '$routeParams', '$modal', 'SearchService', 'UserService',
-        function ($scope, $routeParams, $modal, SearchService, UserService) {
+    .controller('HomeCtrl', ['$scope', '$routeParams', '$modal', 'MessageService', 'UserService',
+        function ($scope, $routeParams, $modal, MessageService, UserService) {
             'use strict';
 
             $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
@@ -18,7 +18,7 @@ angular.module('msinm.common')
 
                 if (!$scope.authToken) {
                     // Update the list of active warnings
-                    SearchService.search(
+                    MessageService.search(
                         '', // query
                         'PUBLISHED',
                         '', // type

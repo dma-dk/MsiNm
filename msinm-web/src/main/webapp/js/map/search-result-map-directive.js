@@ -3,7 +3,7 @@
  * Converts a div into a search result map
  */
 angular.module('msinm.map')
-    .directive('msiSearchResultMap', ['MapService', function (MapService) {
+    .directive('msiSearchResultMap', ['$modal', 'MapService', function ($modal, MapService) {
     'use strict';
 
     return {
@@ -159,8 +159,7 @@ angular.module('msinm.map')
             /*********************************/
             var msiSelect = new OpenLayers.Control.SelectFeature(msiLayer);
             msiLayer.events.on({
-               "featureselected": onMsiSelect,
-               "featureunselected": onMsiUnselect
+               "featureselected": onMsiSelect
             });
             map.addControl(msiSelect);
             msiSelect.activate();
@@ -170,35 +169,19 @@ angular.module('msinm.map')
             }
 
             function onMsiSelect(event) {
-                var popup = new OpenLayers.Popup.FramedCloud("msi",
-                    event.feature.geometry.getBounds().getCenterLonLat(),
-                    new OpenLayers.Size(100,100),
-                    '<p>' + event.feature.attributes.description + '</p>',
-                    null,
-                    true,
-                    onPopupClose);
-                event.feature.popup = popup;
-                map.addPopup(popup);
+
+                $modal.open({
+                    controller: "MessageCtrl",
+                    templateUrl: "/partials/search/message-details.html",
+                    size: 'lg',
+                    resolve: {
+                        messageId: function () {
+                            return event.feature.attributes.msi.id;
+                        }
+                    }
+                });
             }
 
-            function onMsiUnselect(event) {
-                if(event.feature.popup) {
-                    map.removePopup(event.feature.popup);
-                    event.feature.popup.destroy();
-                    delete event.feature.popup;
-                }
-            }
-
-            /*********************************/
-            /* Handle WMS layer events       */
-            /*********************************/
-/*
-            map.events.register('zoomend', map, function(event) {
-                var map = event.object;
-                wmsLayer.setVisibility(map.getZoom() > 8);
-                wmsLayer.setVisibility(map.getZoom() < 9);
-            });
-*/
         }
     }
 }]);
