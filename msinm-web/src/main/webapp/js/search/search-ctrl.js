@@ -76,7 +76,7 @@ angular.module('msinm.search')
             if (!$scope.filterOnType) {
                 $scope.status = 'PUBLISHED';
                 $scope.type = '';
-                $("#roles").select2('data', null);
+                $("#messageType").select2('data', null);
             }
         };
 

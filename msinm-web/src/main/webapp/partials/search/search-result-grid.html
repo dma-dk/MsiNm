@@ -14,7 +14,8 @@
                         </span>
                     </div>
                     <div class="map-image-date">
-                        <small>{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</small>
+                        <small>{{msg.validFrom | date : 'dd/MM/yy'}}</small>
+                        <small ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</small>
                     </div>
                 </div>
                 <div class="map-image-details">

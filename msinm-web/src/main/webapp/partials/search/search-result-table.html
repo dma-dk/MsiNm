@@ -12,12 +12,15 @@
                 <span ng-if="sortBy == 'DATE' && sortDesc"><small>&#9650;</small></span>
                 <span ng-if="sortBy == 'DATE' && !sortDesc"><small>&#9660</small></span>
             </th>
-            <th>Type</th>
+            <th>Title</th>
             <th>Area</th>
         </tr>
         <tr ng-repeat="msg in searchResult.messages">
             <td nowrap><span msi-message-id="msg"></span></td>
-            <td nowrap>{{msg.validFrom | date : 'dd/MM/yy HH:mm'}}</td>
+            <td nowrap>
+                {{msg.validFrom | date : 'dd/MM/yy'}}
+                <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
+            </td>
             <td>{{msg.descs[0].title}}</td>
             <td><span msi-message-area="msg"></span></td>
         </tr>

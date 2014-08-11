@@ -129,14 +129,19 @@
 
 
                 <!-- Time line -->
-                <#if msg.descs?has_content && msg.descs[0].time?has_content>
                 <tr>
                     <td class="field-name">${text("nm.field.time")}</td>
                     <td class="field-value">
-                        ${msg.descs[0].time}
+                        <#if msg.descs?has_content && msg.descs[0].time?has_content>
+                            ${msg.descs[0].time}
+                        <#else>
+                            ${msg.validFrom?date}
+                            <#if msg.validTo?has_content>
+                                - ${msg.validTo?date}
+                            </#if>
+                        </#if>
                     </td>
                 </tr>
-                </#if>
 
                 <!-- Location line -->
                 <#if msg.locations?has_content>

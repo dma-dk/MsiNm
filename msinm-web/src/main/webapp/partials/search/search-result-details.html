@@ -34,9 +34,13 @@
 
 
                 <!-- Time line -->
-                <div class="row" ng-if="msg.descs[0].time">
+                <div class="row">
                     <div class="col-sm-1 table-item-field">Time</div>
-                    <div class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].time | plain2html"></div>
+                    <div ng-if="msg.descs[0].time" class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].time | plain2html"></div>
+                    <div ng-if="!msg.descs[0].time" class="col-sm-11 table-item-value">
+                        {{msg.validFrom | date : 'dd/MM/yy'}}
+                        <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
+                    </div>
                 </div>
 
                 <!-- Location line -->
