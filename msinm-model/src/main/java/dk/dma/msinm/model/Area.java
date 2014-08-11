@@ -39,7 +39,7 @@ import java.util.List;
 })
 public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc>, IPreloadable {
 
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH })
     private Area parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)

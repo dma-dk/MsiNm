@@ -36,7 +36,7 @@ import java.util.List;
 })
 public class Category extends VersionedEntity<Integer> implements ILocalizable<CategoryDesc>, IPreloadable {
 
-    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
+    @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH })
     private Category parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
