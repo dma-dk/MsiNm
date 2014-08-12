@@ -224,6 +224,10 @@ input[readonly] {
     z-index: 2000;
 }
 
+.message-details-action a {
+    font-size: 10px;
+}
+
 /**
  * Location editor styles
  */

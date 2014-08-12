@@ -35,8 +35,8 @@ angular.module('msinm.search')
 
         }])
 
-    .controller('MessageDialogCtrl', ['$scope', 'growlNotifications', 'MessageService', 'messageId', 'messages',
-        function ($scope, growlNotifications, MessageService, messageId, messages) {
+    .controller('MessageDialogCtrl', ['$scope', '$window', 'growlNotifications', 'MessageService', 'messageId', 'messages',
+        function ($scope, $window, growlNotifications, MessageService, messageId, messages) {
             'use strict';
 
             $scope.warning = undefined;
@@ -80,6 +80,11 @@ angular.module('msinm.search')
                     $scope.pushedMessageIds.pop();
                     $scope.loadMessageDetails();
                 }
+            };
+
+            $scope.pdf = function () {
+                var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
+                $window.location = '/rest/messages/message-pdf/' + messageId + '?lang=' + $scope.language;
             };
 
             // Load the message details for the given message id

@@ -77,6 +77,29 @@ public class MessageRestService {
     public MessageRestService() {
     }
 
+    /**
+     * Translates the messageId, which may be an ID or a series identifier, into a message id
+     * @param messageId the mesage id
+     * @return the message id
+     */
+    private Integer getMessageId(String messageId) {
+        // Sanity check
+        if (messageId == null) {
+            throw new IllegalArgumentException("Must specify message id");
+        }
+
+        // The message id is either the ID of the message or the message series identifier
+        Integer id = null;
+        if (StringUtils.isNumeric(messageId)) {
+            id = Integer.valueOf(messageId);
+        } else {
+            Message message = messageService.findBySeriesIdentifier(messageId);
+            if (message != null) {
+                id = message.getId();
+            }
+        }
+        return id;
+    }
 
     /**
      * Test method - returns all message
@@ -89,24 +112,11 @@ public class MessageRestService {
     @NoCache
     public MessageVo getMessage(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
 
-        // Sanity check
-        if (messageId == null) {
-            throw new IllegalArgumentException("Must specify message id");
-        }
-        MessageVo result = null;
-
-        // The message id is either the ID of the message or the message series identifier
-        Integer id = null;
-        if (StringUtils.isNumeric(messageId)) {
-            id = Integer.valueOf(messageId);
-        } else {
-            Message message = messageService.findBySeriesIdentifier(messageId);
-            if (message != null) {
-                id = message.getId();
-            }
-        }
+        // Get the message id
+        Integer id = getMessageId(messageId);
 
         // Look up the cached message with the computed id
+        MessageVo result = null;
         if (id != null) {
             Message message = messageService.getCachedMessage(id);
             if (message != null) {
@@ -116,6 +126,43 @@ public class MessageRestService {
         }
 
         return result;
+    }
+
+    /**
+     * Returns a PDF for the search result
+     */
+    @GET
+    @Path("/message-pdf/{messageId}")
+    @Produces("application/pdf")
+    @NoCache
+    public Response generatePdf(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
+        // Get the message
+        MessageVo message = getMessage(messageId, lang);
+
+        String template = "message-details.ftl";
+        String bundle = "MessageList";
+        Map<String, Object> data = new HashMap<>();
+        data.put("msg", message);
+
+        try {
+            StreamingOutput stream = os -> {
+                try {
+                    pdfService.generatePdf(data, template, lang, bundle, os);
+                } catch (Exception e) {
+                    throw new WebApplicationException("Error generating PDF", e);
+                }
+            };
+
+            return Response
+                    .ok(stream)
+                    .type("application/pdf")
+                    .header("Content-Disposition", "attachment; filename=\"messages.pdf\"")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("error generating PDF from template " + template, e);
+            throw e;
+        }
     }
 
     /**
@@ -225,7 +272,7 @@ public class MessageRestService {
      * Returns a PDF for the search result
      */
     @GET
-    @Path("/pdf")
+    @Path("/search-pdf")
     @Produces("application/pdf")
     @NoCache
     public Response generatePdf(
@@ -263,9 +310,8 @@ public class MessageRestService {
                     .header("Content-Disposition", "attachment; filename=\"messages.pdf\"")
                     .build();
 
-
         } catch (Exception e) {
-            log.error("error sending email from template " + template, e);
+            log.error("error generating PDF from template " + template, e);
             throw e;
         }
     }
