@@ -23,6 +23,8 @@ var app = angular.module('msinm.home', [
             templateUrl: 'partials/home/home.html'
         }).when('/auth/:authToken', {
             templateUrl: 'partials/home/home.html'
+        }).when('/message/:messageId', {
+            templateUrl: 'partials/home/home.html'
         }).otherwise({
             redirectTo: '/'
         });

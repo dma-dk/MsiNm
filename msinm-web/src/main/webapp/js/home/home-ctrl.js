@@ -2,8 +2,8 @@
  * The home controller
  */
 angular.module('msinm.common')
-    .controller('HomeCtrl', ['$scope', '$routeParams', '$modal', 'MessageService', 'UserService',
-        function ($scope, $routeParams, $modal, MessageService, UserService) {
+    .controller('HomeCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', 'MessageService', 'UserService',
+        function ($scope, $rootScope, $routeParams, $modal, MessageService, UserService) {
             'use strict';
 
             $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
@@ -12,6 +12,7 @@ angular.module('msinm.common')
             $scope.email = $routeParams.email;
             $scope.token = $routeParams.token;
             $scope.authToken = $routeParams.authToken;
+            $scope.messageId = $routeParams.messageId;
 
 
             $scope.init = function () {
@@ -69,6 +70,13 @@ angular.module('msinm.common')
                             location.href = "/";
                         });
 
+                }
+
+                // Check if we should open a message details dialog
+                if ($scope.messageId) {
+                    $rootScope.$broadcast('messageDetails', {
+                        messageId: $scope.messageId
+                    });
                 }
 
             };
