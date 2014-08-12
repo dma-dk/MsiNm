@@ -3,7 +3,7 @@
  * Converts a div into a search result map
  */
 angular.module('msinm.map')
-    .directive('msiSearchResultMap', ['$modal', 'MapService', function ($modal, MapService) {
+    .directive('msiSearchResultMap', ['$rootScope', 'MapService', function ($rootScope, MapService) {
     'use strict';
 
     return {
@@ -164,22 +164,13 @@ angular.module('msinm.map')
             map.addControl(msiSelect);
             msiSelect.activate();
 
-            function onPopupClose(evt) {
-                msiSelect.unselectAll();
-            }
-
             function onMsiSelect(event) {
 
-                $modal.open({
-                    controller: "MessageCtrl",
-                    templateUrl: "/partials/search/message-details.html",
-                    size: 'lg',
-                    resolve: {
-                        messageId: function () {
-                            return event.feature.attributes.msi.id;
-                        }
-                    }
+                $rootScope.$broadcast('messageDetails', {
+                    messageId: event.feature.attributes.msi.id,
+                    messages: scope.searchResult.messages
                 });
+                msiSelect.unselectAll();
             }
 
         }

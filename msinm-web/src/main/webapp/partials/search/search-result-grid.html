@@ -3,7 +3,7 @@
 <div class="container-fluid" style="overflow: hidden;">
     <div class="searchResultTab row" style="background-color: #eeeeee;">
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 " ng-repeat="msg in searchResult.messages" style="margin-bottom: 20px;">
-            <div class="grid-item" style="width: 260px; height: 260px;" msi-message-details="msg">
+            <div class="grid-item" style="width: 260px; height: 260px;" msi-message-details="msg.id" msi-messages="searchResult.messages">
                 <img class="map-image" ng-src="/message-map-image/{{msg.id}}.png" width="256" height="256"/>
                 <div class="map-image-header">
                     <div class="map-image-title">

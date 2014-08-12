@@ -1,95 +1,115 @@
 <div>
 
-    <div class="modal-body print" style="padding-bottom: 0" ng-if="msg">
+    <div class="modal-body print" style="padding-bottom: 0">
 
-        <div id="details-map" class="message-details-map" msi-message-details-map="msg"></div>
+        <div ng-if="warning">
+            <h2>{{warning}}</h2>
+        </div>
 
-        <button type="button" class="close message-details-close-btn" ng-click="$dismiss('aborted')">x</button>
+        <div ng-if="msg">
+            <div id="details-map" class="message-details-map" msi-message-details-map="msg"></div>
 
-        <!-- Title line -->
-        <div ng-if="msg.originalInformation">&#10029;</div>
-        <div>
-            <strong msi-message-id="msg"></strong>.
-            <strong msi-message-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
+            <button type="button" class="close message-details-close-btn" ng-click="$dismiss('aborted')">x</button>
+
+            <!-- Title line -->
+            <div ng-if="msg.originalInformation">&#10029;</div>
+            <div>
+                <strong msi-message-id="msg"></strong>.
+                <strong msi-message-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
             <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
                 ( <flag lang="msg.descs[0].lang" style="height: 12px;" style="opacity: 0.5;"></flag> )
             </span>
-        </div>
+            </div>
 
-        <!-- Reference lines -->
-        <div class="row" ng-repeat="ref in msg.references">
-            <div class="col-sm-1 table-item-field" ng-if="ref.type == 'REFERENCE'">EfS reference</div>
-            <div class="col-sm-1 table-item-field" ng-if="ref.type != 'REFERENCE'">Former EfS.</div>
-            <div class="col-sm-11 table-item-value">
-                {{ref.seriesIdentifier.number}} {{ref.seriesIdentifier.year}}
+            <!-- Reference lines -->
+            <div class="row" ng-repeat="ref in msg.references">
+                <div class="col-sm-1 table-item-field" ng-if="ref.type == 'REFERENCE'">EfS reference</div>
+                <div class="col-sm-1 table-item-field" ng-if="ref.type != 'REFERENCE'">Former EfS.</div>
+                <div class="col-sm-11 table-item-value">
+                    <a href ng-click="selectMessage(ref.seriesIdentifier.fullId)">{{ref.seriesIdentifier.fullId}}</a>
                 <span ng-switch="ref.type">
                     <span ng-switch-when="REPETITION">(repitition)</span>
                     <span ng-switch-when="CANCELLATION">(cancelled)</span>
                     <span ng-switch-when="UPDATE">(updated)</span>
                 </span>
+                </div>
             </div>
-        </div>
 
 
-        <!-- Time line -->
-        <div class="row">
-            <div class="col-sm-1 table-item-field">Time</div>
-            <div ng-if="msg.descs[0].time" class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].time | plain2html"></div>
-            <div ng-if="!msg.descs[0].time" class="col-sm-11 table-item-value">
-                {{msg.validFrom | date : 'dd/MM/yy'}}
-                <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
+            <!-- Time line -->
+            <div class="row">
+                <div class="col-sm-1 table-item-field">Time</div>
+                <div ng-if="msg.descs[0].time" class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].time | plain2html"></div>
+                <div ng-if="!msg.descs[0].time" class="col-sm-11 table-item-value">
+                    {{msg.validFrom | date : 'dd/MM/yy'}}
+                    <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
+                </div>
             </div>
-        </div>
 
-        <!-- Location line -->
-        <div class="row" ng-if="msg.locations">
-            <div class="col-sm-1 table-item-field">Location</div>
-            <div class="col-sm-11 table-item-value">
-                <div ng-repeat="loc in msg.locations">
-                    <div ng-if="loc.descs[0].description">{{loc.descs[0].description}}</div>
-                    <div ng-repeat="pt in loc.points">
-                        {{pt | lonlat}}<span ng-if="pt.descs[0].description">, {{pt.descs[0].description}}</span>
+            <!-- Location line -->
+            <div class="row" ng-if="msg.locations">
+                <div class="col-sm-1 table-item-field">Location</div>
+                <div class="col-sm-11 table-item-value">
+                    <div ng-repeat="loc in msg.locations">
+                        <div ng-if="loc.descs[0].description">{{loc.descs[0].description}}</div>
+                        <div ng-repeat="pt in loc.points">
+                            {{pt | lonlat}}<span ng-if="pt.descs[0].description">, {{pt.descs[0].description}}</span>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <!-- Details line -->
-        <div class="row" ng-if="msg.descs[0].description">
-            <div class="col-sm-1 table-item-field">Details</div>
-            <div class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].description"></div>
-        </div>
+            <!-- Details line -->
+            <div class="row" ng-if="msg.descs[0].description">
+                <div class="col-sm-1 table-item-field">Details</div>
+                <div class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].description"></div>
+            </div>
 
-        <!-- Note line -->
-        <div class="row" ng-if="msg.descs[0].note">
-            <div class="col-sm-1 table-item-field">Note</div>
-            <div class="col-sm-11 table-item-value">{{msg.descs[0].note}}</div>
-        </div>
+            <!-- Note line -->
+            <div class="row" ng-if="msg.descs[0].note">
+                <div class="col-sm-1 table-item-field">Note</div>
+                <div class="col-sm-11 table-item-value">{{msg.descs[0].note}}</div>
+            </div>
 
-        <!-- Charts line -->
-        <div class="row" ng-if="msg.charts.length > 0">
-            <div class="col-sm-1 table-item-field">Charts</div>
-            <div class="col-sm-11 table-item-value">
+            <!-- Charts line -->
+            <div class="row" ng-if="msg.charts.length > 0">
+                <div class="col-sm-1 table-item-field">Charts</div>
+                <div class="col-sm-11 table-item-value">
                         <span ng-repeat="chart in msg.charts"><span ng-if="!$first">, </span>{{chart.chartNumber}}
                             <span ng-if="chart.internationalNumber">(INT {{chart.internationalNumber}})</span></span>
+                </div>
+            </div>
+
+            <!-- Publication line -->
+            <div class="row" ng-if="msg.descs[0].publication">
+                <div class="col-sm-1 table-item-field">Publication</div>
+                <div class="col-sm-11 table-item-value">{{msg.descs[0].publication}}</div>
+            </div>
+
+            <!-- Source line -->
+            <div class="row" ng-if="msg.descs[0].source">
+                <div class="col-sm-12 table-item-value text-right">({{msg.descs[0].source}})</div>
             </div>
         </div>
 
-        <!-- Publication line -->
-        <div class="row" ng-if="msg.descs[0].publication">
-            <div class="col-sm-1 table-item-field">Publication</div>
-            <div class="col-sm-11 table-item-value">{{msg.descs[0].publication}}</div>
-        </div>
+        <div class="row" style="margin-top: 24px">
 
-        <!-- Source line -->
-        <div class="row" ng-if="msg.descs[0].source">
-            <div class="col-sm-12 table-item-value text-right">({{msg.descs[0].source}})</div>
-        </div>
+            <div class="btn-group col-sm-6" style="text-align: left" ng-if="pushedMessageIds.length == 1 && showNavigation">
+                <button class="btn btn-primary btn-sm" ng-click="selectPrev()" ng-disabled="index < 1">
+                    <span class="glyphicon glyphicon-chevron-left"></span>
+                </button>
+                <button class="btn btn-primary btn-sm" ng-click="selectNext()"  ng-disabled="index >= messages.length - 1">
+                    <span class="glyphicon glyphicon-chevron-right"></span>
+                </button>
+            </div>
 
+            <div class="btn-group col-sm-6" style="text-align: left" ng-if="pushedMessageIds.length > 1">
+                <button class="btn btn-primary btn-sm" ng-click="back()">
+                    <span class="glyphicon glyphicon-step-backward"></span> back
+                </button>
+            </div>
 
-
-        <div class="form-group" style="text-align: center">
-            <div style="margin-top: 24px">
+            <div class="form-group col-sm-6" style="text-align: right">
                 <button class="btn btn-primary btn-sm" ng-click="$dismiss('aborted')">Close</button>
             </div>
         </div>

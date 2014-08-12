@@ -61,26 +61,6 @@ angular.module('msinm.search')
             );
         };
 
-        $scope.showDetails = function (messageId) {
-            MessageService.details(
-                messageId,
-                function (data) {
-                    $modal.open({
-                        controller: "MessageCtrl",
-                        templateUrl : "/partials/search/message-details.html",
-                        size: 'lg',
-                        resolve: {
-                            msg: function(){
-                                return data;
-                            }
-                        }
-                    });
-                },
-                function (data) {
-                    growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
-                });
-        };
-
         $scope.$watch(function () {
             return $location.path();
         }, function (newValue, oldValue) {
@@ -134,7 +114,7 @@ angular.module('msinm.search')
         };
 
         $scope.pdf = function () {
-            $window.location = '/rest/message/pdf?'
+            $window.location = '/rest/messages/pdf?'
             + 'lang=' + $scope.language
             + '&q=' + encodeURIComponent($scope.query)
             + '&status=' + encodeURIComponent($scope.status)

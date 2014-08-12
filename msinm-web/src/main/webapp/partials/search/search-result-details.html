@@ -3,13 +3,13 @@
     <table class='table table-condensed'>
         <tr ng-repeat="msg in searchResult.messages">
             <td class="table-image">
-                <img ng-src="/message-map-image/{{msg.id}}.png" width="180" height="180" style="cursor: pointer" msi-message-details="msg" />
+                <img ng-src="/message-map-image/{{msg.id}}.png" width="180" height="180" style="cursor: pointer" msi-message-details="msg.id" msi-messages="searchResult.messages"/>
             </td>
             <td class="table-item">
 
                 <!-- Title line -->
                 <div ng-if="msg.originalInformation">&#10029;</div>
-                <div msi-message-details="msg" style="cursor: pointer">
+                <div msi-message-details="msg.id" msi-messages="searchResult.messages" style="cursor: pointer">
                     <strong msi-message-id="msg"></strong>.
                     <strong msi-message-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
                     <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
@@ -22,7 +22,7 @@
                     <div class="col-sm-1 table-item-field" ng-if="ref.type == 'REFERENCE'">EfS reference</div>
                     <div class="col-sm-1 table-item-field" ng-if="ref.type != 'REFERENCE'">Former EfS.</div>
                     <div class="col-sm-11 table-item-value">
-                        {{ref.seriesIdentifier.number}} {{ref.seriesIdentifier.year}}
+                        <a href msi-message-details="ref.seriesIdentifier.fullId">{{ref.seriesIdentifier.fullId}}</a>
                         <span ng-switch="ref.type">
                             <span ng-switch-when="REPETITION">(repitition)</span>
                             <span ng-switch-when="CANCELLATION">(cancelled)</span>

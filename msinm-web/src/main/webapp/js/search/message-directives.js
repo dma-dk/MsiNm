@@ -4,30 +4,24 @@
 angular.module('msinm.search')
 
 
-    .directive('msiMessageDetails', ['$modal',
-        function ($modal) {
+    .directive('msiMessageDetails', ['$rootScope',
+        function ($rootScope) {
         'use strict';
 
         return {
             restrict: 'A',
             scope: {
-                msiMessageDetails: "="
+                msiMessageDetails: "=",
+                msiMessages: "="
             },
             link: function(scope, element, attrs) {
 
                 element.bind('click', function() {
-                    $modal.open({
-                        controller: "MessageCtrl",
-                        templateUrl: "/partials/search/message-details.html",
-                        size: 'lg',
-                        resolve: {
-                            messageId: function () {
-                                return scope.msiMessageDetails.id;
-                            }
-                        }
+                    $rootScope.$broadcast('messageDetails', {
+                        messageId: scope.msiMessageDetails,
+                        messages: scope.msiMessages
                     });
                 });
-
             }
         };
     }]);

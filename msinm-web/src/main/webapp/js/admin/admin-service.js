@@ -24,7 +24,7 @@ angular.module('msinm.admin')
         return {
 
             recreateSearchIndex: function(success, error) {
-                $http.get('/rest/message/recreate-search-index')
+                $http.get('/rest/messages/recreate-search-index')
                     .success(success)
                     .error(error);
             },

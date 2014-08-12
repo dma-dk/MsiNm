@@ -13,14 +13,14 @@ angular.module('msinm.search')
         return {
 
             details: function(id, success, error) {
-                $http.get('/rest/message/' + id + '?lang=' + $rootScope.language)
+                $http.get('/rest/messages/message/' + id + '?lang=' + $rootScope.language)
                     .success(success)
                     .error(error);
             },
 
             search: function(query, status, type, loc, areas, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, success, error) {
                 $http.get(
-                        '/rest/message/search?lang=' + $rootScope.language
+                        '/rest/messages/search?lang=' + $rootScope.language
                              + '&q=' + encodeURIComponent(query)
                              + '&status=' + encodeURIComponent(status)
                              + '&type=' + encodeURIComponent(type)

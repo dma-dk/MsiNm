@@ -105,16 +105,18 @@ angular.module('msinm.common')
                 msiMessageArea: "="
             },
             link: function(scope, element, attrs) {
-                if (attrs.msiMessageArea) {
-                    var desc = LangService.desc(scope.msiMessageArea);
-                    var areas = (desc && desc.vicinity) ? desc.vicinity : '';
-                    for (var area = scope.msiMessageArea.area; area; area = area.parent) {
-                        desc = LangService.desc(area);
-                        var areaName = (desc) ? desc.name : '';
-                        areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
-                    }
-                    element.html(areas);
-                }
+                scope.$watch(
+                    function() { return scope.msiMessageArea; },
+                    function(newValue) {
+                        var desc = LangService.desc(scope.msiMessageArea);
+                        var areas = (desc && desc.vicinity) ? desc.vicinity : '';
+                        for (var area = scope.msiMessageArea.area; area; area = area.parent) {
+                            desc = LangService.desc(area);
+                            var areaName = (desc) ? desc.name : '';
+                            areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
+                        }
+                        element.html(areas);
+                }, true);
             }
         };
     }])
@@ -130,15 +132,17 @@ angular.module('msinm.common')
                 msiArea: "="
             },
             link: function(scope, element, attrs) {
-                if (attrs.msiArea) {
-                    var areas = '';
-                    for (var area = scope.msiArea; area; area = area.parent) {
-                        desc = LangService.desc(area);
-                        var areaName = (desc) ? desc.name : '';
-                        areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
-                    }
-                    element.html(areas);
-                }
+                scope.$watch(
+                    function() { return scope.msiArea; },
+                    function (newValue) {
+                        var areas = '';
+                        for (var area = scope.msiArea; area; area = area.parent) {
+                            desc = LangService.desc(area);
+                            var areaName = (desc) ? desc.name : '';
+                            areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
+                        }
+                        element.html(areas);
+                    });
             }
         };
     }])
@@ -153,24 +157,20 @@ angular.module('msinm.common')
                 msiMessageId: "="
             },
             link: function(scope, element, attrs) {
-                if (attrs.msiMessageId) {
-                    var id = '';
-                    var msg = scope.msiMessageId;
-                    var type = msg.type;
-                    if (type == 'COSTAL_WARNING' || type == 'SUBAREA_WARNING' || type == 'NAVAREA_WARNING') {
-                        // MSI
-                        id = 'MSI ' + msg.seriesIdentifier.number + '-' + msg.seriesIdentifier.year;
-                    } else {
-                        // NTM
-                        id = 'NM ' + msg.seriesIdentifier.number + '-' + msg.seriesIdentifier.year;
-                        if (type == 'TEMPORARY_NOTICE') {
+                scope.$watch(
+                    function () {
+                        return scope.msiMessageId;
+                    },
+                    function (newValue) {
+                        var msg = scope.msiMessageId;
+                        var id = msg.seriesIdentifier.fullId;
+                        if (msg.type == 'TEMPORARY_NOTICE') {
                             id += '(T)';
-                        } else if (type == 'PRELIMINARY_NOTICE') {
+                        } else if (msg.type == 'PRELIMINARY_NOTICE') {
                             id += '(P)';
                         }
-                    }
-                    element.html(id);
-                }
+                        element.html(id);
+                    });
             }
         };
     }])

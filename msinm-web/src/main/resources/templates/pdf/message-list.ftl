@@ -93,7 +93,7 @@
                 <div>*</div>
             </#if>
             <div>
-                <strong>${msg.seriesIdentifier.number?c}-${msg.seriesIdentifier.year?c}</strong>.
+                <strong>${msg.seriesIdentifier.fullId}</strong>.
                 <@areaLineage area=msg.area />
                 <#if msg.descs?has_content && msg.descs[0].vicinity?has_content> - ${msg.descs[0].vicinity}</#if>
                 <#if msg.descs?has_content && msg.descs[0].title?has_content> - ${msg.descs[0].title}</#if>
@@ -113,7 +113,7 @@
                             </#if>
                         </td>
                         <td class="field-value">
-                            ${ref.seriesIdentifier.number?c}-${'' + ref.seriesIdentifier.year?c}
+                            ${ref.seriesIdentifier.fullId}
 
                             <#if ref.type == 'REPETITION'>
                                 (${text("nm.ref.repitition")})

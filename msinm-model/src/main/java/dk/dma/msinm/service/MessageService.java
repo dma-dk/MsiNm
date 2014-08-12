@@ -168,6 +168,25 @@ public class MessageService extends BaseService {
     }
 
     /**
+     * Finds the message by the given message series values
+     *
+     * @param seriesIdentifier the series id with the format type-authority-number-year
+     * @return the message or null if not found
+     */
+    public Message findBySeriesIdentifier(String seriesIdentifier) {
+        try {
+            String[] parts = seriesIdentifier.split("-");
+            return findBySeriesIdentifier(
+                    SeriesIdType.valueOf(parts[0].toUpperCase()),
+                    Integer.parseInt(parts[2]),
+                    2000 + Integer.parseInt(parts[3]),
+                    parts[1]);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
      * Creates a new series identifier number specific for the given type, authority and year
      * @param type the message type
      * @param authority the authority

@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.web.rest;
 
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
@@ -25,7 +26,6 @@ import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
-import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -50,13 +50,13 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * REST interface for accessing MSI-NM messages
  */
-@Path("/message")
+@Path("/messages")
 @Stateless
 @SecurityDomain("msinm-policy")
 @PermitAll
@@ -83,23 +83,38 @@ public class MessageRestService {
      * @return returns all message
      */
     @GET
-    @Path("/{messageId:\\d+}")
+    @Path("/message/{messageId}")
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    public MessageVo getMessage(@PathParam("messageId") Integer messageId, @QueryParam("lang") String lang) {
+    public MessageVo getMessage(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
 
         // Sanity check
         if (messageId == null) {
             throw new IllegalArgumentException("Must specify message id");
         }
-
         MessageVo result = null;
-        Message message = messageService.getCachedMessage(messageId);
-        if (message != null) {
-            DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(lang);
-            result = new MessageVo(message, filter);
+
+        // The message id is either the ID of the message or the message series identifier
+        Integer id = null;
+        if (StringUtils.isNumeric(messageId)) {
+            id = Integer.valueOf(messageId);
+        } else {
+            Message message = messageService.findBySeriesIdentifier(messageId);
+            if (message != null) {
+                id = message.getId();
+            }
         }
+
+        // Look up the cached message with the computed id
+        if (id != null) {
+            Message message = messageService.getCachedMessage(id);
+            if (message != null) {
+                DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(lang);
+                result = new MessageVo(message, filter);
+            }
+        }
+
         return result;
     }
 
