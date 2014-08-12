@@ -94,7 +94,7 @@
 
         <div class="row" style="margin-top: 24px">
 
-            <div class="btn-group col-sm-6" style="text-align: left" ng-if="pushedMessageIds.length == 1 && showNavigation">
+            <div class="btn-group col-xs-6" style="text-align: left" ng-if="pushedMessageIds.length == 1 && showNavigation">
                 <button class="btn btn-primary btn-sm" ng-click="selectPrev()" ng-disabled="index < 1">
                     <span class="glyphicon glyphicon-chevron-left"></span>
                 </button>
@@ -103,13 +103,13 @@
                 </button>
             </div>
 
-            <div class="btn-group col-sm-6" style="text-align: left" ng-if="pushedMessageIds.length > 1">
+            <div class="btn-group col-xs-6" style="text-align: left" ng-if="pushedMessageIds.length > 1">
                 <button class="btn btn-primary btn-sm" ng-click="back()">
                     <span class="glyphicon glyphicon-step-backward"></span> back
                 </button>
             </div>
 
-            <div class="form-group col-sm-6" style="text-align: right">
+            <div class="form-group col-xs-6" style="text-align: right">
                 <button class="btn btn-primary btn-sm" ng-click="$dismiss('aborted')">Close</button>
             </div>
         </div>
