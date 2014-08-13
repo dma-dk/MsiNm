@@ -25,12 +25,10 @@ angular.module('msinm.map')
             // Return the messages associated with a cluster
             function getClusterMessages(feature) {
                 var messages = [];
-                var lookup = [];
                 for (var i = 0; i < feature.cluster.length; i++) {
                     var msi = feature.cluster[i].attributes.msi;
                     if ($.inArray(msi, messages) == -1 && !feature.cluster[i].attributes.bg) {
                         messages.push(msi);
-                        lookup.push(msi.id);
                     }
                 }
                 return messages;
@@ -96,7 +94,7 @@ angular.module('msinm.map')
                         label : "${description}",
                         fontFamily: "Courier New, monospace",
                         fontWeight: "bold",
-                        fontSize: "10px",
+                        fontSize: "11px",
                         fontColor: "#8f2f7b",
                         labelOutlineColor: "white",
                         labelOutlineWidth : 2,
