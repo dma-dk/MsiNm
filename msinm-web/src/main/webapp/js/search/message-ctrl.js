@@ -84,7 +84,12 @@ angular.module('msinm.search')
 
             $scope.pdf = function () {
                 var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
-                $window.location = '/rest/messages/message-pdf/' + messageId + '?lang=' + $scope.language;
+                $window.location = '/rest/messages/message-pdf/' + messageId + '.pdf?lang=' + $scope.language;
+            };
+
+            $scope.calendar = function () {
+                var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
+                $window.location = '/rest/messages/message-cal/' + messageId + '.ics?lang=' + $scope.language;
             };
 
             // Load the message details for the given message id

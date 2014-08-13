@@ -3,8 +3,8 @@
  * The message search controller for the app.
  */
 angular.module('msinm.search')
-    .controller('SearchCtrl', ['$scope', '$window', '$location', '$modal', 'MessageService', '$http', 'growlNotifications',
-        function ($scope, $window, $location, $modal, MessageService, $http, growlNotifications) {
+    .controller('SearchCtrl', ['$scope', '$window', '$location', '$modal', 'MessageService', 'DialogService', '$http', 'growlNotifications',
+        function ($scope, $window, $location, $modal, MessageService, DialogService, $http, growlNotifications) {
         'use strict';
 
         $scope.focusMe = true;
@@ -125,6 +125,27 @@ angular.module('msinm.search')
             + '&to=' + encodeURIComponent($("#messageDateTo").val())
             + '&sortBy=' + ($scope.sortBy)
             + '&sortOrder=' + ($scope.sortDesc ? 'DESC' : 'ASC');
+        };
+
+        $scope.calendar = function()  {
+
+            var calUrl =  $location.protocol() + '://' + $location.host();
+            if ($location.port() != 80 && $location.port() != 443) {
+                calUrl += ':' + $location.port();
+            }
+            calUrl += '/rest/messages/active-msinm.ics?lang=' + $scope.language;
+
+            var modalOptions = {
+                closeButtonText: 'OK',
+                actionButtonText: 'Dowload',
+                headerText: 'Subscribe to Calendar',
+                calUrl: calUrl,
+                templateUrl: "addToCalendar.html"
+            };
+
+            DialogService.showDialog({}, modalOptions).then(function (result) {
+                $window.location = calUrl;
+            });
         };
 
         $scope.showLocationEditor = function(show) {

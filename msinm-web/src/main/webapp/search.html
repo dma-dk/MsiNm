@@ -82,6 +82,7 @@
                             <li><a href ng-click="toggleFilterOnType()">Type</a></li>
                             <li class="divider"></li>
                             <li><a href ng-click="pdf()">Generate PDF</a></li>
+                            <li><a href ng-click="calendar()">Add to calendar</a></li>
                         </ul>
                     </div>
                     <input id="query" type="text" class="form-control" placeholder="Search Terms" ng-model="query"
@@ -244,6 +245,19 @@
     // Init the area selection field
     initAreaField("#messageArea", true);
 
+</script>
+
+<!-- Calendar dialog -->
+<script type="text/ng-template" id="addToCalendar.html">
+    <p>
+        You can subscribe to the active MSI + NM messages.
+        Use the URL below:
+    </p>
+    <div class="form-controls">
+        <input type="text" class="form-control input-sm" readonly
+               ng-model="modalOptions.calUrl"
+               autocapitalize="off" autocorrect="off" autocomplete="off" />
+    </div>
 </script>
 
 </body>

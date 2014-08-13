@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.web.rest;
 
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.model.Location;
@@ -22,11 +23,13 @@ import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
+import dk.dma.msinm.service.CalendarService;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
 import dk.dma.msinm.vo.MessageVo;
+import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -50,7 +53,9 @@ import java.io.IOException;
 import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -73,6 +78,12 @@ public class MessageRestService {
 
     @Inject
     PdfService pdfService;
+
+    @Inject
+    CalendarService calendarService;
+
+    @Inject
+    MsiNmApp app;
 
     public MessageRestService() {
     }
@@ -136,6 +147,11 @@ public class MessageRestService {
     @Produces("application/pdf")
     @NoCache
     public Response generatePdf(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
+        // Strip any ".pdf" suffix
+        if (messageId.toLowerCase().endsWith(".pdf")) {
+            messageId = messageId.substring(0, messageId.length() - 4);
+        }
+
         // Get the message
         MessageVo message = getMessage(messageId, lang);
 
@@ -156,7 +172,7 @@ public class MessageRestService {
             return Response
                     .ok(stream)
                     .type("application/pdf")
-                    .header("Content-Disposition", "attachment; filename=\"messages.pdf\"")
+                    .header("Content-Disposition", "attachment; filename=\"" + message.getSeriesIdentifier().getFullId() + ".pdf\"")
                     .build();
 
         } catch (Exception e) {
@@ -164,6 +180,88 @@ public class MessageRestService {
             throw e;
         }
     }
+
+    /**
+     * Returns an iCalendar ICS file for the message
+     */
+    @GET
+    @Path("/message-cal/{messageId}")
+    @Produces("text/calendar")
+    @NoCache
+    public Response generateCalendar(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
+        // Strip any ".ics" suffix
+        if (messageId.toLowerCase().endsWith(".ics")) {
+            messageId = messageId.substring(0, messageId.length() - 4);
+        }
+
+        // Get the message
+        MessageVo message = getMessage(messageId, lang);
+
+        // Generate the calendar data
+        try {
+            StreamingOutput stream = os -> {
+                try {
+                    List<MessageVo> messages = new ArrayList<>();
+                    messages.add(message);
+                    calendarService.generateCalendarData(messages, app.getLanguage(lang), os);
+                } catch (Exception e) {
+                    throw new WebApplicationException("Error generating calendar data", e);
+                }
+            };
+
+            return Response
+                    .ok(stream)
+                    .type("text/calendar")
+                    .header("Content-Disposition", "attachment; filename=\"" + message.getSeriesIdentifier().getFullId() + ".ics\"")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("error generating calendar for message " + messageId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Returns an iCalendar ICS file for the message
+     */
+    @GET
+    @Path("/active-msinm.ics")
+    @Produces("text/calendar")
+    @NoCache
+    public Response activeMsiNmCalendar(final @QueryParam("lang") String lang) {
+
+        MessageSearchParams params = new MessageSearchParams();
+        params.setLanguage(app.getLanguage(lang));
+        params.setStartIndex(0);
+        params.setMaxHits(1000);
+        params.setSortBy(MessageSearchParams.SortBy.DATE);
+        params.setSortOrder(MessageSearchParams.SortOrder.DESC);
+        params.setStatus(Status.PUBLISHED);
+
+        MessageSearchResult result = messageSearchService.search(params);
+
+        // Generate the calendar data
+        try {
+            StreamingOutput stream = os -> {
+                try {
+                    calendarService.generateCalendarData(result.getMessages(), app.getLanguage(lang), os);
+                } catch (Exception e) {
+                    throw new WebApplicationException("Error generating calendar data", e);
+                }
+            };
+
+            return Response
+                    .ok(stream)
+                    .type("text/calendar")
+                    .header("Content-Disposition", "attachment; filename=\"active_msi_nm.ics\"")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("error generating calendar for active MSI-NM messages", e);
+            throw e;
+        }
+    }
+
 
     /**
      * Parses the request parameters and collects them in a MessageSearchParams entity

@@ -94,7 +94,7 @@
 
         <div class="row" style="margin-top: 24px">
 
-            <div class="form-group col-xs-6" style="text-align: left">
+            <div class="form-group col-xs-8" style="text-align: left">
 
                 <div class="btn-group" ng-if="pushedMessageIds.length == 1 && showNavigation">
                     <button class="btn btn-primary btn-sm" ng-click="selectPrev()" ng-disabled="index < 1">
@@ -118,12 +118,13 @@
                     </button>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href ng-click="pdf()">Generate PDF</a></li>
+                        <li><a href ng-click="calendar()">Add to calendar...</a></li>
                     </ul>
                 </div>
             </div>
 
 
-            <div class="form-group col-xs-6" style="text-align: right">
+            <div class="form-group col-xs-4" style="text-align: right">
                 <button class="btn btn-primary btn-sm" ng-click="$dismiss('aborted')">Close</button>
             </div>
         </div>
