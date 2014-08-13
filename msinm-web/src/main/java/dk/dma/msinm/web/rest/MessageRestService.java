@@ -29,7 +29,6 @@ import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
 import dk.dma.msinm.vo.MessageVo;
-import edu.emory.mathcs.backport.java.util.Collections;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -66,6 +65,8 @@ import java.util.Map;
 @SecurityDomain("msinm-policy")
 @PermitAll
 public class MessageRestService {
+
+    public static final String TYPE_ICALENDAR = "text/calendar;charset=UTF-8";
 
     @Inject
     Logger log;
@@ -186,7 +187,7 @@ public class MessageRestService {
      */
     @GET
     @Path("/message-cal/{messageId}")
-    @Produces("text/calendar")
+    @Produces(TYPE_ICALENDAR)
     @NoCache
     public Response generateCalendar(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
         // Strip any ".ics" suffix
@@ -211,7 +212,7 @@ public class MessageRestService {
 
             return Response
                     .ok(stream)
-                    .type("text/calendar")
+                    .type(TYPE_ICALENDAR)
                     .header("Content-Disposition", "attachment; filename=\"" + message.getSeriesIdentifier().getFullId() + ".ics\"")
                     .build();
 
@@ -226,7 +227,7 @@ public class MessageRestService {
      */
     @GET
     @Path("/active-msinm.ics")
-    @Produces("text/calendar")
+    @Produces(TYPE_ICALENDAR)
     @NoCache
     public Response activeMsiNmCalendar(final @QueryParam("lang") String lang) {
 
@@ -252,7 +253,7 @@ public class MessageRestService {
 
             return Response
                     .ok(stream)
-                    .type("text/calendar")
+                    .type(TYPE_ICALENDAR)
                     .header("Content-Disposition", "attachment; filename=\"active_msi_nm.ics\"")
                     .build();
 

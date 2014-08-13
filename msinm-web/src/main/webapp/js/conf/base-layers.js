@@ -8,13 +8,13 @@
 
 function addBaseMapLayers(layers) {
 
-    layers.push(new OpenLayers.Layer.OSM("OpenStreetMap", [
+    layers.push(new OpenLayers.Layer.OSM("OSM", [
         '//a.tile.openstreetmap.org/${z}/${x}/${y}.png',
         '//b.tile.openstreetmap.org/${z}/${x}/${y}.png',
         '//c.tile.openstreetmap.org/${z}/${x}/${y}.png' ], null));
 
     layers.push(new OpenLayers.Layer.Google(
-        "Google Hybrid",
+        "Google",
         {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20}
     ));
 
