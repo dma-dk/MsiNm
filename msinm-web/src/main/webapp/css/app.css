@@ -324,6 +324,13 @@ input[readonly] {
     display: none;
 }
 
+.layer-switcher label {
+    font-size: 10px;
+    font-weight: normal;
+    margin-bottom: 3px;
+    margin-left: 2px;
+}
+
 .layer-switcher .baseLbl, .layer-switcher .dataLbl {
     display: none;
 }
