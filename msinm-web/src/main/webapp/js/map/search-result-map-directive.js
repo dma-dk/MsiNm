@@ -19,6 +19,24 @@ angular.module('msinm.map')
             var projmerc = new OpenLayers.Projection("EPSG:900913");
 
             /*********************************/
+            /* Utility methods               */
+            /*********************************/
+
+            // Return the messages associated with a cluster
+            function getClusterMessages(feature) {
+                var messages = [];
+                var lookup = [];
+                for (var i = 0; i < feature.cluster.length; i++) {
+                    var msi = feature.cluster[i].attributes.msi;
+                    if ($.inArray(msi, messages) == -1 && !feature.cluster[i].attributes.bg) {
+                        messages.push(msi);
+                        lookup.push(msi.id);
+                    }
+                }
+                return messages;
+            }
+
+            /*********************************/
             /* Layers                        */
             /*********************************/
 
@@ -53,7 +71,7 @@ angular.module('msinm.map')
                     return -msiContext.graphicSize() / 2;
                 },
                 description: function(feature) {
-                    return feature.cluster ? feature.cluster.length + ' warnings' : feature.data.description;
+                    return feature.cluster ? getClusterMessages(feature).length + ' warnings' : feature.data.description;
                 },
                 icon: function(feature) {
                     return feature.cluster ? 'img/warn.png' : feature.data.icon;
@@ -76,7 +94,9 @@ angular.module('msinm.map')
                         strokeColor: "${strokeColor}",
                         strokeOpacity: 1.0,
                         label : "${description}",
-                        fontWeight: "plain",
+                        fontFamily: "Courier New, monospace",
+                        fontWeight: "bold",
+                        fontSize: "10px",
                         fontColor: "#8f2f7b",
                         labelOutlineColor: "white",
                         labelOutlineWidth : 2,
@@ -85,7 +105,7 @@ angular.module('msinm.map')
                 }),
                 strategies: [
                     new OpenLayers.Strategy.Cluster({
-                        distance: 20,
+                        distance: 25,
                         threshold: 3
                     })
                 ]
@@ -184,6 +204,7 @@ angular.module('msinm.map')
             /*********************************/
             /* Pop-ups for the features      */
             /*********************************/
+
             var msiSelect = new OpenLayers.Control.SelectFeature(msiLayer);
             msiLayer.events.on({
                "featureselected": onMsiSelect
@@ -195,11 +216,7 @@ angular.module('msinm.map')
                 var messageId, messages;
                 if (event.feature.cluster) {
                     // Cluster clicked
-                    messages = [];
-                    for (var i = 0; i < event.feature.attributes.count; i++) {
-                        var feat = event.feature.cluster[i];
-                        messages.push(feat.attributes.msi);
-                    }
+                    messages = getClusterMessages(event.feature);
                     messageId = messages[0].id;
 
                 } else {
