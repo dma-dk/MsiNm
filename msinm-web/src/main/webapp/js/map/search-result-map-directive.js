@@ -51,6 +51,12 @@ angular.module('msinm.map')
                 },
                 graphicOffset: function(feature) {
                     return -msiContext.graphicSize() / 2;
+                },
+                description: function(feature) {
+                    return feature.cluster ? feature.cluster.length + ' warnings' : feature.data.description;
+                },
+                icon: function(feature) {
+                    return feature.cluster ? 'img/warn.png' : feature.data.icon;
                 }
             };
 
@@ -68,9 +74,21 @@ angular.module('msinm.map')
                         pointRadius: 8,
                         strokeWidth: "${strokeWidth}",
                         strokeColor: "${strokeColor}",
-                        strokeOpacity: 1.0
+                        strokeOpacity: 1.0,
+                        label : "${description}",
+                        fontWeight: "plain",
+                        fontColor: "#8f2f7b",
+                        labelOutlineColor: "white",
+                        labelOutlineWidth : 2,
+                        labelYOffset: -20
                     }, { context: msiContext })
-                })
+                }),
+                strategies: [
+                    new OpenLayers.Strategy.Cluster({
+                        distance: 20,
+                        threshold: 3
+                    })
+                ]
             });
 
             // Build the array of layers to include
@@ -128,6 +146,15 @@ angular.module('msinm.map')
             /*********************************/
             /* Update MSI and NtM's          */
             /*********************************/
+
+            // Crop the text to at most len characters
+            function cropTxt(txt, len) {
+                if (txt && txt.length > len) {
+                    txt = txt.substring(0, len) + "\u2026";
+                }
+                return txt;
+            }
+
             scope.$watch(attrs.searchResult, function (value) {
 
                 msiLayer.removeAllFeatures();
@@ -142,11 +169,11 @@ angular.module('msinm.map')
                             var loc = msg.locations[j];
 
                             var title = (msg.descs && msg.descs.length > 0) ? msg.descs[0].title : "N/A";
-                            var bgAttr = { id : i, description: title, type : "msi", msi : msg, icon: icon, bg:true  };
+                            var bgAttr = { id : i, description: cropTxt(title, 20), type : "msi", msi : msg, icon: icon, bg:true  };
                             MapService.createLocationFeature(loc, bgAttr, features);
 
                             // Flick the "showVertices to true to show icons for each vertex
-                            var attr = { id : i, description: title, type : "msi", msi : msg, icon: icon, showVertices:false  };
+                            var attr = { id : i, description: cropTxt(title, 20), type : "msi", msi : msg, icon: icon, showVertices:false  };
                             MapService.createLocationFeature(loc, attr, features);
                         }
                     }
@@ -165,10 +192,25 @@ angular.module('msinm.map')
             msiSelect.activate();
 
             function onMsiSelect(event) {
+                var messageId, messages;
+                if (event.feature.cluster) {
+                    // Cluster clicked
+                    messages = [];
+                    for (var i = 0; i < event.feature.attributes.count; i++) {
+                        var feat = event.feature.cluster[i];
+                        messages.push(feat.attributes.msi);
+                    }
+                    messageId = messages[0].id;
+
+                } else {
+                    // Actual message clicked
+                    messageId = event.feature.attributes.msi.id;
+                    messages = scope.searchResult.messages;
+                }
 
                 $rootScope.$broadcast('messageDetails', {
-                    messageId: event.feature.attributes.msi.id,
-                    messages: scope.searchResult.messages
+                    messageId: messageId,
+                    messages: messages
                 });
                 msiSelect.unselectAll();
             }
