@@ -9,6 +9,11 @@ angular.module('msinm.map')
     return {
         restrict: 'A',
 
+        scope: {
+            searchResult: '=',
+            searchLocations: '&'
+        },
+
         link: function (scope, element, attrs) {
 
             var zoom    = attrs.zoom || 6;
@@ -38,19 +43,19 @@ angular.module('msinm.map')
             /* Layers                        */
             /*********************************/
 
-            var locLayer = new OpenLayers.Layer.Vector("Location", {
-                displayInLayerSwitcher: false,
-                styleMap: new OpenLayers.StyleMap({
-                    "default": new OpenLayers.Style({
-                        fillColor: "#080",
-                        fillOpacity: 0.1,
-                        pointRadius: 6,
-                        strokeWidth: 2,
-                        strokeColor: "#080",
-                        strokeOpacity: 0.3
-                    })
-                })
-            });
+            function addBBox(locations, b) {
+                if (b.left < -0.00001 && b.right > 0.00001) {
+                    addBBox(locations, { top: b.top, left: b.left, bottom: b.bottom, right: 0 });
+                    addBBox(locations, { top: b.top, left: 0, bottom: b.bottom, right: b.right });
+                } else {
+                    var loc = { type: 'POLYGON', points: [], descs:[] };
+                    loc.points.push({ lat: b.top, lon: b.left, index: 1 });
+                    loc.points.push({ lat: b.top, lon: b.right, index: 2 });
+                    loc.points.push({ lat: b.bottom, lon: b.right, index: 3 });
+                    loc.points.push({ lat: b.bottom, lon: b.left, index: 4 });
+                    locations.push(loc);
+                }
+            }
 
             var msiContext = {
                 strokeWidth: function(feature) {
@@ -105,6 +110,31 @@ angular.module('msinm.map')
                     new OpenLayers.Strategy.Cluster({
                         distance: 25,
                         threshold: 3
+                    }),
+                    new OpenLayers.Strategy.BBOX({
+                        resFactor: 1,
+                        update: function(options) {
+                            if (options && this.getMapBounds() && scope.searchLocations) {
+                                var b = this.getMapBounds().transform(projmerc, proj4326);
+
+                                var locations = [];
+
+                                // Note to self: OpenLayers will ensure that left < right, but then left may be less than -180
+                                // and right > 180. The back-end spatial4j API cannot handle this.
+                                // Furthermore, if left < 0 and right > 0, there can be problems.
+                                // So, the bbox is sliced up to avoid problems...
+                                if (b.left < -180) {
+                                    addBBox(locations, { top: b.top, left: 360 + b.left, bottom: b.bottom, right: 180 });
+                                    addBBox(locations, { top: b.top, left: -180, bottom: b.bottom, right: b.right });
+                                } else if (b.right > 180) {
+                                    addBBox(locations, { top: b.top, left: b.left, bottom: b.bottom, right: 180 });
+                                    addBBox(locations, { top: b.top, left: -180, bottom: b.bottom, right: b.right - 360 });
+                                } else {
+                                    addBBox(locations, b);
+                                }
+                                scope.searchLocations({ locations: locations });
+                            }
+                        }
                     })
                 ]
             });
@@ -115,7 +145,6 @@ angular.module('msinm.map')
             addBaseMapLayers(layers);
             // Add the mandatory layers
             layers.push(msiLayer);
-            layers.push(locLayer);
 
             /*********************************/
             /* Map                           */
@@ -134,31 +163,6 @@ angular.module('msinm.map')
             map.addControl(new OpenLayers.Control.LayerSwitcher({
                 'div' : OpenLayers.Util.getElement('search-layerswitcher')
             }));
-
-            /*********************************/
-            /* Update the location feature   */
-            /*********************************/
-            scope.$watch(attrs.locations, function (value) {
-
-                locLayer.removeAllFeatures();
-                if (value && value.length > 0) {
-                    var features = [];
-                    try {
-                        var attr = {
-                            id: 1,
-                            description: "location filter",
-                            type: "loc"
-                        };
-                        for (var i in value) {
-                            var location = value[i];
-                            MapService.createLocationFeature(location, attr, features);
-                        }
-                        locLayer.addFeatures(features);
-                    } catch (ex) {
-                        console.log("Error: " + ex);
-                    }
-                }
-            },true);
 
 
             /*********************************/

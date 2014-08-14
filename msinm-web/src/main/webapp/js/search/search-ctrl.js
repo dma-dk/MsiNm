@@ -29,7 +29,8 @@ angular.module('msinm.search')
         $scope.sortBy = 'ID';
         $scope.sortDesc = true;
 
-        $scope.dataType = undefined;
+        $scope.mapMode = false;
+        $scope.bbox = [];
 
         // Remove the style="display: none" attribute. A trick
         // used to avoid the panel being visible when reloading the page.
@@ -40,12 +41,20 @@ angular.module('msinm.search')
             $scope.search();
         };
 
+        $scope.searchLocations = function(locations) {
+            $scope.bbox = locations;
+            $scope.search();
+            if(!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
         $scope.search = function () {
             MessageService.search(
                 $scope.query,
                 $scope.status,
                 $scope.type,
-                JSON.stringify($scope.locations),
+                JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations),
                 $scope.areas,
                 $("#messageDateFrom").val(),
                 $("#messageDateTo").val(),
@@ -53,7 +62,7 @@ angular.module('msinm.search')
                 ($scope.currentPage - 1) * $scope.pageSize,
                 $scope.sortBy,
                 $scope.sortDesc ? 'DESC' : 'ASC',
-                $scope.dataType,
+                $scope.mapMode ? "LOCATIONS" : "DETAILS",
                 function(data) {
                     $scope.searchResult = data;
                     $scope.paginationVisible = (data && data.total > $scope.pageSize);
@@ -76,18 +85,18 @@ angular.module('msinm.search')
             }
 
             // Switching between view modes
-            var oldDataType = $scope.dataType;
+            var wasMapMode = $scope.mapMode;
             if (newValue.endsWith("/map")) {
-                $scope.dataType = "LOCATIONS";
+                $scope.mapMode = true;
                 $scope.pageSize = 10000;
                 $scope.currentPage = 1;
             } else {
-                $scope.dataType = "DETAILS";
+                $scope.mapMode = false;
                 $scope.pageSize = 100;
             }
 
             // Called initially, and when entering and leaving the map view
-            if ($scope.dataType != oldDataType) {
+            if (!$scope.mapMode) {
                 $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
                 $scope.newSearch();
             }
