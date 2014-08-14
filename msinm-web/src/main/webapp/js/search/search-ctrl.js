@@ -88,6 +88,7 @@ angular.module('msinm.search')
 
             // Called initially, and when entering and leaving the map view
             if ($scope.dataType != oldDataType) {
+                $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
                 $scope.newSearch();
             }
         });
