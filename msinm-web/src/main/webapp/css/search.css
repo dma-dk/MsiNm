@@ -89,6 +89,10 @@
     padding: 20px;
 }
 
+.searchMenu li {
+    font-size: 12px;
+    height: 20px;
+}
 
 /**
  * Grid search result
