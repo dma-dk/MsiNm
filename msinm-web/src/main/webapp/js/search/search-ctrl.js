@@ -27,7 +27,7 @@ angular.module('msinm.search')
         $scope.paginationVisible = false;
 
         $scope.sortBy = 'ID';
-        $scope.sortDesc = false;
+        $scope.sortDesc = true;
 
         // Remove the style="display: none" attribute. A trick
         // used to avoid the panel being visible when reloading the page.
@@ -108,10 +108,20 @@ angular.module('msinm.search')
         };
 
         $scope.toggleSortOrder = function(sortBy) {
-            $scope.sortBy = sortBy;
-            $scope.sortDesc = !$scope.sortDesc;
+            if (sortBy == $scope.sortBy) {
+                $scope.sortDesc = !$scope.sortDesc;
+            } else {
+                $scope.sortBy = sortBy;
+            }
             $scope.search();
         };
+
+        $scope.sortIndicator = function(sortBy) {
+            if (sortBy == $scope.sortBy) {
+                return $scope.sortDesc ? '&#9650;' : '&#9660';
+            }
+            return "";
+        }
 
         $scope.pdf = function () {
             $window.location = '/rest/messages/search-pdf?'

@@ -19,8 +19,10 @@ import dk.dma.msinm.common.util.GraphicsUtils;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.MessageSearchParams;
+import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.vo.LocationVo;
+import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.PointVo;
 import org.slf4j.Logger;
 
@@ -36,6 +38,7 @@ import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.ArrayList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -122,7 +125,7 @@ public class MsiServlet extends HttpServlet {
         Color fillCol = new Color(173, 87, 161, 80);
 
         int xy0[] =  mercator.LatLonToPixels(-bounds[0], bounds[1], z);
-        java.util.List<LocationVo> locations = messageSearchService.searchLocations(params);
+        java.util.List<LocationVo> locations = searchLocations(params);
 
         locations.stream().forEach(location -> {
 
@@ -169,5 +172,28 @@ public class MsiServlet extends HttpServlet {
         g2.dispose();
         return image;
     }
+
+    /**
+     * TODO
+     */
+    public java.util.List<LocationVo> searchLocations(MessageSearchParams param) {
+        java.util.List<LocationVo> result = new ArrayList<>();
+
+        try {
+            MessageSearchResult messages = messageSearchService.search(param);
+
+            for (MessageVo msg : messages.getMessages()) {
+                msg.getLocations().stream()
+                        .filter(loc -> loc.getPoints().size() > 0)
+                        .forEach(result::add);
+            }
+            return result;
+
+        } catch (Exception e) {
+            log.error("Error performing search : " + e, e);
+            return result;
+        }
+    }
+
 }
 

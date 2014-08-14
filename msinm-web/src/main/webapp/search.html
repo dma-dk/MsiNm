@@ -75,11 +75,15 @@
                         <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
                             <span class="caret"></span>
                         </button>
-                        <ul class="dropdown-menu" role="menu" style="font-size: 12px;">
+                        <ul class="dropdown-menu searchMenu" role="menu">
                             <li style="color: lightgray;">&nbsp;Filter by</li>
                             <li><a href ng-click="toggleFilterOnDate()">Date</a></li>
                             <li><a href ng-click="toggleFilterOnLocation()">Location</a></li>
                             <li><a href ng-click="toggleFilterOnType()">Type</a></li>
+                            <li class="divider"></li>
+                            <li style="color: lightgray;">&nbsp;Sort by</li>
+                            <li><a href ng-click="toggleSortOrder('ID')">ID <small ng-bind-html="sortIndicator('ID')"></small></a></li>
+                            <li><a href ng-click="toggleSortOrder('DATE')">Date <small ng-bind-html="sortIndicator('DATE')"></small></a></li>
                             <li class="divider"></li>
                             <li><a href ng-click="pdf()">Generate PDF</a></li>
                             <li><a href ng-click="calendar()">Add to calendar</a></li>

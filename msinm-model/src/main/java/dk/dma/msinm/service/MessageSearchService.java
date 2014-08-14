@@ -33,8 +33,6 @@ import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.PointDesc;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Type;
-import dk.dma.msinm.vo.LocationVo;
-import dk.dma.msinm.vo.MessageVo;
 import org.apache.lucene.document.Document;
 import org.apache.lucene.document.StoredField;
 import org.apache.lucene.index.IndexableField;
@@ -392,7 +390,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             }
 
             // Complete the query and fetch the message id's (and validFrom, year and number for sorting)
-            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("validFrom"), msgId.get("year"), msgId.get("number"))
+            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("validFrom"), msgId.get("year"), msgId.get("number"), msgId.get("mainType"), msgId.get("authority"))
                     .distinct(true)
                     .where(tuplePredicateBuilder.where());
             sortQuery(param, builder, tupleQuery, msgRoot, msgId);
@@ -448,32 +446,13 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             }
         } else if (MessageSearchParams.SortBy.ID == param.getSortBy()) {
             if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
+                // cq.orderBy(builder.asc(msgId.get("mainType")), builder.asc(msgId.get("authority")), builder.asc(msgId.get("year")), builder.asc(msgId.get("number")));
                 cq.orderBy(builder.asc(msgId.get("year")), builder.asc(msgId.get("number")));
             } else {
+                // cq.orderBy(builder.desc(msgId.get("mainType")), builder.desc(msgId.get("authority")), builder.desc(msgId.get("year")), builder.desc(msgId.get("number")));
                 cq.orderBy(builder.desc(msgId.get("year")), builder.desc(msgId.get("number")));
             }
         }
     }
 
-    /**
-     * TODO
-     */
-    public List<LocationVo> searchLocations(MessageSearchParams param) {
-        List<LocationVo> result = new ArrayList<>();
-
-        try {
-            MessageSearchResult messages = search(param);
-
-            for (MessageVo msg : messages.getMessages()) {
-                msg.getLocations().stream()
-                        .filter(loc -> loc.getPoints().size() > 0)
-                        .forEach(result::add);
-            }
-            return result;
-
-        } catch (Exception e) {
-            log.error("Error performing search : " + e, e);
-            return result;
-        }
-    }
 }
