@@ -418,7 +418,13 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // Fetch the cached messages
             List<Message> messages = messageService.getCachedMessages(pagedMsgIds);
 
-            result.addMessages(messages, DataFilter.get("Message.details", "Area.parent", "Category.parent").setLang(param.getLanguage()));
+            DataFilter filter;
+            if (param.getDataType() == MessageSearchParams.DataType.DETAILS) {
+                filter = DataFilter.get("Message.details", "Area.parent", "Category.parent").setLang(param.getLanguage());
+            } else {
+                filter = DataFilter.get("Message.locations", "MessageDesc.title").setLang(param.getLanguage());
+            }
+            result.addMessages(messages, filter);
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");

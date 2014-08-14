@@ -65,14 +65,20 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
         seriesIdentifier = message.getSeriesIdentifier();
         type = message.getType();
-        area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), compFilter);
-        message.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, compFilter)));
         validFrom = message.getValidFrom();
         validTo = message.getValidTo();
-        message.getDescs(compFilter).stream()
-                .forEach(desc -> checkCreateDescs().add(new MessageDescVo(desc)));
+
+        if (compFilter.includeAnyOf("details", "MessageDesc.title")) {
+            message.getDescs(compFilter).stream()
+                    .forEach(desc -> checkCreateDescs().add(new MessageDescVo(desc, compFilter)));
+        }
+
+        if (compFilter.includeAnyOf("details", "locations")) {
+            message.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, compFilter)));
+        }
 
         if (compFilter.include("details")) {
+            area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), compFilter);
             status = message.getStatus();
             message.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, compFilter)));
             message.getCharts().forEach(chart -> checkCreateCharts().add(new ChartVo(chart)));
@@ -351,17 +357,25 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         /**
          * Constructor
          * @param desc the entity
+         * @param dataFilter what type of data to include from the entity
          */
-        public MessageDescVo(MessageDesc desc) {
+        public MessageDescVo(MessageDesc desc, DataFilter dataFilter) {
             super(desc);
-            this.title = desc.getTitle();
-            this.description = desc.getDescription();
-            this.otherCategories = desc.getOtherCategories();
-            this.time = desc.getTime();
-            this.vicinity = desc.getVicinity();
-            this.note = desc.getNote();
-            this.publication = desc.getPublication();
-            this.source = desc.getSource();
+
+            DataFilter compFilter = dataFilter.forComponent(MessageDesc.class);
+
+            if (compFilter.include("title")) {
+                this.title = desc.getTitle();
+            } else {
+                this.title = desc.getTitle();
+                this.description = desc.getDescription();
+                this.otherCategories = desc.getOtherCategories();
+                this.time = desc.getTime();
+                this.vicinity = desc.getVicinity();
+                this.note = desc.getNote();
+                this.publication = desc.getPublication();
+                this.source = desc.getSource();
+            }
         }
 
         /**

@@ -144,6 +144,15 @@ public class DataFilter {
     }
 
     /**
+     * Returns whether the field is the only one defined for the filter
+     * @param field the field
+     * @return whether the field is the only one defined for the filter
+     */
+    public boolean restrictTo(String field) {
+        return fields.size() == 1 && fields.contains(field);
+    }
+
+    /**
      * Returns whether to include any of the given fields
      * @param fields the field to check
      * @return whether to include any the given fields

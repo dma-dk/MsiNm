@@ -29,6 +29,8 @@ angular.module('msinm.search')
         $scope.sortBy = 'ID';
         $scope.sortDesc = true;
 
+        $scope.dataType = undefined;
+
         // Remove the style="display: none" attribute. A trick
         // used to avoid the panel being visible when reloading the page.
         $(".searchFilterPanel").removeAttr('style');
@@ -51,6 +53,7 @@ angular.module('msinm.search')
                 ($scope.currentPage - 1) * $scope.pageSize,
                 $scope.sortBy,
                 $scope.sortDesc ? 'DESC' : 'ASC',
+                $scope.dataType,
                 function(data) {
                     $scope.searchResult = data;
                     $scope.paginationVisible = (data && data.total > $scope.pageSize);
@@ -64,10 +67,28 @@ angular.module('msinm.search')
         $scope.$watch(function () {
             return $location.path();
         }, function (newValue, oldValue) {
+
+            // CSS update
             if (newValue.endsWith("/map")) {
                 $(".searchFilterPanel").addClass("box-shadow-small");
             } else if (oldValue.endsWith("/map")) {
                 $(".searchFilterPanel").removeClass("box-shadow-small");
+            }
+
+            // Switching between view modes
+            var oldDataType = $scope.dataType;
+            if (newValue.endsWith("/map")) {
+                $scope.dataType = "LOCATIONS";
+                $scope.pageSize = 10000;
+                $scope.currentPage = 1;
+            } else {
+                $scope.dataType = "DETAILS";
+                $scope.pageSize = 100;
+            }
+
+            // Called initially, and when entering and leaving the map view
+            if ($scope.dataType != oldDataType) {
+                $scope.newSearch();
             }
         });
 

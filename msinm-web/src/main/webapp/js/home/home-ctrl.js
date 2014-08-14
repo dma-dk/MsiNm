@@ -31,6 +31,7 @@ angular.module('msinm.common')
                         0,
                         'DATE',
                         'DESC',
+                        'DETAILS',
                         function (data) {
                             $scope.searchResult = data;
                         },

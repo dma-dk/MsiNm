@@ -31,6 +31,7 @@ public class MessageSearchParams implements Serializable {
 
     public enum SortBy { DATE, ID }
     public enum SortOrder { ASC, DESC }
+    public enum DataType { DETAILS, LOCATIONS }
 
     String language;
     String query;
@@ -46,6 +47,7 @@ public class MessageSearchParams implements Serializable {
     int startIndex = 0;
     SortBy sortBy = SortBy.ID;
     SortOrder sortOrder = SortOrder.DESC;
+    DataType dataType = DataType.DETAILS;
 
     public MessageSearchParams() {
     }
@@ -182,5 +184,13 @@ public class MessageSearchParams implements Serializable {
 
     public void setSortOrder(SortOrder sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public DataType getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(DataType dataType) {
+        this.dataType = dataType;
     }
 }
