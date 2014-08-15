@@ -18,6 +18,9 @@ package dk.dma.msinm.web.rest;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.templates.PdfService;
+import dk.dma.msinm.common.time.TimeException;
+import dk.dma.msinm.common.time.TimeModel;
+import dk.dma.msinm.common.time.TimeParser;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.SeriesIdType;
@@ -435,5 +438,25 @@ public class MessageRestService {
         }
     }
 
+
+    @GET
+    @Path("/parse-time")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public TimeModel parseTime(
+            @QueryParam("time") String time,
+            @QueryParam("lang")  @DefaultValue("en") String lang) {
+        try {
+            TimeParser parser = TimeParser.get();
+
+            return parser.parseModel(time, lang);
+        } catch (TimeException e) {
+            log.warn("Failed parsing time " + time + ": " + e);
+        }
+
+        // No result
+        return null;
+    }
 
 }
