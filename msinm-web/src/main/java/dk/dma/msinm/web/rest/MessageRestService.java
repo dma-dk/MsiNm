@@ -390,7 +390,7 @@ public class MessageRestService {
             @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder,
             @QueryParam("mapMode") @DefaultValue("false") boolean mapMode
     ) throws Exception {
-        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, Integer.MAX_VALUE, 0, sortBy, sortOrder, mapMode);
+        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, 1000, 0, sortBy, sortOrder, mapMode);
         MessageSearchResult result = messageSearchService.search(params);
 
         String template = "message-list.ftl";

@@ -440,7 +440,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // **********************************************************************************/
 
             // Check if the message number exceeds the maximum allowed message number
-            if (pagedMsgIds.size() > maxMessageNo.intValue()) {
+            if (param.isMapMode() && pagedMsgIds.size() > maxMessageNo.intValue()) {
 
                 // Will typically only ever happen en Map view mode.
                 // By flagging overflow, the client can e.g. show bitmap layer instead
