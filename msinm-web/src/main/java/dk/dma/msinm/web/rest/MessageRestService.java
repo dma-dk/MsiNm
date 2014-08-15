@@ -280,16 +280,17 @@ public class MessageRestService {
             int startIndex,
             String sortBy,
             String sortOrder,
-            String dataType
+            boolean mapMode
     ) throws ParseException {
         log.info(String.format(
-                "Search with lang=%s, q=%s, status=%s, type=%s, loc=%s, areas=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s, dataType=%s",
-                language, query, status, type, loc, areas, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, dataType));
+                "Search with lang=%s, q=%s, status=%s, type=%s, loc=%s, areas=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s, mapMode=%b",
+                language, query, status, type, loc, areas, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, mapMode));
 
         MessageSearchParams params = new MessageSearchParams();
         params.setLanguage(language);
         params.setStartIndex(startIndex);
         params.setMaxHits(maxHits);
+        params.setMapMode(mapMode);
 
         try {
             params.setSortBy(MessageSearchParams.SortBy.valueOf(sortBy));
@@ -301,12 +302,6 @@ public class MessageRestService {
             params.setSortOrder(MessageSearchParams.SortOrder.valueOf(sortOrder));
         } catch (Exception e) {
             log.debug("Failed parsing sortOrder parameter " + sortOrder);
-        }
-
-        try {
-            params.setDataType(MessageSearchParams.DataType.valueOf(dataType));
-        } catch (Exception e) {
-            log.debug("Failed parsing dataType parameter " + dataType);
         }
 
         params.setQuery(query);
@@ -369,9 +364,9 @@ public class MessageRestService {
             @QueryParam("startIndex") @DefaultValue("0") int startIndex,
             @QueryParam("sortBy") @DefaultValue("DATE") String sortBy,
             @QueryParam("sortOrder") @DefaultValue("DESC½") String sortOrder,
-            @QueryParam("dataType") @DefaultValue("DETAILS") String dataType
+            @QueryParam("mapMode") @DefaultValue("false") boolean mapMode
     ) throws Exception {
-        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, dataType);
+        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, mapMode);
         return messageSearchService.search(params);
     }
 
@@ -393,9 +388,9 @@ public class MessageRestService {
             @QueryParam("to") String toDate,
             @QueryParam("sortBy") @DefaultValue("DATE") String sortBy,
             @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder,
-            @QueryParam("dataType") @DefaultValue("DETAILS") String dataType
+            @QueryParam("mapMode") @DefaultValue("false") boolean mapMode
     ) throws Exception {
-        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, Integer.MAX_VALUE, 0, sortBy, sortOrder, dataType);
+        MessageSearchParams params = readParams(language, query, status, type, loc, areas, fromDate, toDate, Integer.MAX_VALUE, 0, sortBy, sortOrder, mapMode);
         MessageSearchResult result = messageSearchService.search(params);
 
         String template = "message-list.ftl";

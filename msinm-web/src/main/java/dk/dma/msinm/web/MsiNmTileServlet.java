@@ -15,7 +15,9 @@
  */
 package dk.dma.msinm.web;
 
+import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.util.GraphicsUtils;
+import dk.dma.msinm.common.util.WebUtils;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.MessageSearchParams;
@@ -37,19 +39,26 @@ import java.awt.geom.Ellipse2D;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
-import java.io.OutputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Feeds MSI data as bitmaps
+ * Feeds MSI-NM data as bitmaps.
+ * Can be used for servicing an OpenStreetmapLayer in Openlayers.
+ * The layer should be configured to have the url "/msinm-tiles/${z}/${x}/${y}.png"
  */
-@WebServlet(value = "/msi/*")
-public class MsiServlet extends HttpServlet {
+@WebServlet(value = "/msinm-tiles/*")
+public class MsiNmTileServlet extends HttpServlet {
 
-    static final int TILE_SIZE = 256;
-    static final Pattern TILE_PATTERN = Pattern.compile("/(\\d+)/(\\d+)/(\\d+)\\.png");
+    static final int        TILE_SIZE           = 256;
+    static final Pattern    TILE_PATTERN        = Pattern.compile("/(\\d+)/(\\d+)/(\\d+)\\.png");
+    static final int        TILE_TTL_HOURS      = 24; // A tile file is refreshed every hour...
+    static final String     TILE_REPO_FOLDER    = "tiles";
+    static final String     BLANK_IMAGE         = "/img/blank.png";
 
     @Inject
     Logger log;
@@ -57,10 +66,16 @@ public class MsiServlet extends HttpServlet {
     @Inject
     MessageSearchService messageSearchService;
 
+    @Inject
+    MsiNmTileCache tileCache;
+
+    @Inject
+    RepositoryService repositoryService;
+
     /**
      * Constructor
      */
-    public MsiServlet() {
+    public MsiNmTileServlet() {
         super();
     }
 
@@ -73,59 +88,103 @@ public class MsiServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        Matcher m = TILE_PATTERN.matcher(request.getPathInfo());
+        String path = request.getPathInfo();
+
+        // Firstly, check if the url is cached
+        if (tileCache.getCache().containsKey(path)) {
+            redirect(response, tileCache.getCache().get(path), true);
+            return;
+        }
+
+        // Check the the path matches the tile pattern
+        Matcher m = TILE_PATTERN.matcher(path);
         if (!m.matches()) {
             response.setStatus(HttpServletResponse.SC_NOT_FOUND);
             return;
         }
-
         int z = Integer.parseInt(m.group(1));
         int x = Integer.parseInt(m.group(2));
         int y = Integer.parseInt(m.group(3));
 
-        BufferedImage image = processImage(z, x, y);
+        // If the message index has not indexed all messages, return a blank image
+        if (!messageSearchService.isAllIndexed()) {
+            redirect(response, BLANK_IMAGE, false);
+            return;
+        }
 
-        response.setHeader("Cache-Control", "no-cache") ;
-        response.setHeader("Expires", "0") ;
-        OutputStream out = response.getOutputStream();
-        ImageIO.write(image, "png", out);
-        image.flush();
-        out.close();
+        // Next, check if the tile exists in the repository
+        Path file = repositoryService.getRepoRoot().resolve(TILE_REPO_FOLDER + path);
+        String repoUri = "/rest/repo/file/" + TILE_REPO_FOLDER + path;
+        if (Files.exists(file) &&
+                Files.getLastModifiedTime(file).toMillis() > System.currentTimeMillis() - TILE_TTL_HOURS * 60 * 60 * 1000L) {
+            log.debug("Using cached tile for path " + path);
+            tileCache.getCache().put(path, repoUri);
+            redirect(response, repoUri, true);
+            return;
+        }
 
+        // Search all messages in the bounds of the tile
+        long t0 = System.currentTimeMillis();
+        GlobalMercator mercator = new GlobalMercator();
+        double[] bounds = mercator.TileLatLonBounds(x, y, z);
+        java.util.List<LocationVo> locations = searchLocations(bounds);
+
+        // If the search result is empty, return blank and cache the result
+        if (locations.isEmpty()) {
+            tileCache.getCache().put(path, BLANK_IMAGE);
+            redirect(response, BLANK_IMAGE, true);
+            return;
+        }
+
+        // Generate an image
+        BufferedImage image = processImage(z, bounds, mercator, locations);
+
+        // Write the image to the repository
+        if (!Files.exists(file.getParent())) {
+            Files.createDirectories(file.getParent());
+        }
+        ImageIO.write(image, "png", file.toFile());
+
+        // Cache the resulting path and redirect the response
+        tileCache.getCache().put(path, repoUri);
+        redirect(response, repoUri, true);
+
+        log.debug("Generated " + path + " in " + (System.currentTimeMillis() - t0) + " ms");
+    }
+
+    /**
+     * Sets the proper caching flags and redirects the response
+     * @param response the response
+     * @param url the url to redirect to
+     * @param cache whether to cache the response or not
+     */
+    public void redirect(HttpServletResponse response, String url, boolean cache) throws IOException {
+        if (cache) {
+            WebUtils.cache(response, 60 * 60); // One hour
+        } else {
+            WebUtils.nocache(response);
+        }
+        response.sendRedirect(url);
     }
 
     /**
      * Process image
      * @param z the zoom level
-     * @param x the x coordinate
-     * @param y the y coordinate
+     * @param bounds the tile bounds
+     * @param mercator the mercator calculator
+     * @param locations the locations
      * @return the resulting image
      */
-    private BufferedImage processImage(int z, int x, int y) {
+    private BufferedImage processImage(int z, double[] bounds, GlobalMercator mercator, java.util.List<LocationVo> locations) {
 
         BufferedImage image = new BufferedImage(TILE_SIZE, TILE_SIZE, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2 = image.createGraphics();
         GraphicsUtils.antialias(g2);
 
-        GlobalMercator mercator = new GlobalMercator();
-        double[] bounds = mercator.TileLatLonBounds(x, y, z);
-
-        Location loc = new Location();
-        loc.setType(Location.LocationType.POLYGON);
-        loc.getPoints().add(new Point(-bounds[0], bounds[1]));
-        loc.getPoints().add(new Point(-bounds[2], bounds[1]));
-        loc.getPoints().add(new Point(-bounds[2], bounds[3]));
-        loc.getPoints().add(new Point(-bounds[0], bounds[3]));
-
-        MessageSearchParams params = new MessageSearchParams();
-        params.setMaxHits(10000);
-        params.getLocations().add(loc);
-
         Color col = new Color(143, 47, 123);
         Color fillCol = new Color(173, 87, 161, 80);
 
         int xy0[] =  mercator.LatLonToPixels(-bounds[0], bounds[1], z);
-        java.util.List<LocationVo> locations = searchLocations(params);
 
         locations.stream().forEach(location -> {
 
@@ -174,7 +233,28 @@ public class MsiServlet extends HttpServlet {
     }
 
     /**
-     * TODO
+     * Searches for locations
+     * @param bounds bounds of the tile
+     * @return the locations of the tile
+     */
+    private java.util.List<LocationVo> searchLocations(double[] bounds) {
+
+        Location loc = new Location();
+        loc.setType(Location.LocationType.POLYGON);
+        loc.getPoints().add(new Point(-bounds[0], bounds[1]));
+        loc.getPoints().add(new Point(-bounds[2], bounds[1]));
+        loc.getPoints().add(new Point(-bounds[2], bounds[3]));
+        loc.getPoints().add(new Point(-bounds[0], bounds[3]));
+
+        MessageSearchParams params = new MessageSearchParams();
+        params.setMaxHits(10000);
+        params.getLocations().add(loc);
+
+        return searchLocations(params);
+    }
+
+    /**
+     * Searches for locations with the given search parameters
      */
     public java.util.List<LocationVo> searchLocations(MessageSearchParams param) {
         java.util.List<LocationVo> result = new ArrayList<>();

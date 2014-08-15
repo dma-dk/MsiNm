@@ -122,6 +122,20 @@ public class WebUtils {
     }
 
     /**
+     * Add headers to the response to ensure caching in the given duration
+     * @param response the response
+     * @param seconds the number of seconds to cache the response
+     * @return the response
+     */
+    public static HttpServletResponse cache(HttpServletResponse response, int seconds) {
+        long now = System.currentTimeMillis();
+        response.addHeader("Cache-Control", "max-age=" + seconds);
+        response.setDateHeader("Last-Modified", now);
+        response.setDateHeader("Expires", now + seconds * 1000L);
+        return response;
+    }
+
+    /**
      * Encode identically to the javascript encodeURIComponent() method
      * @param s the string to encode
      * @return the encoded string

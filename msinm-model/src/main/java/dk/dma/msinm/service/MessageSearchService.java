@@ -98,6 +98,10 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     MessageService messageService;
 
     @Inject
+    @Setting(value = "messageIndexMaxMessageNo", defaultValue = "1000")
+    Long maxMessageNo;
+
+    @Inject
     @Setting(value = "messageIndexDir", defaultValue = "${user.home}/.msinm/msg-index", substituteSystemProperties = true)
     Path indexFolder;
 
@@ -110,7 +114,11 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     Boolean deleteOnStartup;
 
     SpatialStrategy strategy;
+    boolean allIndexed;
 
+    /**
+     * Initialize the index
+     */
     @PostConstruct
     public void init() {
         // Create the lucene index directory
@@ -134,6 +142,14 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 log.error("Failed re-creating the index on startup", e);
             }
         }
+    }
+
+    /**
+     * Returns if all messages have been indexed
+     * @return if all messages have been indexed
+     */
+    public boolean isAllIndexed() {
+        return allIndexed;
     }
 
     /**
@@ -174,7 +190,15 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
      */
     @Override
     protected List<Message> findUpdatedEntities(Date fromDate, int maxCount) {
-        return messageService.findUpdatedMessages(fromDate, maxCount);
+        List<Message> messages = messageService.findUpdatedMessages(fromDate, maxCount);
+
+        // The first time less that the maximum number of messages are found,
+        // we flag that the indexing is complete
+        if (messages.size() < maxCount) {
+            allIndexed = true;
+        }
+
+        return messages;
     }
 
     /**
@@ -415,16 +439,26 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             // ********** Query 2: Fetch messages with the paged set of id's             ********/
             // **********************************************************************************/
 
-            // Fetch the cached messages
-            List<Message> messages = messageService.getCachedMessages(pagedMsgIds);
+            // Check if the message number exceeds the maximum allowed message number
+            if (pagedMsgIds.size() > maxMessageNo.intValue()) {
 
-            DataFilter filter;
-            if (param.getDataType() == MessageSearchParams.DataType.DETAILS) {
-                filter = DataFilter.get("Message.details", "Area.parent", "Category.parent").setLang(param.getLanguage());
+                // Will typically only ever happen en Map view mode.
+                // By flagging overflow, the client can e.g. show bitmap layer instead
+                result.setOverflowed(true);
+
             } else {
-                filter = DataFilter.get("Message.locations", "MessageDesc.title").setLang(param.getLanguage());
+
+                // Fetch the cached messages
+                List<Message> messages = messageService.getCachedMessages(pagedMsgIds);
+
+                DataFilter filter;
+                if (param.isMapMode()) {
+                    filter = DataFilter.get("Message.locations", "MessageDesc.title").setLang(param.getLanguage());
+                } else {
+                    filter = DataFilter.get("Message.details", "Area.parent", "Category.parent").setLang(param.getLanguage());
+                }
+                result.addMessages(messages, filter);
             }
-            result.addMessages(messages, filter);
 
             log.trace("Message search result: " + result + " in " +
                     (System.currentTimeMillis() - t0) + " ms");

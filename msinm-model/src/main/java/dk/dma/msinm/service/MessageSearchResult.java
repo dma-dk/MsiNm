@@ -29,12 +29,18 @@ import java.util.List;
  * The search result is paged, as per the {@code MessageSearchParams},
  * so, the messages returned constitutes a subset of the {@code total}
  * number of messages starting af the {@code startIndex}.
+ * <p>
+ * If the request number of messages exceeds a System-wide maximum, the
+ * overflowed flag will be set, and no messages will be returned.
+ *
+ * This is e.g. used in Map view mode to show the MSI-NM background layer.
  */
 public class MessageSearchResult implements Serializable {
 
     List<MessageVo> messages = new ArrayList<>();
     int startIndex;
     int total;
+    boolean overflowed;
 
     /**
      * Add a list of messages to the search result
@@ -54,6 +60,7 @@ public class MessageSearchResult implements Serializable {
                 "messages no=" + messages.size() +
                 ", startIndex=" + startIndex +
                 ", total=" + total +
+                ", overflowed=" + overflowed +
                 '}';
     }
 
@@ -79,5 +86,13 @@ public class MessageSearchResult implements Serializable {
 
     public void setTotal(int total) {
         this.total = total;
+    }
+
+    public boolean isOverflowed() {
+        return overflowed;
+    }
+
+    public void setOverflowed(boolean overflowed) {
+        this.overflowed = overflowed;
     }
 }

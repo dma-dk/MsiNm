@@ -62,10 +62,13 @@ angular.module('msinm.search')
                 ($scope.currentPage - 1) * $scope.pageSize,
                 $scope.sortBy,
                 $scope.sortDesc ? 'DESC' : 'ASC',
-                $scope.mapMode ? "LOCATIONS" : "DETAILS",
+                $scope.mapMode,
                 function(data) {
                     $scope.searchResult = data;
                     $scope.paginationVisible = (data && data.total > $scope.pageSize);
+                    if (data && data.overflowed) {
+                        growlNotifications.add('<strong>Search result too big</strong><br>Zoom in or filter search', 'info', 1500);
+                    }
                 },
                 function () {
                     growlNotifications.add('<h4>Search failed</h4>', 'danger', 3000);
@@ -152,7 +155,7 @@ angular.module('msinm.search')
                 return $scope.sortDesc ? '&#9650;' : '&#9660';
             }
             return "";
-        }
+        };
 
         $scope.pdf = function () {
             $window.location = '/rest/messages/search-pdf?'
