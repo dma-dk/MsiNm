@@ -99,11 +99,17 @@
             <!-- Date fields -->
             <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnDate">
                 <div class="row">
-                    <div class="col-xs-6 col-sm-5 col-md-4">
-                        <input class="form-control input-sm" placeholder="From Date" type="text" value="" id="messageDateFrom" ng-model="dateFrom">
+                    <div class="col-xs-6 col-sm-5 col-md-4 date" id="messageDateFrom" data-date="{{today}}" data-date-format="{{dateFormat}}">
+                        <div class="input-group">
+                            <input class="form-control input-sm" id="dateFrom" placeholder="From Date" type="text" ng-model="dateFrom">
+                            <span class="input-group-addon add-on"><i class="glyphicon glyphicon-calendar"></i></span>
+                        </div>
                     </div>
-                    <div class="col-xs-6 col-sm-5 col-md-4">
-                        <input class="form-control input-sm" placeholder="To Date" type="text" value="" id="messageDateTo" ng-model="dateTo">
+                    <div class="col-xs-6 col-sm-5 col-md-4 date" id="messageDateTo" data-date="{{today}}" data-date-format="{{dateFormat}}">
+                        <div class="input-group">
+                            <input class="form-control input-sm" id="dateTo" placeholder="To Date" type="text" ng-model="dateTo">
+                            <span class="input-group-addon add-on"><i class="glyphicon glyphicon-calendar"></i></span>
+                        </div>
                     </div>
                 </div>
 
@@ -241,8 +247,14 @@
             allowClear: true
         });
 
-        $("#messageDateFrom").datepicker({ format: "dd-mm-yyyy" });
-        $("#messageDateTo").datepicker({ format: "dd-mm-yyyy" });
+        var dateFrom = $("#messageDateFrom")
+                .datepicker()
+                .on('changeDate', function() { dateFrom.hide(); })
+                .data('datepicker');
+        var dateTo = $("#messageDateTo")
+                .datepicker()
+                .on('changeDate', function() { dateTo.hide(); })
+                .data('datepicker');
         $('#query').popover();
     });
 

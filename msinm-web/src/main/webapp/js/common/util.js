@@ -8,6 +8,32 @@ Date.prototype.ddmmyyyy = function() {
     return (dd[1] ? dd : "0" + dd[0]) + "-" + (mm[1] ? mm : "0" + mm[0]) + "-" + yyyy;
 };
 
+Date.prototype.formatDate = function(format){
+
+    var separator = format.match(/[.\/\-\s].*?/),
+        parts = format.split(/\W+/);
+    if (!separator || !parts || parts.length === 0){
+        throw new Error("Invalid date format.");
+    }
+    var fmt = {separator: separator, parts: parts};
+
+
+    var val = {
+        d: this.getDate(),
+        m: this.getMonth() + 1,
+        yy: this.getFullYear().toString().substring(2),
+        yyyy: this.getFullYear()
+    };
+    val.dd = (val.d < 10 ? '0' : '') + val.d;
+    val.mm = (val.m < 10 ? '0' : '') + val.m;
+    var date = [];
+    for (var i=0, cnt = fmt.parts.length; i < cnt; i++) {
+        date.push(val[fmt.parts[i]]);
+    }
+    return date.join(fmt.separator);
+},
+
+
 Date.prototype.getWeek = function() {
     var onejan = new Date(this.getFullYear(),0,1);
     return Math.ceil((((this - onejan) / 86400000) + onejan.getDay()+1)/7);

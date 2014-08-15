@@ -8,6 +8,8 @@ angular.module('msinm.search')
         'use strict';
 
         $scope.focusMe = true;
+        $scope.dateFormat = "dd-mm-yyyy";
+        $scope.today = new Date().formatDate($scope.dateFormat);
 
         $scope.filterOnType = false;
         $scope.filterOnDate = false;
@@ -56,8 +58,8 @@ angular.module('msinm.search')
                 $scope.type,
                 JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations),
                 $scope.areas,
-                $("#messageDateFrom").val(),
-                $("#messageDateTo").val(),
+                $("#dateFrom").val(),
+                $("#dateTo").val(),
                 $scope.pageSize,
                 ($scope.currentPage - 1) * $scope.pageSize,
                 $scope.sortBy,
@@ -132,8 +134,8 @@ angular.module('msinm.search')
             if (!$scope.filterOnDate) {
                 $scope.dateFrom = '';
                 $scope.dateTo = '';
-                $("#messageDateFrom").val('');
-                $("#messageDateTo").val('');
+                $("#dateFrom").val('');
+                $("#dateTo").val('');
             }
         };
 
@@ -165,8 +167,8 @@ angular.module('msinm.search')
             + '&type=' + encodeURIComponent($scope.type)
             + '&loc=' + encodeURIComponent(JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations))
             + '&areas=' + encodeURIComponent($scope.areas)
-            + '&from=' + encodeURIComponent($("#messageDateFrom").val())
-            + '&to=' + encodeURIComponent($("#messageDateTo").val())
+            + '&from=' + encodeURIComponent($("#dateFrom").val())
+            + '&to=' + encodeURIComponent($("#dateTo").val())
             + '&sortBy=' + ($scope.sortBy)
             + '&sortOrder=' + ($scope.sortDesc ? 'DESC' : 'ASC');
         };
