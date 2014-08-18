@@ -7,6 +7,9 @@ angular.module('msinm.search')
         function ($scope, $window, $location, $modal, MessageService, DialogService, $http, growlNotifications) {
         'use strict';
 
+        $scope.action = "search";
+        $scope.firstRequest = true;
+
         $scope.focusMe = true;
         $scope.dateFormat = "dd-mm-yyyy";
         $scope.today = new Date().formatDate($scope.dateFormat);
@@ -78,9 +81,23 @@ angular.module('msinm.search')
             );
         };
 
+
+        // Watch the location path to handle various search result view modes and edit mode.
         $scope.$watch(function () {
             return $location.path();
         }, function (newValue, oldValue) {
+
+            var wasFirstRequest = $scope.firstRequest;
+            if (wasFirstRequest) {
+                $scope.firstRequest = false;
+            }
+
+            // Determine if this is a search page or the edit page
+            if (newValue.indexOf("/search/edit/") == 0) {
+                $scope.action = "edit";
+            } else {
+                $scope.action = "search";
+            }
 
             // CSS update
             if (newValue.endsWith("/map")) {
@@ -95,17 +112,18 @@ angular.module('msinm.search')
                 $scope.mapMode = true;
                 $scope.pageSize = 10000;
                 $scope.currentPage = 1;
-            } else {
+            } else if ($scope.action == 'search') {
                 $scope.mapMode = false;
                 $scope.pageSize = 100;
             }
 
             // Called initially, and when entering and leaving the map view
-            if (!$scope.mapMode) {
+            if ($scope.action == 'search' && !$scope.mapMode && (wasMapMode || wasFirstRequest)) {
                 $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
                 $scope.newSearch();
             }
         });
+
 
         $scope.toggleFilterOnType = function () {
             $scope.filterOnType = !$scope.filterOnType;
@@ -194,16 +212,32 @@ angular.module('msinm.search')
             });
         };
 
-        $scope.showLocationEditor = function(show) {
-            if (show) {
-                $("body").css("overflow", "hidden");
-                $('.location-editor').fadeIn(0);
-                $scope.locationsVisible = true;
-            } else {
-                $("body").css("overflow", "auto");
-                $('.location-editor').fadeOut(0);
-                $scope.locationsVisible = false;
-            }
+        $scope.showLocationEditor = function() {
+            $scope.modalInstance = $modal.open({
+                controller: "SearchLocationCtrl",
+                templateUrl : "locationSelector.html",
+                size: 'lg',
+                resolve: {
+                    locations: function(){
+                        return $scope.locations;
+                    }
+                }
+            });
         }
 
-}]);
+    }])
+
+    /**
+     * Controller for search location selection
+     */
+    .controller('SearchLocationCtrl', ['$scope', '$modalInstance', 'locations',
+        function ($scope, $modalInstance, locations) {
+            'use strict';
+
+            $scope.locations = locations;
+
+            // Get OpenLayers to refresh it's size
+            $scope.init = function() {
+                $scope.visible = true;
+            }
+        }]);

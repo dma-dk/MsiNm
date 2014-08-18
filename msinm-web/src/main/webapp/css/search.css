@@ -241,3 +241,67 @@
     margin:0;
     font-size: 10px;
 }
+
+/**
+ * Editor CSS styles
+ */
+
+.editor-page {
+    position: relative;
+}
+
+
+.editor-sidebar {
+    display: none;
+}
+@media (min-width: 768px) {
+    .editor-sidebar {
+        position: absolute;
+        bottom: 0;
+        top: 0;
+        display: block;
+        padding: 20px;
+        background-color: #eee;
+        border-right: 1px solid #ddd;
+    }
+}
+
+/* Sidebar navigation */
+.editor-nav-sidebar {
+    margin-right: -21px; /* 20px padding + 1px border */
+    margin-bottom: 20px;
+    margin-left: -20px;
+}
+
+.editor-nav-sidebar > li > a {
+    padding-right: 20px;
+    padding-left: 25px;
+}
+.editor-nav-sidebar > .active > a {
+    color: #fff;
+    background-color: #428bca;
+}
+
+.editor-nav-sidebar > .active > a:hover {
+    background-color: #428bca;
+}
+
+.editor-main {
+    padding: 0 20px 20px 20px;
+}
+
+.editor-section {
+    margin: 20px 0 0 0;
+}
+
+.editor-locations {
+    width: 100%;
+    height: 300px;
+    border: 1px solid lightgray;
+}
+
+@media (min-width: 768px) {
+    .editor-locations {
+        height: 400px;
+    }
+}

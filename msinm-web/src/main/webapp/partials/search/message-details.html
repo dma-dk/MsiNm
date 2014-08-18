@@ -117,6 +117,7 @@
                         <span class="caret"></span>
                     </button>
                     <ul class="dropdown-menu" role="menu">
+                        <li ng-if="hasRole('editor')"><a href ng-click="edit()">Edit...</a></li>
                         <li><a href ng-click="pdf()">Generate PDF</a></li>
                         <li><a href ng-click="calendar()">Add to calendar...</a></li>
                     </ul>

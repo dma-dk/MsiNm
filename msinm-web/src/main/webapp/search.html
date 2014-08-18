@@ -28,20 +28,8 @@
 <div ng-include="'partials/menu.html'"></div>
 <div ng-controller="MessageDetailsCtrl"></div>
 
-<!-- Location editor -->
-<div class="location-editor">
-    <div msi-location-editor locations="locations" edit-descs="false" visible="locationsVisible" style="width:100%; height: 100%">
-        <div class="location-editor-panel">
-            <div style="text-align: center;">
-                <p>Select locations</p>
-                <button href class="btn btn-primary btn-xs" ng-click="showLocationEditor(false)">Done</button>
-            </div>
-        </div>
-    </div>
-</div>
 
-
-<div class="container-fluid mouse-off"  style="overflow: visible; padding-bottom: 10px;">
+<div class="container-fluid mouse-off"  style="overflow: visible;">
 
     <!-- Search result type menu bar -->
     <div class="row-fluid searchResultTypeBar visibleOnMap mouse-on">
@@ -58,10 +46,13 @@
             <span class="searchResultTypeBtn" ng-click="go('/search/map')" check-active="/search/map">
                 <span class="glyphicon glyphicon-globe"></span> <span class="searchResultTypeText">Map</span>
             </span>
+            <span class="searchResultTypeBtn" ng-if="hasRole('editor')" ng-click="go('/search/edit/new')" check-active="/search/edit/*">
+                <span class="glyphicon glyphicon-pencil"></span> <span class="searchResultTypeText">Edit</span>
+            </span>
         </div>
     </div>
 
-    <form class="search-form form-horizontal" style="padding-top: 20px;" role="form" novalidate>
+    <form ng-show="action == 'search'" class="search-form form-horizontal" style="padding-top: 20px;" role="form" novalidate>
         <div class="input-group col-xs-12 col-sm-8 col-md-6 col-lg-6 center mouse-on">
 
 
@@ -123,7 +114,7 @@
                         <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
                     </div>
                     <div class="col-xs-6 col-sm-6 col-md-5 btn-group" ng-if="!mapMode">
-                        <button href class="btn btn-default btn-sm" ng-click="showLocationEditor(true)">
+                        <button href class="btn btn-default btn-sm" ng-click="showLocationEditor()">
                             <span class="glyphicon glyphicon-map-marker"></span> Edit locations
                         </button>
                         <button href class="btn btn-default btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">
@@ -175,11 +166,9 @@
 
 
         </div>
-    </form>
 
-
-    <!-- Pagination -->
-    <div class="row searchResultPagination visibleOnMap" ng-show="paginationVisible">
+        <!-- Pagination -->
+        <div class="row searchResultPagination visibleOnMap" ng-show="paginationVisible">
         <span class="mouse-on">
             <pagination total-items="searchResult.total" items-per-page="pageSize" max-size="8"
                         ng-model="currentPage" ng-change="pageChanged()"
@@ -188,7 +177,8 @@
                         boundary-links="true" first-text="&laquo;" last-text="&raquo;">
             </pagination>
         </span>
-    </div>
+        </div>
+    </form>
 
 </div>
 
@@ -275,6 +265,26 @@
                autocapitalize="off" autocorrect="off" autocomplete="off" />
     </div>
 </script>
+
+<!-- Location editor -->
+<script type="text/ng-template" id="locationSelector.html">
+    <div ng-init="init()" style="margin: -20px;">
+        <div class="modal-body" style="padding-bottom: 0">
+
+            <div class="location-editor">
+                <div msi-location-editor locations="locations" edit-descs="false" show-location-panel="false" style="width:100%; height: 100%">
+                    <div class="location-editor-panel">
+                        <div style="text-align: center;">
+                            <p>Select locations</p>
+                            <button href class="btn btn-primary btn-xs" ng-click="$dismiss('done')">Done</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</script>
+
 
 </body>
 </html>

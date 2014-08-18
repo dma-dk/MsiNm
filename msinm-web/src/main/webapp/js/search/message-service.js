@@ -36,6 +36,13 @@ angular.module('msinm.search')
                     )
                     .success(success)
                     .error(error);
+            },
+
+            getArea: function(areaId, success, error) {
+                $http.get('/rest/admin/areas/area/' + areaId)
+                    .success(success)
+                    .error(error);
             }
+
         };
     }]);

@@ -1,0 +1,52 @@
+
+<div class="container-fluid" ng-controller="MessageEditorCtrl">
+
+    <div class="row editor-page" scroll-spy>
+        <div class="col-sm-3 col-md-2 editor-sidebar">
+            <ul class="nav editor-nav-sidebar">
+                <li><a href spy="type">Type</a></li>
+                <li><a href spy="area">Area</a></li>
+                <li><a href spy="locations">Locations</a></li>
+            </ul>
+        </div>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 editor-main">
+
+            <form method="post" name="editForm">
+            <h2 style="color:red">Under Development</h2>
+
+            <div id="type" class="row editor-section">
+                <h4>Type</h4>
+                <p>Select the main type and sub-type of the message.</p>
+            </div>
+
+            <div id="area" class="row editor-section">
+                <h4>Area</h4>
+                <p>Please specify the general area of the message</p>
+                <div class="col-sm-5" style="padding-left: 0">
+                    <input type="text" class="form-control input-sm" id="editorArea" ng-model="msg.areaId" />
+                </div>
+                <div class="col-sm-2" style="padding-left: 0">
+                    <button href class="btn btn-default btn-sm" ng-disabled="!msg.areaId" ng-click="copyAreaLocations()">Copy Locations</button>
+                </div>
+            </div>
+
+            <div id="locations" class="row editor-section">
+                <h4>Locations</h4>
+                <p>Specify the locations for the message. Click the info icons on the locations or points to update the description.</p>
+                <div msi-location-editor locations="msg.locations" edit-descs="true" languages="languages" class="editor-locations" visible="locationsLoaded">
+                </div>
+            </div>
+
+
+           </form>
+        </div>
+    </div>
+
+
+</div>
+
+<div ng-include="'partials/footer.html'"></div>
+
+<script>
+    initAreaField("#editorArea", false);
+</script>

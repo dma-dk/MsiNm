@@ -3,6 +3,59 @@
  */
 angular.module('msinm.search')
 
+    /**
+     * Controller that handles editing messages
+     */
+    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', 'growlNotifications', 'MessageService',
+        function ($scope, $rootScope, $routeParams, $modal, growlNotifications, MessageService) {
+            'use strict';
+
+            $scope.msg = { descs: [], locations: [], areadId: undefined };
+            $scope.locationsLoaded = false;
+
+            $scope.copyAreaLocations = function() {
+                if ($scope.msg.areaId) {
+                    $scope.locationsLoaded = false;
+                    MessageService.getArea(
+                        $scope.msg.areaId,
+                        function (data) {
+                            $scope.locationsLoaded = true;
+                            $scope.msg.locations = data.locations ? data.locations : [];
+                        },
+                        function (data) {
+                            growlNotifications.add('<h4>Area Lookup Failed</h4>', 'danger', 3000);
+                        }
+                    )
+                }
+            };
+
+            // Load the message details for the given message id
+            $scope.loadMessageDetails = function() {
+                if ($routeParams.messageId != 'new') {
+                    MessageService.details(
+                        $routeParams.messageId,
+                        function (data) {
+                            $scope.msg = data;
+                            if (data.area) {
+                                data.areaId = data.area.id;
+                                $("#editorArea").select2("data", {id: data.area.id, text: data.area.descs[0].name });
+                            }
+                            $scope.locationsLoaded = true;
+                        },
+                        function (data) {
+                            growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
+                        });
+                }
+            };
+
+            $scope.loadMessageDetails();
+
+        }])
+
+
+    /**
+     * Controller that handles displaying message details
+     */
     .controller('MessageDetailsCtrl', ['$scope', '$modal',
         function ($scope, $modal) {
             'use strict';
@@ -35,6 +88,10 @@ angular.module('msinm.search')
 
         }])
 
+
+    /**
+     * Controller that handles displaying message details in a dialog
+     */
     .controller('MessageDialogCtrl', ['$scope', '$window', 'growlNotifications', 'MessageService', 'messageId', 'messages',
         function ($scope, $window, growlNotifications, MessageService, messageId, messages) {
             'use strict';
@@ -91,6 +148,12 @@ angular.module('msinm.search')
                 var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
                 $window.location = '/rest/messages/message-cal/' + messageId + '.ics?lang=' + $scope.language;
             };
+
+            $scope.edit = function() {
+                $scope.$dismiss('edit');
+                //$scope.go('/search/edit/' + $scope.msg.id);
+                $window.location = '/search.html#/search/edit/' + $scope.msg.id;
+            }
 
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {
