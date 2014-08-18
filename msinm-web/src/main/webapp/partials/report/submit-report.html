@@ -71,7 +71,7 @@
                 Submit the report.
             </div>
             <div class="col-sm-12 col-md-9">
-                <button href class="btn btn-primary btn-sm" ng-click="submitReport()" ng-disabled="reportForm.$pristine || reportForm.$invalid">
+                <button href class="btn btn-primary btn-sm" ng-click="submitReport()" ng-disabled="reportForm.$pristine || reportForm.$invalid || reportSubmitted">
                     <span class="glyphicon glyphicon-floppy-disk"></span> Submit Report
                 </button>
                 &nbsp;&nbsp;

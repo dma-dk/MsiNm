@@ -12,6 +12,7 @@ angular.module('msinm.report')
         $scope.attachments = [];
         $scope.uploadUri = '/rest/repo/upload-temp/';
         $scope.pendingReports = [];
+        $scope.reportSubmitted = false;
 
         $scope.init = function() {
 
@@ -53,6 +54,8 @@ angular.module('msinm.report')
         };
 
         $scope.submitReport = function() {
+            $scope.reportSubmitted = true;
+            growlNotifications.add('Sending Report...', 'info', 3000);
             ReportService.submitReport(
                 $scope.report,
                 function (data) {
@@ -60,6 +63,7 @@ angular.module('msinm.report')
                     $rootScope.go('/report/intro');
                 },
                 function (data) {
+                    $scope.reportSubmitted = false;
                     growlNotifications.add('<h4>Report failed</h4><p>' + data + '</p>', 'danger', 3000);
                     console.error("Error listing files in " + $scope.report.repoPath);
                 });
