@@ -87,11 +87,6 @@ angular.module('msinm.search')
             return $location.path();
         }, function (newValue, oldValue) {
 
-            var wasFirstRequest = $scope.firstRequest;
-            if (wasFirstRequest) {
-                $scope.firstRequest = false;
-            }
-
             // Determine if this is a search page or the edit page
             if (newValue.indexOf("/search/edit/") == 0) {
                 $scope.action = "edit";
@@ -115,6 +110,11 @@ angular.module('msinm.search')
             } else if ($scope.action == 'search') {
                 $scope.mapMode = false;
                 $scope.pageSize = 100;
+            }
+
+            var wasFirstRequest = $scope.firstRequest;
+            if ($scope.action == "search" && wasFirstRequest) {
+                $scope.firstRequest = false;
             }
 
             // Called initially, and when entering and leaving the map view
@@ -230,14 +230,16 @@ angular.module('msinm.search')
     /**
      * Controller for search location selection
      */
-    .controller('SearchLocationCtrl', ['$scope', '$modalInstance', 'locations',
-        function ($scope, $modalInstance, locations) {
+    .controller('SearchLocationCtrl', ['$scope', '$timeout', 'locations',
+        function ($scope, $timeout, locations) {
             'use strict';
 
             $scope.locations = locations;
 
             // Get OpenLayers to refresh it's size
             $scope.init = function() {
-                $scope.visible = true;
+                $timeout(function() {
+                    $scope.visible = true;
+                }, 100);
             }
         }]);

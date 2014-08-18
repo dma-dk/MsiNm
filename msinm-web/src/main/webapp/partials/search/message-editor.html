@@ -7,6 +7,7 @@
                 <li><a href spy="type">Type</a></li>
                 <li><a href spy="area">Area</a></li>
                 <li><a href spy="locations">Locations</a></li>
+                <li><a href spy="save">Save Message</a></li>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 editor-main">
@@ -23,7 +24,7 @@
                 <h4>Area</h4>
                 <p>Please specify the general area of the message</p>
                 <div class="col-sm-5" style="padding-left: 0">
-                    <input type="text" class="form-control input-sm" id="editorArea" ng-model="msg.areaId" />
+                    <input type="text" class="form-control input-sm" id="editorArea" ng-model="msg.areaId" ng-required="true"/>
                 </div>
                 <div class="col-sm-2" style="padding-left: 0">
                     <button href class="btn btn-default btn-sm" ng-disabled="!msg.areaId" ng-click="copyAreaLocations()">Copy Locations</button>
@@ -37,8 +38,18 @@
                 </div>
             </div>
 
+            <div id="save" class="row editor-section">
+                <h4>Save Message</h4>
+                <button href class="btn btn-primary btn-sm" ng-click="saveMessage()" ng-disabled="editForm.$pristine || editForm.$invalid || messageSaved">
+                    <span class="glyphicon glyphicon-floppy-disk"></span> Save Message
+                </button>
+                <button href class="btn btn-default btn-sm" ng-click="reloadMessage()">
+                    <span class="glyphicon glyphicon-refresh"></span> Reload Message
+                </button>
+            </div>
 
-           </form>
+
+            </form>
         </div>
     </div>
 

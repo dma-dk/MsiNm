@@ -12,6 +12,7 @@ angular.module('msinm.search')
 
             $scope.msg = { descs: [], locations: [], areadId: undefined };
             $scope.locationsLoaded = false;
+            $scope.messageSaved = false;
 
             $scope.copyAreaLocations = function() {
                 if ($scope.msg.areaId) {
@@ -41,6 +42,8 @@ angular.module('msinm.search')
                                 $("#editorArea").select2("data", {id: data.area.id, text: data.area.descs[0].name });
                             }
                             $scope.locationsLoaded = true;
+                            $scope.messageSaved = false;
+                            $scope.areaForm.$setPristine();
                         },
                         function (data) {
                             growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
@@ -49,6 +52,15 @@ angular.module('msinm.search')
             };
 
             $scope.loadMessageDetails();
+
+            $scope.saveMessage = function () {
+                $scope.messageSaved = true;
+                // TODO
+            }
+
+            $scope.reloadMessage = function () {
+                $scope.loadMessageDetails();
+            }
 
         }])
 
@@ -153,7 +165,7 @@ angular.module('msinm.search')
                 $scope.$dismiss('edit');
                 //$scope.go('/search/edit/' + $scope.msg.id);
                 $window.location = '/search.html#/search/edit/' + $scope.msg.id;
-            }
+            };
 
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {
