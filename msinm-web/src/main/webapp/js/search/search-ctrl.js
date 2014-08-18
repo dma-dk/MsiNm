@@ -84,9 +84,9 @@ angular.module('msinm.search')
 
             // CSS update
             if (newValue.endsWith("/map")) {
-                $(".searchFilterPanel").addClass("box-shadow-small");
+                $(".searchFilterPanel").addClass("mapSearchFilterPanel");
             } else if (oldValue.endsWith("/map")) {
-                $(".searchFilterPanel").removeClass("box-shadow-small");
+                $(".searchFilterPanel").removeClass("mapSearchFilterPanel");
             }
 
             // Switching between view modes

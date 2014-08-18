@@ -39,10 +39,6 @@ h3 {
     .print { visibility:visible;  }
 }
 
-.box-shadow-small {
-    box-shadow: 0 0 1px 2px rgba(0, 0, 0, .1);
-}
-
 div.growl-notifications {
     position: fixed;
     top: 70px;
