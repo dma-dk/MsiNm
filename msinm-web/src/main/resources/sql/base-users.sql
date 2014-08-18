@@ -4,8 +4,11 @@ insert into User (id, created, updated, version, email, first_name, last_name, p
 
 insert into msi.Role (id, name) values (0, 'user');
 insert into msi.Role (id, name) values (-1, 'admin');
+insert into msi.Role (id, name) values (-2, 'editor');
+insert into msi.Role (id, name) values (-3, 'sysadmin');
 
 insert into msi.User_Role (user_id, roles_id) values (0,0);
 insert into msi.User_Role (user_id, roles_id) values (0,-1);
+insert into msi.User_Role (user_id, roles_id) values (0,-2);
+insert into msi.User_Role (user_id, roles_id) values (0,-3);
 insert into msi.User_Role (user_id, roles_id) values (-1,0);
-

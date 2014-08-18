@@ -30,13 +30,13 @@
         <div class="col-sm-3 col-md-2 admin-sidebar">
             <ul class="nav admin-nav-sidebar">
                 <li check-active="/admin/overview"><a href ng-click="go('/admin/overview');">Overview</a></li>
-                <li check-active="/admin/operations"><a href ng-click="go('/admin/operations');">Operations</a></li>
                 <li check-active="/admin/users"><a href ng-click="go('/admin/users');">Users</a></li>
-                <li check-active="/admin/legacy" ng-if="LEGACY_ADMIN_PAGE"><a href ng-click="go('/admin/legacy');">Legacy Integration</a></li>
                 <li check-active="/admin/charts"><a href ng-click="go('/admin/charts');">Charts</a></li>
                 <li check-active="/admin/areas"><a href ng-click="go('/admin/areas');">Areas</a></li>
                 <li check-active="/admin/categories"><a href ng-click="go('/admin/categories');">Categories</a></li>
-                <li check-active="/admin/settings"><a href ng-click="go('/admin/settings');">Settings</a></li>
+                <li check-active="/admin/legacy" ng-if="LEGACY_ADMIN_PAGE && hasRole('sysadmin')"><a href ng-click="go('/admin/legacy');">Legacy Integration</a></li>
+                <li check-active="/admin/operations" ng-if="hasRole('sysadmin')"><a href ng-click="go('/admin/operations');">Operations</a></li>
+                <li check-active="/admin/settings" ng-if="hasRole('sysadmin')"><a href ng-click="go('/admin/settings');">Settings</a></li>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 admin-main" ng-view></div>

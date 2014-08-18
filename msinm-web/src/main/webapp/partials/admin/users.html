@@ -45,7 +45,7 @@
                             <td>{{user.firstName}}</td>
                             <td>{{user.lastName}}</td>
                             <td>{{user.roles | serialize}}</td>
-                            <td><a href ng-click="editUser(user);" title="Edit User"><i class="glyphicon glyphicon-pencil"></i></a></td>
+                            <td><a href ng-click="editUser(user);" ng-if="canEditUser(user)" title="Edit User"><i class="glyphicon glyphicon-pencil"></i></a></td>
                         </tr>
                     </table>
                 </div>

@@ -166,8 +166,10 @@ angular.module('msinm.user')
         $scope.error = undefined;
         $scope.user = user;
         $scope.roles = {
-            user: $.inArray('user', user.roles) > -1,
-            admin: $.inArray('admin', user.roles) > -1
+            user: true,
+            editor: $.inArray('editor', user.roles) > -1,
+            admin: $.inArray('admin', user.roles) > -1,
+            sysadmin: $.inArray('sysadmin', user.roles) > -1
         };
         $scope.userAction = userAction;
 
@@ -176,8 +178,14 @@ angular.module('msinm.user')
             if ($scope.roles.user) {
                 roles.push("user");
             }
+            if ($scope.roles.editor) {
+                roles.push("editor");
+            }
             if ($scope.roles.admin) {
                 roles.push("admin");
+            }
+            if ($scope.roles.sysadmin) {
+                roles.push("sysadmin");
             }
             UserService.createOrUpdateUser(
                 $scope.user.email,

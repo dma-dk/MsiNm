@@ -38,6 +38,15 @@ angular.module('msinm.admin')
             $scope.userDlg();
         };
 
+        $scope.canEditUser = function (user) {
+            if ($.inArray('sysadmin', user.roles) > -1 && !$scope.hasRole('sysadmin')) {
+                return false;
+            } else if ($.inArray('admin', user.roles) > -1 && !($scope.hasRole('admin') || $scope.hasRole('sysadmin'))) {
+                return false;
+            }
+            return true;
+        };
+
         $scope.userDlg = function () {
             $scope.modalInstance = $modal.open({
                 controller: "AddOrEditUserCtrl",

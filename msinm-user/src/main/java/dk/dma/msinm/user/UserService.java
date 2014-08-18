@@ -23,13 +23,17 @@ import dk.dma.msinm.common.templates.TemplateType;
 import dk.dma.msinm.user.security.JbossJaasCacheFlusher;
 import org.slf4j.Logger;
 
+import javax.annotation.Resource;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Business interface for managing User entities
@@ -42,6 +46,9 @@ public class UserService extends BaseService {
 
     @Inject
     private Logger log;
+
+    @Resource
+    SessionContext ctx;
 
     @Inject
     private MailService mailService;
@@ -116,6 +123,39 @@ public class UserService extends BaseService {
     }
 
     /**
+     * When creating a new user, check the roles assigned to the user.
+     * <p>
+     * A new user can always get the "user" role, e.g.via self-registration
+     * on the website.
+     * <p>
+     * When an editor or administrator updates a user, they can only assign
+     * roles they hold themselves.
+     *
+     * @param roles the roles to check
+     */
+    private void validateRoleAssignment(String... roles) {
+
+        // The "user" role can always be assigned
+        if (roles.length == 1 && roles[0].equals("user")) {
+            return;
+        }
+
+        // All other role assignments require a calling user with compatible roles
+        User caller = findByPrincipal(ctx.getCallerPrincipal());
+        if (caller == null) {
+            throw new SecurityException("Invalid caller " + ctx.getCallerPrincipal());
+        }
+        Set<String> callerRoles = caller.getRoles().stream()
+                .map(Role::getName)
+                .collect(Collectors.toSet());
+        for (String role : roles) {
+            if (!callerRoles.contains(role)) {
+                throw new SecurityException("Calling user " + ctx.getCallerPrincipal() + " cannot assign role " + role);
+            }
+        }
+    }
+
+    /**
      * Validates the strength of the password
      * @param password the password to validate
      * @return if the password is valid or not
@@ -161,6 +201,9 @@ public class UserService extends BaseService {
             throw new Exception("Email " + user.getEmail() + " is already registered");
         }
 
+        // Validate the role assignment
+        validateRoleAssignment(roles);
+
         // Associate the user with the roles
         user.getRoles().clear();
         for (String role : roles) {
@@ -204,6 +247,9 @@ public class UserService extends BaseService {
             existnigUser = registerUserWithRoles(user, true, roles);
 
         } else {
+
+            // Validate the role assignment
+            validateRoleAssignment(roles);
 
             // Update the existing user
             existnigUser.setFirstName(user.getFirstName());

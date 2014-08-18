@@ -22,12 +22,6 @@ var app = angular.module('msinm.admin', [
         }).when('/admin/users', {
             templateUrl: 'partials/admin/users.html',
             resolve: checkRole('admin')
-        }).when('/admin/legacy', {
-            templateUrl: 'partials/admin/legacy.html',
-            resolve: checkRole('admin')
-        }).when('/admin/operations', {
-            templateUrl: 'partials/admin/operations.html',
-            resolve: checkRole('admin')
         }).when('/admin/charts', {
             templateUrl: 'partials/admin/charts.html',
             resolve: checkRole('admin')
@@ -37,9 +31,15 @@ var app = angular.module('msinm.admin', [
         }).when('/admin/categories', {
             templateUrl: 'partials/admin/categories.html',
             resolve: checkRole('admin')
+        }).when('/admin/legacy', {
+            templateUrl: 'partials/admin/legacy.html',
+            resolve: checkRole('sysadmin')
+        }).when('/admin/operations', {
+            templateUrl: 'partials/admin/operations.html',
+            resolve: checkRole('sysadmin')
         }).when('/admin/settings', {
             templateUrl: 'partials/admin/settings.html',
-            resolve: checkRole('admin')
+            resolve: checkRole('sysadmin')
         }).otherwise({
             redirectTo: '/admin/overview'
         });

@@ -32,7 +32,7 @@ import javax.ws.rs.PathParam;
 @Path("/admin/operations")
 @Stateless
 @SecurityDomain("msinm-policy")
-@RolesAllowed({ "admin" })
+@RolesAllowed({ "sysadmin" })
 public class OperationsRestService {
 
     @Inject

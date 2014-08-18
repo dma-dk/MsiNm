@@ -55,8 +55,10 @@
                     <label for="roles">Roles</label>
                     <div class="row" id="roles">
                         <div class="col-sm-8 btn-group">
-                            <button class="btn btn-sm btn-default" ng-model="roles.user" btn-checkbox>User</button>
-                            <button class="btn btn-sm btn-default" ng-model="roles.admin" btn-checkbox>Admin</button>
+                            <button class="btn btn-sm btn-default" ng-model="roles.user" btn-checkbox ng-disabled="true">User</button>
+                            <button class="btn btn-sm btn-default" ng-model="roles.editor" ng-disabled="!hasRole('editor')" btn-checkbox>Editor</button>
+                            <button class="btn btn-sm btn-default" ng-model="roles.admin" ng-disabled="!hasRole('admin')" btn-checkbox>Admin</button>
+                            <button class="btn btn-sm btn-default" ng-model="roles.sysadmin" ng-disabled="!hasRole('sysadmin')" btn-checkbox>System Admin</button>
                         </div>
                     </div>
                 </div>

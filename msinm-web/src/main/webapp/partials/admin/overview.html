@@ -17,14 +17,8 @@
         <p>The Admin pages are used to administer users, groups and base data for the MSI-NM application. It has been divided into the following sections:</p>
 
         <dl class="dl-horizontal">
-            <dt><a href ng-click="go('/admin/operations');">Operations</a></dt>
-            <dd>Various operations pertaining to the running system.</dd>
-
             <dt><a href ng-click="go('/admin/users');">Users</a></dt>
             <dd>Create, update and manage users registered for the MSI-NM website.</dd>
-
-            <dt ng-if="LEGACY_ADMIN_PAGE"><a href ng-click="go('/admin/legacy');">Legacy Integration</a></dt>
-            <dd ng-if="LEGACY_ADMIN_PAGE">Handle integration with the legacy MSI system and import historical NM PDF's.</dd>
 
             <dt><a href ng-click="go('/admin/charts');">Charts</a></dt>
             <dd>Configure the OpenLayers charts used for the MSI-NM website.</dd>
@@ -35,8 +29,14 @@
             <dt><a href ng-click="go('/admin/categories');">Categories</a></dt>
             <dd>Manage the list of categories used for grouping MSI and NM messages.</dd>
 
-            <dt><a href ng-click="go('/admin/settings');">Settings</a></dt>
-            <dd>Manage the system settings.</dd>
+            <dt ng-if="LEGACY_ADMIN_PAGE && hasRole('sysadmin')"><a href ng-click="go('/admin/legacy');">Legacy Integration</a></dt>
+            <dd ng-if="LEGACY_ADMIN_PAGE && hasRole('sysadmin')">Handle integration with the legacy MSI system and import historical NM PDF's.</dd>
+
+            <dt ng-if="hasRole('sysadmin')"><a href ng-click="go('/admin/operations');">Operations</a></dt>
+            <dd ng-if="hasRole('sysadmin')">Various operations pertaining to the running system.</dd>
+
+            <dt ng-if="hasRole('sysadmin')"><a href ng-click="go('/admin/settings');">Settings</a></dt>
+            <dd ng-if="hasRole('sysadmin')">Manage the system settings.</dd>
         </dl>
     </div>
 

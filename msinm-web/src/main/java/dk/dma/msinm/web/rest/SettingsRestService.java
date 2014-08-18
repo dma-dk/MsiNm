@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @Path("/admin/settings")
 @Stateless
 @SecurityDomain("msinm-policy")
-@RolesAllowed({ "admin" })
+@RolesAllowed({ "sysadmin" })
 public class SettingsRestService {
 
     @Inject

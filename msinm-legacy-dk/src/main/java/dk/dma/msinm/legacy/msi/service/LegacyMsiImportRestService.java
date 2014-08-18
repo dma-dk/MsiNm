@@ -81,7 +81,7 @@ public class LegacyMsiImportRestService {
     @Path("/import-status")
     @Consumes("application/json")
     @Produces("application/json")
-    @RolesAllowed({ "admin" })
+    @RolesAllowed({ "sysadmin" })
     public LegacyMsiImportVo setImportStatus(LegacyMsiImportVo status) {
         log.info("Setting legacy MSI import type " + status);
 
