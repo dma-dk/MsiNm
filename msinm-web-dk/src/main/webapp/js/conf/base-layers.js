@@ -8,7 +8,11 @@
 
 function addBaseMapLayers(layers) {
 
-    layers.push(new OpenLayers.Layer.OSM("OSM", [ '//osm.e-navigation.net/${z}/${x}/${y}.png' ], null));
+    // layers.push(new OpenLayers.Layer.OSM("OSM", [ '//osm.e-navigation.net/${z}/${x}/${y}.png' ], null));
+    layers.push(new OpenLayers.Layer.OSM("OSM", [
+        '//a.tile.openstreetmap.org/${z}/${x}/${y}.png',
+        '//b.tile.openstreetmap.org/${z}/${x}/${y}.png',
+        '//c.tile.openstreetmap.org/${z}/${x}/${y}.png' ], null));
 
     layers.push(new OpenLayers.Layer.Google(
         "Google",
