@@ -57,6 +57,23 @@ public class CategoryRestService {
 
 
     /**
+     * Searchs for categories matching the given term in the given language
+     * @param lang the language
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    @GET
+    @Path("/search")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<CategoryVo> searchCategories(@QueryParam("lang") String lang, @QueryParam("term") String term, @QueryParam("limit") int limit) {
+        log.info(String.format("Searching for categories lang=%s, term='%s', limit=%d", lang, term, limit));
+        return categoryService.searchCategories(lang, term, limit);
+    }
+
+    /**
      * Returns all categories via a list of hierarchical root categories
      * @return returns all categories
      */

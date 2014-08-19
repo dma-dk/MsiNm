@@ -44,6 +44,8 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     List<String> lightsListNumbers;
     boolean originalInformation;
 
+    // Used when creating new messages from the web client
+    String repoPath;
 
     /**
      * Constructor
@@ -331,6 +333,14 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     public void setOriginalInformation(boolean originalInformation) {
         this.originalInformation = originalInformation;
+    }
+
+    public String getRepoPath() {
+        return repoPath;
+    }
+
+    public void setRepoPath(String repoPath) {
+        this.repoPath = repoPath;
     }
 
     /**

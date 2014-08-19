@@ -27,6 +27,7 @@ import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
+import dk.dma.msinm.vo.MessageVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
@@ -80,6 +81,18 @@ public class MessageService extends BaseService {
         log.info("Creating message " + message);
         return saveEntity(message);
     }
+
+    /**
+     * Creates a new message template with a temporary repository path
+     * @return the new message template
+     */
+    public MessageVo newTemplateMessage() {
+        MessageVo messageVo = new MessageVo();
+        messageVo.setLocations(new ArrayList<>());
+        messageVo.setRepoPath(repositoryService.getNewTempDir().getPath());
+        return  messageVo;
+    }
+
 
     /**
      * Saves the message and evicts the message from the cache
@@ -377,6 +390,15 @@ public class MessageService extends BaseService {
      */
     public Path getMessageFileRepoPath(Message message, String name) throws IOException {
         return  getMessageRepoFolder(message).resolve(name);
+    }
+
+    /**
+     * Returns the repository URI for the message folder
+     * @param message the message
+     * @return the associated repository URI
+     */
+    public String getMessageFolderRepoPath(Message message) throws IOException {
+        return repositoryService.getRepoPath(getMessageRepoFolder(message));
     }
 
     /**

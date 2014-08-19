@@ -28,7 +28,12 @@ import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.Path;
+import javax.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -53,6 +58,31 @@ public class CategoryService extends BaseService {
     @Inject
     @Sql("/sql/category_messages.sql")
     private String categoryMessagesSql;
+
+    /**
+     * Searchs for categories matching the given term in the given language
+     * @param lang the language
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    public List<CategoryVo> searchCategories(String lang, String term, int limit) {
+        List<CategoryVo> result = new ArrayList<>();
+        if (StringUtils.isNotBlank(term)) {
+            List<Category> categories = em
+                    .createNamedQuery("Category.searchCategories", Category.class)
+                    .setParameter("lang", lang)
+                    .setParameter("term", "%" + term + "%")
+                    .setParameter("sort", term)
+                    .setMaxResults(limit)
+                    .getResultList();
+
+            DataFilter dataFilter = DataFilter.get(DataFilter.PARENT).setLang(lang);
+            categories.forEach(cat -> result.add(new CategoryVo(cat, dataFilter)));
+        }
+        return result;
+    }
+
 
     /**
      * Returns the hierarchical list of root categories.

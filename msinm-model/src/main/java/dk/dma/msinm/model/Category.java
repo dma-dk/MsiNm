@@ -29,6 +29,9 @@ import java.util.List;
  */
 @Entity
 @NamedQueries({
+        @NamedQuery(name  = "Category.searchCategories",
+                query = "select distinct c from Category c left join c.descs d where d.lang = :lang and lower(d.name) like lower(:term) "
+                        + "order by LOCATE(lower(:sort), lower(d.name))"),
         @NamedQuery(name  = "Category.findRootCategories",
                 query = "select distinct c from Category c left join fetch c.children where c.parent is null"),
         @NamedQuery(name  = "Category.findCategoriesWithDescs",

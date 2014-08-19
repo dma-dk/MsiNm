@@ -12,8 +12,32 @@ angular.module('msinm.search')
 
         return {
 
+            newMessageTemplate: function(success, error) {
+                $http.get('/rest/messages/new-message-template')
+                    .success(success)
+                    .error(error);
+            },
+
+            listFiles: function(dir, success, error) {
+                $http.get('/rest/repo/list/' + dir)
+                    .success(success)
+                    .error(error);
+            },
+
             details: function(id, success, error) {
                 $http.get('/rest/messages/message/' + id + '?lang=' + $rootScope.language)
+                    .success(success)
+                    .error(error);
+            },
+
+            allDetails: function(id, success, error) {
+                $http.get('/rest/messages/message/' + id)
+                    .success(success)
+                    .error(error);
+            },
+
+            translateTime: function(time, success, error) {
+                $http.post('/rest/messages/translate-time', time)
                     .success(success)
                     .error(error);
             },

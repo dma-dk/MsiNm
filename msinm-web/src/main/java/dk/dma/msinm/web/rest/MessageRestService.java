@@ -15,12 +15,15 @@
  */
 package dk.dma.msinm.web.rest;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.common.time.TimeException;
 import dk.dma.msinm.common.time.TimeModel;
 import dk.dma.msinm.common.time.TimeParser;
+import dk.dma.msinm.common.time.TimeTranslator;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.SeriesIdType;
@@ -42,8 +45,10 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -56,6 +61,7 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -90,6 +96,19 @@ public class MessageRestService {
     MsiNmApp app;
 
     public MessageRestService() {
+    }
+
+
+    /**
+     * Creates a new message template with a temporary repository path
+     * @return the new message template
+     */
+    @GET
+    @Path("/new-message-template")
+    @Produces("application/json;charset=UTF-8")
+    @NoCache
+    public MessageVo newTemplateReport() {
+        return messageService.newTemplateMessage();
     }
 
     /**
@@ -137,6 +156,11 @@ public class MessageRestService {
             if (message != null) {
                 DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(lang);
                 result = new MessageVo(message, filter);
+                try {
+                    result.setRepoPath(messageService.getMessageFolderRepoPath(message));
+                } catch (IOException e) {
+                    log.warn("Failed looking up repo-path for message " + messageId, e);
+                }
             }
         }
 
@@ -457,6 +481,96 @@ public class MessageRestService {
 
         // No result
         return null;
+    }
+
+    @POST
+    @Path("/translate-time")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @GZIP
+    @NoCache
+    public MessageTimeVo translateTime(MessageTimeVo timeVo) {
+        if (timeVo.getTimes() != null && timeVo.getTimes().size() > 0 &&
+                StringUtils.isNotBlank(timeVo.getTimes().get(0).getTime())) {
+            LocalizedTimeVo srcTime = timeVo.getTimes().get(0);
+            try {
+                String timeEn = ("en".equals(srcTime.getLang()))
+                        ? srcTime.getTime()
+                        : TimeTranslator.get(srcTime.getLang()).translateToEnglish(srcTime.getTime());
+                for (int x = 1; x < timeVo.getTimes().size(); x++) {
+                    LocalizedTimeVo vo = timeVo.getTimes().get(x);
+                    if ("en".equals(vo.getLang())) {
+                        vo.setTime(timeEn);
+                    } else {
+                        vo.setTime(TimeTranslator.get(vo.getLang()).translateFromEnglish(timeEn));
+                    }
+                }
+
+                // TODO: Compute validFrom and validTo...
+            } catch (TimeException e) {
+                log.warn("Failed translating time " + timeVo + ": " + e);
+            }
+        }
+
+        // No result
+        return timeVo;
+    }
+
+    /**
+     * Helper class used for translating time descriptions
+     */
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    public static class MessageTimeVo {
+        Date validFrom, validTo;
+        List<LocalizedTimeVo> times;
+
+        public Date getValidFrom() {
+            return validFrom;
+        }
+
+        public void setValidFrom(Date validFrom) {
+            this.validFrom = validFrom;
+        }
+
+        public Date getValidTo() {
+            return validTo;
+        }
+
+        public void setValidTo(Date validTo) {
+            this.validTo = validTo;
+        }
+
+        public List<LocalizedTimeVo> getTimes() {
+            return times;
+        }
+
+        public void setTimes(List<LocalizedTimeVo> times) {
+            this.times = times;
+        }
+    }
+
+    /**
+     * Helper class that contains a localized time description
+     */
+    public static class LocalizedTimeVo {
+        String lang, time;
+
+        public String getLang() {
+            return lang;
+        }
+
+        public void setLang(String lang) {
+            this.lang = lang;
+        }
+
+        public String getTime() {
+            return time;
+        }
+
+        public void setTime(String time) {
+            this.time = time;
+        }
     }
 
 }

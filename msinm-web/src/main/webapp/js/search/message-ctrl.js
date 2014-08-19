@@ -6,22 +6,74 @@ angular.module('msinm.search')
     /**
      * Controller that handles editing messages
      */
-    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', 'growlNotifications', 'MessageService',
-        function ($scope, $rootScope, $routeParams, $modal, growlNotifications, MessageService) {
+    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', 'growlNotifications', 'MessageService', 'LangService',
+        function ($scope, $rootScope, $routeParams, $modal, $timeout, growlNotifications, MessageService, LangService) {
             'use strict';
 
-            $scope.msg = { descs: [], locations: [], areadId: undefined };
+            $scope.dateFormat = "dd-mm-yyyy";
+            $scope.today = new Date().formatDate($scope.dateFormat);
+
+            $scope.attachments = [];
+            $scope.uploadUri = '/rest/repo/upload-temp/';
+            $scope.attachments = [];
+
+            $scope.messageId = ($routeParams.messageId && $routeParams.messageId != 'new') ? $routeParams.messageId : undefined;
+
+            $scope.msg = { seriesIdentifier: { mainType: 'MSI' }, validFromTxt: '', validToTxt: '', descs: [], locations: [], areadId: undefined };
+
+            // The locationsLoaded is used to trigger the location editor
+            // and get it to initialize the locaiton list
             $scope.locationsLoaded = false;
+
+            // This will be set when the "Save message" button is clicked and will
+            // disable the button, to avoid double-clicks
             $scope.messageSaved = false;
 
+
+            // Check for changes in the locations
+            $scope.$watch(
+                function() { return $scope.msg.locations; },
+                function() { $scope.editForm.$setDirty(); },
+                true);
+
+
+            // Check for changes in the main type
+            $scope.$watch(
+                function() { return $scope.msg.seriesIdentifier.mainType; },
+                function() {
+                    if ($scope.msg.seriesIdentifier.mainType == 'NM') {
+                        if ($.inArray($scope.msg.type, ['PERMANENT_NOTICE', 'TEMPORARY_NOTICE', 'PRELIMINARY_NOTICE', 'MISCELLANEOUS_NOTICE']) == -1) {
+                            $scope.msg.type = 'TEMPORARY_NOTICE';
+                        }
+                    } else if ($scope.msg.seriesIdentifier.mainType == 'MSI') {
+                        if ($.inArray($scope.msg.type, ['COSTAL_WARNING', 'SUBAREA_WARNING', 'NAVAREA_WARNING']) == -1) {
+                            $scope.msg.type = 'SUBAREA_WARNING';
+                        }
+                    }
+                },
+                true);
+
+
+            // When the location editor detects a new locations list, it will
+            // add blank desc records, and thus, yield to form dirty.
+            // So, after loading a message, call this method that waits 100ms before
+            // setting the form pristine
+            $scope.setPristine = function () {
+                $timeout(function () {
+                    $scope.editForm.$setPristine();
+                }, 100);
+            };
+
+
+            // Copies the locations from the selected area to the message
             $scope.copyAreaLocations = function() {
                 if ($scope.msg.areaId) {
                     $scope.locationsLoaded = false;
                     MessageService.getArea(
                         $scope.msg.areaId,
                         function (data) {
-                            $scope.locationsLoaded = true;
                             $scope.msg.locations = data.locations ? data.locations : [];
+                            $scope.locationsLoaded = true; // Trigger the location editor
                         },
                         function (data) {
                             growlNotifications.add('<h4>Area Lookup Failed</h4>', 'danger', 3000);
@@ -30,36 +82,214 @@ angular.module('msinm.search')
                 }
             };
 
+
+            // Translate the time of the first descriptor to the other descriptors and
+            // computes the validFrom and validTo dates from the field.
+            $scope.translateTime = function () {
+                var time = {
+                    validFrom: $scope.msg.validFrom,
+                    validTo: $scope.msg.validTo,
+                    times: []
+                };
+                for (var i in $scope.msg.descs) {
+                    var desc = $scope.msg.descs[i];
+                    time.times.push({ lang: desc.lang, time: desc.time });
+                }
+                MessageService.translateTime(
+                    time,
+                    function (data) {
+                        var dirty = false;
+                        if ($scope.validFrom != data.validFrom) {
+                            $scope.validFrom = data.validFrom;
+                            dirty = true;
+                        }
+                        if ($scope.validTo != data.validTo) {
+                            $scope.validTo = data.validTo;
+                            dirty = true;
+                        }
+                        for (var i in data.times) {
+                            if ($scope.msg.descs[i].time != data.times[i].time) {
+                                $scope.msg.descs[i].time = data.times[i].time;
+                                dirty = true;
+                            }
+                        }
+                        if (dirty) {
+                            $scope.editForm.$setDirty();
+                        }
+                    },
+                    function (data) {
+                        growlNotifications.add('<h4>Time Translation Failed</h4>', 'danger', 3000);
+                    }
+                );
+            };
+
+
+            // Ensure the message structure is valid and initialized
+            $scope.initMessage = function () {
+                if (!$scope.msg.seriesIdentifier) {
+                    $scope.msg.seriesIdentifier = { mainType: 'MSI' };
+                    $scope.msg.type = 'SUBAREA_WARNING';
+                }
+                $scope.msg.validFromTxt = '';
+                $scope.msg.validToTxt = '';
+
+                LangService.checkDescs(
+                    $scope.msg,
+                    function(desc) {
+                        desc.title = '';
+                        desc.description = '';
+                        // TODO...
+                    },
+                    undefined,
+                    $scope.languages);
+
+                if ($scope.msg.area) {
+                    $scope.msg.areaId = $scope.msg.area.id;
+                    $("#editorArea").select2("data", {id: $scope.msg.area.id, text: $scope.msg.area.descs[0].name });
+                } else {
+                    $("#editorArea").select2("data", null);
+                }
+
+                if ($scope.msg.categories && $scope.msg.categories.length > 0) {
+                    var data = [];
+                    $scope.msg.categoryIds = '';
+                    for (var i in $scope.msg.categories) {
+                        var cat = $scope.msg.categories[i];
+                        if ($scope.msg.categoryIds == '') {
+                            $scope.msg.categoryIds += ',';
+                        }
+                        $scope.msg.categoryIds += cat.id;
+                        data.push({id: cat.id, text: cat.descs[0].name });
+                    }
+                    $("#editorCategories").select2("data", data);
+                } else {
+                    $("#editorCategories").select2("data", null);
+                }
+
+                // Load attachments
+                $scope.listFiles();
+
+                $scope.locationsLoaded = true;  // Trigger the location editor
+                $scope.messageSaved = false; // Remove lock on save button
+                $scope.setPristine();
+            };
+
+
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {
-                if ($routeParams.messageId != 'new') {
-                    MessageService.details(
-                        $routeParams.messageId,
+                if ($scope.messageId) {
+                    MessageService.allDetails(
+                        $scope.messageId,
                         function (data) {
                             $scope.msg = data;
-                            if (data.area) {
-                                data.areaId = data.area.id;
-                                $("#editorArea").select2("data", {id: data.area.id, text: data.area.descs[0].name });
-                            }
-                            $scope.locationsLoaded = true;
-                            $scope.messageSaved = false;
-                            $scope.areaForm.$setPristine();
+                            $scope.uploadUri = '/rest/repo/upload/' + $scope.msg.repoPath;
+                            $scope.initMessage();
                         },
                         function (data) {
                             growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
                         });
+                } else {
+                    MessageService.newMessageTemplate(
+                        function (data) {
+                            $scope.msg = data;
+                            $scope.uploadUri = '/rest/repo/upload-temp/' + $scope.msg.repoPath;
+                            $scope.initMessage();
+                        },
+                        function (data) {
+                            console.error("Error getting new temp dir" + data);
+                        });
                 }
             };
 
+
+            // Load the message details
             $scope.loadMessageDetails();
 
+
+            // Save the current message
             $scope.saveMessage = function () {
                 $scope.messageSaved = true;
                 // TODO
-            }
+            };
 
+
+            // Reload the message details
             $scope.reloadMessage = function () {
                 $scope.loadMessageDetails();
+            }
+
+
+            // Fetches the attachments belonging the the current message
+            $scope.listFiles = function() {
+                MessageService.listFiles(
+                    $scope.msg.repoPath,
+                    function (data) {
+                        $scope.attachments = data;
+                        if(!$scope.$$phase) {
+                            $scope.$apply();
+                        }
+                    },
+                    function (data) {
+                        console.error("Error listing files in " + $scope.msg.repoPath);
+                    });
+            };
+
+
+            // Callback, called when an attachment has been uploaded
+            $scope.attachmentUploaded = function(result) {
+                $scope.listFiles();
+                if(!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            };
+
+
+            // Configuation of the TinyMCE editors
+            $scope.tinymceOptions = {
+                resize: false,
+                plugins: [
+                    "autolink lists link image anchor",
+                    "code textcolor",
+                    "media table contextmenu paste"
+                ],
+                theme: "modern",
+                skin: 'light',
+                statusbar : false,
+                menubar: false,
+                contextmenu: "link image inserttable | cell row column deletetable",
+                toolbar: "styleselect | bold italic | forecolor backcolor | alignleft aligncenter alignright alignjustify | "
+                    + "bullist numlist  | outdent indent | link image table | code",
+
+                file_browser_callback: function(field_name, url, type, win) {
+                    $(".mce-window").hide();
+                    $("#mce-modal-block").hide();
+                    var scope = angular.element($("#message-editor")).scope();
+                    scope.$apply(function() {
+                        var modalInstance = scope.open();
+                        modalInstance.result.then(function (file) {
+                            $("#mce-modal-block").show();
+                            $(".mce-window").show();
+                            win.document.getElementById(field_name).value = "/rest/repo/file/" + file.path;
+                        }, function () {
+                            console.log('Modal dismissed at: ' + new Date());
+                        });
+                    });
+                }
+            };
+
+            $scope.open = function (size) {
+                var modalInstance = $modal.open({
+                    templateUrl: 'myModalContent.html',
+                    controller: ModalInstanceCtrl,
+                    size: size,
+                    windowClass: 'on-top',
+                    resolve: {
+                        files: function () {
+                            return $scope.attachments;
+                        }
+                    }
+                });
+                return modalInstance;
             }
 
         }])
@@ -185,3 +415,17 @@ angular.module('msinm.search')
             $scope.loadMessageDetails();
 
         }]);
+
+
+
+var ModalInstanceCtrl = function ($scope, $modalInstance, files) {
+    $scope.files = files;
+
+    $scope.ok = function (file) {
+        $modalInstance.close(file);
+    };
+
+    $scope.cancel = function () {
+        $modalInstance.dismiss('cancel');
+    };
+};

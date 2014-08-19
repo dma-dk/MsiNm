@@ -118,3 +118,59 @@ function initAreaField(areaId, multiple) {
         });
     });
 }
+
+/** Category selection **/
+
+function formatParentCategories(category) {
+    var txt = undefined;
+    if (category) {
+        txt = (category.descs && category.descs.length > 0) ? category.descs[0].name : 'N/A';
+        if (category.parent) {
+            txt = formatParentCategories(category.parent) + " - " + txt;
+        }
+    }
+    return txt;
+}
+
+function initCategoryField(categoryId, multiple) {
+    $(document).ready(function () {
+        $(categoryId).select2({
+            placeholder: (multiple) ? "Select Categores" : "Select Category",
+            multiple: multiple,
+            allowClear: true,
+            minimumInputLength: 1,
+            type: "GET",
+            quietMillis: 50,
+            ajax: {
+                url: "/rest/admin/categories/search",
+                dataType: 'json',
+                data: function (term, page) {
+                    return {
+                        term: term,
+                        lang: getLang("en"),
+                        limit: 10
+                    };
+                },
+                results: function (data, page) {
+                    var results = [];
+                    for (i in data) {
+                        var category = data[i];
+                        results.push({
+                            id: category.id,
+                            text: category.descs[0].name,
+                            parent: formatParentCategories(category.parent)
+                        });
+                    }
+                    return { results: results };
+                }
+            },
+            formatResult: function (data, term) {
+                var txt = "<strong>" + data.text + "</strong>";
+                if (data.parent) {
+                    txt = txt + " <small>(" + data.parent + ")</small>";
+                }
+                return txt;
+            }
+        });
+    });
+}

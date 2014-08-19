@@ -1,43 +1,159 @@
 
-<div class="container-fluid" ng-controller="MessageEditorCtrl">
+<div class="container-fluid" ng-controller="MessageEditorCtrl" id="message-editor">
 
     <div class="row editor-page" scroll-spy>
         <div class="col-sm-3 col-md-2 editor-sidebar">
             <ul class="nav editor-nav-sidebar">
                 <li><a href spy="type">Type</a></li>
+                <li><a href spy="time">Time</a></li>
                 <li><a href spy="area">Area</a></li>
                 <li><a href spy="locations">Locations</a></li>
+                <li><a href spy="categories">Categories</a></li>
+                <li><a href spy="title">Title</a></li>
+                <li><a href spy="description">Description</a></li>
+                <li><a href spy="attachments">Attachments</a></li>
                 <li><a href spy="save">Save Message</a></li>
             </ul>
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 editor-main">
 
             <form method="post" name="editForm">
-            <h2 style="color:red">Under Development</h2>
+            <p>
+                Pristine {{editForm.$pristine}} &nbsp; - &nbsp;
+                Dirty {{editForm.$dirty}} &nbsp; - &nbsp;
+                Invalid {{editForm.$invalid}} &nbsp; - &nbsp;
+                Saved {{messageSaved}}
+            </p>
 
+
+            <!-- Type -->
             <div id="type" class="row editor-section">
                 <h4>Type</h4>
                 <p>Select the main type and sub-type of the message.</p>
+                <div class="btn-group">
+                    <label class="btn btn-default btn-sm" ng-model="msg.seriesIdentifier.mainType" btn-radio="'MSI'">MSI</label>
+                    <label class="btn btn-default btn-sm" ng-model="msg.seriesIdentifier.mainType" btn-radio="'NM'">NM</label>
+                </div>
+                <div class="btn-group" ng-if="msg.seriesIdentifier.mainType == 'NM'" ng-required="msg.seriesIdentifier.mainType == 'NM'">
+                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'PERMANENT_NOTICE'">Perm.</label>
+                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'TEMPORARY_NOTICE'">Temp.</label>
+                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'PRELIMINARY_NOTICE'">Prelim.</label>
+                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'MISCELLANEOUS_NOTICE'">Misc.</label>
+                </div>
+                <div class="btn-group" ng-if="msg.seriesIdentifier.mainType == 'MSI'" ng-required="msg.seriesIdentifier.mainType == 'MSI'">
+                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'COSTAL_WARNING'">Coastal</label>
+                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'SUBAREA_WARNING'">Subarea</label>
+                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'NAVAREA_WARNING'">Navarea</label>
+                </div>
             </div>
 
+
+            <!-- Time -->
+            <div id="time" class="row editor-section">
+                <h4>Time</h4>
+                <p>Please specify the time interval of the message, and optionally a verbal time description.</p>
+                <div class="row">
+                    <div class="col-sm-4">
+                        <input class="form-control input-sm" placeholder="Valid From" type="text" value="" id="validFrom" ng-model="msg.validFromTxt">
+                    </div>
+                    <div class="col-sm-4">
+                        <input class="form-control input-sm" placeholder="Valid To" type="text" value="" id="validTo" ng-model="msg.validToTxt">
+                    </div>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-4" ng-repeat="desc in msg.descs">
+                    <textarea type="text" class="form-control input-sm editor-time" placeholder="Time Description" rows="3" ng-model="desc.time" lang-flag="desc.lang" />
+                </div>
+            </div>
+            <div class="row" style="margin-top: 5px; margin-left: 0px;">
+                <button href class="btn btn-default btn-xs" ng-disabled="!msg.descs[0].time" ng-click="translateTime()">Translate</button>
+            </div>
+
+
+            <!-- Area -->
             <div id="area" class="row editor-section">
                 <h4>Area</h4>
-                <p>Please specify the general area of the message</p>
+                <p>Please specify the general area of the message and optionally the more specific vicinity</p>
                 <div class="col-sm-5" style="padding-left: 0">
                     <input type="text" class="form-control input-sm" id="editorArea" ng-model="msg.areaId" ng-required="true"/>
                 </div>
-                <div class="col-sm-2" style="padding-left: 0">
+                <div class="col-sm-2">
                     <button href class="btn btn-default btn-sm" ng-disabled="!msg.areaId" ng-click="copyAreaLocations()">Copy Locations</button>
                 </div>
             </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                    <input class="form-control input-sm" placeholder="Vicinity" type="text" ng-model="desc.vicinity" lang-flag="desc.lang">
+                </div>
+            </div>
 
+
+            <!-- Locations -->
             <div id="locations" class="row editor-section">
                 <h4>Locations</h4>
-                <p>Specify the locations for the message. Click the info icons on the locations or points to update the description.</p>
+                <p>Specify the locations for the message. Click the <i class="glyphicon glyphicon-info-sign blue"></i> icons on the locations or points to update the description.</p>
                 <div msi-location-editor locations="msg.locations" edit-descs="true" languages="languages" class="editor-locations" visible="locationsLoaded">
                 </div>
             </div>
 
+
+            <!-- Categories -->
+            <div id="categories" class="row editor-section">
+                <h4>Categories</h4>
+                <p>Please pick the categories of the message and optionally add other categories</p>
+                <div class="col-sm-5" style="padding-left: 0">
+                    <input type="text" class="form-control input-sm" id="editorCategories" ng-model="msg.categoryIds" ng-required="false"/>
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                    <input class="form-control input-sm" placeholder="Other Categories" type="text" ng-model="desc.otherCategories" lang-flag="desc.lang">
+                </div>
+            </div>
+
+
+            <!-- Title -->
+            <div id="title" class="row editor-section">
+                <h4>Title</h4>
+                <p>Please provide the title of the message. The title is e.g. used as ENC text.</p>
+                <div class="col-sm-5" style="padding-left: 0" ng-repeat="desc in msg.descs">
+                    <input class="form-control input-sm" placeholder="Title" type="text" ng-model="desc.title" lang-flag="desc.lang" />
+                </div>
+            </div>
+
+
+            <!-- Description -->
+            <div id="description" class="row editor-section">
+                <h4>Description</h4>
+                <p>Please provide a full description of the message.</p>
+                <div class="col-sm-12 col-lg-6" style="padding-left: 0" ng-repeat="desc in msg.descs">
+                    <textarea class="editor-description" id="tinymce-{{desc.lang}}" ui-tinymce="tinymceOptions" ng-model="desc.description"></textarea>
+                </div>
+            </div>
+
+
+            <!-- Attachments -->
+            <div id="attachments" class="row editor-section">
+                <h4>Attachments</h4>
+                <p>Associated images and PDF documents. Please note, uploading a document takes effect immediately.</p>
+                <div class="col-sm-12" style="padding-left: 0">
+                    <div class="editor-attachments">
+                        <span class="editor-file-upload">
+                            <msi-file-upload repo-folder="uploadUri" drop-text="or drop files here"
+                                             auto-upload="true" remove-after-upload="true"
+                                             success="attachmentUploaded(result)"></msi-file-upload>
+                        </span>
+
+                        <span class="editor-attachment" ng-repeat="file in attachments">
+                            <msi-attachment file="file" size="64" clickable="true"></msi-attachment>
+                        </span>
+                    </div>
+                </div>
+            </div>
+
+
+            <!-- Save -->
             <div id="save" class="row editor-section">
                 <h4>Save Message</h4>
                 <button href class="btn btn-primary btn-sm" ng-click="saveMessage()" ng-disabled="editForm.$pristine || editForm.$invalid || messageSaved">
@@ -58,6 +174,34 @@
 
 <div ng-include="'partials/footer.html'"></div>
 
+<script type="text/ng-template" id="myModalContent.html">
+    <div class="modal-header">
+        <h3 class="modal-title">Select an image</h3>
+    </div>
+    <div class="modal-body">
+        <div class="report-attachments">
+                <span class="report-attachment" ng-repeat="file in files" ng-click="ok(file)">
+                    <msi-attachment file="file" size="64"></msi-attachment>
+                </span>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+    </div>
+</script>
+
 <script>
+    $(document).ready(function() {
+        var validFrom = $("#validFrom")
+                .datepicker({ format: "dd-mm-yyyy" })
+                .on('changeDate', function() { validFrom.hide(); })
+                .data('datepicker');
+        var validTo = $("#validTo")
+                .datepicker({ format: "dd-mm-yyyy" })
+                .on('changeDate', function() { validTo.hide(); })
+                .data('datepicker');
+    });
+
     initAreaField("#editorArea", false);
+    initCategoryField("#editorCategories", true);
 </script>

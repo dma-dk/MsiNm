@@ -305,3 +305,30 @@
         height: 400px;
     }
 }
+
+.editor-time {
+    font-size: 10px;
+}
+
+.editor-description {
+    height: 200px;
+}
+
+.editor-attachments {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid lightgray;
+}
+
+.editor-attachment {
+    display: inline-block;
+    margin: 4px;
+    vertical-align: top;
+}
+
+.editor-file-upload {
+    display: inline-block;
+    vertical-align: top;
+    width: 240px;
+    margin: 10px;
+}
