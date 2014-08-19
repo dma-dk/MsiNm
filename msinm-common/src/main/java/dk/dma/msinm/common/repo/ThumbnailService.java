@@ -96,7 +96,7 @@ public class ThumbnailService {
 
         final String type = fileTypes.getContentType(file);
         if (type == null || !type.startsWith("image")) {
-            log.warn("File not an image: " + file);
+            log.debug("File not an image: " + file);
             return null;
         }
 
