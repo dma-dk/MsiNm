@@ -15,10 +15,9 @@
  */
 package dk.dma.msinm.web.rest;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dk.dma.msinm.model.Chart;
-import dk.dma.msinm.model.Point;
 import dk.dma.msinm.service.ChartService;
+import dk.dma.msinm.vo.ChartVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -36,7 +35,7 @@ import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
-import java.io.Serializable;
+import javax.ws.rs.QueryParam;
 import java.util.List;
 
 /**
@@ -60,6 +59,22 @@ public class ChartRestService {
      ***************************/
 
     /**
+     * Searchs for charts matching the given term
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    @GET
+    @Path("/search")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<ChartVo> searchCharts(@QueryParam("term") String term, @QueryParam("limit") int limit) {
+        log.info(String.format("Searching for charts term='%s', limit=%d", term, limit));
+        return chartService.searchCharts(term, limit);
+    }
+
+    /**
      * Returns all charts
      * @return returns all charts
      */
@@ -78,7 +93,7 @@ public class ChartRestService {
     @Produces("application/json")
     @RolesAllowed({ "admin" })
     public String createChart(ChartVo chartVo) throws Exception {
-        Chart chart = chartVo.toChart();
+        Chart chart = chartVo.toEntity();
         log.info("Updating chart " + chart);
         chartService.createChart(chart);
         return "OK";
@@ -90,7 +105,7 @@ public class ChartRestService {
     @Produces("application/json")
     @RolesAllowed({ "admin" })
     public String updateChart(ChartVo chartVo) throws Exception {
-        Chart chart = chartVo.toChart();
+        Chart chart = chartVo.toEntity();
         log.info("Updating chart " + chart);
         chartService.updateChartData(chart);
         return "OK";
@@ -105,60 +120,4 @@ public class ChartRestService {
         chartService.deleteChart(chartId);
         return "OK";
     }
-
-    /*********************
-     * Helper classes
-     *********************/
-
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    public static class ChartVo implements Serializable {
-        Integer id;
-        String chartNumber;
-        Integer internationalNumber;
-        String horizontalDatum;
-
-
-        public Chart toChart() {
-            Chart chart = new Chart();
-            chart.setId(id);
-            chart.setChartNumber(chartNumber);
-            chart.setInternationalNumber(internationalNumber);
-            chart.setHorizontalDatum(horizontalDatum);
-            return chart;
-        }
-
-        public Integer getId() {
-            return id;
-        }
-
-        public void setId(Integer id) {
-            this.id = id;
-        }
-
-        public String getChartNumber() {
-            return chartNumber;
-        }
-
-        public void setChartNumber(String chartNumber) {
-            this.chartNumber = chartNumber;
-        }
-
-        public Integer getInternationalNumber() {
-            return internationalNumber;
-        }
-
-        public void setInternationalNumber(Integer internationalNumber) {
-            this.internationalNumber = internationalNumber;
-        }
-
-        public String getHorizontalDatum() {
-            return horizontalDatum;
-        }
-
-        public void setHorizontalDatum(String horizontalDatum) {
-            this.horizontalDatum = horizontalDatum;
-        }
-    }
-
-
 }

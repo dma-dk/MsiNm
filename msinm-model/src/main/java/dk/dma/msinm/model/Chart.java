@@ -28,6 +28,11 @@ import javax.validation.constraints.NotNull;
  */
 @Entity
 @NamedQueries({
+        @NamedQuery(name  = "Chart.searchCharts",
+                query = "select distinct c from Chart c where lower(c.chartNumber) like lower(:term) "
+                        + "or ('' + c.internationalNumber) like lower(:term) "
+                        + "order by case when LOCATE(lower(:sort), lower(c.chartNumber)) = 0 "
+                        + "then LOCATE(lower(:sort), '' + c.internationalNumber) else LOCATE(lower(:sort), lower(c.chartNumber)) end"),
         @NamedQuery(name="Chart.findByChartNumber",
                 query="SELECT chart FROM Chart chart where chart.chartNumber = :chartNumber")
 })

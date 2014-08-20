@@ -174,3 +174,41 @@ function initCategoryField(categoryId, multiple) {
         });
     });
 }
+
+function initChartField(chartId, multiple) {
+    $(document).ready(function () {
+        $(chartId).select2({
+            placeholder: (multiple) ? "Select Charts" : "Select Chart",
+            multiple: multiple,
+            allowClear: true,
+            minimumInputLength: 1,
+            type: "GET",
+            quietMillis: 50,
+            ajax: {
+                url: "/rest/admin/charts/search",
+                dataType: 'json',
+                data: function (term, page) {
+                    return {
+                        term: term,
+                        limit: 10
+                    };
+                },
+                results: function (data, page) {
+                    var results = [];
+                    for (i in data) {
+                        var chart = data[i];
+                        if (chart.internationalNumber) {
+                            results.push({ id: chart.id, text: chart.chartNumber + ' (INT ' + chart.internationalNumber + ')' });
+                        } else {
+                            results.push({ id: chart.id, text: chart.chartNumber });
+                        }
+                    }
+                    return { results: results };
+                }
+            },
+            formatResult: function (data, term) {
+                return "<strong>" + data.text + "</strong>";
+            }
+        });
+    });
+}

@@ -12,6 +12,7 @@
                 <li><a href spy="title">Title</a></li>
                 <li><a href spy="description">Description</a></li>
                 <li><a href spy="attachments">Attachments</a></li>
+                <li><a href spy="charts">Charts</a></li>
                 <li><a href spy="save">Save Message</a></li>
             </ul>
         </div>
@@ -74,9 +75,12 @@
             <!-- Area -->
             <div id="area" class="row editor-section">
                 <h4>Area</h4>
-                <p>Please specify the general area of the message and optionally the more specific vicinity</p>
+                <p>
+                    Please specify the general area of the message and optionally the more specific vicinity.
+                    <a href="/admin.html#/admin/areas" target="_blank" ng-if="hasRole('admin')">Edit areas</a>
+                </p>
                 <div class="col-sm-5" style="padding-left: 0">
-                    <input type="text" class="form-control input-sm" id="editorArea" ng-model="msg.areaId" ng-required="true"/>
+                    <input type="text" class="form-control input-sm" id="editorArea" ng-model="msg.areaId"/>
                 </div>
                 <div class="col-sm-2">
                     <button href class="btn btn-default btn-sm" ng-disabled="!msg.areaId" ng-click="copyAreaLocations()">Copy Locations</button>
@@ -102,9 +106,11 @@
             <!-- Categories -->
             <div id="categories" class="row editor-section">
                 <h4>Categories</h4>
-                <p>Please pick the categories of the message and optionally add other categories</p>
+                <p>Please pick the categories of the message and optionally add other categories.
+                    <a href="/admin.html#/admin/categories" target="_blank" ng-if="hasRole('admin')">Edit categories</a>
+                </p>
                 <div class="col-sm-5" style="padding-left: 0">
-                    <input type="text" class="form-control input-sm" id="editorCategories" ng-model="msg.categoryIds" ng-required="false"/>
+                    <input type="text" class="form-control input-sm" id="editorCategories" ng-model="msg.categoryIds" />
                 </div>
             </div>
             <div class="row" style="margin-top: 15px;">
@@ -119,7 +125,8 @@
                 <h4>Title</h4>
                 <p>Please provide the title of the message. The title is e.g. used as ENC text.</p>
                 <div class="col-sm-5" style="padding-left: 0" ng-repeat="desc in msg.descs">
-                    <input class="form-control input-sm" placeholder="Title" type="text" ng-model="desc.title" lang-flag="desc.lang" />
+                    <input class="form-control input-sm" placeholder="Title" type="text"
+                           ng-model="desc.title"  lang-flag="desc.lang" />
                 </div>
             </div>
 
@@ -129,7 +136,8 @@
                 <h4>Description</h4>
                 <p>Please provide a full description of the message.</p>
                 <div class="col-sm-12 col-lg-6" style="padding-left: 0; position: relative" ng-repeat="desc in msg.descs">
-                    <textarea class="editor-description" id="tinymce-{{desc.lang}}" ui-tinymce="tinymceOptions" ng-model="desc.description"></textarea>
+                    <textarea class="editor-description" id="tinymce-{{desc.lang}}" ui-tinymce="tinymceOptions"
+                              ng-model="desc.description"></textarea>
                     <flag lang="desc.lang" style="z-order:100; position: absolute; top: 10px; right: 20px; height: 14px"/>
                 </div>
             </div>
@@ -151,6 +159,18 @@
                             <msi-attachment file="file" size="64" clickable="true"></msi-attachment>
                         </span>
                     </div>
+                </div>
+            </div>
+
+
+            <!-- Charts -->
+            <div id="charts" class="row editor-section">
+                <h4>Charts</h4>
+                <p>Please select the list of charts affected by the message.
+                    <a href="/admin.html#/admin/charts" target="_blank" ng-if="hasRole('admin')">Edit charts</a>
+                </p>
+                <div class="col-sm-5" style="padding-left: 0">
+                    <input type="text" class="form-control input-sm" id="editorCharts" ng-model="msg.chartIds" />
                 </div>
             </div>
 
@@ -206,4 +226,5 @@
 
     initAreaField("#editorArea", false);
     initCategoryField("#editorCategories", true);
+    initChartField("#editorCharts", true);
 </script>

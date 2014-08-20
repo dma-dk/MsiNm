@@ -17,10 +17,13 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Chart;
+import dk.dma.msinm.vo.ChartVo;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +34,27 @@ public class ChartService extends BaseService {
 
     @Inject
     private Logger log;
+
+    /**
+     * Searchs for charts matching the given term
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    public List<ChartVo> searchCharts(String term, int limit) {
+        List<ChartVo> result = new ArrayList<>();
+        if (StringUtils.isNotBlank(term)) {
+            List<Chart> charts = em
+                    .createNamedQuery("Chart.searchCharts", Chart.class)
+                    .setParameter("term", "%" + term + "%")
+                    .setParameter("sort", term)
+                    .setMaxResults(limit)
+                    .getResultList();
+
+           charts.forEach(chart -> result.add(new ChartVo(chart)));
+        }
+        return result;
+    }
 
     /**
      * Returns the list of charts
