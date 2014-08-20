@@ -197,11 +197,7 @@ function initChartField(chartId, multiple) {
                     var results = [];
                     for (i in data) {
                         var chart = data[i];
-                        if (chart.internationalNumber) {
-                            results.push({ id: chart.id, text: chart.chartNumber + ' (INT ' + chart.internationalNumber + ')' });
-                        } else {
-                            results.push({ id: chart.id, text: chart.chartNumber });
-                        }
+                        results.push({ id: chart.id, text: chart.fullChartNumber });
                     }
                     return { results: results };
                 }

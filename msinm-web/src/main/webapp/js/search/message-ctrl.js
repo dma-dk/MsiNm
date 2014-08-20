@@ -61,7 +61,7 @@ angular.module('msinm.search')
             $scope.setPristine = function () {
                 $timeout(function () {
                     $scope.editForm.$setPristine();
-                }, 100);
+                }, 500);
             };
 
 
@@ -124,6 +124,46 @@ angular.module('msinm.search')
             };
 
 
+            // Deletes the given reference from the list of message references
+            $scope.deleteReference = function (ref) {
+                if ($.inArray(ref, $scope.msg.references) > -1) {
+                    $scope.msg.references.splice( $.inArray(ref, $scope.msg.references), 1 );
+                    $scope.editForm.$setDirty();
+                }
+            };
+
+
+            // Adds the new reference to the list of message references
+            $scope.addReference = function () {
+                var id = $scope.parseNewRef();
+                if (id) {
+                    if (!$scope.msg.references) {
+                        $scope.msg.references = [];
+                    }
+                    var ref = { seriesIdentifier: id, type: $scope.newRef.type };
+                    $scope.msg.references.push(ref);
+                    $scope.newRef = { id: '', type: 'REFERENCE' };
+                }
+            };
+
+
+            // Parses the new reference as a series identifier
+            $scope.parseNewRef = function() {
+                var parts = ($scope.newRef) ? $scope.newRef.id.toUpperCase().split('-') : [];
+                if (parts.length == 4 && /^(MSI)|(NM)$/.test(parts[0]) && !isNaN(parts[2]) && !isNaN(parts[3]) && parts[3].length == 2) {
+                    var id = {
+                        mainType: parts[0],
+                        authority: parts[1],
+                        number: parseInt(parts[2]),
+                        year: 2000 + parseInt(parts[3]),
+                        fullId: $scope.newRef.id.toUpperCase()
+                    };
+                    return id;
+                }
+                return undefined;
+            }
+
+
             // Ensure the message structure is valid and initialized
             $scope.initMessage = function () {
                 if (!$scope.msg.seriesIdentifier) {
@@ -166,8 +206,26 @@ angular.module('msinm.search')
                     $("#editorCategories").select2("data", null);
                 }
 
+                if ($scope.msg.charts && $scope.msg.charts.length > 0) {
+                    var data = [];
+                    $scope.msg.chartIds = '';
+                    for (var i in $scope.msg.charts) {
+                        var chart = $scope.msg.charts[i];
+                        if ($scope.msg.chartIds == '') {
+                            $scope.msg.chartIds += ',';
+                        }
+                        $scope.msg.chartIds += chart.id;
+                        data.push({id: chart.id, text: chart.fullChartNumber });
+                    }
+                    $("#editorCharts").select2("data", data);
+                } else {
+                    $("#editorCharts").select2("data", null);
+                }
+
                 // Load attachments
                 $scope.listFiles();
+
+                $scope.newRef = { id: '', type: 'REFERENCE' };
 
                 $scope.locationsLoaded = true;  // Trigger the location editor
                 $scope.messageSaved = false; // Remove lock on save button

@@ -41,6 +41,16 @@ public class ChartVo extends BaseVo<Chart> {
         return chart;
     }
 
+    /**
+     * Returns a string representation of the chart including chart number and international number
+     * @return a string representation of the chart
+     */
+    public String getFullChartNumber() {
+        return (internationalNumber == null)
+                ? chartNumber
+                : String.format("%s (INT %d)", chartNumber, internationalNumber);
+    }
+
     public Integer getId() {
         return id;
     }

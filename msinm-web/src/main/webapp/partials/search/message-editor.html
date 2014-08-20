@@ -5,6 +5,7 @@
         <div class="col-sm-3 col-md-2 editor-sidebar">
             <ul class="nav editor-nav-sidebar">
                 <li><a href spy="type">Type</a></li>
+                <li><a href spy="references">References</a></li>
                 <li><a href spy="time">Time</a></li>
                 <li><a href spy="area">Area</a></li>
                 <li><a href spy="locations">Locations</a></li>
@@ -13,6 +14,7 @@
                 <li><a href spy="description">Description</a></li>
                 <li><a href spy="attachments">Attachments</a></li>
                 <li><a href spy="charts">Charts</a></li>
+                <li><a href spy="misc">Miscellaneous</a></li>
                 <li><a href spy="save">Save Message</a></li>
             </ul>
         </div>
@@ -45,6 +47,40 @@
                     <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'COSTAL_WARNING'">Coastal</label>
                     <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'SUBAREA_WARNING'">Subarea</label>
                     <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'NAVAREA_WARNING'">Navarea</label>
+                </div>
+            </div>
+
+
+            <!-- References -->
+            <div id="references" class="row editor-section">
+                <h4>References</h4>
+                <p>List references for this messages.
+                    <a href="/search.html#/search/table" target="_blank">Search messages</a>
+                </p>
+            </div>
+            <div class="row">
+                <div class="col-sm-6">
+                    <table class='table table-condensed table-hover' style="margin-bottom: 10px;">
+                        <tr ng-repeat="ref in msg.references">
+                            <td><a href msi-message-details="ref.seriesIdentifier.fullId">{{ref.seriesIdentifier.fullId}}</a></td>
+                            <td>{{ref.type}}</td>
+                            <td><a href ng-click="deleteReference(ref);" title="Delete Reference"><i class="glyphicon glyphicon-trash"></i></a></td>
+                        </tr>
+                        <tr>
+                            <td>
+                                <input type="text" class="form-control input-sm" placeholder="Message ID" ng-model="newRef.id" />
+                            </td>
+                            <td>
+                                <select class="form-control input-sm" ng-model="newRef.type">
+                                    <option value="REFERENCE">Reference</option>
+                                    <option value="REPETITION">Repitition</option>
+                                    <option value="CANCELLATION">Cancellation</option>
+                                    <option value="UPDATE">Update</option>
+                                </select>
+                            </td>
+                            <td><a href ng-click="addReference();" title="Add Reference" ng-show="parseNewRef() !== undefined"><i class="glyphicon glyphicon-plus"></i></a></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
 
@@ -166,11 +202,43 @@
             <!-- Charts -->
             <div id="charts" class="row editor-section">
                 <h4>Charts</h4>
-                <p>Please select the list of charts affected by the message.
+                <p>Please select the list of charts affected by the message. Also specify any horizontal datum other than WGS-84.
                     <a href="/admin.html#/admin/charts" target="_blank" ng-if="hasRole('admin')">Edit charts</a>
                 </p>
                 <div class="col-sm-5" style="padding-left: 0">
                     <input type="text" class="form-control input-sm" id="editorCharts" ng-model="msg.chartIds" />
+                </div>
+                <div class="col-sm-2" style="padding-left: 0">
+                    <input type="text" class="form-control input-sm" placeholder="Horizontal Datum" ng-model="msg.horizontalDatum" />
+                </div>
+            </div>
+
+
+            <!-- Misc -->
+            <div id="misc" class="row editor-section">
+                <h4>Miscellaneous</h4>
+                <p>Optionally fill out Note, Publication, Source and Original Information below.</p>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                    <input class="form-control input-sm" placeholder="Note" type="text" ng-model="desc.note" lang-flag="desc.lang">
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                    <input class="form-control input-sm" placeholder="Publiction" type="text" ng-model="desc.publication" lang-flag="desc.lang">
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                    <input class="form-control input-sm" placeholder="Source" type="text" ng-model="desc.source" lang-flag="desc.lang">
+                </div>
+            </div>
+            <div class="row" style="margin-top: 15px;">
+                <div class="col-sm-2">
+                    <button type="button" class="btn btn-sm btn-default" ng-model="msg.originalInformation" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
+                        <span class="glyphicon glyphicon-star"></span> Original Information
+                    </button>
                 </div>
             </div>
 
