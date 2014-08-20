@@ -34,7 +34,7 @@ angular.module('msinm.common')
     .directive('flag', [function () {
         return {
             restrict: 'E',
-            template: "<img height='16' ng-click='copyText()'/>",
+            template: "<img height='16'/>",
             replace: true,
             scope: {
                 lang: "=",

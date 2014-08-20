@@ -92,7 +92,8 @@
             <!-- Locations -->
             <div id="locations" class="row editor-section">
                 <h4>Locations</h4>
-                <p>Specify the locations for the message. Click the <i class="glyphicon glyphicon-info-sign blue"></i> icons on the locations or points to update the description.</p>
+                <p>Specify the locations for the message. Click the <i class="glyphicon glyphicon-info-sign blue" style="opacity: 0.7"></i>
+                    icons on the locations or points to update the description.</p>
                 <div msi-location-editor locations="msg.locations" edit-descs="true" languages="languages" class="editor-locations" visible="locationsLoaded">
                 </div>
             </div>
@@ -127,8 +128,9 @@
             <div id="description" class="row editor-section">
                 <h4>Description</h4>
                 <p>Please provide a full description of the message.</p>
-                <div class="col-sm-12 col-lg-6" style="padding-left: 0" ng-repeat="desc in msg.descs">
+                <div class="col-sm-12 col-lg-6" style="padding-left: 0; position: relative" ng-repeat="desc in msg.descs">
                     <textarea class="editor-description" id="tinymce-{{desc.lang}}" ui-tinymce="tinymceOptions" ng-model="desc.description"></textarea>
+                    <flag lang="desc.lang" style="z-order:100; position: absolute; top: 10px; right: 20px; height: 14px"/>
                 </div>
             </div>
 
