@@ -52,7 +52,11 @@ public class SeriesIdentifier implements Serializable {
      */
     @Transient
     public String getShortId() {
-        return String.format("%s-%03d-%02d", authority, number, year - 2000);
+        return String.format(
+                "%s-%03d-%02d",
+                authority,
+                number == null ? 0 : number,
+                year - 2000);
     }
 
     /**
@@ -61,7 +65,12 @@ public class SeriesIdentifier implements Serializable {
      */
     @Transient
     public String getFullId() {
-        return String.format("%s-%s-%03d-%02d", mainType, authority, number, year - 2000);
+        return String.format(
+                "%s-%s-%03d-%02d",
+                mainType,
+                authority,
+                number == null ? 0 : number,
+                year - 2000);
     }
 
     // *** Getters and setters

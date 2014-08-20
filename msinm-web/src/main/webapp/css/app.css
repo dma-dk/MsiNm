@@ -98,6 +98,20 @@ div.growl-notifications {
     box-shadow: 0 0 4px 4px rgba(0, 0, 0, .2);
 }
 
+.inline .form-group {
+    display: inline-block;
+    margin-bottom: 0;
+    vertical-align: middle;
+}
+.inline .form-control {
+    display: inline-block;
+    width: auto;
+    vertical-align: middle;
+}
+.inline .input-group > .form-control {
+    width: 100%;
+}
+
 .progress {
     height: 8px;
     margin-bottom: 2px;

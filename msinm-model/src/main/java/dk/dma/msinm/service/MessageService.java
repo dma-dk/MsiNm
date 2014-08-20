@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.service;
 
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.repo.RepositoryService;
@@ -40,6 +41,7 @@ import javax.inject.Inject;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -69,6 +71,9 @@ public class MessageService extends BaseService {
     private Sequences sequences;
 
     @Inject
+    MsiNmApp app;
+
+    @Inject
     @Sql("/sql/active_messages.sql")
     private String selectActiveSql;
 
@@ -89,6 +94,11 @@ public class MessageService extends BaseService {
     public MessageVo newTemplateMessage() {
         MessageVo messageVo = new MessageVo();
         messageVo.setLocations(new ArrayList<>());
+        SeriesIdentifier id = new SeriesIdentifier();
+        id.setAuthority(app.getOrganization());
+        id.setMainType(SeriesIdType.MSI);
+        id.setYear(Calendar.getInstance().get(Calendar.YEAR));
+        messageVo.setSeriesIdentifier(id);
         messageVo.setRepoPath(repositoryService.getNewTempDir().getPath());
         return  messageVo;
     }

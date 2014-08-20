@@ -185,7 +185,7 @@ angular.module('msinm.search')
 
                 if ($scope.msg.area) {
                     $scope.msg.areaId = $scope.msg.area.id;
-                    $("#editorArea").select2("data", {id: $scope.msg.area.id, text: $scope.msg.area.descs[0].name });
+                    $("#editorArea").select2("data", { id: $scope.msg.area.id, text: $scope.msg.area.descs[0].name, area: $scope.msg.area });
                 } else {
                     $("#editorArea").select2("data", null);
                 }
@@ -199,7 +199,7 @@ angular.module('msinm.search')
                             $scope.msg.categoryIds += ',';
                         }
                         $scope.msg.categoryIds += cat.id;
-                        data.push({id: cat.id, text: cat.descs[0].name });
+                        data.push({id: cat.id, text: cat.descs[0].name, category: cat });
                     }
                     $("#editorCategories").select2("data", data);
                 } else {
@@ -215,7 +215,7 @@ angular.module('msinm.search')
                             $scope.msg.chartIds += ',';
                         }
                         $scope.msg.chartIds += chart.id;
-                        data.push({id: chart.id, text: chart.fullChartNumber });
+                        data.push({id: chart.id, text: chart.fullChartNumber, chart: chart });
                     }
                     $("#editorCharts").select2("data", data);
                 } else {
@@ -267,7 +267,30 @@ angular.module('msinm.search')
             // Save the current message
             $scope.saveMessage = function () {
                 $scope.messageSaved = true;
-                // TODO
+
+                // Update area
+                var area = $("#editorArea").select2("data");
+                $scope.msg.area = area;
+                if (area) {
+                    area.parent = null; // Trim json
+                }
+
+                // Update Categories
+                var categories = $("#editorCategories").select2("data");
+                $scope.msg.categories = [];
+                for (var i in categories) {
+                    $scope.msg.categories.push(categories[i]);
+                    categories[i].parent = null; // Trim json
+                }
+
+                // Update charts
+                var charts = $("#editorCharts").select2("data");
+                $scope.msg.charts = [];
+                for (var j in charts) {
+                    $scope.msg.charts.push(charts[j]);
+                    charts[i].parent = null; // Trim json
+                }
+
             };
 
 

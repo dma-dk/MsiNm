@@ -507,7 +507,7 @@ public class MessageRestService {
                 }
 
                 // TODO: Compute validFrom and validTo...
-            } catch (TimeException e) {
+            } catch (Exception e) {
                 log.warn("Failed translating time " + timeVo + ": " + e);
             }
         }

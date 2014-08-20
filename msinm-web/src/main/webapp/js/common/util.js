@@ -102,6 +102,7 @@ function initAreaField(areaId, multiple) {
                         results.push({
                             id: area.id,
                             text: area.descs[0].name,
+                            area: area,
                             parent: formatParentAreas(area.parent)
                         });
                     }
@@ -158,6 +159,7 @@ function initCategoryField(categoryId, multiple) {
                         results.push({
                             id: category.id,
                             text: category.descs[0].name,
+                            category: category,
                             parent: formatParentCategories(category.parent)
                         });
                     }
@@ -197,7 +199,7 @@ function initChartField(chartId, multiple) {
                     var results = [];
                     for (i in data) {
                         var chart = data[i];
-                        results.push({ id: chart.id, text: chart.fullChartNumber });
+                        results.push({ id: chart.id, text: chart.fullChartNumber, chart: chart });
                     }
                     return { results: results };
                 }

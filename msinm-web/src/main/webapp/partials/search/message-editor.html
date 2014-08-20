@@ -4,7 +4,7 @@
     <div class="row editor-page" scroll-spy>
         <div class="col-sm-3 col-md-2 editor-sidebar">
             <ul class="nav editor-nav-sidebar">
-                <li><a href spy="type">Type</a></li>
+                <li><a href spy="type">ID &amp; Type</a></li>
                 <li><a href spy="references">References</a></li>
                 <li><a href spy="time">Time</a></li>
                 <li><a href spy="area">Area</a></li>
@@ -31,22 +31,37 @@
 
             <!-- Type -->
             <div id="type" class="row editor-section">
-                <h4>Type</h4>
+                <h4>ID &amp; Type</h4>
                 <p>Select the main type and sub-type of the message.</p>
-                <div class="btn-group">
-                    <label class="btn btn-default btn-sm" ng-model="msg.seriesIdentifier.mainType" btn-radio="'MSI'">MSI</label>
-                    <label class="btn btn-default btn-sm" ng-model="msg.seriesIdentifier.mainType" btn-radio="'NM'">NM</label>
+            </div>
+            <div class="row">
+                <div class="inline col-xs-12 col-lg-12">
+                    <div class="btn-group">
+                        <label class="btn btn-primary btn-sm" ng-model="msg.seriesIdentifier.mainType" btn-radio="'MSI'" ng-disabled="messageId">MSI</label>
+                        <label class="btn btn-primary btn-sm" ng-model="msg.seriesIdentifier.mainType" btn-radio="'NM'" ng-disabled="messageId">NM</label>
+                    </div>
+                    &nbsp;-
+                    <input type="text" class="form-control input-sm" style="width: 60px;" placeholder="Authority"
+                           ng-model="msg.seriesIdentifier.authority" ng-disabled="messageId"/> -
+                    <input type="text" class="form-control input-sm" style="width: 60px;" placeholder="Num."
+                           ng-model="msg.seriesIdentifier.number" ng-disabled="true"/> -
+                    <input type="text" class="form-control input-sm" style="width: 60px;" placeholder="Year"
+                           ng-model="msg.seriesIdentifier.year" ng-disabled="messageId"/>
                 </div>
-                <div class="btn-group" ng-if="msg.seriesIdentifier.mainType == 'NM'" ng-required="msg.seriesIdentifier.mainType == 'NM'">
-                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'PERMANENT_NOTICE'">Perm.</label>
-                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'TEMPORARY_NOTICE'">Temp.</label>
-                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'PRELIMINARY_NOTICE'">Prelim.</label>
-                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'MISCELLANEOUS_NOTICE'">Misc.</label>
-                </div>
-                <div class="btn-group" ng-if="msg.seriesIdentifier.mainType == 'MSI'" ng-required="msg.seriesIdentifier.mainType == 'MSI'">
-                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'COSTAL_WARNING'">Coastal</label>
-                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'SUBAREA_WARNING'">Subarea</label>
-                    <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'NAVAREA_WARNING'">Navarea</label>
+            </div>
+            <div class="row">
+                <div class="col-sm-12" style="margin-top: 15px">
+                    <div class="btn-group" ng-if="msg.seriesIdentifier.mainType == 'NM'" ng-required="msg.seriesIdentifier.mainType == 'NM'">
+                        <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'PERMANENT_NOTICE'">Perm.</label>
+                        <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'TEMPORARY_NOTICE'">Temp.</label>
+                        <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'PRELIMINARY_NOTICE'">Prelim.</label>
+                        <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'MISCELLANEOUS_NOTICE'">Misc.</label>
+                    </div>
+                    <div class="btn-group" ng-if="msg.seriesIdentifier.mainType == 'MSI'" ng-required="msg.seriesIdentifier.mainType == 'MSI'">
+                        <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'COSTAL_WARNING'">Coastal</label>
+                        <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'SUBAREA_WARNING'">Subarea</label>
+                        <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'NAVAREA_WARNING'">Navarea</label>
+                    </div>
                 </div>
             </div>
 
@@ -78,7 +93,8 @@
                                     <option value="UPDATE">Update</option>
                                 </select>
                             </td>
-                            <td><a href ng-click="addReference();" title="Add Reference" ng-show="parseNewRef() !== undefined"><i class="glyphicon glyphicon-plus"></i></a></td>
+                            <td><a href ng-click="addReference();" title="Add Reference" ng-show="parseNewRef() !== undefined">
+                                <i class="glyphicon glyphicon-plus" style="margin-top: 5px;"></i></a></td>
                         </tr>
                     </table>
                 </div>
@@ -115,7 +131,7 @@
                     Please specify the general area of the message and optionally the more specific vicinity.
                     <a href="/admin.html#/admin/areas" target="_blank" ng-if="hasRole('admin')">Edit areas</a>
                 </p>
-                <div class="col-sm-5" style="padding-left: 0">
+                <div class="col-sm-4" style="padding-left: 0">
                     <input type="text" class="form-control input-sm" id="editorArea" ng-model="msg.areaId"/>
                 </div>
                 <div class="col-sm-2">
@@ -123,7 +139,7 @@
                 </div>
             </div>
             <div class="row" style="margin-top: 15px;">
-                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                <div class="col-sm-4" ng-repeat="desc in msg.descs">
                     <input class="form-control input-sm" placeholder="Vicinity" type="text" ng-model="desc.vicinity" lang-flag="desc.lang">
                 </div>
             </div>
@@ -145,12 +161,12 @@
                 <p>Please pick the categories of the message and optionally add other categories.
                     <a href="/admin.html#/admin/categories" target="_blank" ng-if="hasRole('admin')">Edit categories</a>
                 </p>
-                <div class="col-sm-5" style="padding-left: 0">
+                <div class="col-sm-4" style="padding-left: 0">
                     <input type="text" class="form-control input-sm" id="editorCategories" ng-model="msg.categoryIds" />
                 </div>
             </div>
             <div class="row" style="margin-top: 15px;">
-                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                <div class="col-sm-4" ng-repeat="desc in msg.descs">
                     <input class="form-control input-sm" placeholder="Other Categories" type="text" ng-model="desc.otherCategories" lang-flag="desc.lang">
                 </div>
             </div>
@@ -160,7 +176,7 @@
             <div id="title" class="row editor-section">
                 <h4>Title</h4>
                 <p>Please provide the title of the message. The title is e.g. used as ENC text.</p>
-                <div class="col-sm-5" style="padding-left: 0" ng-repeat="desc in msg.descs">
+                <div class="col-sm-4" style="padding-left: 0" ng-repeat="desc in msg.descs">
                     <input class="form-control input-sm" placeholder="Title" type="text"
                            ng-model="desc.title"  lang-flag="desc.lang" />
                 </div>
@@ -220,17 +236,17 @@
                 <p>Optionally fill out Note, Publication, Source and Original Information below.</p>
             </div>
             <div class="row" style="margin-top: 15px;">
-                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                <div class="col-sm-4" ng-repeat="desc in msg.descs">
                     <input class="form-control input-sm" placeholder="Note" type="text" ng-model="desc.note" lang-flag="desc.lang">
                 </div>
             </div>
             <div class="row" style="margin-top: 15px;">
-                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                <div class="col-sm-4" ng-repeat="desc in msg.descs">
                     <input class="form-control input-sm" placeholder="Publiction" type="text" ng-model="desc.publication" lang-flag="desc.lang">
                 </div>
             </div>
             <div class="row" style="margin-top: 15px;">
-                <div class="col-sm-5" ng-repeat="desc in msg.descs">
+                <div class="col-sm-4" ng-repeat="desc in msg.descs">
                     <input class="form-control input-sm" placeholder="Source" type="text" ng-model="desc.source" lang-flag="desc.lang">
                 </div>
             </div>
