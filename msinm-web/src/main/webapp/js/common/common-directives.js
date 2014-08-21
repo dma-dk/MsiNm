@@ -696,6 +696,8 @@ angular.module('msinm.common')
                         } catch (e) {
                             elm.datepicker({date: null}).datepicker('update');
                         }
+                    } else {
+                        elm.datepicker({date: null}).datepicker('update').val('');
                     }
                 });
             }

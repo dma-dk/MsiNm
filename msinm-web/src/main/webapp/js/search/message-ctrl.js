@@ -32,7 +32,7 @@ angular.module('msinm.search')
 
             // Check for changes in the locations
             $scope.$watch(
-                function() { return $scope.msg.locations; },
+                function() { return $scope.msg; },
                 function() { $scope.editForm.$setDirty(); },
                 true);
 
