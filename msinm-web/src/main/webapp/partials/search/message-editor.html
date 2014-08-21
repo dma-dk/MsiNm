@@ -20,14 +20,17 @@
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 editor-main">
 
-            <form method="post" name="editForm">
+          <form method="post" name="editForm">
+
+            <h1 class="page-header" ng-if="messageId">Edit Message {{msg.seriesIdentifier.fullId}}</h1>
+            <h1 class="page-header" ng-if="!messageId">Create Draft Message</h1>
+
             <p>
                 Pristine {{editForm.$pristine}} &nbsp; - &nbsp;
                 Dirty {{editForm.$dirty}} &nbsp; - &nbsp;
                 Invalid {{editForm.$invalid}} &nbsp; - &nbsp;
                 Saved {{messageSaved}}
             </p>
-
 
             <!-- Type -->
             <div id="type" class="row editor-section">
@@ -107,10 +110,10 @@
                 <p>Please specify the time interval of the message, and optionally a verbal time description.</p>
                 <div class="row">
                     <div class="col-sm-4">
-                        <input class="form-control input-sm" placeholder="Valid From" type="text" value="" id="validFrom" ng-model="msg.validFromTxt">
+                        <input class="form-control input-sm" placeholder="Valid From" type="text" value="" id="validFrom" msi-date-picker="msg.validFrom">
                     </div>
                     <div class="col-sm-4">
-                        <input class="form-control input-sm" placeholder="Valid To" type="text" value="" id="validTo" ng-model="msg.validToTxt">
+                        <input class="form-control input-sm" placeholder="Valid To" type="text" value="" id="validTo" msi-date-picker="msg.validTo">
                     </div>
                 </div>
             </div>
@@ -271,7 +274,7 @@
             </div>
 
 
-            </form>
+          </form>
         </div>
     </div>
 
@@ -297,17 +300,6 @@
 </script>
 
 <script>
-    $(document).ready(function() {
-        var validFrom = $("#validFrom")
-                .datepicker({ format: "dd-mm-yyyy" })
-                .on('changeDate', function() { validFrom.hide(); })
-                .data('datepicker');
-        var validTo = $("#validTo")
-                .datepicker({ format: "dd-mm-yyyy" })
-                .on('changeDate', function() { validTo.hide(); })
-                .data('datepicker');
-    });
-
     initAreaField("#editorArea", false);
     initCategoryField("#editorCategories", true);
     initChartField("#editorCharts", true);

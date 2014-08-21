@@ -631,23 +631,75 @@ angular.module('msinm.common')
             }
 
         };
+    }])
+
+    /**
+     * Wraps the bootstrap-datepicker plugin
+     */
+    .directive('msiDatePicker', ['$parse', function ($parse) {
+        'use strict';
+
+        return {
+            restrict: 'A',
+            scope: {
+                msiDatePicker: '=',
+                format: '@'
+            },
+            link: function (scope, elm, attrs, ctrl) {
+
+                var format = "dd-mm-yyyy";
+                if (attrs.format) {
+                    format = attrs.format;
+                }
+
+                // Init the picker and detect picker selection
+                var picker = elm.datepicker({ format: format })
+                    .on('changeDate', function(ev) {
+                        picker.hide();
+                        scope.$apply(function (scope) {
+                            scope.msiDatePicker = ev.date.getTime();
+                        });
+                    })
+                    .data('datepicker');
+
+                // Detect changes in the input field
+                elm.bind('change', function(event) {
+                    if (!elm.val()) {
+                        scope.$apply(function (scope) {
+                            scope.msiDatePicker = undefined;
+                        });
+                    } else {
+                        scope.$apply(function (scope) {
+                            elm.datepicker('setValue', elm.val()).datepicker('update');
+                            scope.msiDatePicker = picker.date.getTime();
+                        });
+                    }
+                });
+
+                // Watch changes in the model value
+                scope.$watch(function () {
+                    return scope.msiDatePicker
+                }, function (val) {
+                    if (val) {
+                        try {
+                            var date = new Date(val);
+                            /*
+                            // Calling format() will throw an exception if it cannot be formatted
+                            date.formatDate(format);
+
+                            // Check that the year range is sensible
+                            if (date.getFullYear() < 1900 || date.getFullYear() > 2100) {
+                                throw new Error("Invalid date format.");
+                            }
+                            */
+                            elm.datepicker('setValue', date).datepicker('update');
+                        } catch (e) {
+                            elm.datepicker({date: null}).datepicker('update');
+                        }
+                    }
+                });
+            }
+        }
     }]);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 

@@ -290,6 +290,11 @@
     padding: 0 20px 20px 20px;
 }
 
+.editor-main .page-header {
+    margin-top: 20px;
+    text-align: left;
+}
+
 .editor-section {
     margin: 20px 0 0 0;
 }

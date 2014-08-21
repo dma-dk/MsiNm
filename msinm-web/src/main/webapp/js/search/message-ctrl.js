@@ -6,8 +6,8 @@ angular.module('msinm.search')
     /**
      * Controller that handles editing messages
      */
-    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', 'growlNotifications', 'MessageService', 'LangService',
-        function ($scope, $rootScope, $routeParams, $modal, $timeout, growlNotifications, MessageService, LangService) {
+    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', '$window', 'growlNotifications', 'MessageService', 'LangService',
+        function ($scope, $rootScope, $routeParams, $modal, $timeout, $window, growlNotifications, MessageService, LangService) {
             'use strict';
 
             $scope.dateFormat = "dd-mm-yyyy";
@@ -19,7 +19,7 @@ angular.module('msinm.search')
 
             $scope.messageId = ($routeParams.messageId && $routeParams.messageId != 'new') ? $routeParams.messageId : undefined;
 
-            $scope.msg = { seriesIdentifier: { mainType: 'MSI' }, validFromTxt: '', validToTxt: '', descs: [], locations: [], areadId: undefined };
+            $scope.msg = { seriesIdentifier: { mainType: 'MSI' }, descs: [], locations: [], areadId: undefined };
 
             // The locationsLoaded is used to trigger the location editor
             // and get it to initialize the locaiton list
@@ -166,15 +166,17 @@ angular.module('msinm.search')
 
             // Ensure the message structure is valid and initialized
             $scope.initMessage = function () {
-                if (!$scope.msg.seriesIdentifier) {
-                    $scope.msg.seriesIdentifier = { mainType: 'MSI' };
-                    $scope.msg.type = 'SUBAREA_WARNING';
+                $window.scrollTo(0,0);
+
+                var msg = $scope.msg;
+
+                if (!msg.seriesIdentifier) {
+                    msg.seriesIdentifier = { mainType: 'MSI' };
+                    msg.type = 'SUBAREA_WARNING';
                 }
-                $scope.msg.validFromTxt = '';
-                $scope.msg.validToTxt = '';
 
                 LangService.checkDescs(
-                    $scope.msg,
+                    msg,
                     function(desc) {
                         desc.title = '';
                         desc.description = '';
@@ -183,22 +185,22 @@ angular.module('msinm.search')
                     undefined,
                     $scope.languages);
 
-                if ($scope.msg.area) {
-                    $scope.msg.areaId = $scope.msg.area.id;
-                    $("#editorArea").select2("data", { id: $scope.msg.area.id, text: $scope.msg.area.descs[0].name, area: $scope.msg.area });
+                if (msg.area) {
+                    msg.areaId = msg.area.id;
+                    $("#editorArea").select2("data", { id: msg.area.id, text: msg.area.descs[0].name, area: msg.area });
                 } else {
                     $("#editorArea").select2("data", null);
                 }
 
-                if ($scope.msg.categories && $scope.msg.categories.length > 0) {
+                if (msg.categories && msg.categories.length > 0) {
                     var data = [];
-                    $scope.msg.categoryIds = '';
-                    for (var i in $scope.msg.categories) {
-                        var cat = $scope.msg.categories[i];
-                        if ($scope.msg.categoryIds == '') {
-                            $scope.msg.categoryIds += ',';
+                    msg.categoryIds = '';
+                    for (var i in msg.categories) {
+                        var cat = msg.categories[i];
+                        if (msg.categoryIds == '') {
+                            msg.categoryIds += ',';
                         }
-                        $scope.msg.categoryIds += cat.id;
+                        msg.categoryIds += cat.id;
                         data.push({id: cat.id, text: cat.descs[0].name, category: cat });
                     }
                     $("#editorCategories").select2("data", data);
@@ -206,15 +208,15 @@ angular.module('msinm.search')
                     $("#editorCategories").select2("data", null);
                 }
 
-                if ($scope.msg.charts && $scope.msg.charts.length > 0) {
+                if (msg.charts && msg.charts.length > 0) {
                     var data = [];
-                    $scope.msg.chartIds = '';
-                    for (var i in $scope.msg.charts) {
-                        var chart = $scope.msg.charts[i];
-                        if ($scope.msg.chartIds == '') {
-                            $scope.msg.chartIds += ',';
+                    msg.chartIds = '';
+                    for (var i in msg.charts) {
+                        var chart = msg.charts[i];
+                        if (msg.chartIds == '') {
+                            msg.chartIds += ',';
                         }
-                        $scope.msg.chartIds += chart.id;
+                        msg.chartIds += chart.id;
                         data.push({id: chart.id, text: chart.fullChartNumber, chart: chart });
                     }
                     $("#editorCharts").select2("data", data);
@@ -266,6 +268,8 @@ angular.module('msinm.search')
 
             // Save the current message
             $scope.saveMessage = function () {
+
+                // Prevent double-submissions
                 $scope.messageSaved = true;
 
                 // Update area
