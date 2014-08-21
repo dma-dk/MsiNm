@@ -23,6 +23,7 @@ import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.common.time.TimeException;
 import dk.dma.msinm.common.time.TimeModel;
 import dk.dma.msinm.common.time.TimeParser;
+import dk.dma.msinm.common.time.TimeProcessor;
 import dk.dma.msinm.common.time.TimeTranslator;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
@@ -506,7 +507,11 @@ public class MessageRestService {
                     }
                 }
 
-                // TODO: Compute validFrom and validTo...
+                // Compute validFrom and validTo...
+                TimeModel model = TimeParser.get().parseModel(timeEn);
+                Date[] dates = TimeProcessor.getDateInterval(model);
+                timeVo.setValidFrom(dates[0]);
+                timeVo.setValidTo(dates[1]);
             } catch (Exception e) {
                 log.warn("Failed translating time " + timeVo + ": " + e);
             }

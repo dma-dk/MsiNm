@@ -20,6 +20,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.annotation.*;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -68,6 +70,24 @@ public class TimeModel {
         @XmlElement(name = "from-to")
         DateType fromToDate;
 
+        /**
+         * Returns the date fields of this entity
+         * @return the date fields of this entity
+         */
+        public List<DateType> toDateList() {
+            List<DateType> result = new ArrayList<>();
+            if (fromDate != null) {
+                result.add(fromDate);
+            }
+            if (toDate != null) {
+                result.add(toDate);
+            }
+            if (fromToDate != null) {
+                result.add(fromToDate);
+            }
+            return result;
+        }
+
         public DateType getFromDate() {
             return fromDate;
         }
@@ -107,6 +127,15 @@ public class TimeModel {
 
         @XmlElement(name="hour-range")
         HourRange hourRange;
+
+        public DateType() {
+        }
+
+        public DateType(DateType other) {
+            this.date = (other.date == null) ? null : new Date(other.date);
+            this.hour = other.hour;
+            this.hourRange = other.hourRange;
+        }
 
         public Date getDate() {
             return date;
@@ -159,6 +188,82 @@ public class TimeModel {
 
         @XmlAttribute
         Boolean lastdate;
+
+        public Date() {
+        }
+
+        public Date(Date other) {
+            this.day = other.day;
+            this.month = other.month;
+            this.year = other.year;
+            this.week = other.week;
+            this.season = other.season;
+            this.today = other.today;
+            this.lastdate = other.lastdate;
+        }
+
+        /**
+         * Processes this date entity by resolving attributes such as week and season.
+         * @param periodStart whether this entity is the start or end of a week or season entity
+         */
+        public void processDate(boolean periodStart) {
+            Calendar cal = Calendar.getInstance();
+            if (year == null) {
+                year = cal.get(Calendar.YEAR);
+            }
+            if (week != null) {
+                cal.set(Calendar.WEEK_OF_YEAR, week);
+                cal.set(Calendar.DAY_OF_WEEK, (periodStart) ? Calendar.MONDAY : Calendar.SUNDAY);
+                week = null;
+                month = TimeConstants.MONTHS_EN.split(",")[cal.get(Calendar.MONTH)].toLowerCase();
+                day = cal.get(Calendar.DAY_OF_MONTH);
+            }
+            if (season != null) {
+                if ("Spring".equalsIgnoreCase(season)) {
+                    cal.set(Calendar.MONTH, periodStart ? 2 : 4);
+                } else if ("Summer".equalsIgnoreCase(season)) {
+                    cal.set(Calendar.MONTH, periodStart ? 5 : 7);
+                } else if ("Autumn".equalsIgnoreCase(season)) {
+                    cal.set(Calendar.MONTH, periodStart ? 8 : 10);
+                } else if ("Winter".equalsIgnoreCase(season)) {
+                    cal.set(Calendar.MONTH, periodStart ? 11 : 1);
+                }
+                cal.set(Calendar.DAY_OF_MONTH, periodStart ? 1 : cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+                month = TimeConstants.MONTHS_EN.split(",")[cal.get(Calendar.MONTH)].toLowerCase();
+                day = cal.get(Calendar.DAY_OF_MONTH);
+                season = null;
+            }
+            if (month != null) {
+                cal.set(Calendar.MONTH, TimeConstants.getMonthIndex(month));
+            }
+            if (day != null && day == 99) {
+                cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+                day = cal.get(Calendar.DAY_OF_MONTH);
+            }
+            if (day == null) {
+                cal.set(Calendar.DAY_OF_MONTH, periodStart ? 1 : cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+                day = cal.get(Calendar.DAY_OF_MONTH);
+            }
+        }
+
+        /**
+         * Converts this entity to a date. Before calling this method, the
+         * TimeModel should have been processed with the TimeProcessor
+         * @return the date
+         */
+        public Calendar toDate() {
+            Calendar cal = Calendar.getInstance();
+            if (year != null) {
+                cal.set(Calendar.YEAR, year);
+            }
+            if (month != null) {
+                cal.set(Calendar.MONTH, TimeConstants.getMonthIndex(month));
+            }
+            if (day != null) {
+                cal.set(Calendar.DAY_OF_MONTH, day);
+            }
+            return cal;
+        }
 
         public Integer getDay() {
             return day;

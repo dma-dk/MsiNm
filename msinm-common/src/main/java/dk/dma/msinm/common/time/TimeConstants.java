@@ -36,5 +36,13 @@ public interface TimeConstants {
         return value;
     }
 
-
+    public static int getMonthIndex(String month) {
+        String[] months = MONTHS_EN.split(",");
+        for (int x = 0; x < months.length; x++) {
+            if (months[x].equalsIgnoreCase(month)) {
+                return x;
+            }
+        }
+        return -1;
+    }
 }

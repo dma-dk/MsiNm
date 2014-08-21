@@ -99,12 +99,12 @@ angular.module('msinm.search')
                     time,
                     function (data) {
                         var dirty = false;
-                        if ($scope.validFrom != data.validFrom) {
-                            $scope.validFrom = data.validFrom;
+                        if ($scope.msg.validFrom != data.validFrom) {
+                            $scope.msg.validFrom = data.validFrom;
                             dirty = true;
                         }
-                        if ($scope.validTo != data.validTo) {
-                            $scope.validTo = data.validTo;
+                        if ($scope.msg.validTo != data.validTo) {
+                            $scope.msg.validTo = data.validTo;
                             dirty = true;
                         }
                         for (var i in data.times) {
