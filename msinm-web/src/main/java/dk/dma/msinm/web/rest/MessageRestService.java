@@ -20,7 +20,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.templates.PdfService;
-import dk.dma.msinm.common.time.TimeException;
 import dk.dma.msinm.common.time.TimeModel;
 import dk.dma.msinm.common.time.TimeParser;
 import dk.dma.msinm.common.time.TimeProcessor;
@@ -50,6 +49,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
@@ -108,7 +108,7 @@ public class MessageRestService {
     @Path("/new-message-template")
     @Produces("application/json;charset=UTF-8")
     @NoCache
-    public MessageVo newTemplateReport() {
+    public MessageVo newTemplateMessage() {
         return messageService.newTemplateMessage();
     }
 
@@ -169,128 +169,43 @@ public class MessageRestService {
     }
 
     /**
-     * Returns a PDF for the search result
+     * Saves a new message
+     * @param message the message to save
+     * @return the persisted message
      */
-    @GET
-    @Path("/message-pdf/{messageId}")
-    @Produces("application/pdf")
+    @POST
+    @Path("/message")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @GZIP
     @NoCache
-    public Response generatePdf(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
-        // Strip any ".pdf" suffix
-        if (messageId.toLowerCase().endsWith(".pdf")) {
-            messageId = messageId.substring(0, messageId.length() - 4);
-        }
-
-        // Get the message
-        MessageVo message = getMessage(messageId, lang);
-
-        String template = "message-details.ftl";
-        String bundle = "MessageList";
-        Map<String, Object> data = new HashMap<>();
-        data.put("msg", message);
-
-        try {
-            StreamingOutput stream = os -> {
-                try {
-                    pdfService.generatePdf(data, template, lang, bundle, os);
-                } catch (Exception e) {
-                    throw new WebApplicationException("Error generating PDF", e);
-                }
-            };
-
-            return Response
-                    .ok(stream)
-                    .type("application/pdf")
-                    .header("Content-Disposition", "attachment; filename=\"" + message.getSeriesIdentifier().getFullId() + ".pdf\"")
-                    .build();
-
-        } catch (Exception e) {
-            log.error("error generating PDF from template " + template, e);
-            throw e;
-        }
+    @RolesAllowed({ "editor" })
+    public MessageVo createMessage(MessageVo message) {
+        log.info("Creating message " + message);
+        return message;
     }
 
     /**
-     * Returns an iCalendar ICS file for the message
+     * Updates a message
+     * @param message the message to update
+     * @return the updated message
      */
-    @GET
-    @Path("/message-cal/{messageId}")
-    @Produces(TYPE_ICALENDAR)
+    @PUT
+    @Path("/message")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @GZIP
     @NoCache
-    public Response generateCalendar(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
-        // Strip any ".ics" suffix
-        if (messageId.toLowerCase().endsWith(".ics")) {
-            messageId = messageId.substring(0, messageId.length() - 4);
-        }
-
-        // Get the message
-        MessageVo message = getMessage(messageId, lang);
-
-        // Generate the calendar data
-        try {
-            StreamingOutput stream = os -> {
-                try {
-                    List<MessageVo> messages = new ArrayList<>();
-                    messages.add(message);
-                    calendarService.generateCalendarData(messages, app.getLanguage(lang), os);
-                } catch (Exception e) {
-                    throw new WebApplicationException("Error generating calendar data", e);
-                }
-            };
-
-            return Response
-                    .ok(stream)
-                    .type(TYPE_ICALENDAR)
-                    .header("Content-Disposition", "attachment; filename=\"" + message.getSeriesIdentifier().getFullId() + ".ics\"")
-                    .build();
-
-        } catch (Exception e) {
-            log.error("error generating calendar for message " + messageId, e);
-            throw e;
-        }
+    @RolesAllowed({ "editor" })
+    public MessageVo updateMessage(MessageVo message) {
+        log.info("Updating message " + message);
+        return message;
     }
 
-    /**
-     * Returns an iCalendar ICS file for the message
-     */
-    @GET
-    @Path("/active-msinm.ics")
-    @Produces(TYPE_ICALENDAR)
-    @NoCache
-    public Response activeMsiNmCalendar(final @QueryParam("lang") String lang) {
 
-        MessageSearchParams params = new MessageSearchParams();
-        params.setLanguage(app.getLanguage(lang));
-        params.setStartIndex(0);
-        params.setMaxHits(1000);
-        params.setSortBy(MessageSearchParams.SortBy.DATE);
-        params.setSortOrder(MessageSearchParams.SortOrder.DESC);
-        params.setStatus(Status.PUBLISHED);
-
-        MessageSearchResult result = messageSearchService.search(params);
-
-        // Generate the calendar data
-        try {
-            StreamingOutput stream = os -> {
-                try {
-                    calendarService.generateCalendarData(result.getMessages(), app.getLanguage(lang), os);
-                } catch (Exception e) {
-                    throw new WebApplicationException("Error generating calendar data", e);
-                }
-            };
-
-            return Response
-                    .ok(stream)
-                    .type(TYPE_ICALENDAR)
-                    .header("Content-Disposition", "attachment; filename=\"active_msi_nm.ics\"")
-                    .build();
-
-        } catch (Exception e) {
-            log.error("error generating calendar for active MSI-NM messages", e);
-            throw e;
-        }
-    }
-
+    /***************************
+     * Search functionality
+     ***************************/
 
     /**
      * Parses the request parameters and collects them in a MessageSearchParams entity
@@ -398,6 +313,10 @@ public class MessageRestService {
         return messageSearchService.search(params);
     }
 
+    /***************************
+     * PDF functionality
+     ***************************/
+
     /**
      * Returns a PDF for the search result
      */
@@ -448,6 +367,134 @@ public class MessageRestService {
     }
 
     /**
+     * Returns a PDF for the search result
+     */
+    @GET
+    @Path("/message-pdf/{messageId}")
+    @Produces("application/pdf")
+    @NoCache
+    public Response generatePdf(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
+        // Strip any ".pdf" suffix
+        if (messageId.toLowerCase().endsWith(".pdf")) {
+            messageId = messageId.substring(0, messageId.length() - 4);
+        }
+
+        // Get the message
+        MessageVo message = getMessage(messageId, lang);
+
+        String template = "message-details.ftl";
+        String bundle = "MessageList";
+        Map<String, Object> data = new HashMap<>();
+        data.put("msg", message);
+
+        try {
+            StreamingOutput stream = os -> {
+                try {
+                    pdfService.generatePdf(data, template, lang, bundle, os);
+                } catch (Exception e) {
+                    throw new WebApplicationException("Error generating PDF", e);
+                }
+            };
+
+            return Response
+                    .ok(stream)
+                    .type("application/pdf")
+                    .header("Content-Disposition", "attachment; filename=\"" + message.getSeriesIdentifier().getFullId() + ".pdf\"")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("error generating PDF from template " + template, e);
+            throw e;
+        }
+    }
+
+    /***************************
+     * Calendar functionality
+     ***************************/
+
+    /**
+     * Returns an iCalendar ICS file for the message
+     */
+    @GET
+    @Path("/message-cal/{messageId}")
+    @Produces(TYPE_ICALENDAR)
+    @NoCache
+    public Response generateCalendar(@PathParam("messageId") String messageId, @QueryParam("lang") String lang) {
+        // Strip any ".ics" suffix
+        if (messageId.toLowerCase().endsWith(".ics")) {
+            messageId = messageId.substring(0, messageId.length() - 4);
+        }
+
+        // Get the message
+        MessageVo message = getMessage(messageId, lang);
+
+        // Generate the calendar data
+        try {
+            StreamingOutput stream = os -> {
+                try {
+                    List<MessageVo> messages = new ArrayList<>();
+                    messages.add(message);
+                    calendarService.generateCalendarData(messages, app.getLanguage(lang), os);
+                } catch (Exception e) {
+                    throw new WebApplicationException("Error generating calendar data", e);
+                }
+            };
+
+            return Response
+                    .ok(stream)
+                    .type(TYPE_ICALENDAR)
+                    .header("Content-Disposition", "attachment; filename=\"" + message.getSeriesIdentifier().getFullId() + ".ics\"")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("error generating calendar for message " + messageId, e);
+            throw e;
+        }
+    }
+
+    /**
+     * Returns an iCalendar ICS file for the message
+     */
+    @GET
+    @Path("/active-msinm.ics")
+    @Produces(TYPE_ICALENDAR)
+    @NoCache
+    public Response activeMsiNmCalendar(final @QueryParam("lang") String lang) {
+
+        MessageSearchParams params = new MessageSearchParams();
+        params.setLanguage(app.getLanguage(lang));
+        params.setStartIndex(0);
+        params.setMaxHits(1000);
+        params.setSortBy(MessageSearchParams.SortBy.DATE);
+        params.setSortOrder(MessageSearchParams.SortOrder.DESC);
+        params.setStatus(Status.PUBLISHED);
+
+        MessageSearchResult result = messageSearchService.search(params);
+
+        // Generate the calendar data
+        try {
+            StreamingOutput stream = os -> {
+                try {
+                    calendarService.generateCalendarData(result.getMessages(), app.getLanguage(lang), os);
+                } catch (Exception e) {
+                    throw new WebApplicationException("Error generating calendar data", e);
+                }
+            };
+
+            return Response
+                    .ok(stream)
+                    .type(TYPE_ICALENDAR)
+                    .header("Content-Disposition", "attachment; filename=\"active_msi_nm.ics\"")
+                    .build();
+
+        } catch (Exception e) {
+            log.error("error generating calendar for active MSI-NM messages", e);
+            throw e;
+        }
+    }
+
+
+    /**
      * Re-creates the message search index.
      * Requires the "admin" role
      */
@@ -463,27 +510,15 @@ public class MessageRestService {
         }
     }
 
+    /***************************
+     * Time parsing functionality
+     ***************************/
 
-    @GET
-    @Path("/parse-time")
-    @Produces("application/json;charset=UTF-8")
-    @GZIP
-    @NoCache
-    public TimeModel parseTime(
-            @QueryParam("time") String time,
-            @QueryParam("lang")  @DefaultValue("en") String lang) {
-        try {
-            TimeParser parser = TimeParser.get();
-
-            return parser.parseModel(time, lang);
-        } catch (TimeException e) {
-            log.warn("Failed parsing time " + time + ": " + e);
-        }
-
-        // No result
-        return null;
-    }
-
+    /**
+     * Translates the time description and determines validFrom and validTo from it
+     * @param timeVo the time to translate
+     * @return the translated time
+     */
     @POST
     @Path("/translate-time")
     @Consumes("application/json")
@@ -520,6 +555,10 @@ public class MessageRestService {
         // No result
         return timeVo;
     }
+
+    /***************************
+     * Helper VO classes
+     ***************************/
 
     /**
      * Helper class used for translating time descriptions

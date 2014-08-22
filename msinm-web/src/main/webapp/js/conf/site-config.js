@@ -11,6 +11,7 @@ angular.module('msinm.conf')
         $rootScope.OAUTH_LOGINS = [];
 
         $rootScope.modelLanguages = [ 'en' ];
+        $rootScope.editorLanguages = $rootScope.modelLanguages;
         $rootScope.siteLanguages = [ 'en' ];
         $rootScope.language =
             ($window.localStorage.lang && $.inArray($window.localStorage.lang, $rootScope.siteLanguages) > 0)

@@ -12,6 +12,7 @@ angular.module('msinm.conf')
 
         // Set current language
         $rootScope.modelLanguages = [ 'en' ];
+        $rootScope.editorLanguages = $rootScope.modelLanguages;
         $rootScope.siteLanguages = [ 'en' ];
         $rootScope.language =
             ($window.localStorage.lang && $.inArray($window.localStorage.lang, $rootScope.siteLanguages) > 0)

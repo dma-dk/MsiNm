@@ -17,6 +17,15 @@
                 <li><a href spy="misc">Miscellaneous</a></li>
                 <li><a href spy="save">Save Message</a></li>
             </ul>
+
+            <p>
+                DEBUG:<br/>
+                Pristine {{editForm.$pristine}} <br/>
+                Dirty {{editForm.$dirty}} <br/>
+                Invalid {{editForm.$invalid}} <br/>
+                Saved {{messageSaved}}
+            </p>
+
         </div>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 editor-main">
 
@@ -25,12 +34,14 @@
             <h1 class="page-header" ng-if="messageId">Edit Message {{msg.seriesIdentifier.fullId}}</h1>
             <h1 class="page-header" ng-if="!messageId">Create Draft Message</h1>
 
-            <p>
-                Pristine {{editForm.$pristine}} &nbsp; - &nbsp;
-                Dirty {{editForm.$dirty}} &nbsp; - &nbsp;
-                Invalid {{editForm.$invalid}} &nbsp; - &nbsp;
-                Saved {{messageSaved}}
-            </p>
+            <div class="row" ng-if="editorLanguages.length > 1">
+                <div class="col-sm-12 btn-group">
+                    <button type="button" class="btn btn-xs btn-default" ng-repeat="(lang, sel) in langs"
+                            ng-model="langs[lang]" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
+                        <img ng-src="/img/flags/{{lang}}.png" height="12" title="{{lang}}"/>
+                    </button>
+                </div>
+            </div>
 
             <!-- Type -->
             <div id="type" class="row editor-section">
@@ -52,8 +63,8 @@
                            ng-model="msg.seriesIdentifier.year" ng-disabled="messageId"/>
                 </div>
             </div>
-            <div class="row">
-                <div class="col-sm-12" style="margin-top: 15px">
+            <div class="row" style="margin-top: 15px">
+                <div class="col-sm-12">
                     <div class="btn-group" ng-if="msg.seriesIdentifier.mainType == 'NM'" ng-required="msg.seriesIdentifier.mainType == 'NM'">
                         <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'PERMANENT_NOTICE'">Perm.</label>
                         <label class="btn btn-default btn-sm" ng-model="msg.type" btn-radio="'TEMPORARY_NOTICE'">Temp.</label>
@@ -67,7 +78,6 @@
                     </div>
                 </div>
             </div>
-
 
             <!-- References -->
             <div id="references" class="row editor-section">

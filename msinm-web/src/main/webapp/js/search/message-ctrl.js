@@ -29,6 +29,31 @@ angular.module('msinm.search')
             // disable the button, to avoid double-clicks
             $scope.messageSaved = false;
 
+            // Compute the languages to use
+            $scope.languages = angular.copy($rootScope.modelLanguages);
+            $scope.langs = {};
+            for (var l in $rootScope.editorLanguages) {
+                var lang = $rootScope.editorLanguages[l];
+                $scope.langs[lang] = $.inArray(lang, $scope.languages) > -1;
+            }
+
+            // Updates the list of languages
+            $scope.$watch(
+                function() { return $scope.langs },
+                function () {
+                    var langsBefore = JSON.stringify($scope.languages);
+                    for (var l in $scope.langs) {
+                        if ($scope.langs[l] && $.inArray(l, $scope.languages) == -1) {
+                            $scope.languages.push(l);
+                        } else if (!$scope.langs[l] && $.inArray(l, $scope.languages) > -1) {
+                            $scope.languages.splice($.inArray(l, $scope.languages), 1);
+                        }
+                    }
+                    if (langsBefore != JSON.stringify($scope.languages)) {
+                        LangService.checkDescs($scope.msg, $scope.initDescField, undefined, $scope.languages);
+                    }
+                }, true);
+
 
             // Check for changes in the locations
             $scope.$watch(
@@ -161,7 +186,15 @@ angular.module('msinm.search')
                     return id;
                 }
                 return undefined;
-            }
+            };
+
+
+            // Used to ensure that description entities have various field
+            $scope.initDescField = function(desc) {
+                desc.title = '';
+                desc.description = '';
+                // TODO
+            };
 
 
             // Ensure the message structure is valid and initialized
@@ -175,15 +208,7 @@ angular.module('msinm.search')
                     msg.type = 'SUBAREA_WARNING';
                 }
 
-                LangService.checkDescs(
-                    msg,
-                    function(desc) {
-                        desc.title = '';
-                        desc.description = '';
-                        // TODO...
-                    },
-                    undefined,
-                    $scope.languages);
+                LangService.checkDescs(msg, $scope.initDescField, undefined, $scope.languages);
 
                 if (msg.area) {
                     msg.areaId = msg.area.id;
