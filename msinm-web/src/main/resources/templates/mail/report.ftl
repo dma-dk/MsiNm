@@ -69,6 +69,7 @@
 </#macro>
 
 <#assign formatPos = "dk.dma.msinm.templates.LatLonDirective"?new()>
+<#assign txtToHtml = "dk.dma.msinm.common.templates.TextToHtmlDirective"?new()>
 
 <table>
     <tr>
@@ -98,7 +99,9 @@
                 <#if report.contact?has_content>
                     <tr>
                         <td class="field-name">Contact</td>
-                        <td class="field-value">${report.contact}</td>
+                        <td class="field-value">
+                            <@txtToHtml text=report.contact />
+                        </td>
                     </tr>
                 </#if>
     
@@ -136,7 +139,7 @@
                     <tr>
                         <td class="field-name">Details</td>
                         <td class="field-value">
-                            ${report.description}
+                            <@txtToHtml text=report.description />
                         </td>
                     </tr>
                 </#if>

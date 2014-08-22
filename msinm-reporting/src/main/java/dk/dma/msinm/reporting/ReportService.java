@@ -125,16 +125,7 @@ public class ReportService extends BaseService {
         // Move the temporary repo folder to the final destination
         String repoPath = repositoryService.getRepoPath(getReportRepoFolder(report));
         log.info("Moving repo from " + reportVo.getRepoPath() + " to " + repoPath);
-        boolean repoMoved = repositoryService.moveRepoFolder(reportVo.getRepoPath(), repoPath);
-
-        // Update the description with the new path
-        if (repoMoved &&
-                StringUtils.isNotBlank(report.getDescription()) &&
-                report.getDescription().contains(reportVo.getRepoPath())) {
-            report.setDescription(report.getDescription().replaceAll(reportVo.getRepoPath(), repoPath));
-            // Save the updated description
-            report = saveEntity(report);
-        }
+        repositoryService.moveRepoFolder(reportVo.getRepoPath(), repoPath);
 
         em.flush();
 

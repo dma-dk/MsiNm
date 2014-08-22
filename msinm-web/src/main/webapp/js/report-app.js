@@ -11,7 +11,7 @@ angular.module('msinm.map', []);
 
 
 var app = angular.module('msinm.report', [
-    'ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'ui.tinymce', 'angularFileUpload', 'pascalprecht.translate', 'growlNotifications',
+    'ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'angularFileUpload', 'pascalprecht.translate', 'growlNotifications',
     'msinm.conf', 'msinm.user', 'msinm.common', 'msinm.map', 'msinm.report'])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';

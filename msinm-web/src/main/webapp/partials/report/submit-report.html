@@ -29,7 +29,7 @@
                 Please describe the observation.
             </div>
             <div class="col-sm-12 col-md-9">
-                <textarea class="report-description" id="tinymce" ui-tinymce="tinymceOptions" ng-model="report.description"></textarea>
+                <textarea class="report-description" ng-model="report.description"></textarea>
             </div>
         </div>
 
@@ -80,23 +80,6 @@
         </div>
 
     </form>
-
-
-    <script type="text/ng-template" id="myModalContent.html">
-        <div class="modal-header">
-            <h3 class="modal-title">Select an image</h3>
-        </div>
-        <div class="modal-body">
-            <div class="report-attachments">
-                <span class="report-attachment" ng-repeat="file in files" ng-click="ok(file)">
-                    <msi-attachment file="file" size="64"></msi-attachment>
-                </span>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-warning" ng-click="cancel()">Cancel</button>
-        </div>
-    </script>
 
 </div>
 

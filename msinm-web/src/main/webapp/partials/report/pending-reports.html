@@ -38,7 +38,7 @@
             <!-- Contact line -->
             <div class="row" ng-if="report.contact">
                 <div class="col-sm-2 table-item-field">Contact</div>
-                <div class="col-sm-10 table-item-value">{{report.contact}}</div>
+                <div class="col-sm-10 table-item-value" ng-bind-html="report.contact | plain2html"></div>
             </div>
 
             <!-- Area line -->
@@ -63,7 +63,7 @@
             <!-- Description line -->
             <div class="row" ng-if="report.description">
                 <div class="col-sm-2 table-item-field">Details</div>
-                <div class="col-sm-10 table-item-value" ng-bind-html="report.description"></div>
+                <div class="col-sm-10 table-item-value" ng-bind-html="report.description | plain2html"></div>
             </div>
 
             <!-- Attachments -->
