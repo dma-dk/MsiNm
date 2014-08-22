@@ -15,6 +15,9 @@
  */
 package dk.dma.msinm.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
@@ -24,6 +27,8 @@ import java.io.Serializable;
  */
 @Embeddable
 @Table(uniqueConstraints = @UniqueConstraint(columnNames = { "mainType", "authority", "number", "year"}))
+@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class SeriesIdentifier implements Serializable {
 
     private static final long serialVersionUID = 1L;

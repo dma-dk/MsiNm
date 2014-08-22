@@ -23,17 +23,25 @@ import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
 import dk.dma.msinm.vo.MessageVo;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
+import javax.annotation.Resource;
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
+import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
@@ -60,6 +68,9 @@ public class MessageService extends BaseService {
 
     @Inject
     private Logger log;
+
+    @Resource
+    SessionContext ctx;
 
     @Inject
     private MessageCache messageCache;
@@ -99,6 +110,7 @@ public class MessageService extends BaseService {
         id.setMainType(SeriesIdType.MSI);
         id.setYear(Calendar.getInstance().get(Calendar.YEAR));
         messageVo.setSeriesIdentifier(id);
+        messageVo.setType(Type.SUBAREA_WARNING);
         messageVo.setRepoPath(repositoryService.getNewTempDir().getPath());
         return  messageVo;
     }
@@ -120,6 +132,166 @@ public class MessageService extends BaseService {
             evictCachedMessage(message);
         }
 
+        return message;
+    }
+
+    /**
+     * Creates a new message as a draft message
+     * @param messageVo the template for the message to create
+     * @return the new message
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public Message createMessage(MessageVo messageVo) throws Exception {
+
+        Message message = messageVo.toEntity();
+
+        // TODO Assign user ID based on ctx
+
+        // Validate the message
+        SeriesIdentifier id = message.getSeriesIdentifier();
+        if (message.getId() != null) {
+            throw new Exception("Message already persisted");
+        }
+        if (id.getMainType() == null) {
+            throw new Exception("Message main type must be specified");
+        }
+        if (message.getType() == null || message.getType().getSeriesIdType() != id.getMainType()) {
+            throw new Exception("Missing or invalid Message type");
+        }
+        if (message.getValidFrom() == null) {
+            throw new Exception("Message validFrom must be specified");
+        }
+
+        // Set default values
+        if (StringUtils.isBlank(id.getAuthority())) {
+            id.setAuthority(app.getOrganization());
+        }
+        if (id.getYear() == null) {
+            id.setYear(Calendar.getInstance().get(Calendar.YEAR));
+        }
+        message.setStatus(Status.DRAFT);
+
+
+        // Substitute the Area with a persisted one
+        if (message.getArea() != null) {
+            message.setArea(getByPrimaryKey(Area.class, message.getArea().getId()));
+        }
+
+        // Substitute the Categories with the persisted ones
+        if (message.getCategories().size() > 0) {
+            List<Category> categories = new ArrayList<>();
+            message.getCategories().forEach(cat -> categories.add(getByPrimaryKey(Category.class, cat.getId())));
+            message.setCategories(categories);
+        }
+
+        // Substitute the Charts with the persisted ones
+        if (message.getCharts().size() > 0) {
+            List<Chart> charts = new ArrayList<>();
+            message.getCharts().forEach(chart -> charts.add(getByPrimaryKey(Chart.class, chart.getId())));
+            message.setCharts(charts);
+        }
+
+        // Assign a new series ID number to the message
+        // TODO: Either draft messages should NOT have a number, or a number from a different sequence...
+        id.setNumber(newSeriesIdentifierNumber(message.getType(), id.getAuthority(), id.getYear()));
+
+        // Persist the message
+        message = saveMessage(message);
+        log.info("Saved message " + message);
+
+        // Move the temporary repo folder to the final destination
+        if (StringUtils.isNotBlank(messageVo.getRepoPath())) {
+            String repoPath = repositoryService.getRepoPath(getMessageRepoFolder(message));
+            log.info("Moving repo from " + messageVo.getRepoPath() + " to " + repoPath);
+            boolean repoMoved = repositoryService.moveRepoFolder(messageVo.getRepoPath(), repoPath);
+
+            // Update the description with the new path
+            boolean descUpdated = false;
+            if (repoMoved) {
+                for (MessageDesc desc : message.getDescs()) {
+                    if (StringUtils.isNotBlank(desc.getDescription()) && desc.getDescription().contains(messageVo.getRepoPath())) {
+                        desc.setDescription(desc.getDescription().replaceAll(messageVo.getRepoPath(), repoPath));
+                        descUpdated = true;
+                    }
+                }
+                // Persist again if we have made any description changes
+                if (descUpdated) {
+                    message = saveMessage(message);
+                }
+             }
+        }
+
+        em.flush();
+        return message;
+    }
+
+    /**
+     * Updates the given message
+     * @param messageVo the template for the message to update
+     * @return the updated message
+     */
+    @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
+    public Message updateMessage(MessageVo messageVo) throws Exception {
+
+        Message message = messageVo.toEntity();
+        final Message original = getByPrimaryKey(Message.class, message.getId());
+
+        // Validate the message
+        SeriesIdentifier id = message.getSeriesIdentifier();
+        if (message.getId() == null) {
+            throw new Exception("Message not an existing message");
+        }
+        if (message.getType().getSeriesIdType() != id.getMainType()) {
+            throw new Exception("Invalid Message type");
+        }
+        if (message.getValidFrom() == null) {
+            throw new Exception("Message validFrom must be specified");
+        }
+
+        original.setSeriesIdentifier(message.getSeriesIdentifier());
+        original.setType(message.getType());
+        original.setCancellationDate(message.getCancellationDate());
+        original.setHorizontalDatum(message.getHorizontalDatum());
+        original.setStatus(message.getStatus());
+        original.setOriginalInformation(message.isOriginalInformation());
+        original.setPriority(message.getPriority());
+        original.setValidFrom(message.getValidFrom());
+        original.setValidTo(message.getValidTo());
+
+        // Copy the area data
+        original.copyDescs(message.getDescs());
+
+        // Add the locations
+        original.getLocations().clear();
+        original.getLocations().addAll(message.getLocations());
+
+        // Add the light list numbers
+        original.getLightsListNumbers().clear();
+        original.getLightsListNumbers().addAll(message.getLightsListNumbers());
+
+        // Add the references
+        original.getReferences().clear();
+        message.getReferences().forEach(ref -> original.getReferences().add(ref.isNew() ? ref : getByPrimaryKey(Reference.class, ref.getId())));
+
+        // Copy the Area
+        original.setArea(null);
+        if (message.getArea() != null) {
+            original.setArea(getByPrimaryKey(Area.class, message.getArea().getId()));
+        }
+
+        // Copy the Categories
+        original.getCategories().clear();
+        message.getCategories().forEach(cat -> original.getCategories().add(getByPrimaryKey(Category.class, cat.getId())));
+
+        // Substitute the Charts with the persisted ones
+        original.getCharts().clear();
+        message.getCharts().forEach(chart -> original.getCharts().add(getByPrimaryKey(Chart.class, chart.getId())));
+
+        // Persist the message
+        message = saveMessage(original);
+        log.info("Updated message " + message);
+
+        em.flush();
         return message;
     }
 

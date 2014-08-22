@@ -86,7 +86,7 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
     @Temporal(TemporalType.TIMESTAMP)
     Date cancellationDate;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "message")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "message", orphanRemoval = true)
     Set<Reference> references = new HashSet<>();
 
     @NotNull

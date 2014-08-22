@@ -42,6 +42,18 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            createMessage: function(msg, success, error) {
+                $http.post('/rest/messages/message', msg)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateMessage: function(msg, success, error) {
+                $http.put('/rest/messages/message', msg)
+                    .success(success)
+                    .error(error);
+            },
+
             search: function(query, status, type, loc, areas, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, mapMode, success, error) {
                 $http.get(
                         '/rest/messages/search?lang=' + $rootScope.language

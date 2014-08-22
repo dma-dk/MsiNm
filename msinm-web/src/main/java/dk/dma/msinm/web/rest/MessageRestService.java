@@ -180,9 +180,10 @@ public class MessageRestService {
     @GZIP
     @NoCache
     @RolesAllowed({ "editor" })
-    public MessageVo createMessage(MessageVo message) {
+    public MessageVo createMessage(MessageVo message) throws Exception {
         log.info("Creating message " + message);
-        return message;
+        Message msg = messageService.createMessage(message);
+        return getMessage(msg.getId().toString(), null);
     }
 
     /**
@@ -197,9 +198,10 @@ public class MessageRestService {
     @GZIP
     @NoCache
     @RolesAllowed({ "editor" })
-    public MessageVo updateMessage(MessageVo message) {
+    public MessageVo updateMessage(MessageVo message) throws Exception {
         log.info("Updating message " + message);
-        return message;
+        Message msg = messageService.updateMessage(message);
+        return getMessage(msg.getId().toString(), null);
     }
 
 

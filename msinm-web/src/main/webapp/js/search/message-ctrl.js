@@ -317,16 +317,45 @@ angular.module('msinm.search')
                 $scope.msg.charts = [];
                 for (var j in charts) {
                     $scope.msg.charts.push(charts[j]);
-                    charts[i].parent = null; // Trim json
                 }
 
+                // Save or update the message
+                if ($scope.messageId) {
+                    MessageService.updateMessage(
+                        $scope.msg,
+                        function (data) {
+                            console.log("Updated message")
+                            growlNotifications.add('<h4>Message Updated</h4>', 'info', 3000);
+                            $scope.reloadMessage();
+                        },
+                        function (data) {
+                            $scope.messageSaved = false;
+                            console.error("Failed updating message " + data);
+                            growlNotifications.add('<h4>Message Update Failed</h4>', 'danger', 3000);
+                        }
+                    );
+                } else {
+                    MessageService.createMessage(
+                        $scope.msg,
+                        function (data) {
+                            console.log("Created message")
+                            growlNotifications.add('<h4>Message Created</h4>', 'info', 3000);
+                            $scope.reloadMessage();
+                        },
+                        function (data) {
+                            $scope.messageSaved = false;
+                            console.error("Failed creating message " + data);
+                            growlNotifications.add('<h4>Message Creation Failed</h4>', 'danger', 3000);
+                        }
+                    );
+                }
             };
 
 
             // Reload the message details
             $scope.reloadMessage = function () {
                 $scope.loadMessageDetails();
-            }
+            };
 
 
             // Fetches the attachments belonging the the current message
