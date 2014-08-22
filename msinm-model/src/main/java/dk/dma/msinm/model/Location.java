@@ -87,7 +87,8 @@ public class Location extends BaseEntity<Integer> implements ILocalizable<Locati
                 if (points.size() != 1 || radius == null) {
                     throw new InvalidShapeException("Invalid circle definition");
                 }
-                return SpatialContext.GEO.makeCircle(toSpatial4jPoint(points.get(0)), DistanceUtils.dist2Degrees(radius, DistanceUtils.EARTH_MEAN_RADIUS_KM));
+                double km = radius.doubleValue() * 1.852;
+                return SpatialContext.GEO.makeCircle(toSpatial4jPoint(points.get(0)), DistanceUtils.dist2Degrees(km, DistanceUtils.EARTH_MEAN_RADIUS_KM));
             case POLYLINE:
             case POLYGON:
                 if (points.size() == 0) {
