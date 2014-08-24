@@ -387,7 +387,7 @@ angular.module('msinm.search')
             $scope.tinymceOptions = {
                 resize: false,
                 plugins: [
-                    "autolink lists link image anchor",
+                    "msinm autolink lists link image anchor",
                     "code textcolor",
                     "media table contextmenu paste"
                 ],
@@ -397,7 +397,7 @@ angular.module('msinm.search')
                 menubar: false,
                 contextmenu: "link image inserttable | cell row column deletetable",
                 toolbar: "styleselect | bold italic | forecolor backcolor | alignleft aligncenter alignright alignjustify | "
-                    + "bullist numlist  | outdent indent | link image table | code",
+                    + "bullist numlist  | outdent indent | link image table | code | msinmlocations",
 
                 file_browser_callback: function(field_name, url, type, win) {
                     $(".mce-window").hide();
@@ -416,6 +416,31 @@ angular.module('msinm.search')
                 }
             };
 
+
+            // Test TinyMCE tool button
+            tinymce.PluginManager.add('msinm', function(editor, url) {
+                // Add a button that opens a window
+                editor.addButton('msinmlocations', {
+                    title: 'Insert Locations',
+                    image: '/img/map_marker.png',
+                    onclick: function () {
+                        // Open window
+                        editor.windowManager.open({
+                            title: 'Example plugin',
+                            body: [
+                                {type: 'textbox', name: 'title', label: 'Title'}
+                            ],
+                            onsubmit: function (e) {
+                                // Insert content when the window form is submitted
+                                editor.insertContent('Title: ' + e.data.title + " -> " + editor.id);
+                            }
+                        });
+                    }
+                });
+            });
+
+
+            // TinyMCS file_browser_callback implementation
             $scope.open = function (size) {
                 var modalInstance = $modal.open({
                     templateUrl: 'myModalContent.html',
