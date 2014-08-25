@@ -46,7 +46,7 @@ public class SeriesIdentifier implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("[%s %s %d %d]", mainType, authority, number, year);
+        return String.format("[%s]", getFullId());
     }
 
     /**
