@@ -302,9 +302,10 @@ public class LegacyMsiImportService extends BaseService {
                         cal.setTime(validFrom);
                         int year = cal.get(Calendar.YEAR);
 
-                        Sequence sequence = new DefaultSequence("LEGACY_MESSAGE_SERIES_ID_MSI_" + app.getOrganization() + "_" + year, 1000);
-
-                        identifier.setNumber((int) sequences.getNextValue(sequence));
+                        if (!statusDraft) {
+                            Sequence sequence = new DefaultSequence("LEGACY_MESSAGE_SERIES_ID_MSI_" + app.getOrganization() + "_" + year, 1000);
+                            identifier.setNumber((int) sequences.getNextValue(sequence));
+                        }
                         identifier.setAuthority(app.getOrganization());
                         identifier.setYear(year);
                     }

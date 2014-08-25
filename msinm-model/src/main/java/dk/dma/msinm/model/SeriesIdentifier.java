@@ -26,7 +26,6 @@ import java.io.Serializable;
  * A unique identifier for an MSI or NtM message
  */
 @Embeddable
-@Table(uniqueConstraints = @UniqueConstraint(columnNames = { "mainType", "authority", "number", "year"}))
 @JsonIgnoreProperties(ignoreUnknown=true)
 @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class SeriesIdentifier implements Serializable {
@@ -40,7 +39,6 @@ public class SeriesIdentifier implements Serializable {
     @NotNull
     private String authority;
     
-    @NotNull
     private Integer number;
     
     @NotNull
@@ -57,11 +55,9 @@ public class SeriesIdentifier implements Serializable {
      */
     @Transient
     public String getShortId() {
-        return String.format(
-                "%s-%03d-%02d",
-                authority,
-                number == null ? 0 : number,
-                year - 2000);
+        return (number != null)
+                ? String.format("%s-%03d-%02d", authority, number, year - 2000)
+                : String.format("%s-?-%02d", authority, year - 2000);
     }
 
     /**
@@ -70,12 +66,7 @@ public class SeriesIdentifier implements Serializable {
      */
     @Transient
     public String getFullId() {
-        return String.format(
-                "%s-%s-%03d-%02d",
-                mainType,
-                authority,
-                number == null ? 0 : number,
-                year - 2000);
+        return String.format("%s-%s", mainType, getShortId());
     }
 
     // *** Getters and setters

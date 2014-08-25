@@ -191,10 +191,6 @@ public class MessageService extends BaseService {
             message.setCharts(charts);
         }
 
-        // Assign a new series ID number to the message
-        // TODO: Either draft messages should NOT have a number, or a number from a different sequence...
-        id.setNumber(newSeriesIdentifierNumber(message.getType(), id.getAuthority(), id.getYear()));
-
         // Persist the message
         message = saveMessage(message);
         log.info("Saved message " + message);
