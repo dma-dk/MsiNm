@@ -212,7 +212,7 @@ angular.module('msinm.search')
 
                 if (msg.area) {
                     msg.areaId = msg.area.id;
-                    $("#editorArea").select2("data", { id: msg.area.id, text: msg.area.descs[0].name, area: msg.area });
+                    $("#editorArea").select2("data", { id: msg.area.id, text: LangService.descForLangOrDefault(msg.area).name, area: msg.area });
                 } else {
                     $("#editorArea").select2("data", null);
                 }
@@ -226,7 +226,7 @@ angular.module('msinm.search')
                             msg.categoryIds += ',';
                         }
                         msg.categoryIds += cat.id;
-                        data.push({id: cat.id, text: cat.descs[0].name, category: cat });
+                        data.push({id: cat.id, text: LangService.descForLangOrDefault(cat).name, category: cat });
                     }
                     $("#editorCategories").select2("data", data);
                 } else {

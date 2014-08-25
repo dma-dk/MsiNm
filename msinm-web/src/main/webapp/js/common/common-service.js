@@ -87,6 +87,16 @@ angular.module('msinm.common')
                     }
                 }
             }
+            return undefined;
+        };
+
+        // look for a description entity with the given language - falls back to using the first description
+        this.descForLangOrDefault = function(elm, lang) {
+            var desc = this.descForLanguage(elm, (lang) ? lang : $rootScope.language);
+            if (!desc && elm && elm.descs && elm.descs.length > 0) {
+                desc = elm.descs[0];
+            }
+            return desc;
         };
 
         // look for a description entity with the current language
