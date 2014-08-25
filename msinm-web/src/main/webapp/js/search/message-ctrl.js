@@ -3,9 +3,9 @@
  */
 angular.module('msinm.search')
 
-    /**
+    /********************************************
      * Controller that handles editing messages
-     */
+     *******************************************/
     .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', '$window', 'growlNotifications', 'MessageService', 'LangService',
         function ($scope, $rootScope, $routeParams, $modal, $timeout, $window, growlNotifications, MessageService, LangService) {
             'use strict';
@@ -444,7 +444,11 @@ angular.module('msinm.search')
             $scope.open = function (size) {
                 var modalInstance = $modal.open({
                     templateUrl: 'myModalContent.html',
-                    controller: ModalInstanceCtrl,
+                    controller: function ($scope, $modalInstance, files) {
+                        $scope.files = files;
+                        $scope.ok = function (file) { $modalInstance.close(file); };
+                        $scope.cancel = function () { $modalInstance.dismiss('cancel'); };
+                    },
                     size: size,
                     windowClass: 'on-top',
                     resolve: {
@@ -495,9 +499,9 @@ angular.module('msinm.search')
         }])
 
 
-    /**
+    /*******************************************************************
      * Controller that handles displaying message details in a dialog
-     */
+     *******************************************************************/
     .controller('MessageDialogCtrl', ['$scope', '$window', 'growlNotifications', 'MessageService', 'messageId', 'messages',
         function ($scope, $window, growlNotifications, MessageService, messageId, messages) {
             'use strict';
@@ -517,6 +521,7 @@ angular.module('msinm.search')
                 $("body").removeClass("no-print");
             });
 
+            // Navigate to the previous message in the message list
             $scope.selectPrev = function() {
                 if ($scope.pushedMessageIds.length == 1 && $scope.index > 0) {
                     $scope.index--;
@@ -525,6 +530,7 @@ angular.module('msinm.search')
                 }
             };
 
+            // Navigate to the next message in the message list
             $scope.selectNext = function() {
                 if ($scope.pushedMessageIds.length == 1 && $scope.index >= 0 && $scope.index < $scope.messages.length - 1) {
                     $scope.index++;
@@ -533,11 +539,13 @@ angular.module('msinm.search')
                 }
             };
 
+            // Navigate to a new nested message
             $scope.selectMessage = function (messageId) {
                 $scope.pushedMessageIds.push(messageId);
                 $scope.loadMessageDetails();
             };
 
+            // Navigate back in the nested navigation
             $scope.back = function () {
                 if ($scope.pushedMessageIds.length > 1) {
                     $scope.pushedMessageIds.pop();
@@ -545,19 +553,21 @@ angular.module('msinm.search')
                 }
             };
 
+            // Download the PDF for the message
             $scope.pdf = function () {
                 var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
                 $window.location = '/rest/messages/message-pdf/' + messageId + '.pdf?lang=' + $scope.language;
             };
 
+            // Download the calendar for the message
             $scope.calendar = function () {
                 var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
                 $window.location = '/rest/messages/message-cal/' + messageId + '.ics?lang=' + $scope.language;
             };
 
+            // Navigate to the message editor page
             $scope.edit = function() {
                 $scope.$dismiss('edit');
-                //$scope.go('/search/edit/' + $scope.msg.id);
                 $window.location = '/search.html#/search/edit/' + $scope.msg.id;
             };
 
@@ -580,16 +590,3 @@ angular.module('msinm.search')
 
         }]);
 
-
-
-var ModalInstanceCtrl = function ($scope, $modalInstance, files) {
-    $scope.files = files;
-
-    $scope.ok = function (file) {
-        $modalInstance.close(file);
-    };
-
-    $scope.cancel = function () {
-        $modalInstance.dismiss('cancel');
-    };
-};
