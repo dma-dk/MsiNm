@@ -16,6 +16,7 @@
 package dk.dma.msinm.legacy.msi.service;
 
 import dk.dma.msinm.common.MsiNmApp;
+import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
@@ -132,7 +133,7 @@ public class LegacyMessageService extends BaseService {
 
         } else {
             // Pre-load the message and detach it from the entity manager
-            legacyMessage.getMessage().preload();
+            legacyMessage.getMessage().preload(DataFilter.get("Message.details"));
             em.detach(legacyMessage);
         }
 
