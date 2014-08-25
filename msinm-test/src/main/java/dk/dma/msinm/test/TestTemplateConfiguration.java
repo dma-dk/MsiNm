@@ -21,9 +21,9 @@ import freemarker.template.TemplateExceptionHandler;
 import javax.enterprise.inject.Produces;
 
 /**
- * Returns the Freemarker mail template configuration.
+ * Returns the Freemarker template configuration.
  */
-public class TestMailTemplateConfiguration {
+public class TestTemplateConfiguration {
 
     private static Configuration cfg;
 

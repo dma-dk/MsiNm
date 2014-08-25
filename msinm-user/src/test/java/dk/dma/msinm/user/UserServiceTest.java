@@ -25,7 +25,7 @@ import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
-import dk.dma.msinm.test.TestMailTemplateConfiguration;
+import dk.dma.msinm.test.TestTemplateConfiguration;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.BeforeClass;
@@ -44,7 +44,7 @@ import static org.junit.Assert.assertTrue;
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
         UserService.class,
-        TestDatabaseConfiguration.class, TestMailTemplateConfiguration.class, SqlProducer.class, Settings.class, MailService.class,
+        TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, Settings.class, MailService.class,
         Sequences.class, LogConfiguration.class, EntityManager.class, LogConfiguration.class
 })
 public class UserServiceTest extends MsiNmUnitTest {
