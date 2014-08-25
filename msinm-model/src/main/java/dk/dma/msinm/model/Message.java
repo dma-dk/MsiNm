@@ -80,7 +80,7 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
     @OneToMany(cascade = CascadeType.ALL)
     List<Location> locations = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     List<MessageDesc> descs = new ArrayList<>();
 
     @Temporal(TemporalType.TIMESTAMP)

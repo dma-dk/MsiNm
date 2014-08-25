@@ -48,7 +48,7 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
     @OneToMany(cascade = CascadeType.ALL)
     private List<Location> locations = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     List<AreaDesc> descs = new ArrayList<>();
 
     @Column(length = 256)

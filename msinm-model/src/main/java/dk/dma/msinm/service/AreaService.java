@@ -147,7 +147,7 @@ public class AreaService extends BaseService {
         Area original = getByPrimaryKey(Area.class, area.getId());
 
         // Copy the area data
-        original.copyDescs(area.getDescs());
+        original.copyDescsAndRemoveBlanks(area.getDescs());
 
         // Add the locations
         original.getLocations().clear();

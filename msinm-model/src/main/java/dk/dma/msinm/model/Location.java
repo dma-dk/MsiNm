@@ -57,7 +57,7 @@ public class Location extends BaseEntity<Integer> implements ILocalizable<Locati
 
     private Integer radius;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     List<LocationDesc> descs = new ArrayList<>();
 
     public Location() {

@@ -17,6 +17,7 @@ package dk.dma.msinm.vo;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.model.ILocalizedDesc;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Location;
@@ -79,9 +80,7 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
                     .forEach(pt -> location.getPoints().add(pt.toEntity(location)));
         }
         if (getDescs() != null) {
-            getDescs().stream()
-                    .filter(desc -> StringUtils.isNotBlank(desc.getDescription()))
-                    .forEach(desc -> location.getDescs().add(desc.toEntity(location)));
+            getDescs().stream().forEach(desc -> location.getDescs().add(desc.toEntity(location)));
         }
         return location;
     }
@@ -179,6 +178,14 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
 
         public void setDescription(String description) {
             this.description = description;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean descDefined() {
+            return ILocalizedDesc.fieldsDefined(description);
         }
     }
 

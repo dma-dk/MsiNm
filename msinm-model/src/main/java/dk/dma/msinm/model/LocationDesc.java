@@ -49,4 +49,11 @@ public class LocationDesc extends DescEntity<Location> {
         this.description = ((LocationDesc)desc).getDescription();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean descDefined() {
+        return ILocalizedDesc.fieldsDefined(description);
+    }
 }

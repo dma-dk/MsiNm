@@ -255,7 +255,7 @@ public class MessageService extends BaseService {
         original.setValidTo(message.getValidTo());
 
         // Copy the area data
-        original.copyDescs(message.getDescs());
+        original.copyDescsAndRemoveBlanks(message.getDescs());
 
         // Add the locations
         original.getLocations().clear();

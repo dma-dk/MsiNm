@@ -146,7 +146,7 @@ public class CategoryService extends BaseService {
         Category original = getByPrimaryKey(Category.class, category.getId());
 
         // Copy the category data
-        original.copyDescs(category.getDescs());
+        original.copyDescsAndRemoveBlanks(category.getDescs());
 
         // Update lineage
         original.updateLineage();

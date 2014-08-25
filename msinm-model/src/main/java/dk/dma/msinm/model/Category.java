@@ -45,7 +45,7 @@ public class Category extends VersionedEntity<Integer> implements ILocalizable<C
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
     private List<Category> children = new ArrayList<>();
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     List<CategoryDesc> descs = new ArrayList<>();
 
     @Override

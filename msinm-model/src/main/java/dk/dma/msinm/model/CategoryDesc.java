@@ -48,4 +48,12 @@ public class CategoryDesc extends DescEntity<Category> {
         }
         this.name = ((CategoryDesc)desc).getName();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean descDefined() {
+        return ILocalizedDesc.fieldsDefined(name);
+    }
 }

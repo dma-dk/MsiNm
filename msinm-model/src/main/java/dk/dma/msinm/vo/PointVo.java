@@ -16,6 +16,7 @@
 package dk.dma.msinm.vo;
 
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.model.ILocalizedDesc;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Location;
@@ -71,9 +72,7 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
         point.setLon(lon);
         point.setIndex(index);
         if (getDescs() != null) {
-            getDescs().stream()
-                    .filter(desc -> StringUtils.isNotBlank(desc.getDescription()))
-                    .forEach(desc -> point.getDescs().add(desc.toEntity(point)));
+            getDescs().stream().forEach(desc -> point.getDescs().add(desc.toEntity(point)));
         }
         return point;
     }
@@ -166,6 +165,14 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
             PointDesc desc = toEntity();
             desc.setEntity(point);
             return desc;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean descDefined() {
+            return ILocalizedDesc.fieldsDefined(description);
         }
 
         public String getDescription() {

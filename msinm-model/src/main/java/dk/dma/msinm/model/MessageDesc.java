@@ -68,6 +68,14 @@ public class MessageDesc extends DescEntity<Message>  {
         this.source = other.getSource();
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean descDefined() {
+        return ILocalizedDesc.fieldsDefined(title, description, otherCategories, time, vicinity, note, publication, source);
+    }
+
     public String getTitle() {
         return title;
     }

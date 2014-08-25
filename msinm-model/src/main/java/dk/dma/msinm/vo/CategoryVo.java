@@ -16,6 +16,7 @@
 package dk.dma.msinm.vo;
 
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.model.ILocalizedDesc;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Category;
@@ -75,9 +76,7 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
         Category category = new Category();
         category.setId(id);
         if (getDescs() != null) {
-            getDescs().stream()
-                    .filter(desc -> StringUtils.isNotBlank(desc.getName()))
-                    .forEach(desc -> category.getDescs().add(desc.toEntity(category)));
+            getDescs().stream().forEach(desc -> category.getDescs().add(desc.toEntity(category)));
         }
         return category;
     }
@@ -174,6 +173,14 @@ public class CategoryVo extends LocalizableVo<Category, CategoryVo.CategoryDescV
 
         public void setName(String name) {
             this.name = name;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean descDefined() {
+            return ILocalizedDesc.fieldsDefined(name);
         }
     }
 

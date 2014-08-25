@@ -49,7 +49,7 @@ public class Point extends BaseEntity<Integer> implements ILocalizable<PointDesc
     @NotNull
     private Integer index;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity")
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     List<PointDesc> descs = new ArrayList<>();
 
     /**

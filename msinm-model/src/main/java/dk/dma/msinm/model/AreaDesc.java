@@ -48,4 +48,13 @@ public class AreaDesc extends DescEntity<Area> {
         }
         this.name = ((AreaDesc)desc).getName();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean descDefined() {
+        return ILocalizedDesc.fieldsDefined(name);
+    }
+
 }

@@ -128,7 +128,7 @@ public class WeeklyNmImportService {
         Area area = areaService.findByName(templateArea.getDesc("en").getName(), "en", parentId);
         if (area == null) {
             area = new Area();
-            area.copyDescs(templateArea.getDescs());
+            area.copyDescsAndRemoveBlanks(templateArea.getDescs());
             area.setLocations(templateArea.getLocations());
             area = areaService.createArea(area, parentId);
         }
@@ -166,7 +166,7 @@ public class WeeklyNmImportService {
             Category category = categoryService.findByName(templateCategory.getDesc("en").getName(), "en", null);
             if (category == null) {
                 category = new Category();
-                category.copyDescs(templateCategory.getDescs());
+                category.copyDescsAndRemoveBlanks(templateCategory.getDescs());
                 category = categoryService.createCategory(category, null);
             }
             result.add(category);

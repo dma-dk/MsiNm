@@ -48,4 +48,12 @@ public class PointDesc extends DescEntity<Point> {
         }
         this.description = ((PointDesc)desc).getDescription();
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean descDefined() {
+        return ILocalizedDesc.fieldsDefined(description);
+    }
 }

@@ -16,6 +16,7 @@
 package dk.dma.msinm.vo;
 
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.model.ILocalizedDesc;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.*;
@@ -140,9 +141,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         }
         message.setOriginalInformation(originalInformation);
         if (getDescs() != null) {
-            getDescs().stream()
-                    .filter(MessageDescVo::isDefined)
-                    .forEach(desc -> message.getDescs().add(desc.toEntity(message)));
+            getDescs().stream().forEach(desc -> message.getDescs().add(desc.toEntity(message)));
         }
         return message;
     }
@@ -413,18 +412,11 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         }
 
         /**
-         * Checks that this is a non-blank welldefined description entity
-         * @return if this is welldefined
+         * {@inheritDoc}
          */
-        public boolean isDefined() {
-            return StringUtils.isNotBlank(title) ||
-                    StringUtils.isNotBlank(description) ||
-                    StringUtils.isNotBlank(otherCategories) ||
-                    StringUtils.isNotBlank(time) ||
-                    StringUtils.isNotBlank(vicinity) ||
-                    StringUtils.isNotBlank(note) ||
-                    StringUtils.isNotBlank(publication) ||
-                    StringUtils.isNotBlank(source);
+        @Override
+        public boolean descDefined() {
+            return ILocalizedDesc.fieldsDefined(time, description, otherCategories, time, vicinity, note, publication, source);
         }
 
         public String getTitle() {

@@ -121,6 +121,7 @@ public interface ILocalizable<D extends ILocalizedDesc> {
         return desc;
     }
 
+
     /**
      * Copies the descriptive fields of the list of descriptions
      * @param descs the description entities to copy
@@ -128,6 +129,20 @@ public interface ILocalizable<D extends ILocalizedDesc> {
     default public void copyDescs(List<D> descs) {
         if (descs != null && descs.size() > 0) {
             descs.forEach(desc -> checkCreateDesc(desc.getLang()).copyDesc(desc));
+        }
+    }
+
+    /**
+     * Copies the descriptive fields of the list of descriptions.
+     * Subsequently removes descriptive entities left blank.
+     * @param descs the description entities to copy
+     */
+    default public void copyDescsAndRemoveBlanks(List<D> descs) {
+        copyDescs(descs);
+
+        // Remove descriptive entities left blank
+        if (getDescs() != null) {
+            getDescs().removeIf(desc -> !desc.descDefined());
         }
     }
 }
