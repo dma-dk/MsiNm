@@ -36,6 +36,12 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            transformMessage: function(transform, success, error) {
+                $http.post('/rest/messages/transform', transform)
+                    .success(success)
+                    .error(error);
+            },
+
             translateTime: function(time, success, error) {
                 $http.post('/rest/messages/translate-time', time)
                     .success(success)

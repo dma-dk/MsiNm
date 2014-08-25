@@ -17,6 +17,7 @@ package dk.dma.msinm.common.model;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -143,6 +144,31 @@ public interface ILocalizable<D extends ILocalizedDesc> {
         // Remove descriptive entities left blank
         if (getDescs() != null) {
             getDescs().removeIf(desc -> !desc.descDefined());
+        }
+    }
+
+
+    /**
+     * Sorts the descriptive entities to ensure that the given language is first
+     * @param lang the language to sort first
+     */
+    default public void sortDescs(final String lang) {
+        if (getDescs() != null && lang != null) {
+            getDescs().sort((d1, d2) -> {
+                String l1 = (d1 == null) ? null : d1.getLang();
+                String l2 = (d2 == null) ? null : d2.getLang();
+                if (l1 == null && l2 == null) {
+                    return 0;
+                } else if (l1 == null) {
+                    return 1;
+                } else if (l2 == null) {
+                    return -1;
+                } else if (l1.equals(l2)) {
+                    return 0;
+                } else {
+                    return l1.equals(lang) ? -1 : (l2.equals(lang) ? 1 : 0);
+                }
+            });
         }
     }
 }

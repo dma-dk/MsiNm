@@ -147,6 +147,29 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     }
 
     /**
+     * Sorts the descriptive entities to ensure that the given language is first
+     * @param lang the language to sort first
+     */
+    public void sortDescsByLang(final String lang) {
+        sortDescs(lang);
+        if (area != null) {
+            area.sortDescs(lang);
+        }
+        if (categories != null) {
+            categories.forEach(cat -> cat.sortDescs(lang));
+        }
+        if (locations != null) {
+            locations.forEach(loc -> {
+                loc.sortDescs(lang);
+                if (loc.getPoints() != null) {
+                    loc.getPoints().forEach(pt -> pt.sortDescs(lang));
+                }
+            });
+        }
+    }
+
+
+    /**
      * {@inheritDoc}
      */
     @Override

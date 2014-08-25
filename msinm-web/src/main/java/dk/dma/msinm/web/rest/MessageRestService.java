@@ -206,6 +206,29 @@ public class MessageRestService {
 
 
     /***************************
+     * Template functionality
+     ***************************/
+
+    /**
+     * Transforms a message according to the requested template and language
+     * @param transformVo the transformation data
+     * @return the result
+     */
+    @POST
+    @Path("/transform")
+    @Consumes("application/json")
+    @Produces("text/plain;charset=UTF-8")
+    @GZIP
+    @NoCache
+    @RolesAllowed({ "editor" })
+    public String transform(TransformVo transformVo) throws Exception {
+        log.info("Transforming message " + transformVo);
+
+        return messageService.transformMessage(transformVo.getMessage(), transformVo.getTemplate(), transformVo.getLang());
+    }
+
+
+    /***************************
      * Search functionality
      ***************************/
 
@@ -561,6 +584,41 @@ public class MessageRestService {
     /***************************
      * Helper VO classes
      ***************************/
+
+    /**
+     * Helper class used for submitting message transformation data
+     */
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    public static class TransformVo {
+        MessageVo message;
+        String template;
+        String lang;
+
+        public MessageVo getMessage() {
+            return message;
+        }
+
+        public void setMessage(MessageVo message) {
+            this.message = message;
+        }
+
+        public String getTemplate() {
+            return template;
+        }
+
+        public void setTemplate(String template) {
+            this.template = template;
+        }
+
+        public String getLang() {
+            return lang;
+        }
+
+        public void setLang(String lang) {
+            this.lang = lang;
+        }
+    }
 
     /**
      * Helper class used for translating time descriptions

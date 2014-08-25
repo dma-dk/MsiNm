@@ -23,6 +23,9 @@ import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.common.templates.TemplateContext;
+import dk.dma.msinm.common.templates.TemplateService;
+import dk.dma.msinm.common.templates.TemplateType;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Chart;
@@ -51,8 +54,10 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -67,26 +72,29 @@ public class MessageService extends BaseService {
     public static final DataFilter CACHED_MESSAGE_DATA = DataFilter.get("Message.details", "Area.parent", "Category.parent");
 
     @Inject
-    private Logger log;
+    Logger log;
 
     @Resource
     SessionContext ctx;
 
     @Inject
-    private MessageCache messageCache;
+    MessageCache messageCache;
 
     @Inject
-    private RepositoryService repositoryService;
+    RepositoryService repositoryService;
 
     @Inject
-    private Sequences sequences;
+    Sequences sequences;
+
+    @Inject
+    TemplateService templateService;
 
     @Inject
     MsiNmApp app;
 
     @Inject
     @Sql("/sql/active_messages.sql")
-    private String selectActiveSql;
+    String selectActiveSql;
 
     /**
      * Creates or updates a Message
@@ -455,6 +463,44 @@ public class MessageService extends BaseService {
                 });
 
         return deactivated;
+    }
+
+    /**
+     * Generates content based on the Freemarker template
+     *
+     * @param messageVo the message to use in the Freemarker template
+     * @param template the Freemarker template
+     * @param language the language
+     * @return the result
+     */
+    public String transformMessage(MessageVo messageVo, String template, String language) throws Exception {
+
+        long t0 = System.currentTimeMillis();
+
+        // Sort all descs by language
+        messageVo.sortDescsByLang(language);
+
+        // Create a freemarker template for the transformation
+        Map<String, Object> data = new HashMap<>();
+        data.put("message", messageVo);
+
+        TemplateContext ctx = templateService.getTemplateContext(
+                TemplateType.MESSAGE,
+                template,
+                data,
+                app.getLanguage(language),
+                "Message");
+        try {
+
+            // Process the template
+            String result = templateService.process(ctx);
+            log.info("Transformed message using " + template + " in " + (System.currentTimeMillis() - t0) + " ms");
+            return result;
+
+        } catch (Exception e) {
+            log.error("Error transforming message using template " + template, e);
+            throw e;
+        }
     }
 
     /***************************************/

@@ -426,19 +426,34 @@ angular.module('msinm.search')
                     onclick: function () {
                         // Open window
                         editor.windowManager.open({
-                            title: 'Example plugin',
+                            title: 'Template',
                             body: [
-                                {type: 'textbox', name: 'title', label: 'Title'}
+                                {type: 'listbox', name: 'template', values: [
+                                    { text: 'List Layout', value: 'location-list.ftl' },
+                                    { text: 'Table Layout', value: 'location-table.ftl' },
+                                    { text: 'Enumerated Layout', value: 'location-enumeration.ftl' }
+                                ] }
                             ],
                             onsubmit: function (e) {
                                 // Insert content when the window form is submitted
-                                editor.insertContent('Title: ' + e.data.title + " -> " + editor.id);
+                                //editor.insertContent('Title: ' + e.data.title + " -> " + editor.id);
+                                $scope.transformMessage(editor, e.data.template);
                             }
                         });
                     }
                 });
             });
 
+            // Transform the message using the selected template and language
+            $scope.transformMessage = function (editor, template) {
+                var lang = editor.id.split("-")[1];
+                var transform = { message: $scope.msg, template: template, lang: lang };
+                MessageService.transformMessage(
+                    transform,
+                    function (data) { editor.insertContent(data); },
+                    function (data) { growlNotifications.add('<h4>Location Insertion Failed</h4>', 'danger', 3000);  }
+                );
+            };
 
             // TinyMCS file_browser_callback implementation
             $scope.open = function (size) {

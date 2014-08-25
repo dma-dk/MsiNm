@@ -33,7 +33,7 @@ public class LatLonDirective implements TemplateDirectiveModel {
 
         try {
             Double lat = (latModel == null) ? null : latModel.getAsNumber().doubleValue();
-            Double lon = (latModel == null) ? null : lonModel.getAsNumber().doubleValue();
+            Double lon = (lonModel == null) ? null : lonModel.getAsNumber().doubleValue();
 
             if (lat != null) {
                 env.getOut().write(PositionFormat.formatLat(env.getLocale(), lat));
