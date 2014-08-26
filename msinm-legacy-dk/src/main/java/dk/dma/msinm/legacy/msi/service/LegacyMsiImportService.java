@@ -403,7 +403,9 @@ public class LegacyMsiImportService extends BaseService {
                 legacyMessageService.saveLegacyMessage(legacyMessage);
             }
 
-            log.info(String.format("Import of %d legacy messages completed in %d ms", result.size(), System.currentTimeMillis() - t0));
+            if (result.size() > 0) {
+                log.info(String.format("Import of %d legacy messages completed in %d ms", result.size(), System.currentTimeMillis() - t0));
+            }
 
             rs.close();
             stmt.close();
