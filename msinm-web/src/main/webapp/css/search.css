@@ -160,6 +160,20 @@
     padding: 5px 8px 5px 8px;
 }
 
+.map-image-menu {
+    position: absolute;
+    top: 20px;
+    right: 0;
+}
+
+.map-image-menu button {
+    opacity: 0.3;
+}
+
+.map-image-menu button:hover {
+    opacity: 1.0;
+}
+
 /**
  * Details search result
  */

@@ -3,23 +3,28 @@
 <div class="container-fluid" style="overflow: hidden; padding-top: 10px">
     <div class="searchResultTab row" style="background-color: #eeeeee;">
         <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 " ng-repeat="msg in searchResult.messages" style="margin-bottom: 20px;">
-            <div class="grid-item" style="width: 260px; height: 260px;" msi-message-details="msg.id" msi-messages="searchResult.messages">
-                <img class="map-image" ng-src="/message-map-image/{{msg.id}}.png" width="256" height="256"/>
-                <div class="map-image-header">
-                    <div class="map-image-title">
-                        <strong msi-message-area="msg"></strong>
-                        <strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
+            <div class="grid-item" style="width: 260px; height: 260px;">
+                <div msi-message-details="msg.id" msi-messages="searchResult.messages">
+                    <img class="map-image" ng-src="/message-map-image/{{msg.id}}.png" width="256" height="256"/>
+                    <div class="map-image-header">
+                        <div class="map-image-title">
+                            <strong msi-message-area="msg"></strong>
+                            <strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
                         <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
                             <flag lang="msg.descs[0].lang" style="height: 10px;"></flag>
                         </span>
+                        </div>
+                        <div class="map-image-date">
+                            <small>{{msg.validFrom | date : 'dd/MM/yy'}}</small>
+                            <small ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</small>
+                        </div>
                     </div>
-                    <div class="map-image-date">
-                        <small>{{msg.validFrom | date : 'dd/MM/yy'}}</small>
-                        <small ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</small>
+                    <div class="map-image-details">
+                        <strong msi-message-id="msg"></strong>: <span ng-bind-html="msg.descs[0].description"/>
                     </div>
                 </div>
-                <div class="map-image-details">
-                    <strong msi-message-id="msg"></strong>: <span ng-bind-html="msg.descs[0].description"/>
+                <div class="map-image-menu">
+                    <msi-details-menu message-id="msg.id" messages="searchResult.messages" show-view-action="true" size="xs"></msi-details-menu>
                 </div>
             </div>
         </div>
