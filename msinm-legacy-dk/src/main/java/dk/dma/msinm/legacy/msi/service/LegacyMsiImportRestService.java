@@ -37,7 +37,7 @@ import java.util.Date;
 /**
  * Provides an interface for configuring import of Danish legacy MSI warnings.
  * <p/>
- * Sets up a timer service which performs the legacy import every 5 minutes.
+ * Sets up a timer service which performs the legacy import every minute.
  */
 @Singleton
 @Startup
@@ -133,10 +133,10 @@ public class LegacyMsiImportRestService {
     }
 
     /**
-     * Called every 5 minutes to import the legacy MSI warnings
+     * Called every minute to import the legacy MSI warnings
      * @return the number of new or updated warnings
      */
-    @Schedule(persistent = false, second = "13", minute = "*/5", hour = "*", dayOfWeek = "*", year = "*")
+    @Schedule(persistent = false, second = "13", minute = "*/1", hour = "*", dayOfWeek = "*", year = "*")
     public int periodicLegacyMsiImport() {
         return importLegacyMsi();
     }
