@@ -1,6 +1,6 @@
 
 <td class="table-image">
-    <img ng-src="/message-map-image/{{msg.id}}.png" width="180" height="180" style="cursor: pointer" msi-message-details="msg.id" msi-messages="messages"/>
+    <img ng-if="msg.id" ng-src="/message-map-image/{{msg.id}}.png" width="180" height="180" style="cursor: pointer" msi-message-details="msg.id" msi-messages="messages"/>
 </td>
 <td class="table-item">
 
