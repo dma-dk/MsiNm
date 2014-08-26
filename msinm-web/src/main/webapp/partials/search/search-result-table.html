@@ -14,15 +14,19 @@
             </th>
             <th>Title</th>
             <th>Area</th>
+            <th>Action</th>
         </tr>
-        <tr ng-repeat="msg in searchResult.messages" msi-message-details="msg.id" msi-messages="searchResult.messages" style="cursor: pointer">
-            <td nowrap><span msi-message-id="msg"></span></td>
-            <td nowrap>
+        <tr ng-repeat="msg in searchResult.messages" style="cursor: pointer">
+            <td nowrap msi-message-details="msg.id" msi-messages="searchResult.messages"><span msi-message-id="msg"></span></td>
+            <td nowrap msi-message-details="msg.id" msi-messages="searchResult.messages">
                 {{msg.validFrom | date : 'dd/MM/yy'}}
                 <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
             </td>
-            <td>{{msg.descs[0].title}}</td>
-            <td><span msi-message-area="msg"></span></td>
+            <td msi-message-details="msg.id" msi-messages="searchResult.messages">{{msg.descs[0].title}}</td>
+            <td msi-message-details="msg.id" msi-messages="searchResult.messages"><span msi-message-area="msg"></span></td>
+            <td>
+                <msi-details-menu message-id="msg.id" messages="searchResult.messages" show-view-action="true" size="xs" style="float: right;"></msi-details-menu>
+            </td>
         </tr>
     </table>
 </div>

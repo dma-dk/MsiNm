@@ -1,0 +1,13 @@
+
+<div class="btn-group message-details-action">
+    <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+        <span class="glyphicon glyphicon-cog"></span>
+        <span class="caret"></span>
+    </button>
+    <ul class="dropdown-menu" style="right:0; left: auto" role="menu">
+        <li ng-if="showViewAction"><a href ng-click="view()">View...</a></li>
+        <li ng-if="hasRole('editor')"><a href ng-click="edit()">Edit...</a></li>
+        <li><a href ng-click="pdf()">Generate PDF</a></li>
+        <li><a href ng-click="calendar()">Add to calendar...</a></li>
+    </ul>
+</div>

@@ -478,9 +478,9 @@ angular.module('msinm.search')
         }])
 
 
-    /**
+    /************************************************************
      * Controller that handles displaying message details
-     */
+     ************************************************************/
     .controller('MessageDetailsCtrl', ['$scope', '$modal',
         function ($scope, $modal) {
             'use strict';
@@ -568,29 +568,16 @@ angular.module('msinm.search')
                 }
             };
 
-            // Download the PDF for the message
-            $scope.pdf = function () {
-                var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
-                $window.location = '/rest/messages/message-pdf/' + messageId + '.pdf?lang=' + $scope.language;
-            };
-
-            // Download the calendar for the message
-            $scope.calendar = function () {
-                var messageId = $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
-                $window.location = '/rest/messages/message-cal/' + messageId + '.ics?lang=' + $scope.language;
-            };
-
-            // Navigate to the message editor page
-            $scope.edit = function() {
-                $scope.$dismiss('edit');
-                $window.location = '/search.html#/search/edit/' + $scope.msg.id;
+            // Return the currently diisplayed message id
+            $scope.currentMessageId = function() {
+                return $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1];
             };
 
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {
 
                 MessageService.details(
-                    $scope.pushedMessageIds[$scope.pushedMessageIds.length - 1],
+                    $scope.currentMessageId(),
                     function (data) {
                         $scope.warning = (data) ? undefined : "Message not found";
                         $scope.msg = data;
