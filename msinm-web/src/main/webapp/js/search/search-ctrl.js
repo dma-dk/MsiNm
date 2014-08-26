@@ -8,7 +8,7 @@ angular.module('msinm.search')
         'use strict';
 
         $scope.action = "search";
-        $scope.firstRequest = true;
+        $scope.firstSearch = true;
 
         $scope.focusMe = true;
         $scope.dateFormat = "dd-mm-yyyy";
@@ -112,13 +112,13 @@ angular.module('msinm.search')
                 $scope.pageSize = 100;
             }
 
-            var wasFirstRequest = $scope.firstRequest;
-            if ($scope.action == "search" && wasFirstRequest) {
-                $scope.firstRequest = false;
+            var wasFirstSearch = $scope.firstSearch;
+            if ($scope.action == "search" && wasFirstSearch) {
+                $scope.firstSearch = false;
             }
 
             // Called initially, and when entering and leaving the map view
-            if ($scope.action == 'search' && !$scope.mapMode && (wasMapMode || wasFirstRequest)) {
+            if ($scope.action == 'search' && !$scope.mapMode && (wasMapMode || wasFirstSearch)) {
                 $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
                 $scope.newSearch();
             }

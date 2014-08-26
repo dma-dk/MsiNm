@@ -25,8 +25,11 @@ var app = angular.module('msinm', [
             templateUrl: 'partials/search/search-result-details.html'
         }).when('/search/table', {
             templateUrl: 'partials/search/search-result-table.html'
-        }).when('/search/edit/:messageId', {
+        }).when('/search/edit/editor/:messageId', {
             templateUrl: 'partials/search/message-editor.html',
+            resolve: checkRole('editor')
+        }).when('/search/edit/manage/:messageId', {
+            templateUrl: 'partials/search/message-manager.html',
             resolve: checkRole('editor')
         }).otherwise({
             redirectTo: '/search/grid'

@@ -339,8 +339,7 @@ angular.module('msinm.search')
                         $scope.msg,
                         function (data) {
                             console.log("Created message")
-                            growlNotifications.add('<h4>Message Created</h4>', 'info', 3000);
-                            $scope.reloadMessage();
+                            $window.location = '/search.html#/search/edit/manage/' + data.id;
                         },
                         function (data) {
                             $scope.messageSaved = false;
@@ -475,6 +474,42 @@ angular.module('msinm.search')
                 return modalInstance;
             }
 
+        }])
+
+
+    /*************************************************
+     * Controller that handles management of messages
+     *************************************************/
+    .controller('MessageManagerCtrl', ['$scope', '$rootScope', '$routeParams', '$window', 'growlNotifications', 'MessageService',
+        function ($scope, $rootScope, $routeParams, $window, growlNotifications, MessageService) {
+            'use strict';
+
+            $scope.messageId = $routeParams.messageId;
+
+            $scope.msg = { seriesIdentifier: { mainType: 'MSI' }, descs: [ {} ], locations: [], areadId: undefined };
+            $scope.messages = [];
+
+            // Load the message details for the given message id
+            $scope.loadMessageDetails = function() {
+                MessageService.details(
+                    $scope.messageId,
+                    function (data) {
+                        $scope.msg = data;
+                    },
+                    function (data) {
+                        growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
+                    });
+            };
+
+            // Edit the message
+            $scope.edit = function () {
+                if ($scope.msg.status == 'DRAFT') {
+                    $window.location = '/search.html#/search/edit/editor/' + $scope.messageId;
+                }
+            };
+
+            // Load the message details
+            $scope.loadMessageDetails();
         }])
 
 

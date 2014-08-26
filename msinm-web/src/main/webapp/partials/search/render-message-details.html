@@ -1,0 +1,89 @@
+
+<td class="table-image">
+    <img ng-src="/message-map-image/{{msg.id}}.png" width="180" height="180" style="cursor: pointer" msi-message-details="msg.id" msi-messages="messages"/>
+</td>
+<td class="table-item">
+
+    <msi-details-menu ng-if="showDetailsMenu" message-id="msg.id" messages="messages" show-view-action="true"  size="xs" style="float: right;"></msi-details-menu>
+
+    <!-- Title line -->
+    <div ng-if="msg.originalInformation">&#10029;</div>
+    <div msi-message-details="msg.id" msi-messages="messages" style="cursor: pointer">
+        <strong msi-message-id="msg"></strong>.
+        <strong msi-message-area="msg"></strong><strong ng-if="msg.descs[0].title"> - {{msg.descs[0].title}}</strong>
+                    <span ng-if="msg.descs[0].lang != language" style="color: darkgray;">
+                        ( <flag lang="msg.descs[0].lang" style="height: 12px;" style="opacity: 0.5;"></flag> )
+                    </span>
+    </div>
+
+    <!-- Reference lines -->
+    <div class="row" ng-repeat="ref in msg.references">
+        <div class="col-sm-1 table-item-field" ng-if="ref.type == 'REFERENCE'">EfS reference</div>
+        <div class="col-sm-1 table-item-field" ng-if="ref.type != 'REFERENCE'">Former EfS.</div>
+        <div class="col-sm-11 table-item-value">
+            <a href msi-message-details="ref.seriesIdentifier.fullId">{{ref.seriesIdentifier.fullId}}</a>
+                        <span ng-switch="ref.type">
+                            <span ng-switch-when="REPETITION">(repitition)</span>
+                            <span ng-switch-when="CANCELLATION">(cancelled)</span>
+                            <span ng-switch-when="UPDATE">(updated)</span>
+                        </span>
+        </div>
+    </div>
+
+
+    <!-- Time line -->
+    <div class="row">
+        <div class="col-sm-1 table-item-field">Time</div>
+        <div ng-if="msg.descs[0].time" class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].time | plain2html"></div>
+        <div ng-if="!msg.descs[0].time" class="col-sm-11 table-item-value">
+            {{msg.validFrom | date : 'dd/MM/yy'}}
+            <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
+        </div>
+    </div>
+
+    <!-- Location line -->
+    <div class="row" ng-if="msg.locations">
+        <div class="col-sm-1 table-item-field">Location</div>
+        <div class="col-sm-11 table-item-value">
+            <div ng-repeat="loc in msg.locations">
+                <div ng-if="loc.descs[0].description">{{loc.descs[0].description}}</div>
+                <div ng-repeat="pt in loc.points">
+                    {{pt | lonlat}}<span ng-if="pt.descs[0].description">, {{pt.descs[0].description}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Details line -->
+    <div class="row" ng-if="msg.descs[0].description">
+        <div class="col-sm-1 table-item-field">Details</div>
+        <div class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].description"></div>
+    </div>
+
+    <!-- Note line -->
+    <div class="row" ng-if="msg.descs[0].note">
+        <div class="col-sm-1 table-item-field">Note</div>
+        <div class="col-sm-11 table-item-value">{{msg.descs[0].note}}</div>
+    </div>
+
+    <!-- Charts line -->
+    <div class="row" ng-if="msg.charts.length > 0">
+        <div class="col-sm-1 table-item-field">Charts</div>
+        <div class="col-sm-11 table-item-value">
+                        <span ng-repeat="chart in msg.charts"><span ng-if="!$first">, </span>{{chart.chartNumber}}
+                            <span ng-if="chart.internationalNumber">(INT {{chart.internationalNumber}})</span></span>
+        </div>
+    </div>
+
+    <!-- Publication line -->
+    <div class="row" ng-if="msg.descs[0].publication">
+        <div class="col-sm-1 table-item-field">Publication</div>
+        <div class="col-sm-11 table-item-value">{{msg.descs[0].publication}}</div>
+    </div>
+
+    <!-- Source line -->
+    <div class="row" ng-if="msg.descs[0].source">
+        <div class="col-sm-12 table-item-value text-right">({{msg.descs[0].source}})</div>
+    </div>
+
+</td>

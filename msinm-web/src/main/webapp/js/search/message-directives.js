@@ -4,6 +4,9 @@
 angular.module('msinm.search')
 
 
+    /****************************************************************
+     * Binds a click event that will open the message details dialog
+     ****************************************************************/
     .directive('msiMessageDetails', ['$rootScope',
         function ($rootScope) {
         'use strict';
@@ -26,6 +29,32 @@ angular.module('msinm.search')
         };
     }])
 
+
+    /********************************
+     * Renders the message details
+     ********************************/
+    .directive('msiRenderMessageDetails', [ '$rootScope', function ($rootScope) {
+        'use strict';
+
+        return {
+            restrict: 'A',
+            templateUrl: '/partials/search/render-message-details.html',
+            replace: false,
+            scope: {
+                msg: "=",
+                messages: "=",
+                showDetailsMenu: "@"
+            },
+            link: function(scope, element, attrs) {
+                scope.language = $rootScope.language;
+            }
+        };
+    }])
+
+
+    /****************************************************************
+     * Adds a message details drop-down menu
+     ****************************************************************/
     .directive('msiDetailsMenu', ['$rootScope', '$window', function ($rootScope, $window) {
         'use strict';
 
@@ -72,11 +101,18 @@ angular.module('msinm.search')
 
                 // Navigate to the message editor page
                 scope.edit = function() {
-                    //$scope.$dismiss('edit');
                     if (scope.dismissAction) {
                         scope.dismissAction();
                     }
-                    $window.location = '/search.html#/search/edit/' + scope.messageId;
+                    $window.location = '/search.html#/search/edit/editor/' + scope.messageId;
+                };
+
+                // Navigate to the message manager page
+                scope.manage = function() {
+                    if (scope.dismissAction) {
+                        scope.dismissAction();
+                    }
+                    $window.location = '/search.html#/search/edit/manage/' + scope.messageId;
                 };
 
 

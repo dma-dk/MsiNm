@@ -1,0 +1,52 @@
+
+<div class="container-fluid" ng-controller="MessageManagerCtrl" id="message-manager">
+
+    <div class="row manager-page">
+        <h1 class="page-header">Manage Message {{msg.seriesIdentifier.fullId}}</h1>
+
+        <div class="row manager-main">
+            <div class="col-sm-12 col-md-10 col-lg-8">
+                <table class='table table-condensed'>
+                    <tr msi-render-message-details msg="msg" messages="messages" show-details-menu="false" ></tr>
+                </table>
+            </div>
+            <div class="col-sm-12 col-md-2 col-lg-4">
+                <div class="panel panel-default action-panel">
+                    <p>
+                        Status:
+                        <strong>{{msg.status}}</strong>
+                    </p>
+
+                    <div style="margin-top: 20px;">
+                        <button href class="btn btn-primary btn-sm manager-action" ng-click="publish()" ng-if="msg.status == 'DRAFT'">
+                            <span class="glyphicon glyphicon-send"></span> Publish Message...
+                        </button>
+                    </div>
+                    <div>
+                        <button href class="btn btn-default btn-sm manager-action" ng-click="delete()" ng-if="msg.status == 'DRAFT'">
+                            <span class="glyphicon glyphicon-trash"></span> Delete Draft...
+                        </button>
+                    </div>
+                    <div>
+                        <button href class="btn btn-default btn-sm manager-action" ng-click="cancel()" ng-if="msg.status == 'PUBLISHED'">
+                            <span class="glyphicon glyphicon-trash"></span> Cancel Message...
+                        </button>
+                    </div>
+                    <div>
+                        <button href class="btn btn-default btn-sm manager-action" ng-click="edit()" ng-if="msg.status == 'DRAFT'">
+                            <span class="glyphicon glyphicon-pencil"></span> Edit Message...
+                        </button>
+                    </div>
+                    <div>
+                        <button href class="btn btn-default btn-sm manager-action" ng-click="copy()">
+                            <span class="glyphicon glyphicon-plus"></span> Copy Message...
+                        </button>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+</div>
