@@ -6,8 +6,8 @@ angular.module('msinm.search')
     /********************************************
      * Controller that handles editing messages
      *******************************************/
-    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', '$window', 'growlNotifications', 'MessageService', 'LangService',
-        function ($scope, $rootScope, $routeParams, $modal, $timeout, $window, growlNotifications, MessageService, LangService) {
+    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', '$window', '$location', 'growlNotifications', 'MessageService', 'LangService',
+        function ($scope, $rootScope, $routeParams, $modal, $timeout, $window, $location, growlNotifications, MessageService, LangService) {
             'use strict';
 
             $scope.dateFormat = "dd-mm-yyyy";
@@ -17,7 +17,9 @@ angular.module('msinm.search')
             $scope.uploadUri = '/rest/repo/upload-temp/';
             $scope.attachments = [];
 
+            $scope.action = $location.path().indexOf("/search/edit/editor") == 0 ? "edit" : "copy";
             $scope.messageId = ($routeParams.messageId && $routeParams.messageId != 'new') ? $routeParams.messageId : undefined;
+            $scope.reference = ($routeParams.reference) ? $routeParams.reference : undefined;
 
             $scope.msg = { seriesIdentifier: { mainType: 'MSI' }, descs: [], locations: [], areadId: undefined };
 
@@ -256,13 +258,15 @@ angular.module('msinm.search')
 
                 $scope.locationsLoaded = true;  // Trigger the location editor
                 $scope.messageSaved = false; // Remove lock on save button
-                $scope.setPristine();
+                if ($scope.action == 'edit') {
+                    $scope.setPristine();
+                }
             };
 
 
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {
-                if ($scope.messageId) {
+                if ($scope.action == 'edit' && $scope.messageId) {
                     MessageService.allDetails(
                         $scope.messageId,
                         function (data) {
@@ -273,8 +277,20 @@ angular.module('msinm.search')
                         function (data) {
                             growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
                         });
-                } else {
+                } else if ($scope.action == 'edit') {
                     MessageService.newMessageTemplate(
+                        function (data) {
+                            $scope.msg = data;
+                            $scope.uploadUri = '/rest/repo/upload-temp/' + $scope.msg.repoPath;
+                            $scope.initMessage();
+                        },
+                        function (data) {
+                            console.error("Error getting new temp dir" + data);
+                        });
+                } else if ($scope.action == 'copy') {
+                    MessageService.copyMessageTemplate(
+                        $scope.messageId,
+                        $scope.reference,
                         function (data) {
                             $scope.msg = data;
                             $scope.uploadUri = '/rest/repo/upload-temp/' + $scope.msg.repoPath;
@@ -320,7 +336,7 @@ angular.module('msinm.search')
                 }
 
                 // Save or update the message
-                if ($scope.messageId) {
+                if ($scope.action == 'edit' && $scope.messageId) {
                     MessageService.updateMessage(
                         $scope.msg,
                         function (data) {
@@ -356,6 +372,11 @@ angular.module('msinm.search')
                 $scope.loadMessageDetails();
             };
 
+
+            // Manage the message
+            $scope.manageMessage = function () {
+                $window.location = '/search.html#/search/edit/manage/' + $scope.messageId;
+            };
 
             // Fetches the attachments belonging the the current message
             $scope.listFiles = function() {
@@ -480,8 +501,8 @@ angular.module('msinm.search')
     /*************************************************
      * Controller that handles management of messages
      *************************************************/
-    .controller('MessageManagerCtrl', ['$scope', '$rootScope', '$routeParams', '$window', 'growlNotifications', 'MessageService',
-        function ($scope, $rootScope, $routeParams, $window, growlNotifications, MessageService) {
+    .controller('MessageManagerCtrl', ['$scope', '$rootScope', '$routeParams', '$window', 'growlNotifications', 'MessageService', 'DialogService',
+        function ($scope, $rootScope, $routeParams, $window, growlNotifications, MessageService, DialogService) {
             'use strict';
 
             $scope.messageId = $routeParams.messageId;
@@ -501,15 +522,123 @@ angular.module('msinm.search')
                     });
             };
 
+            // Load the message details
+            $scope.loadMessageDetails();
+
             // Edit the message
             $scope.edit = function () {
-                if ($scope.msg.status == 'DRAFT') {
+                if ($scope.msg.status == 'DRAFT' || $rootScope.hasRole('sysadmin')) {
                     $window.location = '/search.html#/search/edit/editor/' + $scope.messageId;
                 }
             };
 
-            // Load the message details
-            $scope.loadMessageDetails();
+            // Publish the message
+            $scope.publish = function () {
+                // First check that the message is valid
+                var msg = $scope.msg;
+                var error = "";
+                if (msg.status != 'DRAFT') {
+                    error += "Only draft messages can be published<br/>"
+                }
+                if (!msg.seriesIdentifier.authority || !msg.seriesIdentifier.mainType || !msg.seriesIdentifier.year) {
+                    error += "The message series identifier is not valid<br/>"
+                }
+                if (!msg.type) {
+                    error += "No message type specified<br/>"
+                }
+                if (!msg.validFrom) {
+                    error += "No valid-from date specified<br/>"
+                }
+                // TODO: Check title and description???
+
+                if (error != "") {
+                    var modalOptions = {
+                        closeButtonText: 'Cancel',
+                        actionButtonText: 'Edit Message',
+                        headerText: 'Message Publishing Failed',
+                        error: error,
+                        templateUrl: "publishMessageError.html"
+                    };
+
+                    DialogService.showDialog({}, modalOptions).then(function (result) {
+                        $scope.edit();
+                    });
+                    return;
+                }
+
+                DialogService.showConfirmDialog(
+                    "Publish Message?", "Publish Message '" + $scope.msg.seriesIdentifier.fullId + "' ?")
+                    .then(function() {
+                        MessageService.updateMessageStatus(
+                            { messageId: $scope.messageId, status: 'PUBLISHED' },
+                            function (data) {
+                                $scope.msg = data;
+                            },
+                            function (data) {
+                                growlNotifications.add('<h4>Publishing failed</h4>', 'danger', 3000);
+                            });
+                    });
+            };
+
+
+            // Delete the draft
+            $scope.delete = function () {
+                if ($scope.msg.status != 'DRAFT') {
+                    return;
+                }
+
+                DialogService.showConfirmDialog(
+                    "Delete draft?", "Delete draft '" + $scope.msg.seriesIdentifier.fullId + "' ?")
+                    .then(function() {
+                        MessageService.updateMessageStatus(
+                            { messageId: $scope.messageId, status: 'DELETED' },
+                            function (data) {
+                                $scope.msg = data;
+                            },
+                            function (data) {
+                                growlNotifications.add('<h4>Deletion failed</h4>', 'danger', 3000);
+                            });
+                });
+            };
+
+            // Copy the message
+            $scope.copy = function () {
+                DialogService.showConfirmDialog(
+                    "Copy Message?", "Copy Message '" + $scope.msg.seriesIdentifier.fullId + "' ?")
+                    .then(function() {
+                        $window.location = '/search.html#/search/edit/copy/' + $scope.messageId + "/REFERENCE";
+                    });
+            };
+
+            // Cancel the message
+            $scope.cancel = function () {
+                if ($scope.msg.status != 'PUBLISHED') {
+                    return;
+                }
+
+                var modalOptions = {
+                    closeButtonText: 'Cancel',
+                    actionButtonText: 'Confirm Cancellation',
+                    headerText: 'Cancel Message',
+                    cancelOptions: { createCancelMessage: true },
+                    templateUrl: "cancelMessage.html"
+                };
+
+                DialogService.showDialog({}, modalOptions).then(function (result) {
+                    MessageService.updateMessageStatus(
+                        { messageId: $scope.messageId, status: 'CANCELLED' },
+                        function (data) {
+                            $scope.msg = data;
+                            if (modalOptions.cancelOptions.createCancelMessage) {
+                                $window.location = '/search.html#/search/edit/copy/' + data.id + "/CANCELLATION"
+                            }
+                        },
+                        function (data) {
+                            growlNotifications.add('<h4>Deletion failed</h4>', 'danger', 3000);
+                        });
+                });
+
+            }
         }])
 
 

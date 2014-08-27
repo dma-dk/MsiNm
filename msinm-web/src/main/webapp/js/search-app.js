@@ -28,6 +28,9 @@ var app = angular.module('msinm', [
         }).when('/search/edit/editor/:messageId', {
             templateUrl: 'partials/search/message-editor.html',
             resolve: checkRole('editor')
+        }).when('/search/edit/copy/:messageId/:reference', {
+            templateUrl: 'partials/search/message-editor.html',
+            resolve: checkRole('editor')
         }).when('/search/edit/manage/:messageId', {
             templateUrl: 'partials/search/message-manager.html',
             resolve: checkRole('editor')

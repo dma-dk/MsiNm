@@ -50,3 +50,26 @@
 
     </div>
 </div>
+
+
+<!-- Cancel Message dialog -->
+<script type="text/ng-template" id="cancelMessage.html">
+
+    <form name="copy_form">
+        <p>Please confirm cancellation</p>
+        <div class="checkbox col-sm-6">
+            <label><input type="checkbox" ng-model="modalOptions.cancelOptions.createCancelMessage"> Create cancellation message</label>
+        </div>
+    </form>
+
+</script>
+
+<!-- Publish Message Error dialog -->
+<script type="text/ng-template" id="publishMessageError.html">
+
+    <form name="copy_form">
+        <p>Message cannot be published</p>
+        <div ng-bind-html="modalOptions.error"></div>
+    </form>
+
+</script>

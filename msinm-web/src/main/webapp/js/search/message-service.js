@@ -18,6 +18,12 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            copyMessageTemplate: function(id, ref, success, error) {
+                $http.get('/rest/messages/copy-message-template/' + id + ((ref) ? "?reference=" + ref : ''))
+                    .success(success)
+                    .error(error);
+            },
+
             listFiles: function(dir, success, error) {
                 $http.get('/rest/repo/list/' + dir)
                     .success(success)
@@ -56,6 +62,12 @@ angular.module('msinm.search')
 
             updateMessage: function(msg, success, error) {
                 $http.put('/rest/messages/message', msg)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateMessageStatus: function(status, success, error) {
+                $http.put('/rest/messages/update-status', status)
                     .success(success)
                     .error(error);
             },

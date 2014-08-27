@@ -26,7 +26,10 @@ import dk.dma.msinm.common.time.TimeProcessor;
 import dk.dma.msinm.common.time.TimeTranslator;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.Reference;
+import dk.dma.msinm.model.ReferenceType;
 import dk.dma.msinm.model.SeriesIdType;
+import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
 import dk.dma.msinm.service.CalendarService;
@@ -35,6 +38,7 @@ import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
 import dk.dma.msinm.vo.MessageVo;
+import dk.dma.msinm.vo.ReferenceVo;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -64,6 +68,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -102,18 +107,69 @@ public class MessageRestService {
 
     /**
      * Creates a new message template with a temporary repository path
+     *
      * @return the new message template
      */
     @GET
     @Path("/new-message-template")
     @Produces("application/json;charset=UTF-8")
+    @GZIP
     @NoCache
+    @RolesAllowed({"editor"})
     public MessageVo newTemplateMessage() {
         return messageService.newTemplateMessage();
     }
 
     /**
+     * Creates a new message copy template with a temporary repository path
+     *
+     * @return the new message copy template
+     */
+    @GET
+    @Path("/copy-message-template/{messageId}")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    @RolesAllowed({"editor"})
+    public MessageVo copyMessageTemplate(@PathParam("messageId") String messageId, @QueryParam("reference") String reference) {
+        // Look up the message
+        MessageVo message = getMessage(messageId, null);
+
+        // Check if we need to add the original message as a reference
+        if (StringUtils.isNotBlank(reference)) {
+            try {
+                if (message.getReferences() == null) {
+                    message.setReferences(new HashSet<>());
+                }
+                Reference ref = new Reference();
+                ref.setSeriesIdentifier(message.getSeriesIdentifier().copy());
+                ref.setType(ReferenceType.valueOf(reference));
+                message.getReferences().add(new ReferenceVo(ref));
+
+            } catch (IllegalArgumentException e) {
+                log.warn("Failed to add reference of type " + reference);
+            }
+        }
+
+        // Get a temp repo path
+        MessageVo newTemplateMessage = newTemplateMessage();
+        message.setRepoPath(newTemplateMessage.getRepoPath());
+
+        // Reset various identifier fields
+        message.setId(null);
+        message.setStatus(Status.DRAFT);
+        SeriesIdentifier id = new SeriesIdentifier();
+        id.setMainType(message.getSeriesIdentifier().getMainType());
+        id.setAuthority(message.getSeriesIdentifier().getAuthority());
+        id.setYear(newTemplateMessage.getSeriesIdentifier().getYear());
+        message.setSeriesIdentifier(id);
+
+        return message;
+    }
+
+    /**
      * Translates the messageId, which may be an ID or a series identifier, into a message id
+     *
      * @param messageId the mesage id
      * @return the message id
      */
@@ -138,6 +194,7 @@ public class MessageRestService {
 
     /**
      * Returns the message with the given ID or series ID
+     *
      * @return the message, or null if not found
      */
     @GET
@@ -170,6 +227,7 @@ public class MessageRestService {
 
     /**
      * Saves a new message
+     *
      * @param message the message to save
      * @return the persisted message
      */
@@ -179,7 +237,7 @@ public class MessageRestService {
     @Produces("application/json")
     @GZIP
     @NoCache
-    @RolesAllowed({ "editor" })
+    @RolesAllowed({"editor"})
     public MessageVo createMessage(MessageVo message) throws Exception {
         log.info("Creating message " + message);
         Message msg = messageService.createMessage(message);
@@ -188,6 +246,7 @@ public class MessageRestService {
 
     /**
      * Updates a message
+     *
      * @param message the message to update
      * @return the updated message
      */
@@ -197,13 +256,31 @@ public class MessageRestService {
     @Produces("application/json")
     @GZIP
     @NoCache
-    @RolesAllowed({ "editor" })
+    @RolesAllowed({"editor"})
     public MessageVo updateMessage(MessageVo message) throws Exception {
         log.info("Updating message " + message);
         Message msg = messageService.updateMessage(message);
         return getMessage(msg.getId().toString(), null);
     }
 
+    /**
+     * Updates the status of a message
+     *
+     * @param status the status update
+     * @return the updated message
+     */
+    @PUT
+    @Path("/update-status")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @GZIP
+    @NoCache
+    @RolesAllowed({"editor"})
+    public MessageVo updateMessageStatus(MessageStatusVo status) throws Exception {
+        log.info("Updating status of message " + status.getMessageId() + " to " + status.getStatus());
+        Message msg = messageService.setStatus(status.getMessageId(), status.getStatus());
+        return getMessage(msg.getId().toString(), null);
+    }
 
     /***************************
      * Template functionality
@@ -211,6 +288,7 @@ public class MessageRestService {
 
     /**
      * Transforms a message according to the requested template and language
+     *
      * @param transformVo the transformation data
      * @return the result
      */
@@ -220,7 +298,7 @@ public class MessageRestService {
     @Produces("text/plain;charset=UTF-8")
     @GZIP
     @NoCache
-    @RolesAllowed({ "editor" })
+    @RolesAllowed({"editor"})
     public String transform(TransformVo transformVo) throws Exception {
         log.info("Transforming message " + transformVo);
 
@@ -525,7 +603,7 @@ public class MessageRestService {
      */
     @GET
     @Path("/recreate-search-index")
-    @RolesAllowed({ "admin" })
+    @RolesAllowed({"admin"})
     public void recreateSearchIndex() {
         try {
             log.info("Recreating message search index");
@@ -541,6 +619,7 @@ public class MessageRestService {
 
     /**
      * Translates the time description and determines validFrom and validTo from it
+     *
      * @param timeVo the time to translate
      * @return the translated time
      */
@@ -584,6 +663,32 @@ public class MessageRestService {
     /***************************
      * Helper VO classes
      ***************************/
+
+    /**
+     * Helper class used changing the status of a message
+     */
+    @JsonIgnoreProperties(ignoreUnknown=true)
+    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
+    public static class MessageStatusVo {
+        Integer messageId;
+        Status status;
+
+        public Integer getMessageId() {
+            return messageId;
+        }
+
+        public void setMessageId(Integer messageId) {
+            this.messageId = messageId;
+        }
+
+        public Status getStatus() {
+            return status;
+        }
+
+        public void setStatus(Status status) {
+            this.status = status;
+        }
+    }
 
     /**
      * Helper class used for submitting message transformation data

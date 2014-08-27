@@ -301,17 +301,29 @@ public class MessageService extends BaseService {
 
     /**
      * Updates the status of the given message
-     * @param msg the message
+     * @param messageId the id of the message
      * @param status the status
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
-    public void setStatus(Message msg, Status status) {
-        msg = getByPrimaryKey(Message.class, msg.getId());
+    public Message setStatus(Integer messageId, Status status) {
+        Message msg = getByPrimaryKey(Message.class, messageId);
+
+        // TODO: Proper publishing
+        if (msg.getStatus() == Status.DRAFT && status == Status.PUBLISHED) {
+            int number = newSeriesIdentifierNumber(
+                    msg.getType(),
+                    msg.getSeriesIdentifier().getAuthority(),
+                    msg.getSeriesIdentifier().getYear());
+            msg.getSeriesIdentifier().setNumber(number);
+        }
+
         msg.setStatus(status);
-        saveEntity(msg);
+        msg = saveEntity(msg);
 
         // Un-cache the message
         evictCachedMessage(msg);
+
+        return msg;
     }
 
     /**

@@ -282,6 +282,9 @@
                 <button href class="btn btn-default btn-sm" ng-click="reloadMessage()">
                     <span class="glyphicon glyphicon-refresh"></span> Reload Message
                 </button>
+                <button href class="btn btn-default btn-sm" ng-click="manageMessage()" ng-disabled="action == 'copy' || messageId == undefined">
+                    <span class="glyphicon glyphicon-send"></span> Manage Message
+                </button>
             </div>
 
 

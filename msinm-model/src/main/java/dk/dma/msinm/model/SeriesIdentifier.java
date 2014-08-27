@@ -69,6 +69,19 @@ public class SeriesIdentifier implements Serializable {
         return String.format("%s-%s", mainType, getShortId());
     }
 
+    /**
+     * Returns a copy of this SeriesIdentifier
+     * @return a copy of this SeriesIdentifier
+     */
+    public SeriesIdentifier copy() {
+        SeriesIdentifier id = new SeriesIdentifier();
+        id.mainType = mainType;
+        id.authority = authority;
+        id.number = number;
+        id.year = year;
+        return id;
+    }
+
     // *** Getters and setters
 
     public SeriesIdType getMainType() {

@@ -38,7 +38,7 @@ public class MessageExpiryService {
         log.info("Found " + messages.size() + " expired published messages");
         messages.forEach(msg -> {
             try {
-                messageService.setStatus(msg, Status.EXPIRED);
+                messageService.setStatus(msg.getId(), Status.EXPIRED);
             } catch (Exception e) {
                 log.error("Failed setting expired state of message " + msg.getId(), e);
             }
