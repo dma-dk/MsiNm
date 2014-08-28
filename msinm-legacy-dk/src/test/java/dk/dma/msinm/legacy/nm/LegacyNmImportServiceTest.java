@@ -39,9 +39,11 @@ import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.model.PointDesc;
+import dk.dma.msinm.service.MessageService;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
 import dk.dma.msinm.test.TestTemplateConfiguration;
+import dk.dma.msinm.user.UserService;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.BeforeClass;
@@ -63,6 +65,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
+        UserService.class, MessageService.class,
         TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, LegacyNmImportService.class, LegacyMessageService.class, Settings.class,
         Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class, MsiNmApp.class
 })

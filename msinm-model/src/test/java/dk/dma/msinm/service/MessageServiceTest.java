@@ -25,6 +25,7 @@ import dk.dma.msinm.model.*;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
 import dk.dma.msinm.test.TestTemplateConfiguration;
+import dk.dma.msinm.user.UserService;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.After;
@@ -47,6 +48,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
+        UserService.class,
         TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, Settings.class,
         Sequences.class, LogConfiguration.class, EntityManager.class
 })
