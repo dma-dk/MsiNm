@@ -89,7 +89,7 @@ public class LegacyNmImportService {
             template.setArea(area);
 
             // Save the message
-            message = messageService.create(template);
+            message = messageService.saveMessage(template);
             txt.append("Saved NtM: " + template.getSeriesIdentifier() + "\n");
         } catch (Exception e) {
             txt.append("Error saving NtM: " + template.getSeriesIdentifier() + "\n");

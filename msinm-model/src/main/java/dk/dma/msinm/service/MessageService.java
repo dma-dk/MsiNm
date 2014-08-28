@@ -105,7 +105,7 @@ public class MessageService extends BaseService {
     String selectActiveSql;
 
     /**
-     * Creates or updates a Message
+     * Creates or updates a Message without generating a message history entity
      * @param message the message to create or update
      * @return the persisted message
      */
@@ -478,8 +478,7 @@ public class MessageService extends BaseService {
                 .forEach(msg -> {
                     msg.setValidTo(date);
                     msg.setStatus(Status.CANCELLED);
-                    saveEntity(msg);
-                    evictCachedMessage(msg);
+                    saveMessage(msg);
                     deactivated.add(msg);
                 });
 
@@ -532,14 +531,14 @@ public class MessageService extends BaseService {
      * Saves a history entity containing a snapshot of the message
      * @param message the message to save a snapshot for
      */
-    private void saveHistory(Message message) {
+    public void saveHistory(Message message) {
 
         try {
             MessageHistory hist = new MessageHistory();
             hist.setMessage(message);
             hist.setStatus(message.getStatus());
-            hist.setCreated(message.getUpdated());
-            hist.setVersion(message.getVersion());
+            hist.setCreated(new Date());
+            hist.setVersion(message.getVersion() + 1);
 
             // The user may not be defined, say, if this is a legacy import
             if (ctx != null && ctx.getCallerPrincipal() != null) {

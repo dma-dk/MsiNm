@@ -103,7 +103,7 @@ public class WeeklyNmImportService {
             message.setCategories(categories);
 
             // Save the message
-            message = messageService.create(message);
+            message = messageService.saveMessage(message);
             txt.append("Saved NtM: " + message.getSeriesIdentifier() + "\n");
         } catch (Exception e) {
             txt.append("Error saving NtM: " + message.getSeriesIdentifier() + "\n");

@@ -19,6 +19,8 @@ import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.user.User;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import javax.persistence.NamedQueries;
@@ -36,7 +38,7 @@ import java.util.Date;
 @Entity
 @NamedQueries({
     @NamedQuery(name = "MessageHistory.findByMessageId",
-                query = "SELECT mh FROM MessageHistory mh where mh.message.id = :messageId order by mh.version desc")
+                query = "SELECT mh FROM MessageHistory mh where mh.message.id = :messageId order by mh.created desc")
 })
 public class MessageHistory extends BaseEntity<Integer> {
 
@@ -45,6 +47,7 @@ public class MessageHistory extends BaseEntity<Integer> {
     Message message;
 
     @NotNull
+    @Enumerated(EnumType.STRING)
     Status status;
 
     @ManyToOne

@@ -82,6 +82,36 @@ public class SeriesIdentifier implements Serializable {
         return id;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof SeriesIdentifier)) return false;
+
+        SeriesIdentifier that = (SeriesIdentifier) o;
+
+        if (authority != null ? !authority.equals(that.authority) : that.authority != null) return false;
+        if (mainType != that.mainType) return false;
+        if (number != null ? !number.equals(that.number) : that.number != null) return false;
+        if (year != null ? !year.equals(that.year) : that.year != null) return false;
+
+        return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int hashCode() {
+        int result = mainType != null ? mainType.hashCode() : 0;
+        result = 31 * result + (authority != null ? authority.hashCode() : 0);
+        result = 31 * result + (number != null ? number.hashCode() : 0);
+        result = 31 * result + (year != null ? year.hashCode() : 0);
+        return result;
+    }
+
     // *** Getters and setters
 
     public SeriesIdType getMainType() {

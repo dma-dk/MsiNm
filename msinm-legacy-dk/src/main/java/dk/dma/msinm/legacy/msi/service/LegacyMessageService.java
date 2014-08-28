@@ -175,6 +175,7 @@ public class LegacyMessageService extends BaseService {
             }
 
             legacyMessage = saveEntity(legacyMessage);
+            messageService.saveHistory(legacyMessage.getMessage());
             log.info("Persisted legacy message " + legacyMessage);
 
             // Evict the message from the message cache
