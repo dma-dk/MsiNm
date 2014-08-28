@@ -8,6 +8,8 @@
     <persistence-unit name="msi" transaction-type="RESOURCE_LOCAL">
         <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
 
+        <shared-cache-mode>ENABLE_SELECTIVE</shared-cache-mode>
+
         <properties>
             <property name="hibernate.connection.url" value="jdbc:h2:mem:msi" />
             <property name="hibernate.dialect" value="org.hibernate.dialect.H2Dialect" />
@@ -16,6 +18,9 @@
             <property name="hibernate.connection.username" value="" />
             <property name="hibernate.show_sql" value="false" />
             <property name="hibernate.format_sql" value="true" />
+
+            <property name="hibernate.cache.use_second_level_cache" value="false" />
+            <property name="hibernate.cache.use_query_cache" value="false" />
 
             <property name="javax.persistence.schema-generation.database.action" value="drop-and-create"/>
             <property name="javax.persistence.schema-generation.create-source" value="metadata"/>

@@ -46,7 +46,6 @@ import javax.persistence.EntityManager;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        UserService.class, MessageService.class,
         TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, LegacyMsiImportRestService.class, LegacyMessageService.class, Settings.class,
         Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class, MsiNmApp.class
 })

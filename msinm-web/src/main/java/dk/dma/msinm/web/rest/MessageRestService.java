@@ -164,6 +164,9 @@ public class MessageRestService {
         id.setAuthority(message.getSeriesIdentifier().getAuthority());
         id.setYear(newTemplateMessage.getSeriesIdentifier().getYear());
         message.setSeriesIdentifier(id);
+        if (message.getReferences() != null) {
+            message.getReferences().forEach(ref -> ref.setId(null));
+        }
 
         return message;
     }

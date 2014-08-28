@@ -48,6 +48,9 @@ public class MsiNmUnitTest {
         props.put(AvailableSettings.LOADED_CLASSES,
                 Arrays.asList(entityClasses));
 
+        props.put("hibernate.cache.use_second_level_cache", "false");
+        props.put("hibernate.cache.use_query_cache", "false");
+
         entityManagerFactory = Persistence.createEntityManagerFactory(TEST_UNIT_NAME, props);
         entityManager = entityManagerFactory.createEntityManager();
 

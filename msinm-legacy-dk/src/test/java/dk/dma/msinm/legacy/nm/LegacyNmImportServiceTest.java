@@ -35,15 +35,16 @@ import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
-import dk.dma.msinm.model.Reference;
-import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.MessageHistory;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.model.PointDesc;
-import dk.dma.msinm.service.MessageService;
+import dk.dma.msinm.model.Reference;
+import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
 import dk.dma.msinm.test.TestTemplateConfiguration;
-import dk.dma.msinm.user.UserService;
+import dk.dma.msinm.user.Role;
+import dk.dma.msinm.user.User;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.BeforeClass;
@@ -65,7 +66,6 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        UserService.class, MessageService.class,
         TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, LegacyNmImportService.class, LegacyMessageService.class, Settings.class,
         Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class, MsiNmApp.class
 })
@@ -82,7 +82,7 @@ public class LegacyNmImportServiceTest extends MsiNmUnitTest
     public static void prepareEntityManagerFactory() throws ClassNotFoundException {
         prepareEntityManagerFactory(
                 SequenceEntity.class, SettingsEntity.class, AuditEntry.class,
-                LegacyMessage.class,
+                LegacyMessage.class, MessageHistory.class, User.class, Role.class,
                 Message.class, MessageDesc.class, Location.class, LocationDesc.class, Reference.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
                 Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
