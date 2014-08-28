@@ -32,7 +32,7 @@ public class MessageHistoryVo extends BaseVo<MessageHistory> {
         super(entity);
 
         messageId = entity.getMessage().getId();
-        status = entity.getMessage().getStatus();
+        status = entity.getStatus();
         user = (entity.getUser()) != null ? entity.getUser().getEmail() : null;
         version = entity.getVersion();
         created = entity.getCreated();

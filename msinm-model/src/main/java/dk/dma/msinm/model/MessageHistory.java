@@ -44,6 +44,9 @@ public class MessageHistory extends BaseEntity<Integer> {
     @NotNull
     Message message;
 
+    @NotNull
+    Status status;
+
     @ManyToOne
     User user;
 
@@ -69,6 +72,14 @@ public class MessageHistory extends BaseEntity<Integer> {
 
     public void setMessage(Message message) {
         this.message = message;
+    }
+
+    public Status getStatus() {
+        return status;
+    }
+
+    public void setStatus(Status status) {
+        this.status = status;
     }
 
     public User getUser() {

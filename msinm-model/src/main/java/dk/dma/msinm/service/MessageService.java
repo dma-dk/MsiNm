@@ -537,6 +537,7 @@ public class MessageService extends BaseService {
         try {
             MessageHistory hist = new MessageHistory();
             hist.setMessage(message);
+            hist.setStatus(message.getStatus());
             hist.setCreated(message.getUpdated());
             hist.setVersion(message.getVersion());
 
