@@ -505,10 +505,15 @@ angular.module('msinm.search')
         function ($scope, $rootScope, $routeParams, $window, growlNotifications, MessageService, DialogService) {
             'use strict';
 
+
             $scope.messageId = $routeParams.messageId;
 
             $scope.msg = { seriesIdentifier: { mainType: 'MSI' }, descs: [ {} ], locations: [], areadId: undefined };
             $scope.messages = [];
+
+            $scope.messageHistory = undefined;
+            $scope.showHistory = false;
+            $scope.selectedHistory = [];
 
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {
@@ -516,6 +521,8 @@ angular.module('msinm.search')
                     $scope.messageId,
                     function (data) {
                         $scope.msg = data;
+                        $scope.messageHistory = undefined;
+                        $scope.showHistory = false;
                     },
                     function (data) {
                         growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
@@ -573,6 +580,7 @@ angular.module('msinm.search')
                             { messageId: $scope.messageId, status: 'PUBLISHED' },
                             function (data) {
                                 $scope.msg = data;
+                                $scope.resetHistory();
                             },
                             function (data) {
                                 growlNotifications.add('<h4>Publishing failed</h4>', 'danger', 3000);
@@ -594,6 +602,7 @@ angular.module('msinm.search')
                             { messageId: $scope.messageId, status: 'DELETED' },
                             function (data) {
                                 $scope.msg = data;
+                                $scope.resetHistory();
                             },
                             function (data) {
                                 growlNotifications.add('<h4>Deletion failed</h4>', 'danger', 3000);
@@ -629,6 +638,7 @@ angular.module('msinm.search')
                         { messageId: $scope.messageId, status: 'CANCELLED' },
                         function (data) {
                             $scope.msg = data;
+                            $scope.resetHistory();
                             if (modalOptions.cancelOptions.createCancelMessage) {
                                 $window.location = '/search.html#/search/edit/copy/' + data.id + "/CANCELLATION"
                             }
@@ -637,8 +647,42 @@ angular.module('msinm.search')
                             growlNotifications.add('<h4>Deletion failed</h4>', 'danger', 3000);
                         });
                 });
+            };
 
+            // Load the message history
+            $scope.loadHistory = function () {
+                if (!$scope.messageHistory) {
+                    MessageService.getMessageHistory(
+                        $scope.messageId,
+                        function (data) {
+                            $scope.messageHistory = data;
+                        },
+                        function (data) {
+                            growlNotifications.add('<h4>Loading history failed</h4>', 'danger', 3000);
+                        });
+                }
+            };
+
+            // Clear the message history
+            $scope.resetHistory = function () {
+                $scope.messageHistory = undefined;
+                $scope.showHistory = false;
+                $scope.selectedHistory = [];
+            };
+
+            // Toggle the history selection
+            $scope.toggleSelectHist = function (hist) {
+                hist.selected = (hist.selected === undefined) ? true : !hist.selected;
+                if (hist.selected) {
+                    if ($scope.selectedHistory.length >= 2) {
+                        $scope.selectedHistory.shift().selected = false;
+                    }
+                    $scope.selectedHistory.push(hist);
+                } else if ($.inArray(hist, $scope.selectedHistory) >= 0) {
+                    $scope.selectedHistory.splice($.inArray(hist, $scope.selectedHistory), 1);
+                }
             }
+
         }])
 
 

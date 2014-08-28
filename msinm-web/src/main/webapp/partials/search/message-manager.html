@@ -5,12 +5,44 @@
         <h1 class="page-header">Manage Message {{msg.seriesIdentifier.fullId}}</h1>
 
         <div class="row manager-main">
-            <div class="col-sm-12 col-md-10 col-lg-8">
+
+            <div class="col-sm-12 col-md-9 col-lg-8" ng-if="!showHistory">
                 <table class='table table-condensed'>
                     <tr msi-render-message-details msg="msg" messages="messages" show-details-menu="false" ></tr>
                 </table>
             </div>
-            <div class="col-sm-12 col-md-2 col-lg-4">
+
+            <div class="col-sm-12 col-md-9 col-lg-8" ng-if="showHistory">
+                <table class='table table-condensed table-hover'>
+                    <tr>
+                        <th>Version</th>
+                        <th>Date</th>
+                        <th>User</th>
+                        <th>Status</th>
+                    </tr>
+                    <tr ng-repeat="hist in messageHistory" ng-click="toggleSelectHist(hist)" ng-class="{selected: hist.selected}">
+                        <td>{{hist.version}}</td>
+                        <td>{{hist.created | date : 'dd/MM/yy HH:mm'}}</td>
+                        <td>{{hist.user}}</td>
+                        <td>{{hist.status}}</td>
+                    </tr>
+                </table>
+
+                <div ng-if="selectedHistory.length > 0">
+                    <div ng-if="selectedHistory.length == 1">
+                        <h4>Showing message version {{selectedHistory[0].version}}</h4>
+                    </div>
+                    <div ng-if="selectedHistory.length == 2">
+                        <h4>Message changes from version {{selectedHistory[0].version}} to {{selectedHistory[1].version}}</h4>
+                        <p>Color-codes are used for <span style="background-color: #fcff7f">changes</span>,
+                            <span style="background-color: #8bff7f">additions</span>
+                           and <span style="background-color: #fd7f7f">deletions</span>.</p>
+                    </div>
+                    <div class="message-history-json json-diff" msi-json-diff history="selectedHistory"></div>
+                </div>
+            </div>
+
+            <div class="col-sm-12 col-md-3 col-lg-4">
                 <div class="panel panel-default action-panel">
                     <p>
                         Status:
@@ -40,6 +72,12 @@
                     <div>
                         <button href class="btn btn-default btn-sm manager-action" ng-click="copy()">
                             <span class="glyphicon glyphicon-plus"></span> Copy Message...
+                        </button>
+                    </div>
+                    <div>
+                        <button href class="btn btn-default btn-sm manager-action" ng-click="loadHistory()" ng-model="showHistory"
+                                btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
+                            <span class="glyphicon glyphicon-calendar"></span> Show History
                         </button>
                     </div>
 

@@ -21,5 +21,17 @@ angular.module('msinm.common')
                 .replace(/ /g, "&#8203;&nbsp;&#8203;")
                 .replace(/\r\n|\r|\n/g, "<br />");
         };
+    })
+
+    .filter('formatJson', function () {
+        return function (text) {
+            try {
+                var json = JSON.parse(text);
+                return JSON.stringify(json, null, 2);
+            } catch(e) {
+                console.error("ERROR " + e);
+            }
+            return text;
+        };
     });
 

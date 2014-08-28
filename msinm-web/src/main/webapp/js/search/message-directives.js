@@ -118,4 +118,51 @@ angular.module('msinm.search')
 
             }
         };
+    }])
+
+    /********************************
+     * Renders the JSON diff structure
+     ********************************/
+    .directive('msiJsonDiff', [ '$document', function ($document) {
+        'use strict';
+
+        return {
+            restrict: 'A',
+            scope: {
+                history: "="
+            },
+            link: function(scope, element, attrs) {
+
+                $document.on('click', function (e) {
+                    e = e || window.event;
+                    if (e.target.nodeName.toUpperCase() === "UL") {
+                        if (e.target.getAttribute("closed") === "yes") {
+                            e.target.setAttribute("closed", "no");
+                        } else {
+                            e.target.setAttribute("closed", "yes");
+                        }
+                    }
+                });
+
+                scope.$watchCollection(function () {
+                        return scope.history;
+                    },
+                    function (newValue) {
+                        element.empty();
+
+                        if (scope.history.length > 0) {
+
+                            try {
+                                var hist1 = JSON.parse(scope.history[0].snapshot);
+                                var hist2 = (scope.history.length > 1) ? JSON.parse(scope.history[1].snapshot) : hist1;
+                                jsond.compare(hist1, hist2, "Message", element[0]);
+                            } catch (e) {
+                                console.error("Error " + e);
+                            }
+                        }
+
+                    });
+            }
+        };
     }]);
+

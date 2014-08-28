@@ -72,6 +72,12 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            getMessageHistory: function(id, success, error) {
+                $http.get('/rest/messages/history/' + id)
+                    .success(success)
+                    .error(error);
+            },
+
             search: function(query, status, type, loc, areas, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, mapMode, success, error) {
                 $http.get(
                         '/rest/messages/search?lang=' + $rootScope.language

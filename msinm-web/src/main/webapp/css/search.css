@@ -379,3 +379,15 @@
     width: 160px;
     margin-bottom: 5px;
 }
+
+.selected td {
+    color: red;
+}
+
+.message-history-json {
+    font-size: 10px;
+    width: 100%;
+    max-height: 400px;
+    overflow: scroll;
+    border: 1px solid lightgray;
+}

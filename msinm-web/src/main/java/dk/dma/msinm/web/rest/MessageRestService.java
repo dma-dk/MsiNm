@@ -37,6 +37,7 @@ import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
+import dk.dma.msinm.vo.MessageHistoryVo;
 import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.ReferenceVo;
 import org.apache.commons.lang.StringUtils;
@@ -303,6 +304,30 @@ public class MessageRestService {
         log.info("Transforming message " + transformVo);
 
         return messageService.transformMessage(transformVo.getMessage(), transformVo.getTemplate(), transformVo.getLang());
+    }
+
+
+    /***************************************/
+    /** Message History methods           **/
+    /***************************************/
+
+    /**
+     * Returns the message history for the given message ID
+     * @param messageId the message ID or message series ID
+     * @return the message history
+     */
+    @GET
+    @Path("/history/{messageId}")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    @RolesAllowed({"editor"})
+    public List<MessageHistoryVo> getMessageHistory(@PathParam("messageId") String messageId) {
+
+        // Get the message id
+        Integer id = getMessageId(messageId);
+
+        return messageService.getMessageHistory(id);
     }
 
 

@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.model.DataFilter;
@@ -31,11 +32,14 @@ import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.MessageHistory;
 import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
+import dk.dma.msinm.user.UserService;
+import dk.dma.msinm.vo.MessageHistoryVo;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -59,6 +63,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Business interface for accessing MSI-NM messages
@@ -82,6 +87,9 @@ public class MessageService extends BaseService {
 
     @Inject
     RepositoryService repositoryService;
+
+    @Inject
+    UserService userService;
 
     @Inject
     Sequences sequences;
@@ -139,6 +147,9 @@ public class MessageService extends BaseService {
         if (wasPersisted) {
             evictCachedMessage(message);
         }
+
+        // Save a MessageHistory entity for the message
+        saveHistory(message);
 
         return message;
     }
@@ -318,10 +329,8 @@ public class MessageService extends BaseService {
         }
 
         msg.setStatus(status);
-        msg = saveEntity(msg);
 
-        // Un-cache the message
-        evictCachedMessage(msg);
+        msg = saveMessage(msg);
 
         return msg;
     }
@@ -513,6 +522,54 @@ public class MessageService extends BaseService {
             log.error("Error transforming message using template " + template, e);
             throw e;
         }
+    }
+
+    /***************************************/
+    /** Message History methods           **/
+    /***************************************/
+
+    /**
+     * Saves a history entity containing a snapshot of the message
+     * @param message the message to save a snapshot for
+     */
+    private void saveHistory(Message message) {
+
+        try {
+            MessageHistory hist = new MessageHistory();
+            hist.setMessage(message);
+            hist.setCreated(message.getUpdated());
+            hist.setVersion(message.getVersion());
+
+            // The user may not be defined, say, if this is a legacy import
+            if (ctx != null && ctx.getCallerPrincipal() != null) {
+                hist.setUser(userService.findByPrincipal(ctx.getCallerPrincipal()));
+            }
+
+            // Create a snapshot of the message
+            ObjectMapper jsonMapper = new ObjectMapper();
+            MessageVo snapshot = new MessageVo(message, DataFilter.get("Message.details"));
+            hist.setSnapshot(jsonMapper.writeValueAsString(snapshot));
+
+            saveEntity(hist);
+        } catch (Exception e) {
+            log.error("Error saving a history entry for message " + message.getId(), e);
+            // NB: We do not propagate the error, since we do not want to prevent
+            //    the original message operation
+        }
+    }
+
+    /**
+     * Returns the message history for the given message ID
+     * @param messageId the message ID
+     * @return the message history
+     */
+    public List<MessageHistoryVo> getMessageHistory(Integer messageId) {
+        return em.createNamedQuery("MessageHistory.findByMessageId", MessageHistory.class)
+                .setParameter("messageId", messageId)
+                .getResultList()
+                .stream()
+                .map(MessageHistoryVo::new)
+                .collect(Collectors.toList());
     }
 
     /***************************************/
