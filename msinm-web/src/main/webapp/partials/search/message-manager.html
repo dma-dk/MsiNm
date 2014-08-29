@@ -15,12 +15,14 @@
             <div class="col-sm-12 col-md-9 col-lg-8" ng-if="showHistory">
                 <table class='table table-condensed table-hover'>
                     <tr>
+                        <th>&nbsp;</th>
                         <th>Version</th>
                         <th>Date</th>
                         <th>User</th>
                         <th>Status</th>
                     </tr>
-                    <tr ng-repeat="hist in messageHistory" ng-click="toggleSelectHist(hist)" ng-class="{selected: hist.selected}">
+                    <tr ng-repeat="hist in messageHistory" >
+                        <td><input type="checkbox" ng-model="hist.selected" ng-click="toggleSelectHist(hist)"></td>
                         <td>{{hist.version}}</td>
                         <td>{{hist.created | date : 'dd/MM/yy HH:mm:ss'}}</td>
                         <td>{{hist.user == null ? 'System' : hist.user}}</td>
@@ -39,6 +41,12 @@
                            and <span style="background-color: #fd7f7f">deletions</span>.</p>
                     </div>
                     <div class="message-history-json json-diff" msi-json-diff history="selectedHistory"></div>
+                </div>
+                <div ng-if="selectedHistory.length == 0">
+                    <ul>
+                        <li>Check a history entry to see the associated message data.</li>
+                        <li>Check two history entries to compare the changes.</li>
+                    </ul>
                 </div>
             </div>
 
