@@ -6,8 +6,8 @@
     </button>
     <ul class="dropdown-menu" style="right:0; left: auto" role="menu">
         <li ng-if="showViewAction"><a href ng-click="view()">View...</a></li>
-        <li ng-if="hasRole('editor')"><a href ng-click="edit()">Edit...</a></li>
-        <li ng-if="hasRole('editor')"><a href ng-click="manage()">Manage...</a></li>
+        <li ng-if="hasRole('editor')"><a href ng-click="edit()" ng-href="/search.html#/search/edit/editor/{{messageId}}">Edit...</a></li>
+        <li ng-if="hasRole('editor')"><a href ng-click="manage()" ng-href="/search.html#/search/edit/manage/{{messageId}}">Manage...</a></li>
         <li><a href ng-click="pdf()">Generate PDF</a></li>
         <li><a href ng-click="calendar()">Add to calendar...</a></li>
     </ul>

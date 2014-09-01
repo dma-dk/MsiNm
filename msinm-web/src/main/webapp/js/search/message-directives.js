@@ -104,7 +104,6 @@ angular.module('msinm.search')
                     if (scope.dismissAction) {
                         scope.dismissAction();
                     }
-                    $window.location = '/search.html#/search/edit/editor/' + scope.messageId;
                 };
 
                 // Navigate to the message manager page
@@ -112,7 +111,6 @@ angular.module('msinm.search')
                     if (scope.dismissAction) {
                         scope.dismissAction();
                     }
-                    $window.location = '/search.html#/search/edit/manage/' + scope.messageId;
                 };
 
 
