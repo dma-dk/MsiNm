@@ -292,7 +292,8 @@ angular.module('msinm.admin')
             var filteredCharts = $scope.allCharts.filter(function (chart) {
                 return ("" + chart.chartNumber).contains(search) ||
                     ("" + chart.internationalNumber).contains(search) ||
-                    ("" + chart.horizontalDatum).toLowerCase().contains(search);
+                    ("" + chart.horizontalDatum).toLowerCase().contains(search) ||
+                    ("" + chart.name).toLowerCase().contains(search);
             });
             $scope.chartNo = filteredCharts.length;
             $scope.charts = filteredCharts.slice(

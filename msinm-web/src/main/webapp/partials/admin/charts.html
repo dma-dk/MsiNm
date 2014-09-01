@@ -34,14 +34,18 @@
                     <table class='table table-condensed table-hover'>
                         <tr>
                             <th>Chart Number</th>
-                            <th>International Number</th>
-                            <th>Horizontal Datum</th>
-                            <th>Edit</th>
+                            <th>Int. Number</th>
+                            <th>Horiz. Datum</th>
+                            <th>Name</th>
+                            <th>Scale</th>
+                            <th>Name</th>
                         </tr>
                         <tr ng-repeat="chart in charts">
                             <td>{{chart.chartNumber}}</td>
                             <td>{{chart.internationalNumber}}</td>
                             <td>{{chart.horizontalDatum}}</td>
+                            <td>{{chart.name}}</td>
+                            <td><span ng-if="chart.scale">1:{{chart.scale | number}}</span></td>
                             <td nowrap>
                                 <a href ng-click="editChart(chart);" title="Edit Chart"><i class="glyphicon glyphicon-pencil"></i></a>
                                 &nbsp;
@@ -89,9 +93,24 @@
 
             <div class="form-group">
                 <label for="chartNumber">International Chart Number</label>
-                <input type="text" id="internationalNumber" name="internationalNumber" class="form-control input-sm"
+                <input type="number" id="internationalNumber" name="internationalNumber" class="form-control input-sm"
                        ng-model="modalOptions.chart.internationalNumber"
                        autocapitalize="off" autocorrect="off" autocomplete="off"/>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" class="form-control input-sm"
+                       ng-model="modalOptions.chart.name"
+                       autocapitalize="off" autocorrect="off" autocomplete="off"/>
+            </div>
+            <div class="form-group">
+                <label for="scale">Scale</label>
+                <div class="inline">
+                    1&nbsp;:&nbsp;<input type="number" id="scale" name="scale" class="form-control input-sm"
+                             ng-model="modalOptions.chart.scale"
+                             autocapitalize="off" autocorrect="off" autocomplete="off"/>
+                </div>
             </div>
 
             <div class="form-group">

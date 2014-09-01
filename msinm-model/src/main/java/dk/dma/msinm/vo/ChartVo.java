@@ -13,6 +13,8 @@ public class ChartVo extends BaseVo<Chart> {
     String chartNumber;
     Integer internationalNumber;
     String horizontalDatum;
+    Integer scale;
+    String name;
 
     /**
      * Constructor
@@ -29,6 +31,8 @@ public class ChartVo extends BaseVo<Chart> {
         chartNumber = entity.getChartNumber();
         internationalNumber = entity.getInternationalNumber();
         horizontalDatum = entity.getHorizontalDatum();
+        scale = entity.getScale();
+        name = entity.getName();
     }
 
     @Override
@@ -38,6 +42,8 @@ public class ChartVo extends BaseVo<Chart> {
         chart.setChartNumber(StringUtils.trim(chartNumber));
         chart.setInternationalNumber(internationalNumber);
         chart.setHorizontalDatum(StringUtils.trim(horizontalDatum));
+        chart.setScale(scale);
+        chart.setName(name);
         return chart;
     }
 
@@ -81,5 +87,21 @@ public class ChartVo extends BaseVo<Chart> {
 
     public void setHorizontalDatum(String horizontalDatum) {
         this.horizontalDatum = horizontalDatum;
+    }
+
+    public Integer getScale() {
+        return scale;
+    }
+
+    public void setScale(Integer scale) {
+        this.scale = scale;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

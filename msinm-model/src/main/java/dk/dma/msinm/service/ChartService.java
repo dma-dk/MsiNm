@@ -92,6 +92,8 @@ public class ChartService extends BaseService {
         original.setChartNumber(chart.getChartNumber());
         original.setInternationalNumber(chart.getInternationalNumber());
         original.setHorizontalDatum(chart.getHorizontalDatum());
+        original.setName(chart.getName());
+        original.setScale(chart.getScale());
 
         return saveEntity(original);
     }

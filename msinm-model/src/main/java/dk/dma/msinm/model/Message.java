@@ -66,6 +66,7 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
     List<Category> categories = new ArrayList<>();
 
     @ManyToMany(cascade = CascadeType.ALL)
+    @OrderBy("scale ASC")
     List<Chart> charts = new ArrayList<>();
 
     String horizontalDatum;

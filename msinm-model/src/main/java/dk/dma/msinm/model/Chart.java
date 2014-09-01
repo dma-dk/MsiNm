@@ -31,8 +31,11 @@ import javax.validation.constraints.NotNull;
         @NamedQuery(name  = "Chart.searchCharts",
                 query = "select distinct c from Chart c where lower(c.chartNumber) like lower(:term) "
                         + "or ('' + c.internationalNumber) like lower(:term) "
-                        + "order by case when LOCATE(lower(:sort), lower(c.chartNumber)) = 0 "
-                        + "then LOCATE(lower(:sort), '' + c.internationalNumber) else LOCATE(lower(:sort), lower(c.chartNumber)) end"),
+                        + "or lower(c.name) like lower(:term) "
+                        + "order by "
+                        + "case when LOCATE(lower(:sort), lower(c.chartNumber)) = 0 and LOCATE(lower(:sort), lower(c.name)) = 0 then LOCATE(lower(:sort), '' + c.internationalNumber) "
+                        + "when LOCATE(lower(:sort), lower(c.chartNumber)) = 0 then LOCATE(lower(:sort), c.name) "
+                        + "else LOCATE(lower(:sort), lower(c.chartNumber)) end, chartNumber"),
         @NamedQuery(name="Chart.findByChartNumber",
                 query="SELECT chart FROM Chart chart where chart.chartNumber = :chartNumber")
 })
@@ -45,6 +48,10 @@ public class Chart extends VersionedEntity<Integer> {
     Integer internationalNumber;
 
     String horizontalDatum;
+
+    Integer scale;
+
+    String name;
 
     public Chart() {
     }
@@ -76,5 +83,21 @@ public class Chart extends VersionedEntity<Integer> {
 
     public void setHorizontalDatum(String horizontalDatum) {
         this.horizontalDatum = horizontalDatum;
+    }
+
+    public Integer getScale() {
+        return scale;
+    }
+
+    public void setScale(Integer scale) {
+        this.scale = scale;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }
