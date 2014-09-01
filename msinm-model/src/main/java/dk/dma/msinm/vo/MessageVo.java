@@ -100,7 +100,6 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
      */
     @Override
     public Message toEntity() {
-        // TODO: Update ORM references
 
         Message message = new Message();
         message.setId(id);

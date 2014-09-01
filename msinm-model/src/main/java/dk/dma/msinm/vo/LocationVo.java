@@ -80,7 +80,9 @@ public class LocationVo extends LocalizableVo<Location, LocationVo.LocationDescV
                     .forEach(pt -> location.getPoints().add(pt.toEntity(location)));
         }
         if (getDescs() != null) {
-            getDescs().stream().forEach(desc -> location.getDescs().add(desc.toEntity(location)));
+            getDescs().stream()
+                    .filter(LocationDescVo::descDefined)
+                    .forEach(desc -> location.getDescs().add(desc.toEntity(location)));
         }
         return location;
     }

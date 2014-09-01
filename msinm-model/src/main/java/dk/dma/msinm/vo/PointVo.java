@@ -72,7 +72,9 @@ public class PointVo extends LocalizableVo<Point, PointVo.PointDescVo> {
         point.setLon(lon);
         point.setIndex(index);
         if (getDescs() != null) {
-            getDescs().stream().forEach(desc -> point.getDescs().add(desc.toEntity(point)));
+            getDescs().stream()
+                    .filter(PointDescVo::descDefined)
+                    .forEach(desc -> point.getDescs().add(desc.toEntity(point)));
         }
         return point;
     }
