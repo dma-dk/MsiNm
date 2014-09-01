@@ -73,7 +73,7 @@
                         </button>
                     </div>
                     <div>
-                        <button href class="btn btn-default btn-sm manager-action" ng-click="edit()" ng-if="msg.status == 'DRAFT'">
+                        <button href class="btn btn-default btn-sm manager-action" ng-click="edit()" ng-if="msg.status == 'DRAFT' || hasRole('sysadmin')">
                             <span class="glyphicon glyphicon-pencil"></span> Edit Message...
                         </button>
                     </div>
