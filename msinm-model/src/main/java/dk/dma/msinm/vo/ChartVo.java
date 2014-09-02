@@ -15,6 +15,7 @@ public class ChartVo extends BaseVo<Chart> {
     String horizontalDatum;
     Integer scale;
     String name;
+    Double lowerLeftLatitude, upperRightLatitude, lowerLeftLongitude, upperRightLongitude;
 
     /**
      * Constructor
@@ -33,6 +34,10 @@ public class ChartVo extends BaseVo<Chart> {
         horizontalDatum = entity.getHorizontalDatum();
         scale = entity.getScale();
         name = entity.getName();
+        lowerLeftLatitude = entity.getLowerLeftLatitude();
+        upperRightLatitude = entity.getUpperRightLatitude();
+        lowerLeftLongitude = entity.getLowerLeftLongitude();
+        upperRightLongitude = entity.getUpperRightLongitude();
     }
 
     @Override
@@ -44,6 +49,11 @@ public class ChartVo extends BaseVo<Chart> {
         chart.setHorizontalDatum(StringUtils.trim(horizontalDatum));
         chart.setScale(scale);
         chart.setName(name);
+        chart.setLowerLeftLatitude(lowerLeftLatitude);
+        chart.setUpperRightLatitude(upperRightLatitude);
+        chart.setLowerLeftLongitude(lowerLeftLongitude);
+        chart.setUpperRightLongitude(upperRightLongitude);
+
         return chart;
     }
 
@@ -103,5 +113,37 @@ public class ChartVo extends BaseVo<Chart> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Double getLowerLeftLatitude() {
+        return lowerLeftLatitude;
+    }
+
+    public void setLowerLeftLatitude(Double lowerLeftLatitude) {
+        this.lowerLeftLatitude = lowerLeftLatitude;
+    }
+
+    public Double getUpperRightLatitude() {
+        return upperRightLatitude;
+    }
+
+    public void setUpperRightLatitude(Double upperRightLatitude) {
+        this.upperRightLatitude = upperRightLatitude;
+    }
+
+    public Double getLowerLeftLongitude() {
+        return lowerLeftLongitude;
+    }
+
+    public void setLowerLeftLongitude(Double lowerLeftLongitude) {
+        this.lowerLeftLongitude = lowerLeftLongitude;
+    }
+
+    public Double getUpperRightLongitude() {
+        return upperRightLongitude;
+    }
+
+    public void setUpperRightLongitude(Double upperRightLongitude) {
+        this.upperRightLongitude = upperRightLongitude;
     }
 }

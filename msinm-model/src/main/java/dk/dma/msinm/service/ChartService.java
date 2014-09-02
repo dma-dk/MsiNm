@@ -17,6 +17,7 @@ package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Chart;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.vo.ChartVo;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -25,6 +26,7 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Business interface for accessing MSI-NM charts
@@ -94,6 +96,10 @@ public class ChartService extends BaseService {
         original.setHorizontalDatum(chart.getHorizontalDatum());
         original.setName(chart.getName());
         original.setScale(chart.getScale());
+        original.setLowerLeftLatitude(chart.getLowerLeftLatitude());
+        original.setUpperRightLatitude(chart.getUpperRightLatitude());
+        original.setLowerLeftLongitude(chart.getLowerLeftLongitude());
+        original.setUpperRightLongitude(chart.getUpperRightLongitude());
 
         return saveEntity(original);
     }
@@ -122,5 +128,19 @@ public class ChartService extends BaseService {
         return false;
     }
 
-
+    /**
+     * Computes the list of charts whose bounds intersects with
+     * the given location list.<br>
+     * By <i>intersects</i> we include all relationships such as
+     * "within", "contains" and "intersects" in the strict sense.
+     *
+     * @return if the locations intersects this chart
+     */
+    public List<Chart> getIntersectingCharts(List<Location> locations) {
+        return em.createNamedQuery("Chart.findAll",Chart.class)
+                .getResultList()
+                .stream()
+                .filter(chart -> chart.intersects(locations))
+                .collect(Collectors.toList());
+    }
 }

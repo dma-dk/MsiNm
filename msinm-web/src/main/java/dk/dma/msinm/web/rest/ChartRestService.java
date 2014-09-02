@@ -16,8 +16,10 @@
 package dk.dma.msinm.web.rest;
 
 import dk.dma.msinm.model.Chart;
+import dk.dma.msinm.model.Location;
 import dk.dma.msinm.service.ChartService;
 import dk.dma.msinm.vo.ChartVo;
+import dk.dma.msinm.vo.LocationVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -37,6 +39,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST interface for accessing MSI-NM charts
@@ -119,5 +122,31 @@ public class ChartRestService {
         log.info("Deleting chart " + chartId);
         chartService.deleteChart(chartId);
         return "OK";
+    }
+
+    /**
+     * Computes the list of charts whose bounds intersects with
+     * the given location list.<br>
+     * By <i>intersects</i> we include all relationships such as
+     * "within", "contains" and "intersects" in the strict sense.
+     *
+     * @return if the locations intersects this chart
+     */
+    @POST
+    @Path("/intersecting-charts")
+    @Consumes("application/json")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({ "editor" })
+    @GZIP
+    @NoCache
+    public List<ChartVo> getIntersectingCharts(List<LocationVo> locationVos) {
+
+        List<Location> locations = locationVos.stream()
+                .map(LocationVo::toEntity)
+                .collect(Collectors.toList());
+
+        return chartService.getIntersectingCharts(locations).stream()
+                .map(ChartVo::new)
+                .collect(Collectors.toList());
     }
 }

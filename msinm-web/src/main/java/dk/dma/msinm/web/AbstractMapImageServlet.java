@@ -28,7 +28,9 @@ import java.awt.*;
 import java.awt.geom.GeneralPath;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
+import java.net.URLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.attribute.FileTime;
@@ -80,7 +82,14 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
                 fetchSize,
                 fetchSize);
 
-        BufferedImage image = ImageIO.read(new URL(url));
+        URLConnection con = new URL(url).openConnection();
+        con.setConnectTimeout(5000);
+        con.setReadTimeout(5000);
+
+        BufferedImage image;
+        try (InputStream in = con.getInputStream()) {
+            image = ImageIO.read(in);
+        }
 
         // Check if we need to crop the image (e.g. to remove watermarks)
         if (mapImageIndent > 0) {

@@ -9,11 +9,11 @@
                 <li><a href spy="time">Time</a></li>
                 <li><a href spy="area">Area</a></li>
                 <li><a href spy="locations">Locations</a></li>
+                <li><a href spy="charts">Charts</a></li>
                 <li><a href spy="categories">Categories</a></li>
                 <li><a href spy="title">Title</a></li>
                 <li><a href spy="description">Description</a></li>
                 <li><a href spy="attachments">Attachments</a></li>
-                <li><a href spy="charts">Charts</a></li>
                 <li><a href spy="misc">Miscellaneous</a></li>
                 <li><a href spy="save">Save Message</a></li>
             </ul>
@@ -161,6 +161,24 @@
             </div>
 
 
+            <!-- Charts -->
+            <div id="charts" class="row editor-section">
+                <h4>Charts</h4>
+                <p>Please select the list of charts affected by the message. Also specify any horizontal datum other than WGS-84.
+                    <a href="/admin.html#/admin/charts" target="_blank" ng-if="hasRole('admin')">Edit charts</a>
+                </p>
+                <div class="col-sm-4" style="padding-left: 0">
+                    <input type="text" class="form-control input-sm" id="editorCharts" ng-model="msg.chartIds" />
+                </div>
+                <div class="col-sm-2" style="padding-left: 0">
+                    <input type="text" class="form-control input-sm" placeholder="Horizontal Datum" ng-model="msg.horizontalDatum" />
+                </div>
+                <div class="col-sm-2" style="padding-left: 0">
+                    <button href class="btn btn-default btn-sm" ng-disabled="!msg.locations || msg.locations.length == 0" ng-click="computeCharts()">Compute from Locations</button>
+                </div>
+            </div>
+
+
             <!-- Categories -->
             <div id="categories" class="row editor-section">
                 <h4>Categories</h4>
@@ -217,21 +235,6 @@
                             <msi-attachment file="file" size="64" clickable="true"></msi-attachment>
                         </span>
                     </div>
-                </div>
-            </div>
-
-
-            <!-- Charts -->
-            <div id="charts" class="row editor-section">
-                <h4>Charts</h4>
-                <p>Please select the list of charts affected by the message. Also specify any horizontal datum other than WGS-84.
-                    <a href="/admin.html#/admin/charts" target="_blank" ng-if="hasRole('admin')">Edit charts</a>
-                </p>
-                <div class="col-sm-5" style="padding-left: 0">
-                    <input type="text" class="form-control input-sm" id="editorCharts" ng-model="msg.chartIds" />
-                </div>
-                <div class="col-sm-2" style="padding-left: 0">
-                    <input type="text" class="form-control input-sm" placeholder="Horizontal Datum" ng-model="msg.horizontalDatum" />
                 </div>
             </div>
 

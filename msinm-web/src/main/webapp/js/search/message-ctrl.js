@@ -110,6 +110,21 @@ angular.module('msinm.search')
             };
 
 
+            $scope.computeCharts = function () {
+                if ($scope.msg.locations && $scope.msg.locations.length > 0) {
+                    MessageService.intersectingCharts(
+                        $scope.msg.locations,
+                        function (data) {
+                            $scope.initCharts(data);
+                        },
+                        function (data) {
+                            growlNotifications.add('<h4>Failed Computing Charts</h4>', 'danger', 3000);
+                        }
+                    )
+                }
+            }
+
+
             // Translate the time of the first descriptor to the other descriptors and
             // computes the validFrom and validTo dates from the field.
             $scope.translateTime = function () {
@@ -235,21 +250,7 @@ angular.module('msinm.search')
                     $("#editorCategories").select2("data", null);
                 }
 
-                if (msg.charts && msg.charts.length > 0) {
-                    var data = [];
-                    msg.chartIds = '';
-                    for (var i in msg.charts) {
-                        var chart = msg.charts[i];
-                        if (msg.chartIds == '') {
-                            msg.chartIds += ',';
-                        }
-                        msg.chartIds += chart.id;
-                        data.push({id: chart.id, text: chart.fullChartNumber, chart: chart });
-                    }
-                    $("#editorCharts").select2("data", data);
-                } else {
-                    $("#editorCharts").select2("data", null);
-                }
+                $scope.initCharts(msg.charts);
 
                 // Load attachments
                 $scope.listFiles();
@@ -263,6 +264,25 @@ angular.module('msinm.search')
                 }
             };
 
+
+            // Init the UI with the given list of charts
+            $scope.initCharts = function (charts) {
+                $scope.msg.chartIds = '';
+                if (charts && charts.length > 0) {
+                    var data = [];
+                    for (var i in charts) {
+                        var chart = charts[i];
+                        if ($scope.msg.chartIds == '') {
+                            $scope.msg.chartIds += ',';
+                        }
+                        $scope.msg.chartIds += chart.id;
+                        data.push({id: chart.id, text: chart.fullChartNumber, chart: chart });
+                    }
+                    $("#editorCharts").select2("data", data);
+                } else {
+                    $("#editorCharts").select2("data", null);
+                }
+            }
 
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {

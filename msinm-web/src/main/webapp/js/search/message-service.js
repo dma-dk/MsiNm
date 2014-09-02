@@ -54,6 +54,12 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            intersectingCharts: function(locations, success, error) {
+                $http.post('/rest/admin/charts/intersecting-charts', locations)
+                    .success(success)
+                    .error(error);
+            },
+
             createMessage: function(msg, success, error) {
                 $http.post('/rest/messages/message', msg)
                     .success(success)

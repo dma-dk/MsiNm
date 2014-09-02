@@ -104,6 +104,7 @@
                        ng-model="modalOptions.chart.name"
                        autocapitalize="off" autocorrect="off" autocomplete="off"/>
             </div>
+
             <div class="form-group">
                 <label for="scale">Scale</label>
                 <div class="inline">
@@ -112,6 +113,22 @@
                              autocapitalize="off" autocorrect="off" autocomplete="off"/>
                 </div>
             </div>
+
+            <div class="form-group">
+                <label for="lowerLeftLatitude">Extent</label>
+                <div class="inline">
+                    <input latitude type="text" class="form-control input-sm" ng-model="modalOptions.chart.lowerLeftLatitude"  placeholder="Lower-left Lat.">
+                    -
+                    <input longitude type="text" class="form-control input-sm" ng-model="modalOptions.chart.lowerLeftLongitude"  placeholder="Lower-left Lon.">
+                    (lower-left)
+                </div>
+                <div class="inline" style="margin-top: 10px;">
+                    <input latitude type="text" class="form-control input-sm" ng-model="modalOptions.chart.upperRightLatitude"  placeholder="upper-right lat.">
+                    -
+                    <input longitude type="text" class="form-control input-sm" ng-model="modalOptions.chart.upperRightLongitude"  placeholder="upper-right lon.">
+                    (upper-right)
+                </div>
+           </div>
 
             <div class="form-group">
                 <label for="horizontalDatum">Horizontal Datum</label>
