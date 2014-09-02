@@ -18,6 +18,7 @@ package dk.dma.msinm.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
+import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.sequence.DefaultSequence;
@@ -28,6 +29,7 @@ import dk.dma.msinm.common.templates.TemplateContext;
 import dk.dma.msinm.common.templates.TemplateService;
 import dk.dma.msinm.common.templates.TemplateType;
 import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.Bookmark;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Message;
@@ -53,6 +55,7 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import java.awt.print.Book;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -86,6 +89,9 @@ public class MessageService extends BaseService {
     MessageCache messageCache;
 
     @Inject
+    BookmarkCache bookmarkCache;
+
+    @Inject
     RepositoryService repositoryService;
 
     @Inject
@@ -106,6 +112,7 @@ public class MessageService extends BaseService {
 
     /**
      * Creates or updates a Message without generating a message history entity
+     *
      * @param message the message to create or update
      * @return the persisted message
      */
@@ -116,6 +123,7 @@ public class MessageService extends BaseService {
 
     /**
      * Creates a new message template with a temporary repository path
+     *
      * @return the new message template
      */
     public MessageVo newTemplateMessage() {
@@ -128,12 +136,13 @@ public class MessageService extends BaseService {
         messageVo.setSeriesIdentifier(id);
         messageVo.setType(Type.SUBAREA_WARNING);
         messageVo.setRepoPath(repositoryService.getNewTempDir().getPath());
-        return  messageVo;
+        return messageVo;
     }
 
 
     /**
      * Saves the message and evicts the message from the cache
+     *
      * @param message the message to save
      * @return the saved message
      */
@@ -156,6 +165,7 @@ public class MessageService extends BaseService {
 
     /**
      * Creates a new message as a draft message
+     *
      * @param messageVo the template for the message to create
      * @return the new message
      */
@@ -233,7 +243,7 @@ public class MessageService extends BaseService {
                 if (descUpdated) {
                     message = saveMessage(message);
                 }
-             }
+            }
         }
 
         em.flush();
@@ -242,6 +252,7 @@ public class MessageService extends BaseService {
 
     /**
      * Updates the given message
+     *
      * @param messageVo the template for the message to update
      * @return the updated message
      */
@@ -312,8 +323,9 @@ public class MessageService extends BaseService {
 
     /**
      * Updates the status of the given message
+     *
      * @param messageId the id of the message
-     * @param status the status
+     * @param status    the status
      */
     @TransactionAttribute(TransactionAttributeType.REQUIRES_NEW)
     public Message setStatus(Integer messageId, Status status) {
@@ -337,18 +349,20 @@ public class MessageService extends BaseService {
 
     /**
      * Returns all messages
+     *
      * @return all messages
      */
-    @RolesAllowed({ "user" })
+    @RolesAllowed({"user"})
     public List<Message> getAll() {
         return getAll(Message.class);
     }
 
     /**
      * Returns all messages
+     *
      * @return all messages
      */
-    @RolesAllowed({ "user" })
+    @RolesAllowed({"user"})
     public List<Message> getActive() {
         return em.createQuery(selectActiveSql, Message.class)
                 .getResultList();
@@ -356,6 +370,7 @@ public class MessageService extends BaseService {
 
     /**
      * Returns the message with the given id
+     *
      * @param id the id of the message
      * @return the message with the given id or null if not found
      */
@@ -366,9 +381,9 @@ public class MessageService extends BaseService {
     /**
      * Finds the message by the given message series values
      *
-     * @param type the type
-     * @param messageNumber the message number
-     * @param messageYear the message year
+     * @param type             the type
+     * @param messageNumber    the message number
+     * @param messageYear      the message year
      * @param messageAuthority the message authority
      * @return the message or null if not found
      */
@@ -408,21 +423,23 @@ public class MessageService extends BaseService {
 
     /**
      * Creates a new series identifier number specific for the given type, authority and year
-     * @param type the message type
+     *
+     * @param type      the message type
      * @param authority the authority
-     * @param year the year
+     * @param year      the year
      * @return the new series identifier number
      */
     public int newSeriesIdentifierNumber(Type type, String authority, int year) {
         Sequence sequence = new DefaultSequence("MESSAGE_SERIES_ID_" + type.getPrefix() + "_" + authority + "_" + year, 0);
-        return (int)sequences.getNextValue(sequence);
+        return (int) sequences.getNextValue(sequence);
     }
 
     /**
      * Creates a new series identifier specific for the given type, authority and year
-     * @param type the message type
+     *
+     * @param type      the message type
      * @param authority the authority
-     * @param year the year
+     * @param year      the year
      * @return the new series identifier
      */
     public SeriesIdentifier newSeriesIdentifier(Type type, String authority, int year) {
@@ -436,7 +453,8 @@ public class MessageService extends BaseService {
 
     /**
      * Returns all messages updated after the given date
-     * @param date the date
+     *
+     * @param date     the date
      * @param maxCount the max number of entries to return
      * @return all messages updated after the given date
      */
@@ -450,6 +468,7 @@ public class MessageService extends BaseService {
 
     /**
      * Returns all published messages that have expired
+     *
      * @return all published messages that have expired
      */
     public List<Message> findPublishedExpiredMessages() {
@@ -460,8 +479,9 @@ public class MessageService extends BaseService {
 
     /**
      * Inactivate all active P&T NM messages created before the given date, excluding the given noticeIds
+     *
      * @param noticeIds the P&T NM notices that should no be inactivated
-     * @param date the date
+     * @param date      the date
      * @return the messages actually deactivated
      */
     public List<Message> inactivateTempPrelimNmMessages(List<SeriesIdentifier> noticeIds, Date date) {
@@ -489,8 +509,8 @@ public class MessageService extends BaseService {
      * Generates content based on the Freemarker template
      *
      * @param messageVo the message to use in the Freemarker template
-     * @param template the Freemarker template
-     * @param language the language
+     * @param template  the Freemarker template
+     * @param language  the language
      * @return the result
      */
     public String transformMessage(MessageVo messageVo, String template, String language) throws Exception {
@@ -529,6 +549,7 @@ public class MessageService extends BaseService {
 
     /**
      * Saves a history entity containing a snapshot of the message
+     *
      * @param message the message to save a snapshot for
      */
     public void saveHistory(Message message) {
@@ -560,6 +581,7 @@ public class MessageService extends BaseService {
 
     /**
      * Returns the message history for the given message ID
+     *
      * @param messageId the message ID
      * @return the message history
      */
@@ -570,6 +592,100 @@ public class MessageService extends BaseService {
                 .stream()
                 .map(MessageHistoryVo::new)
                 .collect(Collectors.toList());
+    }
+
+
+    /***************************************/
+    /** Bookmarks methods                 **/
+    /***************************************/
+
+    /**
+     * Returns the bookmarks for the calling user.
+     *
+     * @return the bookmarks for the calling user
+     */
+    public Set<Integer> getBookmarks() {
+        // The user may not be defined
+        if (ctx != null && ctx.getCallerPrincipal() != null) {
+            String email = ctx.getCallerPrincipal().getName();
+            Set<Integer> bookmarkIds = bookmarkCache.getCache().get(email);
+            if (bookmarkIds == null) {
+                bookmarkIds = em.createNamedQuery("Bookmark.findByUserEmail", Bookmark.class)
+                        .setParameter("email", email)
+                        .getResultList()
+                        .stream()
+                        .map(bookmark -> bookmark.getMessage().getId())
+                        .collect(Collectors.toSet());
+                bookmarkCache.getCache().put(email, bookmarkIds);
+            }
+            return bookmarkIds;
+        }
+        return new HashSet<>();
+    }
+
+    /**
+     * Adds a bookmark for the calling user
+     *
+     * @param messageId the id of the message
+     * @return if the bookmark was added
+     */
+    public boolean addBookmark(Integer messageId) {
+        // Only add bookmarks for a calling user
+        if (ctx == null || ctx.getCallerPrincipal() == null || messageId == null) {
+            return false;
+        }
+        String email = ctx.getCallerPrincipal().getName();
+
+        Set<Integer> bookmarkIds = getBookmarks();
+        // Only add the bookmark once
+        if (bookmarkIds.contains(messageId)) {
+            return false;
+        }
+
+        // Create the new bookmark. Throws an exception if the messageId is invalid...
+        Bookmark bookmark = new Bookmark();
+        bookmark.setUser(userService.findByPrincipal(ctx.getCallerPrincipal()));
+        bookmark.setMessage(findById(messageId));
+        saveEntity(bookmark);
+        log.info("Added bookmark for user=" + email + ", messageId=" + messageId);
+
+        // Flush the cache
+        bookmarkCache.getCache().remove(email);
+        return true;
+    }
+
+    /**
+     * Removes a bookmark for the calling user
+     *
+     * @param messageId the id of the message
+     * @return if the bookmark was removed
+     */
+    public boolean removeBookmark(Integer messageId) {
+        // Only add bookmarks for a calling user
+        if (ctx == null || ctx.getCallerPrincipal() == null || messageId == null) {
+            return false;
+        }
+        String email = ctx.getCallerPrincipal().getName();
+
+        // Check if the bookmark is cached at all
+        Set<Integer> bookmarkIds = getBookmarks();
+        if (!bookmarkIds.contains(messageId)) {
+            return false;
+        }
+
+        // Look up the bookmark
+        Bookmark bookmark = em.createNamedQuery("Bookmark.findByUserEmailAndMessageId", Bookmark.class)
+                .setParameter("email", email)
+                .setParameter("messageId", messageId)
+                .getSingleResult();
+
+        // Purge it
+        em.remove(bookmark);
+        log.info("Removed bookmark for user=" + email + ", messageId=" + messageId);
+
+        // Flush the cache
+        bookmarkCache.getCache().remove(email);
+        return true;
     }
 
     /***************************************/

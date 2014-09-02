@@ -22,6 +22,7 @@ import dk.dma.msinm.vo.MessageVo;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Encapsulates the message search result.
@@ -45,10 +46,15 @@ public class MessageSearchResult implements Serializable {
     /**
      * Add a list of messages to the search result
      * @param messages the messages to add
+     * @param bookmarkIds the bookmarked messages
      * @param dataFilter what type of data to copy from the entity
      */
-    public void addMessages(List<Message> messages, DataFilter dataFilter) {
-        messages.forEach(msg -> this.messages.add(new MessageVo(msg, dataFilter)));
+    public void addMessages(List<Message> messages, Set<Integer> bookmarkIds, DataFilter dataFilter) {
+        messages.forEach(msg -> {
+            MessageVo messageVo = new MessageVo(msg, dataFilter);
+            messageVo.setBookmarked(bookmarkIds.contains(messageVo.getId()));
+            this.messages.add(messageVo);
+        });
     }
 
     /**

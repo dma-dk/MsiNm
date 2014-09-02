@@ -397,6 +397,11 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 tuplePredicateBuilder.in(msgRoot.get("id"), ids);
             }
 
+            // Filter on bookmarker items
+            if (param.isBookmarks()) {
+                tuplePredicateBuilder.in(msgRoot.get("id"), messageService.getBookmarks());
+            }
+
             // Filter on areas
             if (param.getAreaIds().size() > 0) {
 
@@ -411,10 +416,6 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                     areaMatch[x] = builder.like(area.get("lineage"), lineage + "%");
                 }
                 tuplePredicateBuilder.add(builder.or(areaMatch));
-
-                //msgRoot.join("area", JoinType.LEFT);
-                //javax.persistence.criteria.Path<Area> area = msgRoot.get("area");
-                //tuplePredicateBuilder.startsWith(area.get("lineage"), area);
             }
 
             // Filter on charts
@@ -473,7 +474,7 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 } else {
                     filter = DataFilter.get("Message.details", "Area.parent", "Category.parent").setLang(param.getLanguage());
                 }
-                result.addMessages(messages, filter);
+                result.addMessages(messages, messageService.getBookmarks(), filter);
             }
 
             log.trace("Message search result: " + result + " in " +

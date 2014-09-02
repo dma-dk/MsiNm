@@ -71,9 +71,9 @@
                         </button>
                         <ul class="dropdown-menu searchMenu" role="menu">
                             <li style="color: lightgray;">&nbsp;Filter by</li>
-                            <li><a href ng-click="toggleFilterOnDate()">Date</a></li>
-                            <li><a href ng-click="toggleFilterOnLocation()">Location</a></li>
                             <li><a href ng-click="toggleFilterOnType()">Type</a></li>
+                            <li><a href ng-click="toggleFilterOnLocation()">Location</a></li>
+                            <li><a href ng-click="toggleFilterOnDate()">Date</a></li>
                             <li class="divider"></li>
                             <li style="color: lightgray;">&nbsp;Sort by</li>
                             <li><a href ng-click="toggleSortOrder('ID')">ID <small ng-bind-html="sortIndicator('ID')"></small></a></li>
@@ -91,60 +91,19 @@
             </div>
 
 
-            <!-- Date fields -->
-            <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnDate">
-                <div class="row">
-                    <div class="col-xs-6 col-sm-5 col-md-4 date" id="messageDateFrom" data-date="{{today}}" data-date-format="{{dateFormat}}">
-                        <div class="input-group">
-                            <input class="form-control input-sm" id="dateFrom" placeholder="From Date" type="text" ng-model="dateFrom">
-                            <span class="input-group-addon add-on"><i class="glyphicon glyphicon-calendar"></i></span>
-                        </div>
-                    </div>
-                    <div class="col-xs-6 col-sm-5 col-md-4 date" id="messageDateTo" data-date="{{today}}" data-date-format="{{dateFormat}}">
-                        <div class="input-group">
-                            <input class="form-control input-sm" id="dateTo" placeholder="To Date" type="text" ng-model="dateTo">
-                            <span class="input-group-addon add-on"><i class="glyphicon glyphicon-calendar"></i></span>
-                        </div>
-                    </div>
-                </div>
-
-                <a ng-click="toggleFilterOnDate()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
-            </div>
-
-
-            <!-- Location field -->
-            <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnLocation">
-                <div class="row">
-                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                        <input type="text" class="form-control input-sm" id="messageCharts" ng-model="charts" />
-                    </div>
-                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
-                        <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 btn-group" ng-if="!mapMode">
-                        <button href class="btn btn-default btn-sm" ng-click="showLocationEditor()">
-                            <span class="glyphicon glyphicon-map-marker"></span> locations
-                        </button>
-                        <button href class="btn btn-default btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">
-                            <span class="glyphicon glyphicon-trash"></span>
-                        </button>
-                    </div>
-                </div>
-
-                <a ng-click="toggleFilterOnLocation()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
-            </div>
-
-
             <!-- Type fields -->
             <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnType">
                 <div class="row">
                     <div class="col-sm-12">
                         <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
-                        <input type="radio" value="EXPIRED" ng-model="status">&nbsp;Expired &nbsp;
-                        <input type="radio" value="CANCELLED" ng-model="status">&nbsp;Cancelled &nbsp;
+                        <input type="radio" value="EXPIRED" ng-model="status">&nbsp;Expired&nbsp;
+                        <input type="radio" value="CANCELLED" ng-model="status">&nbsp;Cancelled&nbsp;
                         <span ng-show="hasRole('admin')">
-                            <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft &nbsp;
-                            <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted &nbsp;
+                            <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft&nbsp;
+                            <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted&nbsp;
+                        </span>
+                        <span ng-show="hasRole('user')">
+                            <input type="radio" value="BOOKMARKED" ng-model="status">&nbsp;Bookmarked
                         </span>
                     </div>
                 </div>
@@ -171,6 +130,50 @@
                 </div>
 
                 <a ng-click="toggleFilterOnType()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
+            </div>
+
+
+            <!-- Location field -->
+            <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnLocation">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                        <input type="text" class="form-control input-sm" id="messageCharts" ng-model="charts" />
+                    </div>
+                    <div class="col-xs-6 col-sm-6 col-md-4 col-lg-4">
+                        <input type="text" class="form-control input-sm" id="messageArea" ng-model="areas" />
+                    </div>
+                    <div class="col-xs-12 col-sm-12 col-md-4 col-lg-4 btn-group" ng-if="!mapMode">
+                        <button href class="btn btn-default btn-sm" ng-click="showLocationEditor()">
+                            <span class="glyphicon glyphicon-map-marker"></span> locations
+                        </button>
+                        <button href class="btn btn-default btn-sm" ng-disabled="locations.length == 0" ng-click="resetLocation()">
+                            <span class="glyphicon glyphicon-trash"></span>
+                        </button>
+                    </div>
+                </div>
+
+                <a ng-click="toggleFilterOnLocation()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
+            </div>
+
+
+            <!-- Date fields -->
+            <div class="searchFilterPanel visibleOnMap" style="display: none" ng-show="filterOnDate">
+                <div class="row">
+                    <div class="col-xs-6 col-sm-5 col-md-4 date" id="messageDateFrom" data-date="{{today}}" data-date-format="{{dateFormat}}">
+                        <div class="input-group">
+                            <input class="form-control input-sm" id="dateFrom" placeholder="From Date" type="text" ng-model="dateFrom">
+                            <span class="input-group-addon add-on"><i class="glyphicon glyphicon-calendar"></i></span>
+                        </div>
+                    </div>
+                    <div class="col-xs-6 col-sm-5 col-md-4 date" id="messageDateTo" data-date="{{today}}" data-date-format="{{dateFormat}}">
+                        <div class="input-group">
+                            <input class="form-control input-sm" id="dateTo" placeholder="To Date" type="text" ng-model="dateTo">
+                            <span class="input-group-addon add-on"><i class="glyphicon glyphicon-calendar"></i></span>
+                        </div>
+                    </div>
+                </div>
+
+                <a ng-click="toggleFilterOnDate()" class="closeSearchFilterPanel"><i class="glyphicon glyphicon-minus-sign red"></i></a>
             </div>
 
 

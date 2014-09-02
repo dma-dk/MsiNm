@@ -44,6 +44,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     Set<ReferenceVo> references;
     List<String> lightsListNumbers;
     boolean originalInformation;
+    boolean bookmarked;
 
     // Used when creating new messages from the web client
     String repoPath;
@@ -362,6 +363,14 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     public void setRepoPath(String repoPath) {
         this.repoPath = repoPath;
+    }
+
+    public boolean isBookmarked() {
+        return bookmarked;
+    }
+
+    public void setBookmarked(boolean bookmarked) {
+        this.bookmarked = bookmarked;
     }
 
     /**

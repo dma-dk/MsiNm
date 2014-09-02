@@ -42,6 +42,7 @@ public class MessageSearchParams implements Serializable {
     Set<SeriesIdType> mainTypes = new HashSet<>();
     Set<Integer> areaIds = new HashSet<>();
     Set<Integer> chartIds = new HashSet<>();
+    boolean bookmarks;
 
     int maxHits = 100;
     int startIndex = 0;
@@ -78,6 +79,7 @@ public class MessageSearchParams implements Serializable {
                 ", areaIds=" + areaIds +
                 ", chartIds=" + chartIds +
                 ", status=" + status +
+                ", bookmarks=" + bookmarks +
                 ", maxHits=" + maxHits +
                 ", startIndex=" + startIndex +
                 '}';
@@ -145,6 +147,14 @@ public class MessageSearchParams implements Serializable {
 
     public void setStatus(Status status) {
         this.status = status;
+    }
+
+    public boolean isBookmarks() {
+        return bookmarks;
+    }
+
+    public void setBookmarks(boolean bookmarks) {
+        this.bookmarks = bookmarks;
     }
 
     public int getMaxHits() {

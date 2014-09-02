@@ -55,14 +55,16 @@ angular.module('msinm.search')
     /****************************************************************
      * Adds a message details drop-down menu
      ****************************************************************/
-    .directive('msiDetailsMenu', ['$rootScope', '$window', function ($rootScope, $window) {
+    .directive('msiDetailsMenu', ['$rootScope', '$window', 'growlNotifications', 'MessageService',
+        function ($rootScope, $window, growlNotifications, MessageService) {
         'use strict';
 
         return {
             restrict: 'E',
             templateUrl: '/partials/search/details-menu.html',
             scope: {
-                messageId: "=",
+                messageId: "=",     // NB: We supply both of "messageId" and "msg" because
+                msg: "=",           // the former may be invalid and the latter may be undefined.
                 messages: "=",
                 style: "@",
                 size: "@",
@@ -113,9 +115,34 @@ angular.module('msinm.search')
                     }
                 };
 
+                scope.addBookmark = function () {
+                    if (scope.msg && !scope.msg.bookmarked) {
+                        MessageService.addBookmark(
+                            scope.messageId,
+                            function (data) {
+                                scope.msg.bookmarked = true;
+                            },
+                            function (data) {
+                                growlNotifications.add('<h4>Failed adding bookmark</h4>', 'danger', 3000);
+                            });
+                    }
+                };
+
+                scope.removeBookmark = function () {
+                    if (scope.msg && scope.msg.bookmarked) {
+                        MessageService.removeBookmark(
+                            scope.messageId,
+                            function (data) {
+                                scope.msg.bookmarked = false;
+                            },
+                            function (data) {
+                                growlNotifications.add('<h4>Failed removing bookmark</h4>', 'danger', 3000);
+                            });
+                    }
+                };
 
             }
-        };
+        }
     }])
 
     /********************************

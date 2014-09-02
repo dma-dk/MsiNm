@@ -84,6 +84,18 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            addBookmark: function(messageId, success, error) {
+                $http.post('/rest/messages/bookmark/' + messageId, {})
+                    .success(success)
+                    .error(error);
+            },
+
+            removeBookmark: function(messageId, success, error) {
+                $http.delete('/rest/messages/bookmark/' + messageId)
+                    .success(success)
+                    .error(error);
+            },
+
             search: function(query, status, type, loc, areas, charts, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, mapMode, success, error) {
                 $http.get(
                         '/rest/messages/search?lang=' + $rootScope.language

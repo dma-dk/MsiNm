@@ -51,6 +51,7 @@ import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -220,6 +221,7 @@ public class MessageRestService {
                 result = new MessageVo(message, filter);
                 try {
                     result.setRepoPath(messageService.getMessageFolderRepoPath(message));
+                    result.setBookmarked(messageService.getBookmarks().contains(id));
                 } catch (IOException e) {
                     log.warn("Failed looking up repo-path for message " + messageId, e);
                 }
@@ -334,6 +336,46 @@ public class MessageRestService {
     }
 
 
+    /***************************************/
+    /** Bookmark methods                  **/
+    /***************************************/
+
+    /**
+     * Adds a bookmark for the calling user
+     *
+     * @param messageId the id of the message
+     * @return if the bookmark was added
+     */
+    @POST
+    @Path("/bookmark/{messageId}")
+    @NoCache
+    @RolesAllowed({"user"})
+    public boolean addBookmark(@PathParam("messageId") String messageId) {
+
+        // Get the message id
+        Integer id = getMessageId(messageId);
+
+        return messageService.addBookmark(id);
+    }
+
+    /**
+     * Removes a bookmark for the calling user
+     *
+     * @param messageId the id of the message
+     * @return if the bookmark was removed
+     */
+    @DELETE
+    @Path("/bookmark/{messageId}")
+    @NoCache
+    @RolesAllowed({"user"})
+    public boolean removeBookmark(@PathParam("messageId") String messageId) {
+
+        // Get the message id
+        Integer id = getMessageId(messageId);
+
+        return messageService.removeBookmark(id);
+    }
+
     /***************************
      * Search functionality
      ***************************/
@@ -382,7 +424,12 @@ public class MessageRestService {
         params.setQuery(query);
 
         if (StringUtils.isNotBlank(status)) {
-            params.setStatus(Status.valueOf(status));
+            // Special case for "BOOKMARKED" status
+            if ("BOOKMARKED".equalsIgnoreCase(status)) {
+                params.setBookmarks(true);
+            } else {
+                params.setStatus(Status.valueOf(status));
+            }
         }
 
         if (StringUtils.isNotBlank(type)) {
@@ -641,13 +688,14 @@ public class MessageRestService {
     @GET
     @Path("/recreate-search-index")
     @RolesAllowed({"admin"})
-    public void recreateSearchIndex() {
+    public String recreateSearchIndex() {
         try {
             log.info("Recreating message search index");
             messageSearchService.recreateIndex();
         } catch (IOException e) {
             log.error("Error recreating message search index");
         }
+        return "OK";
     }
 
     /***************************
