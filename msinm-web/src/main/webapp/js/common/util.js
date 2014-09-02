@@ -205,7 +205,7 @@ function initChartField(chartId, multiple) {
                 }
             },
             formatResult: function (data, term) {
-                return data.text + ' '  + (data.chart.name);
+                return data.text + ((data.chart.name) ? '<br/><small>'  + (data.chart.name) + '</small>' : '');
             }
         });
     });

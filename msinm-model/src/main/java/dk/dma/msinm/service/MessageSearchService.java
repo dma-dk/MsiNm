@@ -27,6 +27,7 @@ import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.AreaDesc;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.CategoryDesc;
+import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.LocationDesc;
 import dk.dma.msinm.model.Message;
@@ -58,6 +59,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.Tuple;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -413,6 +415,18 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 //msgRoot.join("area", JoinType.LEFT);
                 //javax.persistence.criteria.Path<Area> area = msgRoot.get("area");
                 //tuplePredicateBuilder.startsWith(area.get("lineage"), area);
+            }
+
+            // Filter on charts
+            if (param.getChartIds().size() > 0) {
+
+                Join<Message, Chart> charts = msgRoot.join("charts", JoinType.LEFT);
+                Predicate[] chartMatch = new Predicate[param.getChartIds().size()];
+                Iterator<Integer> i = param.getChartIds().iterator();
+                for (int x = 0; x < chartMatch.length; x++) {
+                    chartMatch[x] = builder.equal(charts.get("id"), i.next());
+                }
+                tuplePredicateBuilder.add(builder.or(chartMatch));
             }
 
             // Complete the query and fetch the message id's (and validFrom, year and number for sorting)

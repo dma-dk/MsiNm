@@ -25,6 +25,7 @@ angular.module('msinm.common')
                         '', // type
                         '[]', // location
                         '', // area
+                        '', // charts
                         '', // from date
                         '', // to date
                         100,

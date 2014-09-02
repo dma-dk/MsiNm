@@ -84,7 +84,7 @@ angular.module('msinm.search')
                     .error(error);
             },
 
-            search: function(query, status, type, loc, areas, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, mapMode, success, error) {
+            search: function(query, status, type, loc, areas, charts, dateFrom, dateTo, maxHits, startIndex, sortBy, sortOrder, mapMode, success, error) {
                 $http.get(
                         '/rest/messages/search?lang=' + $rootScope.language
                              + '&q=' + encodeURIComponent(query)
@@ -92,6 +92,7 @@ angular.module('msinm.search')
                              + '&type=' + encodeURIComponent(type)
                              + '&loc=' + encodeURIComponent(loc)
                              + '&areas=' + encodeURIComponent(areas)
+                             + '&charts=' + encodeURIComponent(charts)
                              + '&from=' + encodeURIComponent(dateFrom)
                              + '&to=' + encodeURIComponent(dateTo)
                              + '&maxHits=' + maxHits
