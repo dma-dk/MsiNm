@@ -47,7 +47,7 @@ public abstract class BaseCache {
                     .build(); //Builds  the GlobalConfiguration object
             Configuration localConfiguration = createCacheConfiguration();
             cacheContainer = new DefaultCacheManager(globalConfiguration, localConfiguration, true);
-            log.info("Stopped cache container");
+            log.info("Init cache container");
         }
     }
 
