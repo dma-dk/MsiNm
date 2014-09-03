@@ -111,12 +111,13 @@
             <div id="time" class="row editor-section">
                 <h4>Time</h4>
                 <p>Please specify the time interval of the message, and optionally a verbal time description.</p>
+
                 <div class="row">
                     <div class="col-sm-4">
-                        <input class="form-control input-sm" placeholder="Valid From" type="text" value="" id="validFrom" msi-date-picker="msg.validFrom">
+                        <msi-date-time-picker id="validFrom" placeholder="Valid From" date="msg.validFrom" format="{{dateFormat}}"/>
                     </div>
                     <div class="col-sm-4">
-                        <input class="form-control input-sm" placeholder="Valid To" type="text" value="" id="validTo" msi-date-picker="msg.validTo">
+                        <msi-date-time-picker id="validTo" placeholder="Valid To" date="msg.validTo" format="{{dateFormat}}"/>
                     </div>
                 </div>
             </div>

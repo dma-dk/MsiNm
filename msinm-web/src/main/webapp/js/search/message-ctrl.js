@@ -10,8 +10,7 @@ angular.module('msinm.search')
         function ($scope, $rootScope, $routeParams, $modal, $timeout, $window, $location, growlNotifications, MessageService, LangService) {
             'use strict';
 
-            $scope.dateFormat = "dd-mm-yyyy";
-            $scope.today = new Date().formatDate($scope.dateFormat);
+            $scope.dateFormat = "DD-MM-YYYY HH:mm";
 
             $scope.attachments = [];
             $scope.uploadUri = '/rest/repo/upload-temp/';

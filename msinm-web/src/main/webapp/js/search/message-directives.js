@@ -189,5 +189,82 @@ angular.module('msinm.search')
                     });
             }
         };
+    }])
+
+
+    /******************************************
+     * Directive that wraps the datetimepicker
+     * http://eonasdan.github.io/bootstrap-datetimepicker/
+     *****************************************/
+    .directive('msiDateTimePicker', [ '$rootScope', function($rootScope) {
+        return {
+            restrict: 'E',
+            replace: true,
+            scope: {
+                date: '=',
+                format: '@',
+                placeholder: '@'
+            },
+            template: "<div class='input-group date'>\n  <input type='text' class='form-control input-sm'/>\n  <span class='input-group-addon'>\n    <span class='fa fa-calendar'></span>\n  </span>\n</div>",
+            link: function(scope, element, attr) {
+
+                var format = "DD-MM-YYYY HH:mm";
+                if (attr.format) {
+                    format = attr.format;
+                }
+
+                var input = element.find("input");
+                input.attr('data-date-format', format);
+
+                if (attr.placeholder) {
+                    input.attr('placeholder', attr.placeholder);
+                }
+
+                var picker = element.datetimepicker({
+                    pickDate: true,
+                    pickTime: true,
+                    useMinutes: true,
+                    useSeconds: false,
+                    useCurrent: false,
+                    showToday: true,
+                    language: 'en',
+                    defaultDate: "",
+                    pick12HourFormat: false,
+                    icons: {
+                        time: 'fa fa-clock-o',
+                        date: 'fa fa-calendar',
+                        up: 'fa fa-arrow-up',
+                        down: 'fa fa-arrow-down'
+                    }}).data("DateTimePicker");
+
+                element.find('.input-group-addon').on('click', function(e) {
+                    return input.focus();
+                });
+
+                // Listen for date picker changed
+                element.on("change.dp", function(e) {
+                    if (picker.date && !picker.unset && picker.date.valueOf() != scope.date) {
+                        scope.date = picker.date.valueOf();
+                        $rootScope.$$phase || $rootScope.$apply();
+                    }
+                });
+
+                // Watch for date model changes
+                scope.$watch(function () {
+                    return scope.date;
+                }, function(newValue, oldValue) {
+                    picker.setDate(newValue ? new Date(newValue) : undefined);
+                    input.val(newValue ? moment(newValue).format(format) : '');
+                }, true);
+
+                // The datetimepicker does not pick up when the input field is cleared
+                input.bind('blur', function() {
+                    if (!input.val() && scope.date) {
+                        scope.date = undefined;
+                        $rootScope.$$phase || $rootScope.$apply();
+                    }
+                });
+            }
+        };
     }]);
 
