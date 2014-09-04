@@ -213,6 +213,7 @@ public class TimeModel {
             }
             if (week != null) {
                 cal.set(Calendar.WEEK_OF_YEAR, week);
+                cal.setFirstDayOfWeek(Calendar.MONDAY);
                 cal.set(Calendar.DAY_OF_WEEK, (periodStart) ? Calendar.MONDAY : Calendar.SUNDAY);
                 week = null;
                 month = TimeConstants.MONTHS_EN.split(",")[cal.get(Calendar.MONTH)].toLowerCase();
