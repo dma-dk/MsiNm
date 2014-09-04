@@ -37,12 +37,13 @@ import java.util.List;
         @NamedQuery(name  = "Area.findAreasWithDescs",
                 query = "select distinct a from Area a left join fetch a.descs")
 })
-public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc>, IPreloadable {
+public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaDesc>, IPreloadable, Comparable<Area> {
 
     @ManyToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE, CascadeType.DETACH })
     private Area parent;
 
     @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    @OrderBy("sortOrder ASC")
     private List<Area> children = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL)
@@ -53,6 +54,9 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
 
     @Column(length = 256)
     String lineage;
+
+    @Column(columnDefinition="DOUBLE default 0.0")
+    double sortOrder;
 
     @Override
     public List<AreaDesc> getDescs() {
@@ -82,6 +86,8 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
      * @param area the area to add
      */
     public void addChild(Area area) {
+        Area lastChild = children.isEmpty() ? null : children.get(children.size() - 1);
+        area.setSortOrder(lastChild == null ? Math.random() : lastChild.getSortOrder() + 10.0d);
         children.add(area);
         area.setParent(this);
     }
@@ -115,6 +121,14 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
             getLocations().forEach(loc -> loc.preload(compFilter));
         }
         getDescs().forEach(desc -> {});
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(Area area) {
+        return (area == null || sortOrder == area.getSortOrder()) ? 0 : (sortOrder < area.getSortOrder() ? -1 : 1);
     }
 
     /**
@@ -157,6 +171,14 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
 
     public void setLineage(String lineage) {
         this.lineage = lineage;
+    }
+
+    public double getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(double sortOrder) {
+        this.sortOrder = sortOrder;
     }
 }
 

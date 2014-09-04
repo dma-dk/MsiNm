@@ -478,11 +478,14 @@ angular.module('msinm.common')
             scope: {
                 entities: '=',
                 filter: '=',
+                sort : '@',
                 entitySelected : '&',
                 entityMoved : '&'
             },
 
             link: function (scope, element, attrs, ngModel) {
+
+                scope.sort = (attrs.sort !== undefined) ? attrs.sort : false;
 
                 // Initialize the tree
                 element.fancytree({
@@ -569,7 +572,9 @@ angular.module('msinm.common')
                     }
                     tree.options.source = treeData;
                     tree.reload();
-                    tree.rootNode.sortChildren(null, true);
+                    if (scope.sort) {
+                        tree.rootNode.sortChildren(null, true);
+                    }
                     tree.clearFilter();
                     scope.collapseAll();
                     scope.restoreState();

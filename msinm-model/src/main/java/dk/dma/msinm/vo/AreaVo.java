@@ -25,16 +25,18 @@ import dk.dma.msinm.model.AreaDesc;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
  * Value object for the {@code Area} model entity
  */
-public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
+public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> implements Comparable<AreaVo> {
     Integer id;
     AreaVo parent;
     List<LocationVo> locations;
     List<AreaVo> children;
+    double sortOrder;
 
     /**
      * Constructor
@@ -54,6 +56,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         DataFilter compFilter = dataFilter.forComponent(Area.class);
 
         id = area.getId();
+        sortOrder = area.getSortOrder();
 
         if (compFilter.includeLocations()) {
             area.getLocations().forEach(loc -> checkCreateLocations().add(new LocationVo(loc, compFilter)));
@@ -81,6 +84,7 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
     public Area toEntity() {
         Area area = new Area();
         area.setId(id);
+        area.setSortOrder(sortOrder);
         if (locations != null) {
             locations.stream()
                     .filter(loc -> loc.getPoints().size() > 0)
@@ -115,6 +119,23 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
         return children;
     }
 
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public int compareTo(AreaVo area) {
+        return (area == null || sortOrder == area.getSortOrder()) ? 0 : (sortOrder < area.getSortOrder() ? -1 : 1);
+    }
+
+    /**
+     * Recursively sorts the children
+     */
+    public void sortChildren() {
+        if (children != null) {
+            Collections.sort(children);
+            children.forEach(AreaVo::sortChildren);
+        }
+    }
 
     public Integer getId() {
         return id;
@@ -147,6 +168,14 @@ public class AreaVo extends LocalizableVo<Area, AreaVo.AreaDescVo> {
 
     public void setChildren(List<AreaVo> children) {
         this.children = children;
+    }
+
+    public double getSortOrder() {
+        return sortOrder;
+    }
+
+    public void setSortOrder(double sortOrder) {
+        this.sortOrder = sortOrder;
     }
 
     /**

@@ -186,6 +186,19 @@ angular.module('msinm.admin')
                 });
         };
 
+        $scope.changeSortOrder = function (moveUp) {
+            AreaService.changeSortOrder(
+                $scope.area.id,
+                moveUp,
+                function (data) {
+                    $scope.loadAreas();
+                },
+                function (data) {
+                    console.error("ERROR " + data);
+                }
+            )
+        };
+
         $scope.showLocations = function (show) {
             if (show) {
                 $('.area-locations').fadeIn(0);

@@ -56,8 +56,9 @@ public class AreaRestService {
 
     /**
      * Searchs for areas matching the given term in the given language
-     * @param lang the language
-     * @param term the search term
+     *
+     * @param lang  the language
+     * @param term  the search term
      * @param limit the maximum number of results
      * @return the search result
      */
@@ -73,6 +74,7 @@ public class AreaRestService {
 
     /**
      * Returns all areas via a list of hierarchical root areas
+     *
      * @return returns all areas
      */
     @GET
@@ -96,7 +98,7 @@ public class AreaRestService {
     @Path("/area")
     @Consumes("application/json")
     @Produces("application/json")
-    @RolesAllowed({ "admin" })
+    @RolesAllowed({"admin"})
     public String createArea(AreaVo areaVo) throws Exception {
         Area area = areaVo.toEntity();
         log.info("Creating area " + area);
@@ -109,7 +111,7 @@ public class AreaRestService {
     @Path("/area")
     @Consumes("application/json")
     @Produces("application/json")
-    @RolesAllowed({ "admin" })
+    @RolesAllowed({"admin"})
     public String updateArea(AreaVo areaVo) throws Exception {
         Area area = areaVo.toEntity();
         log.info("Updating area " + area);
@@ -120,7 +122,7 @@ public class AreaRestService {
     @DELETE
     @Path("/area/{areaId}")
     @Produces("application/json")
-    @RolesAllowed({ "admin" })
+    @RolesAllowed({"admin"})
     public String deleteArea(@PathParam("areaId") Integer areaId) throws Exception {
         log.info("Deleting area " + areaId);
         areaService.deleteArea(areaId);
@@ -131,17 +133,31 @@ public class AreaRestService {
     @Path("/move-area")
     @Consumes("application/json")
     @Produces("application/json")
-    @RolesAllowed({ "admin" })
+    @RolesAllowed({"admin"})
     public String moveArea(MoveAreaVo moveAreaVo) throws Exception {
         log.info("Moving area " + moveAreaVo.getAreaId() + " to " + moveAreaVo.getParentId());
         areaService.moveArea(moveAreaVo.getAreaId(), moveAreaVo.getParentId());
         return "OK";
     }
 
+    @PUT
+    @Path("/change-sort-order")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({"admin"})
+    public String changeSortOrder(ChangeSortOrderVo changeSortOrderVo) throws Exception {
+        log.info("Changing sort-order of area " + changeSortOrderVo.getAreaId()
+                + " moving " + (changeSortOrderVo.isMoveUp() ? "up" : "down"));
+        areaService.changeSortOrder(changeSortOrderVo.getAreaId(), changeSortOrderVo.isMoveUp());
+        return "OK";
+    }
 
-    /*********************
+
+    /**
+     * ******************
      * Helper classes
-     *********************/
+     * *******************
+     */
 
     public static class MoveAreaVo implements Serializable {
         Integer areaId, parentId;
@@ -163,5 +179,24 @@ public class AreaRestService {
         }
     }
 
+    public static class ChangeSortOrderVo implements Serializable {
+        Integer areaId;
+        boolean moveUp;
 
+        public Integer getAreaId() {
+            return areaId;
+        }
+
+        public void setAreaId(Integer areaId) {
+            this.areaId = areaId;
+        }
+
+        public boolean isMoveUp() {
+            return moveUp;
+        }
+
+        public void setMoveUp(boolean moveUp) {
+            this.moveUp = moveUp;
+        }
+    }
 }

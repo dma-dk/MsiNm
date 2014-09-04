@@ -169,8 +169,7 @@ public class CategoryService extends BaseService {
 
         if (parentId != null) {
             Category parent = getByPrimaryKey(Category.class, parentId);
-            parent.getChildren().add(category);
-            category.setParent(parent);
+            parent.addChild(category);
         }
 
         category = saveEntity(category);
@@ -200,8 +199,7 @@ public class CategoryService extends BaseService {
             category.setParent(null);
         } else {
             Category parent = getByPrimaryKey(Category.class, parentId);
-            category.setParent(parent);
-            parent.getChildren().add(category);
+            parent.addChild(category);
         }
 
         category = saveEntity(category);

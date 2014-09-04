@@ -116,10 +116,16 @@ public class AreaService extends BaseService {
                 .forEach(areaVo -> areaLookup.get(areaVo.getParent().getId()).checkCreateChildren().add(areaVo));
 
         // Return roots
-        return areaLookup.values().stream()
+        List<AreaVo> roots = areaLookup.values().stream()
                 .filter(areaVo -> areaVo.getParent() == null)
                 .collect(Collectors.toList());
+
+        // Sort the trees according to sort order
+        roots.forEach(AreaVo::sortChildren);
+
+        return roots;
     }
+
 
     /**
      * Looks up an area and the associated data, but does NOT look up
@@ -145,6 +151,8 @@ public class AreaService extends BaseService {
      */
     public Area updateAreaData(Area area) {
         Area original = getByPrimaryKey(Area.class, area.getId());
+
+        original.setSortOrder(area.getSortOrder());
 
         // Copy the area data
         original.copyDescsAndRemoveBlanks(area.getDescs());
@@ -174,8 +182,7 @@ public class AreaService extends BaseService {
 
         if (parentId != null) {
             Area parent = getByPrimaryKey(Area.class, parentId);
-            parent.getChildren().add(area);
-            area.setParent(parent);
+            parent.addChild(area);
         }
 
         area = saveEntity(area);
@@ -205,8 +212,7 @@ public class AreaService extends BaseService {
             area.setParent(null);
         } else {
             Area parent = getByPrimaryKey(Area.class, parentId);
-            area.setParent(parent);
-            parent.getChildren().add(area);
+            parent.addChild(area);
         }
 
         // Save the entity
@@ -221,6 +227,64 @@ public class AreaService extends BaseService {
 
         // Evict all cached messages for the area subtree
         evictCachedMessages(area);
+
+        return area;
+    }
+
+    /**
+     * Changes the sort order of an area, by moving it up or down compared to siblings.
+     * <p>
+     * Please note that by moving "up" we mean in a geographical tree structure,
+     * i.e. a smaller sortOrder value.
+     *
+     * @param areaId the id of the area to move
+     * @param moveUp whether to move the area up or down
+     * @return the updated area
+     */
+    public Area changeSortOrder(Integer areaId, boolean moveUp) {
+        Area area = getByPrimaryKey(Area.class, areaId);
+        boolean updated = false;
+
+        // Non-root case
+        if (area.getParent() != null) {
+            List<Area> siblings = area.getParent().getChildren();
+            int index = siblings.indexOf(area);
+
+            if (moveUp) {
+                if (index == 1) {
+                    area.setSortOrder(siblings.get(0).getSortOrder() - 10.0);
+                    updated = true;
+                } else if (index > 1) {
+                    double so1 =  siblings.get(index - 1).getSortOrder();
+                    double so2 =  siblings.get(index - 2).getSortOrder();
+                    area.setSortOrder((so1 + so2) / 2.0);
+                    updated = true;
+                }
+
+            } else {
+                if (index == siblings.size() - 2) {
+                    area.setSortOrder(siblings.get(siblings.size() - 1).getSortOrder() + 10.0);
+                    updated = true;
+                } else if (index < siblings.size() - 2) {
+                    double so1 =  siblings.get(index + 1).getSortOrder();
+                    double so2 =  siblings.get(index + 2).getSortOrder();
+                    area.setSortOrder((so1 + so2) / 2.0);
+                    updated = true;
+                }
+
+            }
+
+        } else {
+            // TODO root case
+        }
+
+        if (updated) {
+            log.info("Updates sort order for area " + area.getId() + " to " + area.getSortOrder());
+            // Save the entity
+            area = saveEntity(area);
+
+            // NB: Cache eviction not needed since lineage is the same...
+        }
 
         return area;
     }

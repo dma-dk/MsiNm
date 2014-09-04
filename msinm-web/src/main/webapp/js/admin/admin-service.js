@@ -108,6 +108,12 @@ angular.module('msinm.admin')
                 $http.put('/rest/admin/areas/move-area', { areaId: areaId, parentId: parentId })
                     .success(success)
                     .error(error);
+            },
+
+            changeSortOrder: function(areaId, moveUp, success, error) {
+                $http.put('/rest/admin/areas/change-sort-order', { areaId: areaId, moveUp: moveUp })
+                    .success(success)
+                    .error(error);
             }
         };
     }])

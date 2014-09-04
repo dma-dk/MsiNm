@@ -63,6 +63,25 @@
                         </div>
 
                         <div class="form-group">
+                            <label class="control-label">Sorting</label>
+                            <div class="row">
+                                <div class="col-sm-6">
+                                    <input class="form-control input-sm" placeholder="Sort Key" type="number"  step="any" ng-model="editArea.sortOrder" ng-disabled="">
+                                </div>
+                                <div class="col-sm-6 btn-group">
+                                    <button href class="btn btn-default btn-sm" ng-click="changeSortOrder(true)" title="Move Area Up"
+                                            ng-disabled="action == 'add' || !areaForm.$pristine">
+                                        <span class="glyphicon glyphicon-arrow-up"></span>
+                                    </button>
+                                    <button href class="btn btn-default btn-sm" ng-click="changeSortOrder(false)" title="Move Area Down"
+                                            ng-disabled="action == 'add' || !areaForm.$pristine">
+                                        <span class="glyphicon glyphicon-arrow-down"></span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
                             <button href class="btn btn-primary btn-sm" ng-click="showLocations(true)">
                                 <span class="glyphicon glyphicon-map-marker"></span> Edit locations...
                             </button>
