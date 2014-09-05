@@ -25,7 +25,11 @@ import org.slf4j.Logger;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.Stateless;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -40,10 +44,14 @@ import java.io.Serializable;
 import java.util.List;
 
 /**
- * REST interface for accessing MSI-NM areas
+ * REST interface for accessing MSI-NM areas.
+ * <p>
+ *     Sets up a timer that periodically re-computes the area tree sort order
+ * </p>
  */
+@Singleton
+@Startup
 @Path("/admin/areas")
-@Stateless
 @SecurityDomain("msinm-policy")
 @PermitAll
 public class AreaRestService {
@@ -67,6 +75,7 @@ public class AreaRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
+    @Lock(LockType.READ)
     public List<AreaVo> searchAreas(@QueryParam("lang") String lang, @QueryParam("term") String term, @QueryParam("limit") int limit) {
         log.info(String.format("Searching for areas lang=%s, term='%s', limit=%d", lang, term, limit));
         return areaService.searchAreas(lang, term, limit);
@@ -82,6 +91,7 @@ public class AreaRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
+    @Lock(LockType.READ)
     public List<AreaVo> getAreaRoots(@QueryParam("lang") String lang) {
         return areaService.getAreaTreeForLanguage(lang);
     }
@@ -89,6 +99,7 @@ public class AreaRestService {
     @GET
     @Path("/area/{areaId}")
     @Produces("application/json")
+    @Lock(LockType.READ)
     public AreaVo getArea(@PathParam("areaId") Integer areaId) throws Exception {
         log.info("Getting area " + areaId);
         return areaService.getAreaDetails(areaId);
@@ -152,6 +163,21 @@ public class AreaRestService {
         return "OK";
     }
 
+    @GET
+    @Path("/recompute-tree-sort-order")
+    @RolesAllowed({"admin"})
+    public String recomputeTreeSortOrder() {
+        areaService.recomputeTreeSortOrder();
+        return "OK";
+    }
+
+    /**
+     * Called periodically to recompute the tree sort order
+     */
+    @Schedule(persistent = false, second = "3", minute = "13", hour = "*", dayOfWeek = "*", year = "*")
+    public void periodicRecomputeTreeSortOrder() {
+        areaService.recomputeTreeSortOrder();
+    }
 
     /**
      * ******************

@@ -55,8 +55,14 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
     @Column(length = 256)
     String lineage;
 
+    // The sortOrder is used to sort this area among siblings, and exposed via the Admin UI
     @Column(columnDefinition="DOUBLE default 0.0")
     double sortOrder;
+
+    // The treeSortOrder is re-computed at regular intervals by the system and designates
+    // the index of the area in an entire sorted area tree. Used for area sorting.
+    @Column(columnDefinition="INT default 0")
+    int treeSortOrder;
 
     @Override
     public List<AreaDesc> getDescs() {
@@ -86,8 +92,14 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
      * @param area the area to add
      */
     public void addChild(Area area) {
+        // Add the area to the end of the children list
         Area lastChild = children.isEmpty() ? null : children.get(children.size() - 1);
         area.setSortOrder(lastChild == null ? Math.random() : lastChild.getSortOrder() + 10.0d);
+
+        // Give it initial tree sort order. Won't really be correct until the tree sort order has
+        // been re-computed for the entire tree.
+        area.setTreeSortOrder(lastChild == null ? treeSortOrder : lastChild.getTreeSortOrder());
+
         children.add(area);
         area.setParent(this);
     }
@@ -179,6 +191,14 @@ public class Area extends VersionedEntity<Integer> implements ILocalizable<AreaD
 
     public void setSortOrder(double sortOrder) {
         this.sortOrder = sortOrder;
+    }
+
+    public int getTreeSortOrder() {
+        return treeSortOrder;
+    }
+
+    public void setTreeSortOrder(int treeSortOrder) {
+        this.treeSortOrder = treeSortOrder;
     }
 }
 

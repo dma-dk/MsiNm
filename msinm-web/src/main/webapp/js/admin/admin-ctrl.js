@@ -107,8 +107,8 @@ angular.module('msinm.admin')
     /**
      * Area Controller
      */
-    .controller('AreaCtrl', ['$scope', 'LangService', 'AreaService', 'DialogService',
-        function ($scope, LangService, AreaService, DialogService) {
+    .controller('AreaCtrl', ['$scope', 'growlNotifications', 'LangService', 'AreaService', 'DialogService',
+        function ($scope, growlNotifications, LangService, AreaService, DialogService) {
         'use strict';
 
         $scope.areas = [];
@@ -195,6 +195,17 @@ angular.module('msinm.admin')
                 },
                 function (data) {
                     console.error("ERROR " + data);
+                }
+            )
+        };
+
+        $scope.recomputeTreeSortOrder = function () {
+            AreaService.recomputeTreeSortOrder(
+                function (data) {
+                    growlNotifications.add('<h4>Tree Sort Order Updated</h4>', 'info', 3000);
+                },
+                function (data) {
+                    growlNotifications.add('<h4>Updating Tree Sort Order Failed</h4>', 'danger', 3000);
                 }
             )
         };

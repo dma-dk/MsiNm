@@ -20,6 +20,10 @@ import dk.dma.msinm.common.db.PredicateHelper;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.common.settings.DefaultSetting;
+import dk.dma.msinm.common.settings.Setting;
+import dk.dma.msinm.common.settings.Settings;
+import dk.dma.msinm.common.settings.SettingsEntity;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.AreaDesc;
 import dk.dma.msinm.vo.AreaVo;
@@ -35,6 +39,8 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Path;
 import javax.persistence.criteria.Root;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,6 +51,9 @@ import java.util.stream.Collectors;
  */
 @Stateless
 public class AreaService extends BaseService {
+
+    // Used by the recomputeTreeSortOrder() method
+    public static final Setting AREA_LAST_UPDATE = new DefaultSetting("areaLastUpdate", "0");
 
     @Inject
     private Logger log;
@@ -58,6 +67,9 @@ public class AreaService extends BaseService {
     @Inject
     @Sql("/sql/area_messages.sql")
     private String areaMessagesSql;
+
+    @Inject
+    private Settings settings;
 
     /**
      * Searchs for areas matching the given term in the given language
@@ -121,11 +133,11 @@ public class AreaService extends BaseService {
                 .collect(Collectors.toList());
 
         // Sort the trees according to sort order
+        Collections.sort(roots);
         roots.forEach(AreaVo::sortChildren);
 
         return roots;
     }
-
 
     /**
      * Looks up an area and the associated data, but does NOT look up
@@ -440,6 +452,90 @@ public class AreaService extends BaseService {
             area = createArea(templateArea, parentId);
         }
         return area;
+    }
+
+    /**
+     * Returns the last change date for areas or null if no area exists
+     * @return the last change date for areas
+     */
+    public Date getLastUpdated() {
+        try {
+            return em.createQuery("select max(a.updated) from Area a", Date.class).getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Potentially, a heavy-duty function that scans the entire area tree,
+     * sorts it and update the treeSortOrder. Use with care.
+     */
+    public void recomputeTreeSortOrder() {
+        long t0 = System.currentTimeMillis();
+
+        // Compare the last area update date and the last processed date
+        Date lastAreaUpdate = getLastUpdated();
+        if (lastAreaUpdate == null) {
+            // No areas
+            return;
+        }
+
+        Date lastProcessedUpdate = settings.getDate(AREA_LAST_UPDATE);
+        if (!lastAreaUpdate.after(lastProcessedUpdate)) {
+            log.info("No area tree changes since last execution of recomputeTreeSortOrder()");
+            return;
+        }
+
+        List<Area> roots = em
+                .createNamedQuery("Area.findRootAreas", Area.class)
+                .getResultList();
+
+        // Sort the roots by sortOrder
+        Collections.sort(roots);
+
+        // Re-compute the tree sort order
+        List<Area> updated = new ArrayList<>();
+        recomputeTreeSortOrder(roots, 0, updated, false);
+
+        // Persist changed areas
+        updated.forEach(this::saveEntity);
+
+        em.flush();
+
+        // Update the last processed date
+        settings.updateSetting(new SettingsEntity(
+                AREA_LAST_UPDATE.getSettingName(),
+                String.valueOf(System.currentTimeMillis() + 1000)));
+
+        log.info("Recomputed tree sort order in " + (System.currentTimeMillis() - t0) + " ms");
+    }
+
+    /**
+     * Recursively recomputes the treeSortOrder, by enumerating the sorted area list and their children
+     * @param areas the list of areas to update
+     * @param index the current area index
+     * @param updatedAreas the list of updated areas given by sub-tree roots.
+     * @param ancestorUpdated if an ancestor area has been updated
+     * @return the index after processing the list of areas.
+     */
+    private int recomputeTreeSortOrder(List<Area> areas, int index, List<Area> updatedAreas, boolean ancestorUpdated) {
+
+        for (Area area : areas) {
+            index++;
+            boolean updated = ancestorUpdated;
+            if (index != area.getTreeSortOrder()) {
+                area.setTreeSortOrder(index);
+                updated = true;
+                if (!ancestorUpdated) {
+                    updatedAreas.add(area);
+                }
+            }
+
+            // NB: area.getChildren() is by definition sorted
+            index = recomputeTreeSortOrder(area.getChildren(), index, updatedAreas, updated);
+        }
+
+        return index;
     }
 
 }

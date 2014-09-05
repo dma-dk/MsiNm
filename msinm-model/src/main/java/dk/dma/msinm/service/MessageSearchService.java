@@ -63,6 +63,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Selection;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -348,112 +349,15 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
         result.setStartIndex(param.getStartIndex());
 
         try {
-            // For efficiency reasons, two queries are executed:
-            //
-            // Query 1: Since we need to return the total result count, the first
-            // query performs the full query based on the search parameters, but
-            // fetches only the id's of the messages.
-            //
-            // Query 2: Then the messages with the paged set of id's are fetched in full.
 
             // **********************************************************************************/
-            // ********** Query 1: Fetch ids of all messages matching search parameters  ********/
+            // ********** Step 1: Fetch the paged list of message ID's                   ********/
             // **********************************************************************************/
-            CriteriaBuilder builder = em.getCriteriaBuilder();
-            CriteriaQuery<Tuple> tupleQuery = builder.createTupleQuery();
 
-            // Select messages
-            Root<Message> msgRoot = tupleQuery.from(Message.class);
-            msgRoot.join("seriesIdentifier", JoinType.LEFT);
-            javax.persistence.criteria.Path<SeriesIdentifier> msgId = msgRoot.get("seriesIdentifier");
-
-            // Build the predicates based on the search parameters
-            PredicateHelper<Tuple> tuplePredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
-                    .equals(msgRoot.get("status"), param.getStatus())
-                    .between(msgRoot.get("created"), param.getFrom(), param.getTo());
-
-            // Compute the type closure
-            Set<Type> types = new HashSet<>();
-            types.addAll(param.getTypes());
-            param.getMainTypes().forEach(mt -> {
-                for (Type t : Type.values()) {
-                    if (t.getSeriesIdType() == mt) {
-                        types.add(t);
-                    }
-                }
-            });
-
-            if (types.size() > 0) {
-                tuplePredicateBuilder.in(msgRoot.get("type"), types);
-            }
-
-            // Search the Lucene index for free text search and location information
-            if (param.requiresLuceneSearch()) {
-                Filter filter = null;
-                if (param.getLocations() != null) {
-                    filter = getLocationFilter(param.getLocations());
-                }
-                List<Long> ids = searchIndex(param.getQuery(), searchField(param.getLanguage()), filter, Integer.MAX_VALUE);
-                tuplePredicateBuilder.in(msgRoot.get("id"), ids);
-            }
-
-            // Filter on bookmarker items
-            if (param.isBookmarks()) {
-                tuplePredicateBuilder.in(msgRoot.get("id"), messageService.getBookmarks());
-            }
-
-            // Filter on areas
-            if (param.getAreaIds().size() > 0) {
-
-                // Note to self: A more efficient way would be to join on area and match
-                // the lineage of the joined area with that of the message area...
-                msgRoot.join("area", JoinType.LEFT);
-                javax.persistence.criteria.Path<Area> area = msgRoot.get("area");
-                Predicate[] areaMatch = new Predicate[param.getAreaIds().size()];
-                Iterator<Integer> i = param.getAreaIds().iterator();
-                for (int x = 0; x < areaMatch.length; x++) {
-                    String lineage = em.find(Area.class, i.next()).getLineage();
-                    areaMatch[x] = builder.like(area.get("lineage"), lineage + "%");
-                }
-                tuplePredicateBuilder.add(builder.or(areaMatch));
-            }
-
-            // Filter on charts
-            if (param.getChartIds().size() > 0) {
-
-                Join<Message, Chart> charts = msgRoot.join("charts", JoinType.LEFT);
-                Predicate[] chartMatch = new Predicate[param.getChartIds().size()];
-                Iterator<Integer> i = param.getChartIds().iterator();
-                for (int x = 0; x < chartMatch.length; x++) {
-                    chartMatch[x] = builder.equal(charts.get("id"), i.next());
-                }
-                tuplePredicateBuilder.add(builder.or(chartMatch));
-            }
-
-            // Complete the query and fetch the message id's (and validFrom, year and number for sorting)
-            tupleQuery.multiselect(msgRoot.get("id"), msgRoot.get("validFrom"), msgId.get("year"), msgId.get("number"), msgId.get("mainType"), msgId.get("authority"))
-                    .distinct(true)
-                    .where(tuplePredicateBuilder.where());
-            sortQuery(param, builder, tupleQuery, msgRoot, msgId);
-
-            // Execute the query
-            List<Tuple> totalResult = em
-                    .createQuery(tupleQuery)
-                    .getResultList();
-
-            // Register the total result and pick out the message ids for the paged result
-            result.setTotal(totalResult.size());
-            List<Integer> msgIds = totalResult
-                    .stream()
-                    .map(t -> (Integer) t.get(0))
-                    .collect(Collectors.toList());
-
-            List<Integer> pagedMsgIds = msgIds.subList(
-                    Math.min(param.getStartIndex(), msgIds.size()),
-                    Math.min(param.getStartIndex() + param.getMaxHits(), msgIds.size()));
+            List<Integer> pagedMsgIds = searchPagedMessageIds(param, result);
 
             // **********************************************************************************/
-            // ********** Query 2: Fetch messages with the paged set of id's             ********/
+            // ********** Step 2: Fetch messages with the paged set of id's             ********/
             // **********************************************************************************/
 
             // Check if the message number exceeds the maximum allowed message number
@@ -489,27 +393,146 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     }
 
     /**
-     * Sorts the criteria query according to the parameters
+     * Searches out the ID's of the paged result set of messages defined by the search parameters.
+     * Also fills out the total result count of the message search result.
      *
      * @param param the search parameters
-     * @param cq the criteria query
+     * @param result the search result to update with the total result count
+     * @return the paged list of message ID's
      */
-    private <M, T, I> void sortQuery(MessageSearchParams param, CriteriaBuilder builder, CriteriaQuery<T> cq, Root<M> root, javax.persistence.criteria.Path<I> msgId) {
+    List<Integer> searchPagedMessageIds(MessageSearchParams param, MessageSearchResult result) throws Exception {
+
+        CriteriaBuilder builder = em.getCriteriaBuilder();
+        CriteriaQuery<Tuple> tupleQuery = builder.createTupleQuery();
+
+        // Select messages
+        Root<Message> msgRoot = tupleQuery.from(Message.class);
+        msgRoot.join("seriesIdentifier", JoinType.LEFT);
+        javax.persistence.criteria.Path<SeriesIdentifier> msgId = msgRoot.get("seriesIdentifier");
+
+        // Build the predicates based on the search parameters
+        PredicateHelper<Tuple> tuplePredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
+                .equals(msgRoot.get("status"), param.getStatus())
+                .between(msgRoot.get("created"), param.getFrom(), param.getTo());
+
+        // Compute the type closure
+        Set<Type> types = new HashSet<>();
+        types.addAll(param.getTypes());
+        param.getMainTypes().forEach(mt -> {
+            for (Type t : Type.values()) {
+                if (t.getSeriesIdType() == mt) {
+                    types.add(t);
+                }
+            }
+        });
+
+        if (types.size() > 0) {
+            tuplePredicateBuilder.in(msgRoot.get("type"), types);
+        }
+
+        // Search the Lucene index for free text search and location information
+        if (param.requiresLuceneSearch()) {
+            Filter filter = null;
+            if (param.getLocations() != null) {
+                filter = getLocationFilter(param.getLocations());
+            }
+            List<Long> ids = searchIndex(param.getQuery(), searchField(param.getLanguage()), filter, Integer.MAX_VALUE);
+            tuplePredicateBuilder.in(msgRoot.get("id"), ids);
+        }
+
+        // Filter on bookmarked items
+        if (param.isBookmarks()) {
+            tuplePredicateBuilder.in(msgRoot.get("id"), messageService.getBookmarks());
+        }
+
+        // If we search by area or sort by area, join over...
+        javax.persistence.criteria.Path<Area> areaRoot = null;
+        if (param.getSortBy() == MessageSearchParams.SortBy.AREA || param.getAreaIds().size() > 0) {
+
+            msgRoot.join("area", JoinType.LEFT);
+            areaRoot = msgRoot.get("area");
+
+            // Filter on areas
+            if (param.getAreaIds().size() > 0) {
+
+                // Note to self: A more efficient way would be to join on area and match
+                // the lineage of the joined area with that of the message area...
+                Predicate[] areaMatch = new Predicate[param.getAreaIds().size()];
+                Iterator<Integer> i = param.getAreaIds().iterator();
+                for (int x = 0; x < areaMatch.length; x++) {
+                    String lineage = em.find(Area.class, i.next()).getLineage();
+                    areaMatch[x] = builder.like(areaRoot.get("lineage"), lineage + "%");
+                }
+                tuplePredicateBuilder.add(builder.or(areaMatch));
+            }
+        }
+
+        // Filter on charts
+        if (param.getChartIds().size() > 0) {
+
+            Join<Message, Chart> charts = msgRoot.join("charts", JoinType.LEFT);
+            Predicate[] chartMatch = new Predicate[param.getChartIds().size()];
+            Iterator<Integer> i = param.getChartIds().iterator();
+            for (int x = 0; x < chartMatch.length; x++) {
+                chartMatch[x] = builder.equal(charts.get("id"), i.next());
+            }
+            tuplePredicateBuilder.add(builder.or(chartMatch));
+        }
+
+        // Determine the fields to fetch
+        List<Selection<?>> fields = new ArrayList<>();
+        fields.add(msgRoot.get("id"));
+        if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {
+            fields.add(msgRoot.get("validFrom"));
+        } else if (MessageSearchParams.SortBy.ID == param.getSortBy()) {
+            fields.add(msgId.get("year"));
+            fields.add(msgId.get("number"));
+        } else if (MessageSearchParams.SortBy.AREA == param.getSortBy()) {
+            fields.add(areaRoot.get("treeSortOrder"));
+        }
+
+        // Complete the query and fetch the message id's (and validFrom, year and number for sorting)
+        tupleQuery.multiselect(fields.toArray(new Selection<?>[fields.size()]))
+                .distinct(true)
+                .where(tuplePredicateBuilder.where());
+
+        // Sort the query
         if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {
             if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
-                cq.orderBy(builder.asc(root.get("validFrom")));
+                tupleQuery.orderBy(builder.asc(msgRoot.get("validFrom")));
             } else {
-                cq.orderBy(builder.desc(root.get("validFrom")));
+                tupleQuery.orderBy(builder.desc(msgRoot.get("validFrom")));
             }
         } else if (MessageSearchParams.SortBy.ID == param.getSortBy()) {
             if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
-                // cq.orderBy(builder.asc(msgId.get("mainType")), builder.asc(msgId.get("authority")), builder.asc(msgId.get("year")), builder.asc(msgId.get("number")));
-                cq.orderBy(builder.asc(msgId.get("year")), builder.asc(msgId.get("number")));
+                tupleQuery.orderBy(builder.asc(msgId.get("year")), builder.asc(msgId.get("number")));
             } else {
-                // cq.orderBy(builder.desc(msgId.get("mainType")), builder.desc(msgId.get("authority")), builder.desc(msgId.get("year")), builder.desc(msgId.get("number")));
-                cq.orderBy(builder.desc(msgId.get("year")), builder.desc(msgId.get("number")));
+                tupleQuery.orderBy(builder.desc(msgId.get("year")), builder.desc(msgId.get("number")));
+            }
+        } else if (MessageSearchParams.SortBy.AREA == param.getSortBy()) {
+            if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
+                tupleQuery.orderBy(builder.asc(areaRoot.get("treeSortOrder")));
+            } else {
+                tupleQuery.orderBy(builder.desc(areaRoot.get("treeSortOrder")));
             }
         }
+
+        // Execute the query
+        List<Tuple> totalResult = em
+                .createQuery(tupleQuery)
+                .getResultList();
+
+        // Register the total result
+        result.setTotal(totalResult.size());
+
+        List<Integer> msgIds = totalResult.stream()
+                    .map(t -> (Integer) t.get(0))
+                    .collect(Collectors.toList());
+
+        // Extract and return the paged sub-list
+        return msgIds.subList(
+                Math.min(param.getStartIndex(), msgIds.size()),
+                Math.min(param.getStartIndex() + param.getMaxHits(), msgIds.size()));
     }
 
 }

@@ -114,7 +114,14 @@ angular.module('msinm.admin')
                 $http.put('/rest/admin/areas/change-sort-order', { areaId: areaId, moveUp: moveUp })
                     .success(success)
                     .error(error);
+            },
+
+            recomputeTreeSortOrder: function(success, error) {
+                $http.get('/rest/admin/areas/recompute-tree-sort-order')
+                    .success(success)
+                    .error(error);
             }
+
         };
     }])
 

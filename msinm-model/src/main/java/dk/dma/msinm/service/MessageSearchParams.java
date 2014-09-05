@@ -29,7 +29,7 @@ import java.util.*;
  */
 public class MessageSearchParams implements Serializable {
 
-    public enum SortBy { DATE, ID }
+    public enum SortBy { DATE, ID, AREA }
     public enum SortOrder { ASC, DESC }
 
     String language;
