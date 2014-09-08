@@ -548,6 +548,7 @@ public class MessageRestService {
         String bundle = "MessageList";
         Map<String, Object> data = new HashMap<>();
         data.put("messages", result.getMessages());
+        data.put("areaHeadings", "AREA".equals(sortBy));
 
         try {
             StreamingOutput stream = os -> {
