@@ -117,6 +117,16 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            published: function(sortBy, sortOrder, success, error) {
+                $http.get(
+                        '/rest/messages/published?lang=' + $rootScope.language
+                        + '&sortBy=' + sortBy
+                        + '&sortOrder=' + sortOrder
+                    )
+                    .success(success)
+                    .error(error);
+            },
+
             getArea: function(areaId, success, error) {
                 $http.get('/rest/admin/areas/area/' + areaId)
                     .success(success)

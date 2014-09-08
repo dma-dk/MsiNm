@@ -3,8 +3,8 @@
  * The message search controller for the app.
  */
 angular.module('msinm.search')
-    .controller('SearchCtrl', ['$scope', '$window', '$location', '$modal', 'MessageService', 'DialogService', '$http', 'growlNotifications',
-        function ($scope, $window, $location, $modal, MessageService, DialogService, $http, growlNotifications) {
+    .controller('SearchCtrl', ['$scope', '$window', '$location', '$modal', 'MessageService', 'DialogService', 'LangService', '$http', 'growlNotifications',
+        function ($scope, $window, $location, $modal, MessageService, DialogService, LangService, $http, growlNotifications) {
         'use strict';
 
         $scope.action = "search";
@@ -76,6 +76,7 @@ angular.module('msinm.search')
                     if (data && data.overflowed) {
                         growlNotifications.add('<strong>Search result too big</strong><br>Zoom in or filter search', 'info', 1500);
                     }
+                    $scope.checkGroupByArea(2);
                 },
                 function () {
                     growlNotifications.add('<h4>Search failed</h4>', 'danger', 3000);
@@ -83,6 +84,27 @@ angular.module('msinm.search')
             );
         };
 
+
+        // Scans through the search result and marks all messages that should potentially display an area head line
+        $scope.checkGroupByArea = function (maxLevels) {
+            var lastAreaId = undefined;
+            if ($scope.searchResult && $scope.searchResult.total > 0 && $scope.sortBy == 'AREA') {
+                for (var m in $scope.searchResult.messages) {
+                    var msg = $scope.searchResult.messages[m];
+                    var areas = [];
+                    for (var area = msg.area; area !== undefined; area = area.parent) {
+                        areas.unshift(area);
+                    }
+                    if (areas.length > 0) {
+                        area = areas[Math.min(areas.length - 1, maxLevels - 1)];
+                        if (!lastAreaId || area.id != lastAreaId) {
+                            lastAreaId = area.id;
+                            msg.areaHeading = area;
+                        }
+                    }
+                }
+            }
+        };
 
         // Watch the location path to handle various search result view modes and edit mode.
         $scope.$watch(function () {

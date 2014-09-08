@@ -58,6 +58,11 @@
     cursor: pointer;
 }
 
+.front-page-msi-area-heading {
+    color: #8f2f7b;
+    font-size: 16px;
+}
+
 .front-page-msi-item div {
     white-space:nowrap;
     overflow: hidden;

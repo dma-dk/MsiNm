@@ -2,7 +2,10 @@
 
 <div class="container-fluid" style="overflow: hidden; padding-top: 10px">
     <div class="searchResultTab row" style="background-color: #eeeeee;">
-        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 " ng-repeat="msg in searchResult.messages" style="margin-bottom: 20px;">
+        <div class="col-xs-12 col-sm-12 col-md-12 col-lg-12 " ng-repeat-start="msg in searchResult.messages" ng-if="msg.areaHeading">
+            <h4 class="searchResultAreaHeading" msi-area="msg.areaHeading"></h4>
+        </div>
+        <div class="col-xs-12 col-sm-6 col-md-4 col-lg-3 " ng-repeat-end style="margin-bottom: 20px;">
             <div class="grid-item" style="width: 260px; height: 260px;">
                 <div msi-message-details="msg.id" msi-messages="searchResult.messages">
                     <img class="map-image" ng-src="/message-map-image/{{msg.id}}.png" width="256" height="256"/>

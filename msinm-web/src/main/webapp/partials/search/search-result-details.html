@@ -1,7 +1,10 @@
 
 <div class="container-fluid" style="padding-top: 10px">
     <table class='table table-condensed'>
-        <tr ng-repeat="msg in searchResult.messages" msi-render-message-details msg="msg" messages="searchResult.messages" show-details-menu="true" ></tr>
+        <tr ng-repeat-start="msg in searchResult.messages"  ng-if="msg.areaHeading">
+            <td colspan="2"><h4 class="searchResultAreaHeading" msi-area="msg.areaHeading"></h4></td>
+        </tr>
+        <tr ng-repeat-end msi-render-message-details msg="msg" messages="searchResult.messages" show-details-menu="true" ></tr>
     </table>
 </div>
 

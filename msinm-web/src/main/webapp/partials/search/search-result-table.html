@@ -16,7 +16,10 @@
             <th>Area</th>
             <th>Action</th>
         </tr>
-        <tr ng-repeat="msg in searchResult.messages" style="cursor: pointer">
+        <tr ng-repeat-start="msg in searchResult.messages" ng-if="msg.areaHeading">
+            <td colspan="5"><h4 class="searchResultAreaHeading" msi-area="msg.areaHeading"></h4></td>
+        </tr>
+        <tr ng-repeat-end style="cursor: pointer">
             <td nowrap msi-message-details="msg.id" msi-messages="searchResult.messages"><span msi-message-id="msg"></span></td>
             <td nowrap msi-message-details="msg.id" msi-messages="searchResult.messages">
                 {{msg.validFrom | date : 'dd/MM/yy'}}

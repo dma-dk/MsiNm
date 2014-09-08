@@ -492,10 +492,27 @@ public class MessageRestService {
             @QueryParam("maxHits") @DefaultValue("100") int maxHits,
             @QueryParam("startIndex") @DefaultValue("0") int startIndex,
             @QueryParam("sortBy") @DefaultValue("DATE") String sortBy,
-            @QueryParam("sortOrder") @DefaultValue("DESC½") String sortOrder,
+            @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder,
             @QueryParam("mapMode") @DefaultValue("false") boolean mapMode
     ) throws Exception {
         MessageSearchParams params = readParams(language, query, status, type, loc, areas, charts, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, mapMode);
+        return messageSearchService.search(params);
+    }
+
+    /**
+     * Published messages method
+     */
+    @GET
+    @Path("/published")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public MessageSearchResult search(
+            @QueryParam("lang") String language,
+            @QueryParam("sortBy") @DefaultValue("DATE") String sortBy,
+            @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder
+    ) throws Exception {
+        MessageSearchParams params = readParams(language, "", "PUBLISHED", "", "", "", "", "", "", 1000, 0, sortBy, sortOrder, false);
         return messageSearchService.search(params);
     }
 

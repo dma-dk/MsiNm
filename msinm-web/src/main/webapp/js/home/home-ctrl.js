@@ -19,22 +19,12 @@ angular.module('msinm.common')
 
                 if (!$scope.authToken) {
                     // Update the list of active warnings
-                    MessageService.search(
-                        '', // query
-                        'PUBLISHED',
-                        '', // type
-                        '[]', // location
-                        '', // area
-                        '', // charts
-                        '', // from date
-                        '', // to date
-                        100,
-                        0,
-                        'DATE',
-                        'DESC',
-                        false,
+                    MessageService.published(
+                        'AREA',
+                        'ASC',
                         function (data) {
                             $scope.searchResult = data;
+                            $scope.checkGroupByArea(2);
                         },
                         function () {
                             // Ignore errors
@@ -82,4 +72,26 @@ angular.module('msinm.common')
                 }
 
             };
+
+            // Scans through the search result and marks all messages that should potentially display an area head line
+            $scope.checkGroupByArea = function (maxLevels) {
+                var lastAreaId = undefined;
+                if ($scope.searchResult && $scope.searchResult.total > 0) {
+                    for (var m in $scope.searchResult.messages) {
+                        var msg = $scope.searchResult.messages[m];
+                        var areas = [];
+                        for (var area = msg.area; area !== undefined; area = area.parent) {
+                            areas.unshift(area);
+                        }
+                        if (areas.length > 0) {
+                            area = areas[Math.min(areas.length - 1, maxLevels - 1)];
+                            if (!lastAreaId || area.id != lastAreaId) {
+                                lastAreaId = area.id;
+                                msg.areaHeading = area;
+                            }
+                        }
+                    }
+                }
+            };
+
         }]);

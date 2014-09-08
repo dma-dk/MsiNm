@@ -129,9 +129,11 @@ angular.module('msinm.common')
         return {
             restrict: 'A',
             scope: {
-                msiArea: "="
+                msiArea: "=",
+                areaDivider: "@"
             },
             link: function(scope, element, attrs) {
+                var divider = (attrs.areaDivider) ? attrs.areaDivider : " - "
                 scope.$watch(
                     function() { return scope.msiArea; },
                     function (newValue) {
@@ -139,7 +141,7 @@ angular.module('msinm.common')
                         for (var area = scope.msiArea; area; area = area.parent) {
                             desc = LangService.desc(area);
                             var areaName = (desc) ? desc.name : '';
-                            areas = areaName + ((areas.length > 0 && areaName.length > 0) ? ' - ' : '') + areas;
+                            areas = areaName + ((areas.length > 0 && areaName.length > 0) ? divider : '') + areas;
                         }
                         element.html(areas);
                     });
