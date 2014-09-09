@@ -2,8 +2,8 @@
  * The home controller
  */
 angular.module('msinm.common')
-    .controller('HomeCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', 'MessageService', 'UserService',
-        function ($scope, $rootScope, $routeParams, $modal, MessageService, UserService) {
+    .controller('HomeCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', 'MessageService', 'UserService',
+        function ($scope, $rootScope, $routeParams, $modal, $timeout, MessageService, UserService) {
             'use strict';
 
             $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
@@ -35,14 +35,16 @@ angular.module('msinm.common')
                     );
 
                     // Update the list of active firing exercises
-                    MessageService.activeFiringExercises(
-                        function (data) {
-                            $scope.handleFiringExercises(data);
-                        },
-                        function () {
-                            // Ignore errors
-                        }
-                    );
+                    $timeout(function () {
+                        MessageService.activeFiringExercises(
+                            function (data) {
+                                $scope.handleFiringExercises(data);
+                            },
+                            function () {
+                                // Ignore errors
+                            }
+                        );
+                    }, 100);
                 }
 
                 // Check if a reset password has been issued
@@ -92,7 +94,6 @@ angular.module('msinm.common')
 
             // Update firing exercises lists
             $scope.handleFiringExercises = function(searchResult) {
-                console.log("RESULT " + searchResult.total);
                 var today = new Date().toDateString();
                 var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toDateString();
                 for (var i in searchResult.messages) {
