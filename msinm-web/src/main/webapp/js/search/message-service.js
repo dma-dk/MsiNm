@@ -128,6 +128,12 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            activeFiringExercises: function(success, error) {
+                $http.get('/rest/messages/active-firing-exercises?lang=' + $rootScope.language)
+                    .success(success)
+                    .error(error);
+            },
+
             getArea: function(areaId, success, error) {
                 $http.get('/rest/admin/areas/area/' + areaId)
                     .success(success)

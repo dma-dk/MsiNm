@@ -8,6 +8,9 @@ angular.module('msinm.common')
 
             $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
 
+            $scope.firingExercisesToday = [];
+            $scope.firingExercisesTomorrow = [];
+
             // Reset password parameters
             $scope.email = $routeParams.email;
             $scope.token = $routeParams.token;
@@ -25,6 +28,16 @@ angular.module('msinm.common')
                         function (data) {
                             $scope.searchResult = data;
                             $scope.checkGroupByArea(2);
+                        },
+                        function () {
+                            // Ignore errors
+                        }
+                    );
+
+                    // Update the list of active firing exercises
+                    MessageService.activeFiringExercises(
+                        function (data) {
+                            $scope.handleFiringExercises(data);
                         },
                         function () {
                             // Ignore errors
@@ -71,6 +84,29 @@ angular.module('msinm.common')
                     });
                 }
 
+            };
+
+            function timeInterval(msg) {
+                return new Date(msg.validFrom).hhmm() + "-" + new Date(msg.validTo).hhmm()
+            }
+
+            // Update firing exercises lists
+            $scope.handleFiringExercises = function(searchResult) {
+                console.log("RESULT " + searchResult.total);
+                var today = new Date().toDateString();
+                var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toDateString();
+                for (var i in searchResult.messages) {
+                    var msg = searchResult.messages[i];
+                    var validFrom = new Date(msg.validFrom).toDateString();
+                    var validTo = msg.validTo ? new Date(msg.validTo).toDateString() : undefined;
+                    if (validTo && validFrom == today && validTo == today) {
+                        $scope.firingExercisesToday.push(msg);
+                        msg.timeInterval = timeInterval(msg);
+                    } else if (validTo && validFrom == tomorrow && validTo == tomorrow) {
+                        $scope.firingExercisesTomorrow.push(msg);
+                        msg.timeInterval = timeInterval(msg);
+                    }
+                }
             };
 
             // Scans through the search result and marks all messages that should potentially display an area head line

@@ -31,7 +31,11 @@ Date.prototype.formatDate = function(format){
         date.push(val[fmt.parts[i]]);
     }
     return date.join(fmt.separator);
-},
+};
+
+Date.prototype.hhmm = function() {
+    return this.toTimeString().replace(/.*(\d{2}:\d{2}):.*/, "$1");
+};
 
 
 Date.prototype.getWeek = function() {

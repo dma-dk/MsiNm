@@ -33,6 +33,7 @@ import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
 import dk.dma.msinm.service.CalendarService;
+import dk.dma.msinm.service.CategoryService;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
@@ -90,6 +91,9 @@ public class MessageRestService {
 
     @Inject
     MessageService messageService;
+
+    @Inject
+    CategoryService categoryService;
 
     @Inject
     MessageSearchService messageSearchService;
@@ -515,12 +519,28 @@ public class MessageRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    public MessageSearchResult search(
+    public MessageSearchResult searchPublished(
             @QueryParam("lang") String language,
             @QueryParam("sortBy") @DefaultValue("DATE") String sortBy,
             @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder
     ) throws Exception {
         MessageSearchParams params = readParams(language, "", "PUBLISHED", "", "", "", "", "", "", "", 1000, 0, sortBy, sortOrder, false);
+        return messageSearchService.search(params);
+    }
+
+    /**
+     * Published firing exercises
+     */
+    @GET
+    @Path("/active-firing-exercises")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public MessageSearchResult searchFiringExercises(
+            @QueryParam("lang") String language
+    ) throws Exception {
+        String categoryId = String.valueOf(categoryService.findOrCreateFiringExercisesCategory().getId());
+        MessageSearchParams params = readParams(language, "", "PUBLISHED", "MSI", "", "", categoryId, "", "", "", 1000, 0, "AREA", "ASC", false);
         return messageSearchService.search(params);
     }
 

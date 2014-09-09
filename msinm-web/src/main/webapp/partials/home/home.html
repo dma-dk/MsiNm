@@ -29,17 +29,21 @@
         </div>
 
         <div class="front-page-article col-sm-4">
-            <div translate>FRONT_PAGE_INTEGRATION_1</div>
-<pre style="font-size: 10px;">
-$.getJSON(
-  'http://theserver/rest/messages/search?status=PUBLISHED',
-  function(data) {
-    $('#msiList').html(
-       '&lt;h2&gt;Behold my ' + data.total + ' messages&lt;/h2&gt;'
-     + '&lt;p&gt;' + JSON.stringify(data.messages) + '&lt;/p&gt;');
-  });
-</pre>
-            <div translate>FRONT_PAGE_INTEGRATION_2</div>
+            <div class="front-page-firing-exercises">
+                <h2 translate>FRONT_PAGE_FIRING_TITLE</h2>
+                <p translate>FRONT_PAGE_FIRING_DESC</p>
+
+                <h4 translate>FRONT_PAGE_FIRING_TODAY</h4>
+                <div ng-repeat="msg in firingExercisesToday" msi-message-details="msg.id" msi-messages="firingExercisesToday">
+                    <strong>{{msg.area.descs[0].name}}:</strong> {{msg.timeInterval}}
+                </div>
+
+                <h4 translate>FRONT_PAGE_FIRING_TOMORROW</h4>
+                <div ng-repeat="msg in firingExercisesTomorrow" msi-message-details="msg.id" msi-messages="firingExercisesTomorrow">
+                    <strong>{{msg.area.descs[0].name}}:</strong> {{msg.timeInterval}}
+                </div>
+
+            </div>
         </div>
 
         <div class="front-page-article col-sm-4">

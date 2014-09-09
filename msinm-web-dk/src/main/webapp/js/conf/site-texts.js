@@ -26,10 +26,10 @@ angular.module('msinm.conf')
 
             'FRONT_PAGE_TEASER': '<h1>Welcome to MSI-NM</h1><p>MSI-NM is an effort by the Danish Maritime Authority to combine MSI and MN P&T.</p>',
             'FRONT_PAGE_ACTIVE_WARNINGS': '<h2>Active Warnings</h2><p>For a detailed list of the active MSI-NM warnings, please go to the <a href="/search.html">Search</a> section.</p>',
-            'FRONT_PAGE_INTEGRATION_1': '<h2>Integration</h2><p>MSI and NM warnings can be accessed via a public JSON-API, as exemplified below:</p>',
-            'FRONT_PAGE_INTEGRATION_2': '<p>Furthermore, the API contains functionality that may be used by registered users.</p>'
-                + '<h3>Open Source</h3><p>The MSI-NM project is Open Source. You can download the entire project and customize it for your own needs.</p>'
-                + '<ul><li><a href="https://github.com/dma-dk/MsiNm" target="_blank">MsiNm at Github</a></li></ul>',
+            'FRONT_PAGE_FIRING_TITLE': '<h2>Firing Exercises</h2>',
+            'FRONT_PAGE_FIRING_DESC': '<p>Please find a summary of the firing exercises below</p>',
+            'FRONT_PAGE_FIRING_TODAY': '<h4>Firing Exercises Today</h4>',
+            'FRONT_PAGE_FIRING_TOMORROW': '<h4>Firing Exercises Tomorrow</h4>',
             'FRONT_PAGE_MISC': '<h2>Report Observations</h2><p>If you observe an incident relevant to the maritime community, '
                 + 'please file a report in the <a href="/report.html">Report</a> section</p>'
                 + '<h2>Other sources</h2><p>Please find the official MSI and NM\'s for the Danish Maritime Area at:</p>'
@@ -58,10 +58,10 @@ angular.module('msinm.conf')
 
             'FRONT_PAGE_TEASER': '<h1>Velkommen til MSI-NM</h1><p>MSI-NM er et projekt fra den Danske Søfartsstyrelse hvor man kombinerer MSI og MN P&T.</p>',
             'FRONT_PAGE_ACTIVE_WARNINGS': '<h2>Aktive advarsler</h2><p>For en detaljeret liste over MSI-NM advarsler og efterretninger, benyt <a href="/search.html">Søgningen</a>.</p>',
-            'FRONT_PAGE_INTEGRATION_1': '<h2>Integration</h2><p>MSI og NM advarsler kan blive tilgået via et JSON-API, som eksemplificeret nedenfor:</p>',
-            'FRONT_PAGE_INTEGRATION_2': '<p>Desuden udbyder API\'et funktionalitet der kan benyttes af registrerede parter.</p>'
-                + '<h3>Open Source</h3><p>MSI-NM projetet er Open Source. Projektet kan downloaded og tilrettes efter egne formål.</p>'
-                + '<ul><li><a href="https://github.com/dma-dk/MsiNm" target="_blank">MsiNm på Github</a></li></ul>',
+            'FRONT_PAGE_FIRING_TITLE': 'Skydeøvelser',
+            'FRONT_PAGE_FIRING_DESC': 'Nedenfor findes en opsummering af skydeøvelser i de Danske farvande',
+            'FRONT_PAGE_FIRING_TODAY': 'Skydeøvelser i dag',
+            'FRONT_PAGE_FIRING_TOMORROW': 'Skydeøvelser i morgen',
             'FRONT_PAGE_MISC': '<h2>Observationer</h2><p>Hvis du observerer noget af maritim interesse '
                 + 'kan du indsende en rapport via <a href="/report.html">Rapportering</a> siden</p>'
                 + '<h2>Øvrige kilder</h2><p>Den officielle liste af MSI og NM\'er for det Danske maritime område findes:</p>'

@@ -69,4 +69,15 @@
     text-overflow: ellipsis;
 }
 
+.front-page-firing-exercises h4 {
+    color: #8f2f7b;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.front-page-firing-exercises div {
+    font-size: 11px;
+    cursor: pointer;
+}
+
 
