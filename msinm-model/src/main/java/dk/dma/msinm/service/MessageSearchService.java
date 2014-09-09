@@ -467,6 +467,19 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
             }
         }
 
+        // Filter on categories
+        if (param.getCategoryIds().size() > 0) {
+
+            Join<Message, Category> categories = msgRoot.join("categories", JoinType.LEFT);
+            Predicate[] categoryMatch = new Predicate[param.getCategoryIds().size()];
+            Iterator<Integer> i = param.getCategoryIds().iterator();
+            for (int x = 0; x < categoryMatch.length; x++) {
+                String lineage = em.find(Category.class, i.next()).getLineage();
+                categoryMatch[x] = builder.like(categories.get("lineage"), lineage + "%");
+            }
+            tuplePredicateBuilder.add(builder.or(categoryMatch));
+        }
+
         // Filter on charts
         if (param.getChartIds().size() > 0) {
 

@@ -23,6 +23,7 @@ angular.module('msinm.search')
         $scope.type = '';
         $scope.locations = [];
         $scope.areas = '';
+        $scope.categories = '';
         $scope.charts = '';
         $scope.dateFrom = '';
         $scope.dateTo = '';
@@ -62,6 +63,7 @@ angular.module('msinm.search')
                 $scope.type,
                 JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations),
                 $scope.areas,
+                $scope.categories,
                 $scope.charts,
                 $("#dateFrom").val(),
                 $("#dateTo").val(),
@@ -155,6 +157,8 @@ angular.module('msinm.search')
                 $scope.status = 'PUBLISHED';
                 $scope.type = '';
                 $("#messageType").select2('data', null);
+                $scope.categories = '';
+                $("#messageCategories").select2('data', null);
             }
         };
 
@@ -211,6 +215,7 @@ angular.module('msinm.search')
             + '&type=' + encodeURIComponent($scope.type)
             + '&loc=' + encodeURIComponent(JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations))
             + '&areas=' + encodeURIComponent($scope.areas)
+            + '&categories=' + encodeURIComponent($scope.categories)
             + '&charts=' + encodeURIComponent($scope.charts)
             + '&from=' + encodeURIComponent($("#dateFrom").val())
             + '&to=' + encodeURIComponent($("#dateTo").val())
