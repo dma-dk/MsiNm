@@ -428,7 +428,7 @@ public class LegacyMsiImportService extends BaseService {
      * @param parent parent area
      * @return the Area template, or null if the names are empty
      */
-    public Area createAreaTemplate(String nameEn, String nameDa, Area parent) {
+    public static Area createAreaTemplate(String nameEn, String nameDa, Area parent) {
         Area area = null;
         if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
             area = new Area();
@@ -451,7 +451,7 @@ public class LegacyMsiImportService extends BaseService {
      * @param parent parent area
      * @return the Category template, or null if the names are empty
      */
-    public Category createCategoryTemplate(String nameEn, String nameDa, Category parent) {
+    public static Category createCategoryTemplate(String nameEn, String nameDa, Category parent) {
         Category category = null;
         if (StringUtils.isNotBlank(nameEn) || StringUtils.isNotBlank(nameDa)) {
             category = new Category();

@@ -31,17 +31,19 @@ angular.module('msinm.admin')
         function ($scope, $location, $modal, LegacyService) {
             'use strict';
 
-            $scope.msiImportStatus = { active: false, startDate: undefined, lastUpdate: undefined  };
+            $scope.msiImportStatus = { active: false, startDate: undefined, lastUpdate: undefined, firingExercises: false  };
 
 
             function setStatus(data) {
-                $scope.msiImportStatus = { active: false, startDate: undefined, lastUpdate: undefined  };
+                $scope.msiImportStatus = { active: false, startDate: undefined, lastUpdate: undefined, firingExercises:false  };
                 if (data) {
                     $scope.msiImportStatus.active = data.active;
                     $scope.msiImportStatus.startDate = new Date(data.startDate);
                     $scope.msiImportStatus.startDateStr = $scope.msiImportStatus.startDate.ddmmyyyy();
                     $scope.msiImportStatus.lastUpdate = new Date(data.lastUpdate);
                     $scope.msiImportStatus.lastUpdateStr = $scope.msiImportStatus.lastUpdate.ddmmyyyy();
+                    $scope.msiImportStatus.active = data.active;
+                    $scope.msiImportStatus.firingExercises = data.firingExercises;
                 }
             }
 

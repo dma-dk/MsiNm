@@ -27,9 +27,17 @@ import org.slf4j.Logger;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.*;
+import javax.ejb.Lock;
+import javax.ejb.LockType;
+import javax.ejb.Schedule;
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -56,6 +64,9 @@ public class LegacyMsiImportRestService {
     LegacyMsiImportService legacyMsiImportService;
 
     @Inject
+    LegacyFiringExerciseImportService legacyFiringExerciseImportService;
+
+    @Inject
     Settings settings;
 
     /**
@@ -69,6 +80,7 @@ public class LegacyMsiImportRestService {
         status.setActive(settings.getBoolean(LegacyMsiImportService.LEGACY_MSI_ACTIVE));
         status.setStartDate(settings.getDate(LegacyMsiImportService.LEGACY_MSI_START_DATE));
         status.setLastUpdate(settings.getDate(LegacyMsiImportService.LEGACY_MSI_LAST_UPDATE));
+        status.setFiringExercises(settings.getBoolean(LegacyFiringExerciseImportService.LEGACY_FIRING_EXERCISE_ACTIVE));
         return status;
     }
 
@@ -104,6 +116,9 @@ public class LegacyMsiImportRestService {
             }
         }
 
+        // Update the firing exercise active setting
+        updateSetting(LegacyFiringExerciseImportService.LEGACY_FIRING_EXERCISE_ACTIVE, String.valueOf(status.isFiringExercises()));
+
         return getImportStatus();
     }
 
@@ -121,6 +136,7 @@ public class LegacyMsiImportRestService {
 
     /**
      * Imports the next batch of legacy MSI messages.
+     * TODO: Disable public access
      *
      * @return the number of new or updated warnings
      */
@@ -143,12 +159,37 @@ public class LegacyMsiImportRestService {
 
 
     /**
+     * Imports the active legacy firing exercises.
+     * TODO: Disable public access
+     *
+     * @return the number of new or updated firing exercises
+     */
+    @GET
+    @Produces("application/json;charset=UTF-8")
+    @Path("/import-firing-exercises")
+    @Lock(LockType.READ)
+    public int importLegacyFiringExercises() {
+        return legacyFiringExerciseImportService.importFiringExercises().size();
+    }
+
+    /**
+     * Called every minute to import the active legacy firing exercises
+     * @return the number of new or updated warnings
+     */
+    @Schedule(persistent = false, second = "53", minute = "*/30", hour = "*", dayOfWeek = "*", year = "*")
+    public int periodicLegacyFiringExerciseImport() {
+        return importLegacyFiringExercises();
+    }
+
+
+    /**
      * Helper class that contains information about the state of the legacy MSI integration
      */
     @JsonIgnoreProperties(ignoreUnknown=true)
     @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
     public static class LegacyMsiImportVo implements Serializable {
         boolean active;
+        boolean firingExercises;
         Date startDate;
         Date lastUpdate;
 
@@ -158,6 +199,14 @@ public class LegacyMsiImportRestService {
 
         public void setActive(boolean active) {
             this.active = active;
+        }
+
+        public boolean isFiringExercises() {
+            return firingExercises;
+        }
+
+        public void setFiringExercises(boolean firingExercises) {
+            this.firingExercises = firingExercises;
         }
 
         public Date getStartDate() {
@@ -180,6 +229,7 @@ public class LegacyMsiImportRestService {
         public String toString() {
             return "LegacyMsiImportVo{" +
                     "active=" + active +
+                    ", firingExercises=" + firingExercises +
                     ", startDate=" + startDate +
                     ", lastUpdate=" + lastUpdate +
                     '}';

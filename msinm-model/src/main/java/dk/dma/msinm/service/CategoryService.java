@@ -46,6 +46,8 @@ import java.util.stream.Collectors;
 @Stateless
 public class CategoryService extends BaseService {
 
+    private final static String FIRING_EXERCISES_CATEGORY = "Firing Exercises";
+
     @Inject
     private Logger log;
 
@@ -368,6 +370,16 @@ public class CategoryService extends BaseService {
             category = createCategory(templateCategory, parentId);
         }
         return category;
+    }
+
+    /**
+     * Utility method for getting or creating the firing exercises category
+     * @return the firing exercises category
+     */
+    public Category findOrCreateFiringExercisesCategory() {
+        Category category = new Category();
+        category.createDesc("en").setName(FIRING_EXERCISES_CATEGORY);
+        return findOrCreateCategory(category);
     }
 
 }

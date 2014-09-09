@@ -41,7 +41,9 @@ import java.util.*;
                 query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and msg.seriesIdentifier.mainType = 'NM'" +
                       " and msg.validFrom < :date and (msg.validTo is null or msg.validTo > :date)"),
     @NamedQuery(name="Message.findPublishedExpiredMessages",
-                query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and msg.validTo is not null and msg.validTo < CURRENT_TIMESTAMP ")
+                query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and msg.validTo is not null and msg.validTo < CURRENT_TIMESTAMP "),
+    @NamedQuery(name="Message.findActiveByCategory",
+                query="SELECT distinct msg FROM Message msg left join msg.categories c where msg.status = 'PUBLISHED' and c.lineage like :lineage order by msg.validFrom asc"),
 })
 public class Message extends VersionedEntity<Integer> implements ILocalizable<MessageDesc>, IPreloadable {
 

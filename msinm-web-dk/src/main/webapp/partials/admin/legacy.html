@@ -14,15 +14,16 @@
         <h1 class="page-header">Legacy Integration</h1>
 
         <div class="row">
-            <div class="col-sm-5" ng-controller="LegacyCtrl" ng-init="loadMsiImportStatus()">
+            <div class="col-sm-6" ng-controller="LegacyCtrl" ng-init="loadMsiImportStatus()">
                 <h2>MSI</h2>
                 <p>
-                    You can import all legacy MSI, only the active MSI, or no MSI at all.
+                    You can import all legacy MSI from the given start date.<br>
+                    You may also choose to import the active firing exercises as MSI's.
                 </p>
                 <div class="btn-group">
                     <table class='table table-condensed'>
                         <tr>
-                            <th>Status</th>
+                            <th>MSI Status</th>
                             <td>
                                 <input type="checkbox" ng-model="msiImportStatus.active" /> &nbsp; Import legacy MSI
                             </td>
@@ -39,6 +40,12 @@
                             <td>
                                 <input type="text" name="lastUpdate" class="form-control input-sm"
                                        ng-model="msiImportStatus.lastUpdateStr" disabled/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th>Firing Exercises</th>
+                            <td>
+                                <input type="checkbox" ng-model="msiImportStatus.firingExercises" /> &nbsp; Import active firing exercises
                             </td>
                         </tr>
                     </table>

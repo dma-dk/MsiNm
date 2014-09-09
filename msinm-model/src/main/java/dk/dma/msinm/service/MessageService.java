@@ -467,6 +467,19 @@ public class MessageService extends BaseService {
     }
 
     /**
+     * Returns all published messages that have the given category or sub-categories of the given category
+     *
+     * @param category the category
+     * @return all published messages with the given category
+     */
+    public List<Message> findPublishedMessagesByCategory(Category category) {
+        return em
+                .createNamedQuery("Message.findActiveByCategory", Message.class)
+                .setParameter("lineage", category.getLineage() + "%")
+                .getResultList();
+    }
+
+    /**
      * Returns all published messages that have expired
      *
      * @return all published messages that have expired
