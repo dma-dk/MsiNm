@@ -4,7 +4,7 @@
  * Editor for creating and editing an list locations
  */
 angular.module('msinm.map')
-    .directive('msiLocationEditor', ['$modal', 'LangService', 'MapService', function ($modal, LangService, MapService) {
+    .directive('msiLocationEditor', ['$rootScope', '$modal', 'LangService', 'MapService', function ($rootScope, $modal, LangService, MapService) {
         'use strict';
 
         return {
@@ -28,9 +28,9 @@ angular.module('msinm.map')
                 scope.showLocationPanel = true;
 
                 var quiescent = false;
-                var zoom = attrs.zoom || 6;
-                var lon = attrs.lon || 11;
-                var lat = attrs.lat || 56;
+                var zoom = attrs.zoom || $rootScope.DEFAULT_ZOOM_LEVEL;
+                var lon = attrs.lon || $rootScope.DEFAULT_LONGITUDE;
+                var lat = attrs.lat || $rootScope.DEFAULT_LATITUDE;
 
                 var proj4326 = new OpenLayers.Projection("EPSG:4326");
                 var projmerc = new OpenLayers.Projection("EPSG:900913");

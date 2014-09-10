@@ -10,6 +10,11 @@ angular.module('msinm.conf')
         $rootScope.LEGACY_ADMIN_PAGE = true;
         $rootScope.OAUTH_LOGINS = [ { id: 'google', name: 'Google', icon: 'fa fa-google' } ];
 
+        // Map settings
+        $rootScope.DEFAULT_ZOOM_LEVEL = 6;
+        $rootScope.DEFAULT_LATITUDE = 56;
+        $rootScope.DEFAULT_LONGITUDE = 11;
+
         // Set current language
         $rootScope.modelLanguages = [ 'da', 'en' ];
         $rootScope.editorLanguages = [ 'da', 'en', 'gl' ];

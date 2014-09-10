@@ -4,7 +4,7 @@
  * Map that displays the MSI and NM locations of a message
  */
 angular.module('msinm.map')
-    .directive('msiMessageDetailsMap', ['$timeout', 'LangService', 'MapService', function ($timeout, LangService, MapService) {
+    .directive('msiMessageDetailsMap', ['$rootScope', '$timeout', 'LangService', 'MapService', function ($rootScope, $timeout, LangService, MapService) {
         'use strict';
 
         return {
@@ -20,9 +20,9 @@ angular.module('msinm.map')
 
             link: function (scope, element, attrs) {
 
-                var zoom = attrs.zoom || 6;
-                var lon = attrs.lon || 11;
-                var lat = attrs.lat || 56;
+                var zoom = attrs.zoom || $rootScope.DEFAULT_ZOOM_LEVEL;
+                var lon = attrs.lon || $rootScope.DEFAULT_LONGITUDE;
+                var lat = attrs.lat || $rootScope.DEFAULT_LATITUDE;
 
                 var proj4326 = new OpenLayers.Projection("EPSG:4326");
                 var projmerc = new OpenLayers.Projection("EPSG:900913");
