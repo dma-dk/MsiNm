@@ -61,6 +61,10 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import static dk.dma.msinm.common.util.TimeUtils.sameDate;
+import static dk.dma.msinm.common.util.TimeUtils.sameDateHourMinute;
 
 /**
  * Imports firing exercises from a local db dump of the Danish MSI database
@@ -164,6 +168,9 @@ public class LegacyFiringExerciseImportService extends BaseService {
     private List<Message> checkCreateFiringExercises(Connection conn, Map<String, Area> areaLookup, Category category) {
         PreparedStatement stmt = null;
         try {
+            // The SQL will select all firing periods where:
+            // * The from-date is today to tomorrow
+            // * The end-date is in the future
             stmt = conn.prepareStatement(activeFiringExercisesSql);
 
             // First create all firing areas
@@ -247,15 +254,26 @@ public class LegacyFiringExerciseImportService extends BaseService {
 
 
     /**
-     * Checks if the given message needs to be persisted
+     * Checks if the given messages need to be persisted.
+     * The list contains all legacy firing exercises today and tomorrow not yet completed.
+     *
      * @param messages the list of messages to persist
      * @return the persisted messages
      */
     private List<Message> checkCreateMessages(List<Message> messages, Category category) {
 
         List<Message> result = new ArrayList<>();
-        List<Message> current = new ArrayList<>(messageService.findPublishedMessagesByCategory(category));
-        Date tomorrow = TimeUtils.resetTime(new Date(System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000L));
+
+        // Find the currently active MSI firing exercises for today and tomorrow
+        Date now = new Date();
+        Date tomorrow = new Date(System.currentTimeMillis() + 1 * 24 * 60 * 60 * 1000L);
+        List<Message> current =  messageService.findPublishedMessagesByCategory(category).stream()
+                    .filter(msg -> msg.getSeriesIdentifier().getMainType() == SeriesIdType.MSI &&
+                            (sameDate(msg.getValidFrom(), now) || sameDate(msg.getValidFrom(), tomorrow)) &&
+                            (sameDate(msg.getValidTo(), now) || sameDate(msg.getValidTo(), tomorrow)))
+                    .collect(Collectors.toList());
+        // Make the current list editable
+        current = new ArrayList<>(current);
 
         // Match up the message with existing firing exercises and remove matches. After the loop, we have:
         // The messages left in the "messages" list needs to be persisted
@@ -265,23 +283,20 @@ public class LegacyFiringExerciseImportService extends BaseService {
             for (ListIterator<Message> curIt = current.listIterator(); curIt.hasNext(); ) {
                 Message curMsg = curIt.next();
                 if (msg.getArea().getId().equals(curMsg.getArea().getId()) &&
-                        TimeUtils.sameDateHourMinute(msg.getValidFrom(), curMsg.getValidFrom()) &&
-                        TimeUtils.sameDateHourMinute(msg.getValidTo(), curMsg.getValidTo())) {
+                        sameDateHourMinute(msg.getValidFrom(), curMsg.getValidFrom()) &&
+                        sameDateHourMinute(msg.getValidTo(), curMsg.getValidTo())) {
                     // This is a matching MSI - remove from the lists
                     msgIt.remove();
-                    curIt.remove();
-
-                } else if (curMsg.getSeriesIdentifier().getMainType() == SeriesIdType.NM ||
-                        TimeUtils.resetTime(curMsg.getValidFrom()).after(tomorrow)) {
-                    // Also remove NM's and future (after tomorrow) MSI's from the list
                     curIt.remove();
                 }
             }
         }
 
         // Cancel remaining messages left in the "current" list
-
-        current.forEach(msg -> result.add(messageService.setStatus(msg.getId(), Status.CANCELLED)));
+        current.forEach(msg -> {
+            Status status = msg.getValidTo().after(now) ? Status.EXPIRED : Status.CANCELLED;
+            result.add(messageService.setStatus(msg.getId(), status));
+        });
 
         // Create the remaining messages left in the "messages" list
         messages.forEach(msg -> result.add(createMessage(msg)));
@@ -296,7 +311,7 @@ public class LegacyFiringExerciseImportService extends BaseService {
      */
     private void formatTime(Message msg, String lang) {
         try {
-            if (TimeUtils.sameDate(msg.getValidFrom(), msg.getValidTo())) {
+            if (sameDate(msg.getValidFrom(), msg.getValidTo())) {
                 SimpleDateFormat sdf1 = new SimpleDateFormat("da".equals(lang) ? "d MMMM yyyy, 'kl.' HH:mm" : "d MMMM yyyy, 'hours' HH:mm", new Locale(lang));
                 SimpleDateFormat sdf2 = new SimpleDateFormat("HH:mm");
                 msg.getDesc(lang).setTime(String.format("%s - %s", sdf1.format(msg.getValidFrom()), sdf2.format(msg.getValidTo())));
