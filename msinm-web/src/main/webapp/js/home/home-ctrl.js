@@ -22,17 +22,19 @@ angular.module('msinm.common')
 
                 if (!$scope.authToken) {
                     // Update the list of active warnings
-                    MessageService.published(
-                        'AREA',
-                        'ASC',
-                        function (data) {
-                            $scope.searchResult = data;
-                            $scope.checkGroupByArea(2);
-                        },
-                        function () {
-                            // Ignore errors
-                        }
-                    );
+                    $timeout(function () {
+                        MessageService.published(
+                            'AREA',
+                            'ASC',
+                            function (data) {
+                                $scope.searchResult = data;
+                                $scope.checkGroupByArea(2);
+                            },
+                            function () {
+                                // Ignore errors
+                            }
+                        );
+                    }, 0);
 
                     // Update the list of active firing exercises
                     $timeout(function () {

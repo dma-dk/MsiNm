@@ -13,5 +13,5 @@ from
     left join firing_area fa on fp.f_area_id = fa.id
     left join firing_area_information fai on fai.firing_area_id = fa.id
     left join information i on i.id = fai.information_id
-where date(fp.t_from) >= CURRENT_DATE and date(fp.t_from) <= CURRENT_DATE + 1
+where fp.t_from >= CURRENT_TIME and date(fp.t_from) <= CURRENT_DATE + 1
 order by fp.id, i.info_type_id;
