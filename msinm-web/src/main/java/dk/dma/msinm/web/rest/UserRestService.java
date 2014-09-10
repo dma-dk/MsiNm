@@ -116,7 +116,7 @@ public class UserRestService {
             log.info(String.format("Create/update user email=%s, firstName=%s, lastName=%s", userVo.getEmail(), userVo.getFirstName(), userVo.getLastName()));
             User user = userVo.toEntity();
             List<String> roles = userVo.getRoles();
-            userService.createOrUpdateUser(user, roles.toArray(new String[roles.size()]));
+            userService.createOrUpdateUser(user, roles.toArray(new String[roles.size()]), userVo.getActivationEmail());
         } catch (Exception e) {
             throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
         }

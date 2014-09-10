@@ -236,15 +236,16 @@ public class UserService extends BaseService {
      *
      * @param user the template user entity
      * @param roles the list of roles to assign the user
+     * @param activationEmail whether to send an activation email for new users or not
      * @return the updated user
      */
-    public User createOrUpdateUser(User user, String[] roles) throws Exception {
+    public User createOrUpdateUser(User user, String[] roles, boolean activationEmail) throws Exception {
         // Check if the user is already registered
         User existnigUser = findByEmail(user.getEmail());
 
         if (existnigUser == null) {
             // Create a new user
-            existnigUser = registerUserWithRoles(user, true, roles);
+            existnigUser = registerUserWithRoles(user, activationEmail, roles);
 
         } else {
 

@@ -34,6 +34,7 @@ public class UserVo extends BaseVo<User> {
     String mmsi;
     String vesselName;
     List<String> roles = new ArrayList<>();
+    Boolean activationEmail;
 
     /**
      * Constructor
@@ -128,5 +129,13 @@ public class UserVo extends BaseVo<User> {
     @JsonDeserialize(contentAs = String.class)
     public void setRoles(List<String> roles) {
         this.roles = roles;
+    }
+
+    public Boolean getActivationEmail() {
+        return activationEmail;
+    }
+
+    public void setActivationEmail(Boolean activationEmail) {
+        this.activationEmail = activationEmail;
     }
 }

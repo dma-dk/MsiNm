@@ -28,13 +28,14 @@ angular.module('msinm.admin')
 
         $scope.addUser = function () {
             $scope.userAction = 'add';
-            $scope.user = { email:undefined, firstName: undefined, lastName: undefined, roles: ['user'] };
+            $scope.user = { email:undefined, firstName: undefined, lastName: undefined, roles: ['user'], activationEmail: true };
             $scope.userDlg();
         };
 
         $scope.editUser = function (user) {
             $scope.userAction = 'edit';
             $scope.user = angular.copy(user);
+            $scope.user.activationEmail = false;
             $scope.userDlg();
         };
 

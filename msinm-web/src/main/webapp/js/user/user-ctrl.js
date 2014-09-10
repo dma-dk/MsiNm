@@ -193,6 +193,7 @@ angular.module('msinm.user')
                 $scope.user.lastName,
                 $scope.user.language,
                 roles,
+                $scope.user.activationEmail,
                 function(data) {
                     $modalInstance.close();
                 },
