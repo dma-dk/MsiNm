@@ -13,7 +13,11 @@
                 <span ng-if="sortBy == 'DATE' && !sortDesc"><small>&#9660</small></span>
             </th>
             <th>Title</th>
-            <th>Area</th>
+            <th ng-click="toggleSortOrder('AREA')" class="sortable">
+                Area
+                <span ng-if="sortBy == 'AREA' && sortDesc"><small>&#9650;</small></span>
+                <span ng-if="sortBy == 'AREA' && !sortDesc"><small>&#9660</small></span>
+            </th>
             <th>Action</th>
         </tr>
         <tr ng-repeat-start="msg in searchResult.messages" ng-if="msg.areaHeading">
