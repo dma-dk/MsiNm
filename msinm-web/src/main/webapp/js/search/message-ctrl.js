@@ -224,6 +224,10 @@ angular.module('msinm.search')
                     msg.type = 'SUBAREA_WARNING';
                 }
 
+                if (!msg.locations) {
+                    msg.locations = [];
+                }
+
                 LangService.checkDescs(msg, $scope.initDescField, undefined, $scope.languages);
 
                 if (msg.area) {
