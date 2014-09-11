@@ -15,5 +15,5 @@ from
     left join information i on i.id = fai.information_id
 where
   date(fp.t_from) >= CURRENT_DATE and date(fp.t_from) <= CURRENT_DATE + 1
-  and fp.t_to > CURRENT_TIME
+  and fp.t_to > CURRENT_TIMESTAMP
 order by fp.id, i.info_type_id;
