@@ -101,6 +101,9 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
     MessageService messageService;
 
     @Inject
+    CategoryService categoryService;
+
+    @Inject
     @Setting(value = "messageIndexMaxMessageNo", defaultValue = "1000")
     Long maxMessageNo;
 
@@ -376,9 +379,13 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
                 if (param.isMapMode()) {
                     filter = DataFilter.get("Message.locations", "MessageDesc.title").setLang(param.getLanguage());
                 } else {
-                    filter = DataFilter.get("Message.details", "Area.parent", "Category.parent").setLang(param.getLanguage());
+                    filter = DataFilter.get("Message.details", "Message.firingExercise", "Area.parent", "Category.parent").setLang(param.getLanguage());
                 }
-                result.addMessages(messages, messageService.getBookmarks(), filter);
+                result.addMessages(
+                        messages,
+                        messageService.getBookmarks(),
+                        categoryService.findOrCreateFiringExercisesCategory(),
+                        filter);
             }
 
             log.trace("Message search result: " + result + " in " +

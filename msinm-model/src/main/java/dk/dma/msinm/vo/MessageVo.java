@@ -45,6 +45,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     List<String> lightsListNumbers;
     boolean originalInformation;
     boolean bookmarked;
+    Boolean firingExercise;
 
     // Used when creating new messages from the web client
     String repoPath;
@@ -371,6 +372,14 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     public void setBookmarked(boolean bookmarked) {
         this.bookmarked = bookmarked;
+    }
+
+    public Boolean getFiringExercise() {
+        return firingExercise;
+    }
+
+    public void setFiringExercise(Boolean firingExercise) {
+        this.firingExercise = firingExercise;
     }
 
     /**

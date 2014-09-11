@@ -2,8 +2,8 @@
  * The home controller
  */
 angular.module('msinm.common')
-    .controller('HomeCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', 'MessageService', 'UserService',
-        function ($scope, $rootScope, $routeParams, $modal, $timeout, MessageService, UserService) {
+    .controller('HomeCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', 'MessageService', 'UserService',
+        function ($scope, $rootScope, $routeParams, $modal, MessageService, UserService) {
             'use strict';
 
             $scope.searchResult = { messages: [], startIndex: 0, total: 0 };
@@ -22,31 +22,18 @@ angular.module('msinm.common')
 
                 if (!$scope.authToken) {
                     // Update the list of active warnings
-                    $timeout(function () {
-                        MessageService.published(
-                            'AREA',
-                            'ASC',
-                            function (data) {
-                                $scope.searchResult = data;
-                                $scope.checkGroupByArea(2);
-                            },
-                            function () {
-                                // Ignore errors
-                            }
-                        );
-                    }, 0);
-
-                    // Update the list of active firing exercises
-                    $timeout(function () {
-                        MessageService.activeFiringExercises(
-                            function (data) {
-                                $scope.handleFiringExercises(data);
-                            },
-                            function () {
-                                // Ignore errors
-                            }
-                        );
-                    }, 100);
+                    MessageService.published(
+                        'AREA',
+                        'ASC',
+                        function (data) {
+                            $scope.searchResult = data;
+                            $scope.checkGroupByArea(2);
+                            $scope.handleFiringExercises(data);
+                        },
+                        function () {
+                            // Ignore errors
+                        }
+                    );
                 }
 
                 // Check if a reset password has been issued
@@ -100,6 +87,9 @@ angular.module('msinm.common')
                 var tomorrow = new Date(new Date().getTime() + 24 * 60 * 60 * 1000).toDateString();
                 for (var i in searchResult.messages) {
                     var msg = searchResult.messages[i];
+                    if (msg.firingExercise === undefined || !msg.firingExercise) {
+                        continue;
+                    }
                     var validFrom = new Date(msg.validFrom).toDateString();
                     var validTo = msg.validTo ? new Date(msg.validTo).toDateString() : undefined;
                     if (validTo && validFrom == today && validTo == today) {

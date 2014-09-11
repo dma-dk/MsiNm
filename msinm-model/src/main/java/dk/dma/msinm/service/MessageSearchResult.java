@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.service;
 
+import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.vo.MessageVo;
@@ -47,12 +48,18 @@ public class MessageSearchResult implements Serializable {
      * Add a list of messages to the search result
      * @param messages the messages to add
      * @param bookmarkIds the bookmarked messages
+     * @param firingExerciseCategory the Firing Exercise cateogry
      * @param dataFilter what type of data to copy from the entity
      */
-    public void addMessages(List<Message> messages, Set<Integer> bookmarkIds, DataFilter dataFilter) {
+    public void addMessages(List<Message> messages, Set<Integer> bookmarkIds, Category firingExerciseCategory, DataFilter dataFilter) {
         messages.forEach(msg -> {
             MessageVo messageVo = new MessageVo(msg, dataFilter);
             messageVo.setBookmarked(bookmarkIds.contains(messageVo.getId()));
+            if (dataFilter.include("Message.firingExercise")) {
+                messageVo.setFiringExercise(
+                        msg.getCategories().stream()
+                                .anyMatch(cat -> cat.getId().equals(firingExerciseCategory.getId())));
+            }
             this.messages.add(messageVo);
         });
     }
