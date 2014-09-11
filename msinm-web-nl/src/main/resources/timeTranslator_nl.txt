@@ -1,0 +1,16 @@
+
+# Months picked from the built-in locale
+# months: januari,februari,maart,april,mei,juni,juli,augustus,september,oktober,november,december
+seasons: Lente,Zomer,Herfst,Winter
+
+translate_rule:    medio (\w+)           ->      mid-$1
+translate_rule:    medio $1             <-       mid-(\w+)
+translate_rule:    begin                <->      beginning
+translate_rule:    eind                 <->      end
+translate_rule:    uren                  ->      hours
+translate_rule:    week                 <->      week
+translate_rule:    Tot nader order      <->      Until further notice
+translate_rule:    Tot en met           <->      Until and including
+translate_rule:    Tot                  <->      Until
+
+

@@ -1,0 +1,17 @@
+
+# Months picked from the built-in locale
+# months: Januari,februari,mars,april,maj,juni,juli,augusti,september,oktober,november,december
+seasons: Vår,sommar,höst,vinter
+
+translate_rule:    mitten av (\w+)       ->      mid-$1
+translate_rule:    mitten av $1         <-       mid-(\w+)
+translate_rule:    början av            <->      beginning
+translate_rule:    sent                 <->      end
+translate_rule:    på                    ->      hours
+translate_rule:    på                   <-       hours
+translate_rule:    vecka                <->      week
+translate_rule:    Tills vidare         <->      Until further notice
+translate_rule:    Fram till och med    <->      Until and including
+translate_rule:    Fram till            <->      Until
+
+
