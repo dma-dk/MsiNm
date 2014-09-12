@@ -1,0 +1,86 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>dk.dma.msinm</groupId>
+        <artifactId>msinm-parent</artifactId>
+        <version>1.0-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <artifactId>msinm-web-kr</artifactId>
+    <name>Korean MsiNm web application</name>
+    <packaging>war</packaging>
+
+    <dependencies>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-common</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-lucene</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-model</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-user</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-reporting</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <!--dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-cloud</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency-->
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-web</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>war</type>
+            <!--scope>runtime</scope-->
+        </dependency>
+
+    </dependencies>
+
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.wildfly.plugins</groupId>
+                <artifactId>wildfly-maven-plugin</artifactId>
+                <version>1.0.1.Final</version>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <workDirectory>target/overlay</workDirectory>
+                    <overlays>
+                        <overlay>
+                            <groupId>dk.dma.msinm</groupId>
+                            <artifactId>msinm-web</artifactId>
+                            <excludes>
+                                <!--exclude>test.html</exclude-->
+                            </excludes>
+                        </overlay>
+                    </overlays>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+</project>
