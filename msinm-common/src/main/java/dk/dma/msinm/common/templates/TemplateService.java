@@ -78,7 +78,14 @@ public class TemplateService {
 
         // Load the resource bundle with the given language and name, and save it in the "text" data property
         Locale locale = app.getLocale(language);
-        ResourceBundle bundle = ResourceBundle.getBundle(ctx.getFullBundleName(bundleName), locale);
+        ResourceBundle bundle = null;
+        try {
+            bundle = ResourceBundle.getBundle(ctx.getFullBundleName(bundleName), locale);
+        } catch (Exception e) {
+            // Fall back to using the english locale
+            locale = Locale.ENGLISH;
+            bundle = ResourceBundle.getBundle(ctx.getFullBundleName(bundleName), locale);
+        }
         ResourceBundleModel resourceBundleModel = new ResourceBundleModel(bundle, new BeansWrapper());
 
         ctx.setLocale(locale);
