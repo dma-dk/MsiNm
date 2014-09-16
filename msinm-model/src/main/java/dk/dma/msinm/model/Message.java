@@ -100,6 +100,8 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
 
     boolean originalInformation;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    List<Publication> publications = new ArrayList<>();
 
     /**
      * Constructor
@@ -139,8 +141,22 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
             if (getArea() != null) {
                 getArea().preload(compFilter);
             }
+            getPublications().forEach(publication -> {});
         }
         getDescs().forEach(desc -> {});
+    }
+
+    /**
+     * Returns the publication with the given type, or null if not found
+     * @param type the type of the publication
+     * @return the publication with the given type
+     */
+    @Transient
+    public Publication getPublication(String type) {
+        return getPublications().stream()
+                .filter(pub -> pub.getType().equals(type))
+                .findFirst()
+                .orElse(null);
     }
 
     /******** Getters and setters *********/
@@ -275,4 +291,11 @@ public class Message extends VersionedEntity<Integer> implements ILocalizable<Me
         this.descs = descs;
     }
 
+    public List<Publication> getPublications() {
+        return publications;
+    }
+
+    public void setPublications(List<Publication> publications) {
+        this.publications = publications;
+    }
 }

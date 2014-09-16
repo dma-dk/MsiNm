@@ -28,17 +28,31 @@ import dk.dma.msinm.common.settings.SettingsEntity;
 import dk.dma.msinm.common.util.TextUtils;
 import dk.dma.msinm.common.util.TimeUtils;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
-import dk.dma.msinm.model.*;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.Location;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.Point;
+import dk.dma.msinm.model.Priority;
+import dk.dma.msinm.model.SeriesIdType;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Status;
+import dk.dma.msinm.model.Type;
 import dk.dma.msinm.service.MessageService;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
-import javax.annotation.PostConstruct;
 import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -51,11 +65,6 @@ import java.util.List;
 public class LegacyMsiImportService extends BaseService {
 
     static final int LIMIT = 1000; // Import at most 1000 MSI at a time
-
-    static final String JDBC_DRIVER = "com.mysql.jdbc.Driver";
-    static final Setting DB_URL     = new DefaultSetting("legacyMsiDbUrl", "jdbc:mysql://localhost:3306/oldmsi");
-    static final Setting DB_USER    = new DefaultSetting("legacyMsiDbUser", "oldmsi");
-    static final Setting DB_PWD     = new DefaultSetting("legacyMsiDbPassword", "oldmsi");
 
     /**
      * Defines whether the import is active or not.
@@ -80,6 +89,9 @@ public class LegacyMsiImportService extends BaseService {
     Logger log;
 
     @Inject
+    LegacyDatabase legacyDatabase;
+
+    @Inject
     MsiNmApp app;
 
     @Inject
@@ -101,14 +113,6 @@ public class LegacyMsiImportService extends BaseService {
 
     @Inject
     Settings settings;
-
-    /**
-     * Ensure that the DB driver is loaded
-     */
-    @PostConstruct
-    public void init() throws ClassNotFoundException {
-        Class.forName(JDBC_DRIVER);
-    }
 
     /**
      * Import all MSI warnings
@@ -152,10 +156,7 @@ public class LegacyMsiImportService extends BaseService {
         Connection conn = null;
         PreparedStatement stmt = null;
         try {
-            conn = DriverManager.getConnection(
-                    settings.get(DB_URL),
-                    settings.get(DB_USER),
-                    settings.get(DB_PWD));
+            conn = legacyDatabase.getConnection();
 
             stmt = conn.prepareStatement(sql);
 

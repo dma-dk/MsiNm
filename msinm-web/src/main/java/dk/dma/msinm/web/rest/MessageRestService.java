@@ -38,6 +38,8 @@ import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
+import dk.dma.msinm.service.Publisher;
+import dk.dma.msinm.service.PublishingService;
 import dk.dma.msinm.vo.MessageHistoryVo;
 import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.ReferenceVo;
@@ -74,6 +76,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+
+import static dk.dma.msinm.service.Publisher.PublisherContext;
 
 /**
  * REST interface for accessing MSI-NM messages
@@ -103,6 +108,9 @@ public class MessageRestService {
 
     @Inject
     CalendarService calendarService;
+
+    @Inject
+    PublishingService publishingService;
 
     @Inject
     MsiNmApp app;
@@ -139,7 +147,7 @@ public class MessageRestService {
     @RolesAllowed({"editor"})
     public MessageVo copyMessageTemplate(@PathParam("messageId") String messageId, @QueryParam("reference") String reference) {
         // Look up the message
-        MessageVo message = getMessage(messageId, null);
+        final MessageVo message = getMessage(messageId, null);
 
         // Check if we need to add the original message as a reference
         if (StringUtils.isNotBlank(reference)) {
@@ -165,12 +173,19 @@ public class MessageRestService {
         message.setId(null);
         message.setStatus(Status.DRAFT);
         SeriesIdentifier id = new SeriesIdentifier();
+
         id.setMainType(message.getSeriesIdentifier().getMainType());
         id.setAuthority(message.getSeriesIdentifier().getAuthority());
         id.setYear(newTemplateMessage.getSeriesIdentifier().getYear());
         message.setSeriesIdentifier(id);
         if (message.getReferences() != null) {
             message.getReferences().forEach(ref -> ref.setId(null));
+        }
+        if (message.getPublications() != null) {
+            message.getPublications().forEach(pub -> pub.setId(null));
+        }
+        if (newTemplateMessage.getPublications() != null) {
+            newTemplateMessage.getPublications().forEach(message::addPublicationIfUndefined);
         }
 
         return message;
@@ -744,6 +759,42 @@ public class MessageRestService {
         }
         return "OK";
     }
+
+    /***************************
+     * Publisher functionality
+     ***************************/
+
+    /**
+     * Returns the list of available publishers
+     * @return the list of available publishers
+     */
+    @GET
+    @Path("/publishers")
+    @RolesAllowed({"admin"})
+    @GZIP
+    @NoCache
+    public List<PublisherContext> getPublishers() {
+        return publishingService.getPublisherContexts();
+    }
+
+    /**
+     * Updates a publishers active status
+     *
+     * @param publisher the publisher to update
+     * @return the updated publisher
+     */
+    @PUT
+    @Path("/publisher")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @GZIP
+    @NoCache
+    @RolesAllowed({"admin"})
+    public PublisherContext updatePublisher(PublisherContext publisher) throws Exception {
+        log.info("Setting active status of publisher " + publisher.getType() + " to " + publisher.isActive());
+        return publishingService.updatePublisherContext(publisher);
+    }
+
 
     /***************************
      * Time parsing functionality

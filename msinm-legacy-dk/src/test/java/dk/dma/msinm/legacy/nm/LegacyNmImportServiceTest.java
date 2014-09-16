@@ -38,6 +38,7 @@ import dk.dma.msinm.model.MessageDesc;
 import dk.dma.msinm.model.MessageHistory;
 import dk.dma.msinm.model.Point;
 import dk.dma.msinm.model.PointDesc;
+import dk.dma.msinm.model.Publication;
 import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.test.MsiNmUnitTest;
@@ -85,7 +86,7 @@ public class LegacyNmImportServiceTest extends MsiNmUnitTest
                 LegacyMessage.class, MessageHistory.class, User.class, Role.class,
                 Message.class, MessageDesc.class, Location.class, LocationDesc.class, Reference.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
-                Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
+                Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class, Publication.class
         );
     }
 

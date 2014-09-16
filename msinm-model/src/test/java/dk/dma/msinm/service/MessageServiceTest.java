@@ -69,7 +69,7 @@ public class MessageServiceTest extends MsiNmUnitTest {
                 SequenceEntity.class, SettingsEntity.class,
                 Message.class, MessageDesc.class, Location.class, LocationDesc.class, Reference.class,
                 Area.class, AreaDesc.class, Category.class, CategoryDesc.class,
-                Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class
+                Chart.class, Point.class, PointDesc.class, SeriesIdentifier.class, Publication.class
         );
     }
 

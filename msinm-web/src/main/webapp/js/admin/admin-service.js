@@ -190,6 +190,26 @@ angular.module('msinm.admin')
                     .error(error);
             }
         };
+    }])
+
+    .factory('PublisherService', [ '$http', function($http) {
+        'use strict';
+
+        return {
+
+            getPublishers: function(success, error) {
+                $http.get('/rest/messages/publishers')
+                    .success(success)
+                    .error(error);
+            },
+
+            updatePublisher: function(publisher, success, error) {
+                $http.put('/rest/messages/publisher', publisher)
+                    .success(success)
+                    .error(error);
+            }
+        };
     }]);
+
 
 

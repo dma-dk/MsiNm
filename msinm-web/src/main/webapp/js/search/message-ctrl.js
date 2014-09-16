@@ -260,6 +260,15 @@ angular.module('msinm.search')
 
                 $scope.newRef = { id: '', type: 'REFERENCE' };
 
+                if (msg.publications) {
+                    for (var p in msg.publications) {
+                        var pub = msg.publications[p];
+                        if (pub.data) {
+                            pub.jsonData = JSON.parse(pub.data);
+                        }
+                    }
+                }
+
                 $scope.locationsLoaded = true;  // Trigger the location editor
                 $scope.messageSaved = false; // Remove lock on save button
                 if ($scope.action == 'edit') {
@@ -285,7 +294,7 @@ angular.module('msinm.search')
                 } else {
                     $("#editorCharts").select2("data", null);
                 }
-            }
+            };
 
             // Load the message details for the given message id
             $scope.loadMessageDetails = function() {
@@ -358,6 +367,16 @@ angular.module('msinm.search')
                     $scope.msg.charts.push(charts[j]);
                 }
 
+                // Update publication data
+                if ($scope.msg.publications) {
+                    for (var p in $scope.msg.publications) {
+                        var pub = $scope.msg.publications[p];
+                        if (pub.jsonData) {
+                            pub.data = JSON.stringify(pub.jsonData);
+                        }
+                    }
+                }
+
                 // Save or update the message
                 if ($scope.action == 'edit' && $scope.messageId) {
                     MessageService.updateMessage(
@@ -389,6 +408,13 @@ angular.module('msinm.search')
                 }
             };
 
+
+            // Determine whether to show the given publication or not
+            $scope.showPublication = function(pub) {
+                return  pub.messageTypes === undefined ||
+                        $.inArray($scope.msg.seriesIdentifier.mainType, pub.messageTypes) > -1  ||
+                        $.inArray($scope.msg.type, pub.messageTypes) > -1;
+            };
 
             // Reload the message details
             $scope.reloadMessage = function () {

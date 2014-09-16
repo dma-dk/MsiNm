@@ -19,10 +19,19 @@ import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizedDesc;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
-import dk.dma.msinm.model.*;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.SeriesIdentifier;
+import dk.dma.msinm.model.Status;
+import dk.dma.msinm.model.Type;
 import org.apache.commons.lang.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 /**
  * Value object for the {@code Message} model entity
@@ -46,6 +55,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     boolean originalInformation;
     boolean bookmarked;
     Boolean firingExercise;
+    List<PublicationVo> publications;
 
     // Used when creating new messages from the web client
     String repoPath;
@@ -94,6 +104,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
                 checkCreateLightsListNumbers().addAll(message.getLightsListNumbers());
             }
             originalInformation = message.isOriginalInformation();
+            message.getPublications().forEach(publication -> checkCreatePublications().add(new PublicationVo(publication)));
         }
     }
 
@@ -141,6 +152,9 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
             message.getLightsListNumbers().addAll(lightsListNumbers);
         }
         message.setOriginalInformation(originalInformation);
+        if (publications != null) {
+            publications.forEach(publication -> message.getPublications().add(publication.toEntity(message)));
+        }
         if (getDescs() != null) {
             getDescs().stream().forEach(desc -> message.getDescs().add(desc.toEntity(message)));
         }
@@ -235,6 +249,28 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         }
         return lightsListNumbers;
     }
+
+    /**
+     * Returns or creates the list of publications
+     * @return the list of publications
+     */
+    public List<PublicationVo> checkCreatePublications() {
+        if (publications == null) {
+            publications = new ArrayList<>();
+        }
+        return publications;
+    }
+
+    /**
+     * Adds the given publication if a publication of the same type does not already exists
+     * @param publication the type of the publication
+     */
+    public void addPublicationIfUndefined(PublicationVo publication) {
+        if (checkCreatePublications().stream().noneMatch(pub -> pub.getType().equals(publication.getType()))) {
+            publications.add(publication);
+        }
+    }
+
 
     // ************ Getters and setters *************
 
@@ -380,6 +416,14 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     public void setFiringExercise(Boolean firingExercise) {
         this.firingExercise = firingExercise;
+    }
+
+    public List<PublicationVo> getPublications() {
+        return publications;
+    }
+
+    public void setPublications(List<PublicationVo> publications) {
+        this.publications = publications;
     }
 
     /**

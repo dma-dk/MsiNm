@@ -592,4 +592,53 @@ angular.module('msinm.admin')
 
         };
 
-    }]);
+    }])
+
+
+    /**
+     * Publisher Controller
+     */
+    .controller('PublisherCtrl', ['$scope', 'DialogService', 'PublisherService',
+        function ($scope, DialogService, PublisherService) {
+            'use strict';
+
+            $scope.publishers = [];
+
+            $scope.loadPublishers = function () {
+                PublisherService.getPublishers(
+                    function(data) {
+                        $scope.publishers = data;
+                    },
+                    function () {
+                        console.error("Error loading publishers");
+                    });
+            };
+
+            $scope.editPublisher = function (publisher) {
+                var modalOptions = {
+                    closeButtonText: 'Cancel',
+                    actionButtonText: 'Update',
+                    headerText: 'Edit Publisher',
+                    publisher: angular.copy(publisher),
+                    templateUrl: "editPublisher.html"
+                };
+
+                DialogService.showDialog({}, modalOptions).then(function (result) {
+                    console.log("PUB " + modalOptions.publisher.active);
+                    PublisherService.updatePublisher(
+                        modalOptions.publisher,
+                        function (data) {
+                            $scope.loadPublishers();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+
+                });
+
+            };
+
+        }]);
+
+

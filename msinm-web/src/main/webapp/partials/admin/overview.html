@@ -29,6 +29,9 @@
             <dt><a href ng-click="go('/admin/categories');">Categories</a></dt>
             <dd>Manage the list of categories used for grouping MSI and NM messages.</dd>
 
+            <dt ng-if="hasRole('admin')"><a href ng-click="go('/admin/publish');">Publishers</a></dt>
+            <dd ng-if="hasRole('admin')">Manage the list of MSI and NM publishers.</dd>
+
             <dt ng-if="LEGACY_ADMIN_PAGE && hasRole('sysadmin')"><a href ng-click="go('/admin/legacy');">Legacy Integration</a></dt>
             <dd ng-if="LEGACY_ADMIN_PAGE && hasRole('sysadmin')">Handle integration with the legacy MSI system and import historical NM PDF's.</dd>
 

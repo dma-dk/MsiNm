@@ -1,0 +1,62 @@
+
+
+<div class="row admin-breadcrumbs">
+    <ol class="breadcrumb">
+        <li><a href="/index.html"><i class="glyphicon glyphicon-home"></i></a></li>
+        <li><a href="/admin.html">Admin</a></li>
+        <li class="active">Publishing</li>
+    </ol>
+</div>
+
+<div class="row admin-content">
+
+    <div class="col-sm-10 col-md-9">
+
+        <h1 class="page-header">Publishers</h1>
+
+        <div ng-controller="PublisherCtrl" ng-init="loadPublishers()">
+
+            <p>
+                Update whether the publication types are active or not.
+            </p>
+
+            <div class="row" style="padding-top: 20px;">
+                <div class="col-sm-12 col-md-10">
+                    <table class='table table-condensed table-hover'>
+                        <tr>
+                            <th>Type</th>
+                            <th>Active</th>
+                            <th>Edit</th>
+                        </tr>
+                        <tr ng-repeat="pub in publishers">
+                            <td>{{pub.type | uppercase}}</td>
+                            <td>{{pub.active}}</td>
+                            <td><a href ng-click="editPublisher(pub);" title="Edit Publisher"><i class="glyphicon glyphicon-pencil"></i></a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-sm-2 col-md-3 admin-teaser-image text-right">
+        <img src="/img/admin/publish.jpg"/>
+    </div>
+
+</div>
+
+<!-- Edit dialog -->
+<script type="text/ng-template" id="editPublisher.html">
+
+    <form name="edit_form">
+
+        <p>Set the active status of the <strong>{{modalOptions.publisher.type | uppercase}}</strong> message publication type</p>
+        <div class="form-controls">
+            <div class="form-group">
+                <input type="checkbox" ng-model="modalOptions.publisher.active" /> Active
+            </div>
+        </div>
+    </form>
+
+</script>

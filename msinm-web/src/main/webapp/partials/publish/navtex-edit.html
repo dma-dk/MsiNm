@@ -1,0 +1,29 @@
+
+<div class="row">
+
+    <div class="col-xs-12 col-sm-4 col-md-4 col-lg-3">
+        <h5>Transmitter</h5>
+        <span ng-repeat="(name, val) in pub.jsonData.transmitter"><input type="checkbox" ng-model="pub.jsonData.transmitter[name]"/> {{name}} &nbsp;</span>
+    </div>
+
+    <div class="col-xs-12 col-sm-8 col-md-8 col-lg-6">
+        <h5>Priority</h5>
+        <input type="radio" ng-model="pub.jsonData.priority" value="NONE"/> None &nbsp;
+        <input type="radio" ng-model="pub.jsonData.priority" value="ROUTINE"/> Routine &nbsp;
+        <input type="radio" ng-model="pub.jsonData.priority" value="IMPORTANT"/> Important &nbsp;
+        <input type="radio" ng-model="pub.jsonData.priority" value="VITAL"/> Vital &nbsp;
+    </div>
+
+    <div class="col-xs-12 col-sm-10 col-md-8 col-lg-6">
+        <h5>Navtex Message <button class="btn btn-default btn-xs" style="float: right" onclick="generateNavtext()">Generate</button></h5>
+        <textarea id="navtexMessage" style="width: 100%; height: 120px; border: 1px solid lightgray;" ng-model="pub.jsonData.message" lang-flag="'en'"></textarea>
+    </div>
+
+    <script type="application/javascript">
+        function generateNavtext() {
+            var scope = angular.element($("#navtexMessage")).scope();
+            console.log("NAVTEX " + scope.msg);
+        }
+    </script>
+</div>
+

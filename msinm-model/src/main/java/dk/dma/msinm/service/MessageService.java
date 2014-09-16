@@ -104,6 +104,9 @@ public class MessageService extends BaseService {
     TemplateService templateService;
 
     @Inject
+    PublishingService publishingService;
+
+    @Inject
     MsiNmApp app;
 
     @Inject
@@ -136,6 +139,7 @@ public class MessageService extends BaseService {
         messageVo.setSeriesIdentifier(id);
         messageVo.setType(Type.SUBAREA_WARNING);
         messageVo.setRepoPath(repositoryService.getNewTempDir().getPath());
+        publishingService.newTemplateMessage(messageVo);
         return messageVo;
     }
 
@@ -173,8 +177,6 @@ public class MessageService extends BaseService {
     public Message createMessage(MessageVo messageVo) throws Exception {
 
         Message message = messageVo.toEntity();
-
-        // TODO Assign user ID based on ctx
 
         // Validate the message
         SeriesIdentifier id = message.getSeriesIdentifier();
@@ -219,6 +221,9 @@ public class MessageService extends BaseService {
             message.getCharts().forEach(chart -> charts.add(getByPrimaryKey(Chart.class, chart.getId())));
             message.setCharts(charts);
         }
+
+        // Let publishers update the list of publications
+        publishingService.createMessage(message);
 
         // Persist the message
         message = saveMessage(message);
@@ -312,6 +317,12 @@ public class MessageService extends BaseService {
         // Substitute the Charts with the persisted ones
         original.getCharts().clear();
         message.getCharts().forEach(chart -> original.getCharts().add(getByPrimaryKey(Chart.class, chart.getId())));
+
+        // Update the publications
+        final Message msg = message;
+        original.getPublications().forEach(pub -> pub.copyData(msg.getPublication(pub.getType())));
+        // And let publishers have a say
+        publishingService.updateMessage(message);
 
         // Persist the message
         message = saveMessage(original);

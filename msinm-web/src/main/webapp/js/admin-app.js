@@ -31,6 +31,9 @@ var app = angular.module('msinm.admin', [
         }).when('/admin/categories', {
             templateUrl: 'partials/admin/categories.html',
             resolve: checkRole('admin')
+        }).when('/admin/publish', {
+            templateUrl: 'partials/admin/publish.html',
+            resolve: checkRole('admin')
         }).when('/admin/legacy', {
             templateUrl: 'partials/admin/legacy.html',
             resolve: checkRole('sysadmin')
