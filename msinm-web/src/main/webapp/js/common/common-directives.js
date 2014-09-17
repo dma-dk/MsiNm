@@ -76,6 +76,32 @@ angular.module('msinm.common')
     }])
 
 
+    .directive('jsonData', [function () {
+        return {
+            restrict: 'E',
+            scope: {
+                data: "=",
+                json: "="
+            },
+            link: function(scope, element, attrs) {
+                try {
+                    scope.data = JSON.parse(scope.json);
+                } catch (e) {
+                }
+                scope.$watch(
+                    function() { return scope.data; },
+                    function (newValue) {
+                        try {
+                            scope.json = JSON.stringify(scope.data);
+                        } catch (e) {
+                        }
+                    },
+                    true);
+            }
+        };
+    }])
+
+
     .directive('msiAttachment', [function () {
         return {
             restrict: 'E',

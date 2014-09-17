@@ -395,3 +395,18 @@
     overflow: scroll;
     border: 1px solid lightgray;
 }
+
+/**
+ * Publication tabs
+ */
+
+.publications li a {
+    padding: 5px 20px;
+}
+
+.publication {
+    border-left: 1px solid #DDDDDD;
+    border-right: 1px solid #DDDDDD;
+    border-bottom: 1px solid #DDDDDD;
+    padding: 10px;
+}

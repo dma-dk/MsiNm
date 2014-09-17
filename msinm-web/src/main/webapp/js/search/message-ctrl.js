@@ -260,15 +260,6 @@ angular.module('msinm.search')
 
                 $scope.newRef = { id: '', type: 'REFERENCE' };
 
-                if (msg.publications) {
-                    for (var p in msg.publications) {
-                        var pub = msg.publications[p];
-                        if (pub.data) {
-                            pub.jsonData = JSON.parse(pub.data);
-                        }
-                    }
-                }
-
                 $scope.locationsLoaded = true;  // Trigger the location editor
                 $scope.messageSaved = false; // Remove lock on save button
                 if ($scope.action == 'edit') {
@@ -365,16 +356,6 @@ angular.module('msinm.search')
                 $scope.msg.charts = [];
                 for (var j in charts) {
                     $scope.msg.charts.push(charts[j]);
-                }
-
-                // Update publication data
-                if ($scope.msg.publications) {
-                    for (var p in $scope.msg.publications) {
-                        var pub = $scope.msg.publications[p];
-                        if (pub.jsonData) {
-                            pub.data = JSON.stringify(pub.jsonData);
-                        }
-                    }
                 }
 
                 // Save or update the message

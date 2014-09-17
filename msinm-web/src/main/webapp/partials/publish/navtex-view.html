@@ -1,0 +1,19 @@
+
+<json-data json="pub.data" data="jsonData">
+    <dl class="dl-horizontal" style="padding-top: 10px; margin-bottom: 0">
+
+        <dt>Transmitter</dt>
+        <dd>
+            <span ng-repeat="(name, val) in jsonData.transmitter">{{name}}: {{val}}<br/></span>
+        </dd>
+
+        <dt>Priority</dt>
+        <dd>{{jsonData.priority}}</dd>
+
+        <dt>Navtex Message</dt>
+        <dd>
+            <textarea style="width: 100%; height: 120px; border: 1px solid lightgray;" disabled>{{jsonData.message}}</textarea>
+        </dd>
+
+    </dl>
+</json-data>

@@ -274,13 +274,15 @@
             <div class="row editor-section" id="publications">
                 <h4>Publications</h4>
                 <div class="col-lg-12">
-                    <tabset  style="border-bottom: 1px solid lightgray; padding-bottom: 10px">
+                    <tabset class="publications">
                         <tab ng-repeat="pub in msg.publications" heading="{{pub.type | uppercase}}" ng-if="showPublication(pub)">
-                            <button type="button" class="btn btn-sm btn-default" style="margin-top: 10px"
-                                    ng-model="pub.publish" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
-                                <span class="glyphicon glyphicon-send"></span> Publish via {{pub.type}}
-                            </button>
-                            <ng-include src="'partials/publish/' + pub.type + '-edit.html'"></ng-include>
+                            <div class="publication">
+                                <button type="button" class="btn btn-sm btn-default"
+                                        ng-model="pub.publish" btn-checkbox btn-checkbox-true="true" btn-checkbox-false="false">
+                                    <span class="glyphicon glyphicon-send"></span> Publish via {{pub.type}}
+                                </button>
+                                <ng-include src="'partials/publish/' + pub.type + '-edit.html'"></ng-include>
+                            </div>
                         </tab>
                     </tabset>
                 </div>

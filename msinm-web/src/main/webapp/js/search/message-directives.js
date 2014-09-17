@@ -43,7 +43,8 @@ angular.module('msinm.search')
             scope: {
                 msg: "=",
                 messages: "=",
-                showDetailsMenu: "@"
+                showDetailsMenu: "@",
+                showPublications: "@"
             },
             link: function(scope, element, attrs) {
                 scope.language = $rootScope.language;

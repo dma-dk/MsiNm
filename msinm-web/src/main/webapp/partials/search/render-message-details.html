@@ -70,8 +70,8 @@
     <div class="row" ng-if="msg.charts.length > 0">
         <div class="col-sm-1 table-item-field">Charts</div>
         <div class="col-sm-11 table-item-value">
-                        <span ng-repeat="chart in msg.charts"><span ng-if="!$first">, </span>{{chart.chartNumber}}
-                            <span ng-if="chart.internationalNumber">(INT {{chart.internationalNumber}})</span></span>
+            <span ng-repeat="chart in msg.charts"><span ng-if="!$first">, </span>{{chart.chartNumber}}
+                <span ng-if="chart.internationalNumber">(INT {{chart.internationalNumber}})</span></span>
         </div>
     </div>
 
@@ -85,5 +85,20 @@
     <div class="row" ng-if="msg.descs[0].source">
         <div class="col-sm-12 table-item-value text-right">({{msg.descs[0].source}})</div>
     </div>
+
+    <!-- Publications -->
+    <div class="row" ng-if="showPublications && msg.publications && msg.publications.length > 0">
+        <div class="col-sm-12 table-item-value">
+            <tabset class="publications">
+                <tab ng-repeat="pub in msg.publications" heading="{{pub.type | uppercase}}">
+                    <div class="publication">
+                        <input type="checkbox" ng-model="pub.publish" disabled> Publish via {{pub.type}}
+                        <ng-include src="'partials/publish/' + pub.type + '-view.html'"></ng-include>
+                    </div>
+                </tab>
+            </tabset>
+        </div>
+    </div>
+
 
 </td>
