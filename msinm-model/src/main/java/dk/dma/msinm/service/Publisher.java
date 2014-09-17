@@ -1,6 +1,5 @@
 package dk.dma.msinm.service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
@@ -10,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.PostConstruct;
 import javax.inject.Inject;
-import java.io.IOException;
 
 /**
  * Base class for all publishers, such as MailPublisher, NavtexPublisher, etc...
@@ -104,29 +102,6 @@ public abstract class Publisher {
             // Re-register the publisher
             registerPublisher();
         }
-    }
-
-    /**
-     * Parses the json data as an entity of the given class
-     *
-     * @param data the json data to parse
-     * @param dataClass the class of the data
-     * @return the parsed data
-     */
-    public <T> T parsePublicationData(String data, Class<T> dataClass) throws IOException {
-        ObjectMapper jsonMapper = new ObjectMapper();
-        return jsonMapper.readValue(data, dataClass);
-    }
-
-    /**
-     * Formats the entity as  json data
-     *
-     * @param data the entity to format
-     * @return the json data
-     */
-    public String formatPublicationData(Object data) throws IOException {
-        ObjectMapper jsonMapper = new ObjectMapper();
-        return jsonMapper.writeValueAsString(data);
     }
 
     /**

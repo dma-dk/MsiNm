@@ -1,6 +1,7 @@
 package dk.dma.msinm.service;
 
 import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.common.util.JsonUtils;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Publication;
 import dk.dma.msinm.model.SeriesIdType;
@@ -69,7 +70,7 @@ public class NavtexPublisher extends Publisher {
         data.setPriority(NavtexPriority.ROUTINE);
         data.setMessage("");
         try {
-            publication.setData(formatPublicationData(data));
+            publication.setData(JsonUtils.toJson(data));
         } catch (IOException e) {
             log.warn("Failed formatting publication data " + data);
         }
