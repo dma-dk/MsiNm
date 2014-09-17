@@ -19,6 +19,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.common.templates.PdfService;
 import dk.dma.msinm.common.time.TimeModel;
 import dk.dma.msinm.common.time.TimeParser;
@@ -241,6 +242,10 @@ public class MessageRestService {
                 try {
                     result.setRepoPath(messageService.getMessageFolderRepoPath(message));
                     result.setBookmarked(messageService.getBookmarks().contains(id));
+                    List<RepoFileVo> attachments = messageService.getMessageAttacthments(message);
+                    if (attachments.size() > 0) {
+                        result.setAttachments(attachments);
+                    }
                 } catch (IOException e) {
                     log.warn("Failed looking up repo-path for message " + messageId, e);
                 }

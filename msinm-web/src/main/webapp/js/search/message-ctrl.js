@@ -12,9 +12,7 @@ angular.module('msinm.search')
 
             $scope.dateFormat = "DD-MM-YYYY HH:mm";
 
-            $scope.attachments = [];
             $scope.uploadUri = '/rest/repo/upload-temp/';
-            $scope.attachments = [];
 
             $scope.action = $location.path().indexOf("/search/edit/editor") == 0 ? "edit" : "copy";
             $scope.messageId = ($routeParams.messageId && $routeParams.messageId != 'new') ? $routeParams.messageId : undefined;
@@ -255,8 +253,10 @@ angular.module('msinm.search')
 
                 $scope.initCharts(msg.charts);
 
-                // Load attachments
-                $scope.listFiles();
+                // Check attachments
+                if (!msg.attachments) {
+                    msg.attachments = [];
+                }
 
                 $scope.newRef = { id: '', type: 'REFERENCE' };
 
@@ -413,7 +413,7 @@ angular.module('msinm.search')
                 MessageService.listFiles(
                     $scope.msg.repoPath,
                     function (data) {
-                        $scope.attachments = data;
+                        $scope.msg.attachments = data;
                         if(!$scope.$$phase) {
                             $scope.$apply();
                         }
@@ -518,7 +518,7 @@ angular.module('msinm.search')
                     windowClass: 'on-top',
                     resolve: {
                         files: function () {
-                            return $scope.attachments;
+                            return $scope.msg.attachments;
                         }
                     }
                 });

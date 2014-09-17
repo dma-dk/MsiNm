@@ -17,6 +17,7 @@ package dk.dma.msinm.vo;
 
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizedDesc;
+import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
 import dk.dma.msinm.model.Area;
@@ -56,6 +57,7 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     boolean bookmarked;
     Boolean firingExercise;
     List<PublicationVo> publications;
+    List<RepoFileVo> attachments;
 
     // Used when creating new messages from the web client
     String repoPath;
@@ -424,6 +426,14 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     public void setPublications(List<PublicationVo> publications) {
         this.publications = publications;
+    }
+
+    public List<RepoFileVo> getAttachments() {
+        return attachments;
+    }
+
+    public void setAttachments(List<RepoFileVo> attachments) {
+        this.attachments = attachments;
     }
 
     /**

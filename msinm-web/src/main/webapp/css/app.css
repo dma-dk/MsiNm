@@ -384,6 +384,12 @@ input[readonly] {
     font-size: 10px;
 }
 
+.attachment-list {
+    display: inline-block;
+    margin: 4px;
+    vertical-align: top;
+}
+
 .size-32 {
     width: 32px;
     height: 32px;

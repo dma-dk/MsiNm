@@ -60,6 +60,16 @@
         <div class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].description"></div>
     </div>
 
+    <!-- Attachments -->
+    <div class="row" ng-if="msg.attachments">
+        <div class="col-sm-1 table-item-field">Attachments</div>
+        <div class="col-sm-11 table-item-value">
+            <span class="attachment-list" ng-repeat="file in msg.attachments">
+                <msi-attachment file="file" size="32" clickable="true"></msi-attachment>
+            </span>
+        </div>
+    </div>
+
     <!-- Note line -->
     <div class="row" ng-if="msg.descs[0].note">
         <div class="col-sm-1 table-item-field">Note</div>

@@ -20,6 +20,7 @@ import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.common.repo.RepositoryService;
 import dk.dma.msinm.common.sequence.DefaultSequence;
 import dk.dma.msinm.common.sequence.Sequence;
@@ -845,4 +846,16 @@ public class MessageService extends BaseService {
         return repositoryService.getRepoUri(file);
     }
 
+
+    /**
+     * Returns the list of repository attachments for the message
+     * @param message the message to find the attachments for
+     * @return the attachments
+     */
+    public List<RepoFileVo> getMessageAttacthments(Message message) throws IOException {
+        // Look up the attachments associated with the message
+        Path reportFolder = getMessageRepoFolder(message);
+        String uri = repositoryService.getRepoPath(reportFolder);
+        return repositoryService.listFiles(uri);
+    }
 }
