@@ -2,27 +2,33 @@
 <div>
     <div class="modal-header">
         <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
-        <h2>Register User</h2>
+        <h2 ng-if="userAction == 'register'">Register User</h2>
+        <h2 ng-if="userAction == 'edit'">Edit User Details</h2>
     </div>
 
     <div class="modal-body">
-        <div class="alert alert-danger" ng-show="error">{{error}}</div>
+        <div class="alert alert-danger" ng-if="error">{{error}}</div>
 
-        <form name="registration_form" ng-show="viewMode != 'info'">
-            <p>Please fill out the form below, and click Register.</p>
-            <p>Subsequently, you will receive an activation e-mail,<br/>which you can use to set a password of your own choice.</p>
-            <p ng-if="OAUTH_LOGINS">
-                Alternatively, log in using your account at
+        <form name="user_form" ng-if="viewMode != 'info'">
+            <div ng-if="userAction == 'register'">
+                <p>Please fill out the form below, and click Register.</p>
+                <p>Subsequently, you will receive an activation e-mail,<br/>which you can use to set a password of your own choice.</p>
+                <p ng-if="OAUTH_LOGINS">
+                    Alternatively, log in using your account at
                 <span ng-repeat="oauth in OAUTH_LOGINS">
                     <a class="{{oauth.icon}}" href="/oauth/login/{{oauth.id}}"> {{oauth.name}}</a>
                 </span>
-            </p>
+                </p>
+            </div>
+            <div ng-if="userAction == 'update'">
+                <p>Please update your details and click Update.</p>
+            </div>
 
             <div class="form-controls">
                 <div class="form-group">
                     <label for="email">E-mail</label>
-                    <input type="email" id="email" name="emailfield" class="form-control input-sm"
-                           focus="focusMe" ng-model="newUser.email" autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                    <input type="email" id="email" name="emailfield" class="form-control input-sm" ng-disabled="userAction != 'register'"
+                           focus="focusMe" ng-model="user.email" autocapitalize="off" autocorrect="off" autocomplete="off" required />
                 </div>
 
                 <div class="form-group">
@@ -30,11 +36,11 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <input type="text" id="firstName" name="firstName" class="form-control input-sm"
-                                   ng-model="newUser.firstName" placeholder="First Name" required />
+                                   ng-model="user.firstName" placeholder="First Name" required />
                         </div>
                         <div class="col-sm-8">
                             <input type="text" id="lastName" name="lastName" class="form-control input-sm"
-                                   ng-model="newUser.lastName" placeholder="Last Name" required />
+                                   ng-model="user.lastName" placeholder="Last Name" required />
                         </div>
                     </div>
                 </div>
@@ -44,7 +50,7 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <select id="language" name="language" class="form-control input-sm" required
-                                   ng-model="newUser.language"
+                                   ng-model="user.language"
                                    ng-options="'LANG_' + lang | uppercase | translate for lang in siteLanguages">
                              </select>
                         </div>
@@ -56,19 +62,24 @@
                     <div class="row">
                         <div class="col-sm-4">
                             <input type="text" id="mmsi" name="mmsi" class="form-control input-sm"
-                                   ng-model="newUser.mmsi" placeholder="MMSI" />
+                                   ng-model="user.mmsi" placeholder="MMSI" />
                         </div>
                         <div class="col-sm-8">
                             <input type="text" id="vesselName" name="vesselName" class="form-control input-sm"
-                                   ng-model="newUser.vesselName" placeholder="Vessel Name" />
+                                   ng-model="user.vesselName" placeholder="Vessel Name" />
                         </div>
                     </div>
                 </div>
 
                 <div style="margin-top: 24px">
-                    <button type="submit" class="btn btn-sm btn-primary"
-                            ng-disabled="!(registration_form.emailfield.$valid && registration_form.language.$valid)"
+                    <button type="submit" class="btn btn-sm btn-primary"  ng-if="userAction == 'register'"
+                            ng-disabled="!(user_form.emailfield.$valid && user_form.language.$valid)"
                             ng-click="register()">Register</button>
+
+                    <button type="submit" class="btn btn-sm btn-primary"  ng-if="userAction == 'edit'"
+                            ng-disabled="user_form.$pristine"
+                            ng-click="update()">Update</button>
+
                     <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
                 </div>
             </div>

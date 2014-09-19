@@ -75,6 +75,110 @@ angular.module('msinm.admin')
 
 
     /**
+     * The UserMailingListCtrl handles mailing list subscription for the administrator
+     */
+    .controller('AdminMailingListCtrl', ['$scope', '$modal', 'MailingListService', 'DialogService',
+        function ($scope, $modal, MailingListService, DialogService) {
+            'use strict';
+
+            $scope.error = undefined;
+            $scope.mailingLists = [];
+
+            $scope.loadMailingLists = function () {
+                MailingListService.getUserMailingLists(
+                    function(data) {
+                        $scope.mailingLists = data;
+                    },
+                    function(data) {
+                        $scope.error = "Error: " + data + ".";
+                    }
+                );
+            };
+
+            $scope.manageRecipients = function (mailList) {
+                $scope.modalInstance = $modal.open({
+                    controller: "ManageMailingListCtrl",
+                    templateUrl : "/partials/user/manage-mailing-list-dialog.html",
+                    resolve: {
+                        mailList: function(){ return mailList; }
+                    }
+                });
+
+                $scope.modalInstance.result.then(function() {
+                    $scope.loadMailingLists();
+                }, function() {
+                    // Cancelled
+                })['finally'](function(){
+                    $scope.modalInstance = undefined;
+                });
+            };
+
+            $scope.deleteMailingList = function (mailList) {
+                DialogService.showConfirmDialog(
+                    "Delete Mailing List?", "Delete mailing list '" + mailList.name + "'?")
+                    .then(function() {
+                        MailingListService.deleteMailingList(
+                            mailList.id,
+                            function(data) {
+                                $scope.loadMailingLists();
+                            },
+                            function(data) {
+                                $scope.error = "Error: " + data + ".";
+                            }
+                        );
+                    });
+            }
+        }])
+
+    /**
+     * The ManageMailingListCtrl is used in the dialog that manages mailing list recipients
+     */
+    .controller('ManageMailingListCtrl', ['$scope', '$timeout', 'MailingListService', 'mailList',
+        function ($scope, $timeout, MailingListService, mailList) {
+            'use strict';
+
+            $scope.mailList = angular.copy(mailList);
+            $scope.mailList.newRecipient = undefined;
+
+            $scope.init = function () {
+                $timeout(function () {
+                    initUserField("#newRecipient", false);
+                }, 500);
+            };
+
+            $scope.addNewRecipient = function () {
+                if (!$scope.mailList.newRecipient) {
+                    return;
+                }
+                if ($.inArray($scope.mailList.newRecipient, $scope.mailList.recipients) >= 0) {
+                    $scope.mailList.newRecipient = undefined;
+                    $("#newRecipient").select2('data', null);
+                    return;
+                }
+                $scope.mailList.recipients.push($scope.mailList.newRecipient);
+                $scope.mailList.newRecipient = undefined;
+                $("#newRecipient").select2('data', null);
+            };
+
+            $scope.deleteRecipient = function (email) {
+                $scope.mailList.recipients.splice($.inArray(email, $scope.mailList.recipients), 1);
+            };
+
+            $scope.update = function () {
+                MailingListService.updateMailingList(
+                    $scope.mailList,
+                    function(data) {
+                        $scope.$close('closed');
+                    },
+                    function(data) {
+                        $scope.error = "Error: " + data + ".";
+                    }
+                );
+            }
+        }])
+
+
+    /**
      * Operations Controller
      */
     .controller('OperationsCtrl', ['$scope', '$location', '$modal', 'OperationsService',

@@ -1,0 +1,48 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Manage Mailing Lists</h2>
+    </div>
+
+    <div class="modal-body" ng-init="loadMailingLists()">
+        <div class="alert alert-danger" ng-if="error">{{error}}</div>
+
+        <form name="maillist_form">
+            <div>
+                <p>Please update your mailing list subscription.</p>
+            </div>
+
+            <table class='table table-condensed table-hover'>
+                <tr>
+                    <th>Subscribe</th>
+                    <th>Mailing List</th>
+                    <th>Type</th>
+                    <th>Filter</th>
+                    <th>Action</th>
+                </tr>
+                <tr ng-repeat="mailList in mailingLists">
+                    <td><input type="checkbox" ng-model="mailList.selected"></td>
+                    <td>{{mailList.name}}</td>
+                    <td>{{mailList.template}}</td>
+                    <td>{{mailList.filterDescription}}</td>
+                    <td align="center">
+                        <a href ng-click="deleteMailingList(mailList);" ng-if="canDelete(mailList)"
+                           title="Delete Mailing List"><i class="glyphicon glyphicon-trash"></i></a>
+                    </td>
+                </tr>
+            </table>
+
+            <div class="form-controls">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="maillist_form.$pristine"
+                            ng-click="update()">Update</button>
+
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

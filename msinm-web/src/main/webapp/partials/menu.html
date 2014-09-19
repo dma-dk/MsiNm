@@ -24,8 +24,17 @@
 
             <ul class="nav navbar-nav navbar-right">
                 <li ng-if="!currentUser"><a href ng-click="loginDlg()" translate>MENU_LOGIN</a></li>
+
                 <li ng-if="!currentUser"><a href ng-controller="UserCtrl" ng-click="registerDlg()" translate>MENU_REGISTER</a></li>
-                <li ng-if="currentUser"><a href >{{currentUser.name}}</a></li>
+
+                <li ng-if="currentUser" class="dropdown" ng-controller="UserCtrl">
+                    <a href class="dropdown-toggle">{{currentUser.name}}</a>
+                    <ul class="dropdown-menu">
+                        <li><a href ng-click="updateUserDlg()">Update Profile...</a></li>
+                        <li><a href ng-click="mailListsDlg()">Mailing Lists...</a></li>
+                    </ul>
+                </li>
+
                 <li ng-if="currentUser"><a href ng-click="logout()" translate>MENU_LOGOUT</a></li>
 
                 <li class="dropdown" ng-if="siteLanguages.length > 1" ng-controller="LangCtrl">

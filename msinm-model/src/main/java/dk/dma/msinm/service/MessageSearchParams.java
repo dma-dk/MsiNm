@@ -22,12 +22,20 @@ import dk.dma.msinm.model.Type;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
+
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 
 /**
  * Defines the search parameters
  */
 public class MessageSearchParams implements Serializable {
+
+    public static final String DATE_FORMAT = "dd-MM-yyyy";
 
     public enum SortBy { DATE, ID, AREA }
     public enum SortOrder { ASC, DESC }
@@ -51,9 +59,17 @@ public class MessageSearchParams implements Serializable {
     SortOrder sortOrder = SortOrder.DESC;
     boolean mapMode;
 
+    /**
+     * Constructor
+     */
     public MessageSearchParams() {
     }
 
+    /**
+     * Constructor
+     * @param query the query
+     * @param location the location
+     */
     public MessageSearchParams(String query, Location location) {
         this.query = query;
         if (location != null) {
@@ -66,26 +82,118 @@ public class MessageSearchParams implements Serializable {
      * @return whether or not the search requires a Lucene search
      */
     public boolean requiresLuceneSearch() {
-        return StringUtils.isNotBlank(query) || locations.size() > 0;
+        return isNotBlank(query) || locations.size() > 0;
     }
 
+    /**
+     * Returns a string representation of the filtering criteria (not sorting or paging)
+     * @return a string representation of the filtering criteria
+     */
     @Override
     public String toString() {
-        return "MessageSearchParams{" +
-                "language='" + language + '\'' +
-                ", query='" + query + '\'' +
-                ", from=" + from +
-                ", to=" + to +
-                ", locations=" + locations +
-                ", areaIds=" + areaIds +
-                ", categoryIds=" + categoryIds +
-                ", chartIds=" + chartIds +
-                ", status=" + status +
-                ", bookmarks=" + bookmarks +
-                ", maxHits=" + maxHits +
-                ", startIndex=" + startIndex +
-                '}';
+        List<String> desc = new ArrayList<>();
+        if (isNotBlank(language)) { desc.add(String.format("Language: %s", language)); }
+        if (isNotBlank(query)) { desc.add(String.format("Query: '%s'", query)); }
+        if (from != null) { desc.add(String.format("From: %s", new SimpleDateFormat(DATE_FORMAT).format(from))); }
+        if (to != null) { desc.add(String.format("To: %s", new SimpleDateFormat(DATE_FORMAT).format(to))); }
+        if (locations.size() > 0) { desc.add(String.format("%d locations", locations.size())); }
+        if (status != null) { desc.add(String.format("Status: %s", status)); }
+        if (types.size() > 0) { desc.add(String.format("Types: %s", types)); }
+        if (mainTypes.size() > 0) { desc.add(String.format("Main types: %s", mainTypes)); }
+        if (areaIds.size() > 0) { desc.add(String.format("Area ID's: %s", areaIds)); }
+        if (categoryIds.size() > 0) { desc.add(String.format("Category ID's: %s", categoryIds)); }
+        if (chartIds.size() > 0) { desc.add(String.format("Chart ID's: %s", chartIds)); }
+        if (bookmarks) { desc.add("Bookmarks: true"); }
+
+        return desc.stream().collect(Collectors.joining(", "));
     }
+
+    /**
+     * Parses the request parameters and collects them in a MessageSearchParams entity
+     */
+    public static MessageSearchParams readParams(
+            String language,
+            String query,
+            String status,
+            String type,
+            String loc,
+            String areas,
+            String categories,
+            String charts,
+            String fromDate,
+            String toDate,
+            int maxHits,
+            int startIndex,
+            String sortBy,
+            String sortOrder,
+            boolean mapMode
+    ) throws ParseException {
+
+        MessageSearchParams params = new MessageSearchParams();
+        params.setLanguage(language);
+        params.setStartIndex(startIndex);
+        params.setMaxHits(maxHits);
+        params.setMapMode(mapMode);
+        params.setSortBy(MessageSearchParams.SortBy.valueOf(sortBy));
+        params.setSortOrder(MessageSearchParams.SortOrder.valueOf(sortOrder));
+        params.setQuery(query);
+
+        if (isNotBlank(status)) {
+            // Special case for "BOOKMARKED" status
+            if ("BOOKMARKED".equalsIgnoreCase(status)) {
+                params.setBookmarks(true);
+            } else {
+                params.setStatus(Status.valueOf(status));
+            }
+        }
+
+        if (isNotBlank(type)) {
+            for (String msgType : type.split(",")) {
+                if (msgType.equals("MSI") || msgType.equals("NM")) {
+                    params.getMainTypes().add(SeriesIdType.valueOf(msgType));
+                } else {
+                    params.getTypes().add(Type.valueOf(msgType));
+                }
+            }
+        }
+
+        if (isNotBlank(loc)) {
+            params.setLocations(Location.fromJson(loc));
+        }
+
+        if (isNotBlank(areas)) {
+            for (String areaId : areas.split(",")) {
+                params.getAreaIds().add(Integer.valueOf(areaId));
+            }
+        }
+
+        if (isNotBlank(categories)) {
+            for (String categoryId : categories.split(",")) {
+                params.getCategoryIds().add(Integer.valueOf(categoryId));
+            }
+        }
+
+        if (isNotBlank(charts)) {
+            for (String chartId : charts.split(",")) {
+                params.getChartIds().add(Integer.valueOf(chartId));
+            }
+        }
+
+        if (isNotBlank(fromDate)) {
+            params.setFrom(new SimpleDateFormat(DATE_FORMAT).parse(fromDate));
+        }
+
+        if (isNotBlank(toDate)) {
+            params.setTo(new SimpleDateFormat(DATE_FORMAT).parse(toDate));
+        }
+
+        return params;
+    }
+
+
+    // *****************************
+    // *** Getters and setters
+    // *****************************
 
     public String getLanguage() {
         return language;

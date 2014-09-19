@@ -405,104 +405,6 @@ public class MessageRestService {
      ***************************/
 
     /**
-     * Parses the request parameters and collects them in a MessageSearchParams entity
-     */
-    private MessageSearchParams readParams(
-            String language,
-            String query,
-            String status,
-            String type,
-            String loc,
-            String areas,
-            String categories,
-            String charts,
-            String fromDate,
-            String toDate,
-            int maxHits,
-            int startIndex,
-            String sortBy,
-            String sortOrder,
-            boolean mapMode
-    ) throws ParseException {
-        log.info(String.format(
-                "Search with lang=%s, q=%s, status=%s, type=%s, loc=%s, areas=%s, categories=%s, charts=%s, from=%s, to=%s, maxHits=%d, startIndex=%d, sortBy=%s, sortOrder=%s, mapMode=%b",
-                language, query, status, type, loc, areas, categories, charts, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, mapMode));
-
-        MessageSearchParams params = new MessageSearchParams();
-        params.setLanguage(language);
-        params.setStartIndex(startIndex);
-        params.setMaxHits(maxHits);
-        params.setMapMode(mapMode);
-
-        try {
-            params.setSortBy(MessageSearchParams.SortBy.valueOf(sortBy));
-        } catch (Exception e) {
-            log.debug("Failed parsing sortBy parameter " + sortBy);
-        }
-
-        try {
-            params.setSortOrder(MessageSearchParams.SortOrder.valueOf(sortOrder));
-        } catch (Exception e) {
-            log.debug("Failed parsing sortOrder parameter " + sortOrder);
-        }
-
-        params.setQuery(query);
-
-        if (StringUtils.isNotBlank(status)) {
-            // Special case for "BOOKMARKED" status
-            if ("BOOKMARKED".equalsIgnoreCase(status)) {
-                params.setBookmarks(true);
-            } else {
-                params.setStatus(Status.valueOf(status));
-            }
-        }
-
-        if (StringUtils.isNotBlank(type)) {
-            for (String msgType : type.split(",")) {
-                if (msgType.equals("MSI") || msgType.equals("NM")) {
-                    params.getMainTypes().add(SeriesIdType.valueOf(msgType));
-                } else {
-                    params.getTypes().add(Type.valueOf(msgType));
-                }
-            }
-        }
-
-        if (StringUtils.isNotBlank(loc)) {
-            params.setLocations(Location.fromJson(loc));
-        }
-
-        if (StringUtils.isNotBlank(areas)) {
-            for (String areaId : areas.split(",")) {
-                params.getAreaIds().add(Integer.valueOf(areaId));
-            }
-        }
-
-        if (StringUtils.isNotBlank(categories)) {
-            for (String categoryId : categories.split(",")) {
-                params.getCategoryIds().add(Integer.valueOf(categoryId));
-            }
-        }
-
-        if (StringUtils.isNotBlank(charts)) {
-            for (String chartId : charts.split(",")) {
-                params.getChartIds().add(Integer.valueOf(chartId));
-            }
-        }
-
-        if (StringUtils.isNotBlank(fromDate)) {
-            DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-            params.setFrom(sdf.parse(fromDate));
-        }
-
-        if (StringUtils.isNotBlank(toDate)) {
-            DateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
-            params.setTo(sdf.parse(toDate));
-        }
-
-        return params;
-    }
-
-    /**
      * Main search method
      */
     @GET
@@ -527,8 +429,11 @@ public class MessageRestService {
             @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder,
             @QueryParam("mapMode") @DefaultValue("false") boolean mapMode
     ) throws Exception {
-        MessageSearchParams params = readParams(language, query, status, type, loc, areas, categories, charts, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, mapMode);
-        return messageSearchService.search(params);
+        long t0 = System.currentTimeMillis();
+        MessageSearchParams params = MessageSearchParams.readParams(language, query, status, type, loc, areas, categories, charts, fromDate, toDate, maxHits, startIndex, sortBy, sortOrder, mapMode);
+        MessageSearchResult searchResult = messageSearchService.search(params);
+        log.info(String.format("Search [%s] returns %d of %d messages in %d ms", params.toString(), searchResult.getMessages().size(), searchResult.getTotal(), System.currentTimeMillis() - t0));
+        return searchResult;
     }
 
     /**
@@ -544,8 +449,11 @@ public class MessageRestService {
             @QueryParam("sortBy") @DefaultValue("DATE") String sortBy,
             @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder
     ) throws Exception {
-        MessageSearchParams params = readParams(language, "", "PUBLISHED", "", "", "", "", "", "", "", 1000, 0, sortBy, sortOrder, false);
-        return messageSearchService.search(params);
+        long t0 = System.currentTimeMillis();
+        MessageSearchParams params = MessageSearchParams.readParams(language, "", "PUBLISHED", "", "", "", "", "", "", "", 1000, 0, sortBy, sortOrder, false);
+        MessageSearchResult searchResult =  messageSearchService.search(params);
+        log.info(String.format("Search [%s] returns %d of %d messages in %d ms", params.toString(), searchResult.getMessages().size(), searchResult.getTotal(), System.currentTimeMillis() - t0));
+        return searchResult;
     }
 
     /**
@@ -560,7 +468,7 @@ public class MessageRestService {
             @QueryParam("lang") String language
     ) throws Exception {
         String categoryId = String.valueOf(categoryService.findOrCreateFiringExercisesCategory().getId());
-        MessageSearchParams params = readParams(language, "", "PUBLISHED", "MSI", "", "", categoryId, "", "", "", 1000, 0, "AREA", "ASC", false);
+        MessageSearchParams params = MessageSearchParams.readParams(language, "", "PUBLISHED", "MSI", "", "", categoryId, "", "", "", 1000, 0, "AREA", "ASC", false);
         return messageSearchService.search(params);
     }
 
@@ -590,7 +498,7 @@ public class MessageRestService {
             @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder,
             @QueryParam("mapMode") @DefaultValue("false") boolean mapMode
     ) throws Exception {
-        MessageSearchParams params = readParams(language, query, status, type, loc, areas, categories, charts, fromDate, toDate, 1000, 0, sortBy, sortOrder, mapMode);
+        MessageSearchParams params = MessageSearchParams.readParams(language, query, status, type, loc, areas, categories, charts, fromDate, toDate, 1000, 0, sortBy, sortOrder, mapMode);
         MessageSearchResult result = messageSearchService.search(params);
 
         String template = "message-list.ftl";

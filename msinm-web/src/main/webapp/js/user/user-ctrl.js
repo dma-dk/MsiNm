@@ -71,35 +71,41 @@ angular.module('msinm.user')
 
         $scope.registerDlg = function() {
             $modal.open({
-                controller: "UserCtrl",
-                templateUrl : "/partials/user/registration-dialog.html"
+                controller: "UserDetailsCtrl",
+                templateUrl : "/partials/user/user-details-dialog.html",
+                resolve: {
+                    user: function(){ return {}; },
+                    userAction: function(){ return 'register'; }
+                }
             });
         };
 
-        $scope.register = function() {
-            UserService.registerUser(
-                $scope.newUser.email,
-                $scope.newUser.firstName,
-                $scope.newUser.lastName,
-                $scope.newUser.language,
-                $scope.newUser.mmsi,
-                $scope.newUser.vesselName,
-                function(data) {
-                    console.log("User " + $scope.newUser.email + " registered");
-                    $scope.viewMode = "info";
-                    $scope.error = undefined;
-                    $scope.message = $scope.newUser.email + " has been registered as a new user. An activation email has been sent to you.";
-                    if(!$scope.$$phase) {
-                        $scope.$apply();
-                    }
+        $scope.updateUserDlg = function() {
+            UserService.currentUser(
+                function (data) {
+                    $modal.open({
+                        controller: "UserDetailsCtrl",
+                        templateUrl : "/partials/user/user-details-dialog.html",
+                        resolve: {
+                            user: function(){ return data; },
+                            userAction: function(){ return 'edit'; }
+                        }
+                    });
                 },
-                function(data) {
-                    $scope.error = "An error happened: " + data + ".";
-                    if(!$scope.$$phase) {
-                        $scope.$apply();
-                    }
-                });
+                function (data) {
+                    console.log("Error getting current user details")
+                }
+            );
         };
+
+
+        $scope.mailListsDlg = function () {
+            $modal.open({
+                controller: "UserMailingListCtrl",
+                templateUrl : "/partials/user/user-mailing-list-dialog.html"
+            });
+        };
+
 
         $scope.checkLoggedIn = function(path) {
             if ($rootScope.currentUser) {
@@ -111,6 +117,118 @@ angular.module('msinm.user')
         }
 
     }])
+
+    /**
+     * The UserDetailsCtrl handles registration and updating of users
+     */
+    .controller('UserDetailsCtrl', ['$scope', 'UserService', 'userAction', 'user',
+        function ($scope, UserService, userAction, user) {
+            'use strict';
+
+            $scope.focusMe = true;
+            $scope.message = undefined;
+            $scope.error = undefined;
+            $scope.viewMode = 'edit';
+            $scope.userAction = userAction;
+            $scope.user = user;
+
+            $scope.register = function() {
+                UserService.registerUser(
+                    $scope.user.email,
+                    $scope.user.firstName,
+                    $scope.user.lastName,
+                    $scope.user.language,
+                    $scope.user.mmsi,
+                    $scope.user.vesselName,
+                    function(data) {
+                        console.log("User " + $scope.user.email + " registered");
+                        $scope.message = $scope.user.email + " has been registered as a new user. An activation email has been sent to you.";
+                        $scope.viewMode = "info";
+                        $scope.error = undefined;
+                    },
+                    function(data) {
+                        $scope.error = "An error happened: " + data + ".";
+                    });
+            };
+
+            $scope.update = function() {
+                UserService.updateCurrentUser(
+                    $scope.user.email,
+                    $scope.user.firstName,
+                    $scope.user.lastName,
+                    $scope.user.language,
+                    $scope.user.mmsi,
+                    $scope.user.vesselName,
+                    function(data) {
+                        $scope.$dismiss('closed');
+                    },
+                    function(data) {
+                        $scope.error = "An error happened: " + data + ".";
+                    });
+            };
+        }])
+
+
+    /**
+     * The UserMailingListCtrl handles mailing list subscription for the current  user
+     */
+    .controller('UserMailingListCtrl', ['$scope', 'MailingListService', 'DialogService',
+        function ($scope, MailingListService, DialogService) {
+            'use strict';
+
+            $scope.error = undefined;
+            $scope.mailingLists = [];
+
+            $scope.loadMailingLists = function () {
+                MailingListService.getUserMailingLists(
+                    function(data) {
+                        $scope.mailingLists = data;
+                    },
+                    function(data) {
+                        $scope.error = "Error: " + data + ".";
+                    }
+                );
+            };
+
+            $scope.update = function() {
+                var mailListIds = [];
+                for (var m in $scope.mailingLists) {
+                    if ($scope.mailingLists[m].selected) {
+                        mailListIds.push($scope.mailingLists[m].id);
+                    }
+                }
+                MailingListService.updateUserSubscription(
+                    mailListIds,
+                    function(data) {
+                        $scope.$dismiss('closed');
+                    },
+                    function(data) {
+                        $scope.error = "Error: " + data + ".";
+                    }
+                );
+            };
+
+            $scope.canDelete = function (mailList) {
+                return mailList.user == $scope.currentUser.email || $scope.hasRole('sysadmin');
+            };
+
+            $scope.deleteMailingList = function (mailList) {
+                DialogService.showConfirmDialog(
+                    "Delete Mailing List?", "Delete mailing list '" + mailList.name + "'?")
+                    .then(function() {
+                        MailingListService.deleteMailingList(
+                            mailList.id,
+                            function(data) {
+                                $scope.loadMailingLists();
+                            },
+                            function(data) {
+                                $scope.error = "Error: " + data + ".";
+                            }
+                        );
+                    });
+            }
+        }])
+
 
     /**
      * The NewPasswordCtrl handles setting a new password
@@ -155,7 +273,7 @@ angular.module('msinm.user')
 
 
     /**
-     * The NewPasswordCtrl handles adding or editing a user by an administrator
+     * The AddOrEditUserCtrl handles adding or editing a user by an administrator
      */
     .controller('AddOrEditUserCtrl', ['$scope', '$modalInstance', 'UserService', 'user', 'userAction',
         function ($scope, $modalInstance, UserService, user, userAction) {

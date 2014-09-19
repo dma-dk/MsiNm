@@ -5,9 +5,9 @@
 angular.module('msinm.common')
 
     .filter('serialize', function () {
-        return function (input) {
+        return function (input, separator) {
             input = input || [];
-            return input.join();
+            return input.join(separator);
         };
     })
 

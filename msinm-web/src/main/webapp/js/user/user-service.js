@@ -131,7 +131,7 @@ angular.module('msinm.user')
     }])
 
     /**
-     * Interface for calling the application server
+     * Interface for calling the application server with User related operations
      */
     .factory('UserService', [ '$http', '$location', 'Auth', function($http, $location, Auth) {
         'use strict';
@@ -174,6 +174,27 @@ angular.module('msinm.user')
                     });
             },
 
+            currentUser: function(success, error) {
+                $http.get('/rest/user/current-user')
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
+            updateCurrentUser: function(email, firstName, lastName, language, mmsi, vesselName, success, error) {
+                $http
+                    .put('/rest/user/current-user', { email: email, firstName: firstName, lastName: lastName, language: language, mmsi: mmsi, vesselName: vesselName })
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
             registerUser: function(email, firstName, lastName, language, mmsi, vesselName, success, error) {
                 $http
                     .post('/rest/user/register-user', { email: email, firstName: firstName, lastName: lastName, language: language, mmsi: mmsi, vesselName: vesselName })
@@ -203,7 +224,59 @@ angular.module('msinm.user')
                     });
             }
         };
+    }])
+
+
+    /**
+     * Interface for calling the application server with Mailing List related operations
+     */
+    .factory('MailingListService', [ '$http', function($http) {
+        'use strict';
+
+        return {
+
+            getUserMailingLists: function(success, error) {
+                $http.get('/rest/mailing-lists/user-mailing-lists')
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
+            updateUserSubscription: function(mailListIds, success, error) {
+                $http.put('/rest/mailing-lists/update-user-subscription', mailListIds )
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
+            updateMailingList: function(mailList, success, error) {
+                $http.put('/rest/mailing-lists/mailing-list', mailList)
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
+            deleteMailingList: function(mailListId, success, error) {
+                $http.delete('/rest/mailing-lists/mailing-list/' + mailListId )
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            }
+        };
     }]);
+
 
 /**
  * Checks that the user has the given role. Otherwise, redirects to "/"

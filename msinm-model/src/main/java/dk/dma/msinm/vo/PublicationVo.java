@@ -1,7 +1,5 @@
 package dk.dma.msinm.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.vo.BaseVo;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Publication;
@@ -11,8 +9,6 @@ import java.util.Set;
 /**
  * Value object for the {@code Publication} model entity.
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class PublicationVo extends BaseVo<Publication> {
 
     Integer id;

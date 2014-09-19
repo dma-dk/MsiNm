@@ -27,7 +27,14 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.*;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -49,6 +56,23 @@ public class UserRestService {
     UserService userService;
 
     /**
+     * Searches for users matching the given term
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    @GET
+    @Path("/search")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    // TODO @RolesAllowed({ "admin" })
+    public List<UserVo> searchCharts(@QueryParam("term") String term, @QueryParam("limit") int limit) {
+        log.info(String.format("Searching for users term='%s', limit=%d", term, limit));
+        return userService.searchUsers(term, limit);
+    }
+
+    /**
      * Returns all users
      */
     @GET
@@ -63,6 +87,40 @@ public class UserRestService {
         userService.getAll(User.class).forEach(user -> users.add(new UserVo(user)));
         return users;
     }
+
+    /**
+     * Returns the current user
+     */
+    @GET
+    @Path("/current-user")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    @RolesAllowed({ "user" })
+    public UserVo getCurrentUser() {
+        User user = userService.getCurrentUser();
+        return user == null ? null : new UserVo(user);
+    }
+
+    /**
+     * Updates the current user details
+     */
+    @PUT
+    @Path("/current-user")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({ "user" })
+    public String updateCurrentUser(UserVo userVo) throws Exception {
+        try {
+            log.info(String.format("Updaring user email=%s, firstName=%s, lastName=%s", userVo.getEmail(), userVo.getFirstName(), userVo.getLastName()));
+            User user = userVo.toEntity();
+            userService.updateCurrentUser(user);
+        } catch (Exception e) {
+            throw new WebApplicationException(Response.serverError().type(MediaType.APPLICATION_JSON).entity(e.getMessage()).build());
+        }
+        return "User " + userVo.getEmail() + " updated.";
+    }
+
 
     @POST
     @Path("/reset-password")

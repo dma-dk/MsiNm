@@ -39,7 +39,13 @@ import java.util.List;
                 hints=@QueryHint(name="org.hibernate.cacheable",value="true")),
         @NamedQuery(name="User.findById",
                 query="SELECT u FROM User u left join fetch u.roles where u.id = :id",
-                hints=@QueryHint(name="org.hibernate.cacheable",value="true"))
+                hints=@QueryHint(name="org.hibernate.cacheable",value="true")),
+        @NamedQuery(name  = "User.searchUsers",
+                query = "select distinct u from User u where lower(u.email) like lower(:term) "
+                        + "or lower(concat(coalesce(u.firstName,''), ' ', coalesce(u.lastName,''))) like lower(:term) "
+                        + "order by "
+                        + "case when LOCATE(lower(:sort), lower(u.email)) = 0 then LOCATE(lower(:sort), lower(concat(coalesce(u.firstName,''), ' ', coalesce(u.lastName,'')))) "
+                        + "else LOCATE(lower(:sort), lower(u.email)) end"),
 })
 public class User extends VersionedEntity<Integer> implements Principal, IPreloadable {
 
@@ -197,5 +203,15 @@ public class User extends VersionedEntity<Integer> implements Principal, IPreloa
     @Override
     public void preload(DataFilter dataFilter) {
         getRoles().forEach(r -> {});
+    }
+
+    /**
+     * Returns if the user has the given role
+     * @param roleName the role name to check
+     * @return if the user has the given role
+     */
+    public boolean hasRole(String roleName) {
+        return getRoles().stream()
+                .anyMatch(role -> role.getName().equals(roleName));
     }
 }

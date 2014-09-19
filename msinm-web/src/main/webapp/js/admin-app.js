@@ -22,6 +22,9 @@ var app = angular.module('msinm.admin', [
         }).when('/admin/users', {
             templateUrl: 'partials/admin/users.html',
             resolve: checkRole('admin')
+        }).when('/admin/maillists', {
+            templateUrl: 'partials/admin/maillists.html',
+            resolve: checkRole('admin')
         }).when('/admin/charts', {
             templateUrl: 'partials/admin/charts.html',
             resolve: checkRole('admin')

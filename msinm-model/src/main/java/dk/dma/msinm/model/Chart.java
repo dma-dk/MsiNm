@@ -33,7 +33,7 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name  = "Chart.searchCharts",
                 query = "select distinct c from Chart c where lower(c.chartNumber) like lower(:term) "
-                        + "or ('' + c.internationalNumber) like lower(:term) "
+                        + "or coalesce('' + c.internationalNumber) like lower(:term) "
                         + "or lower(c.name) like lower(:term) "
                         + "order by "
                         + "case when LOCATE(lower(:sort), lower(c.chartNumber)) = 0 and LOCATE(lower(:sort), lower(c.name)) = 0 then LOCATE(lower(:sort), '' + c.internationalNumber) "

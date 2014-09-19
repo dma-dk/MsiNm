@@ -1,0 +1,63 @@
+
+<div class="row admin-breadcrumbs">
+    <ol class="breadcrumb">
+        <li><a href="/index.html"><i class="glyphicon glyphicon-home"></i></a></li>
+        <li><a href="/admin.html">Admin</a></li>
+        <li class="active">Mailing Lists</li>
+    </ol>
+</div>
+
+<div class="row admin-content">
+
+    <div class="col-sm-10 col-md-9">
+
+        <h1 class="page-header">Mailing Lists</h1>
+
+        <div ng-controller="AdminMailingListCtrl" ng-init="loadMailingLists()">
+
+            <p>
+                Manage mailing lists and their recipients.
+            </p>
+
+            <div class="row">
+                <div class="col-xs-8 col-sm-6 col-md-4">
+                    <input class="form-control input-sm col-sm-2" ng-model="search" type="text" placeholder="Filter">
+                </div>
+            </div>
+
+            <div class="row" style="padding-top: 20px;">
+                <div class="col-sm-12 col-md-10">
+                    <table class='table table-condensed table-hover'>
+                        <tr>
+                            <th>Mailing List</th>
+                            <th>Type</th>
+                            <th>Filter</th>
+                            <th>Owner</th>
+                            <th>Recipients</th>
+                            <th>Action</th>
+                        </tr>
+                        <tr ng-repeat="mailList in mailingLists | filter:search">
+                            <td>{{mailList.name}}</td>
+                            <td>{{mailList.template}}</td>
+                            <td ng-bind-html="mailList.filterDescription | plain2html"></td>
+                            <td>{{mailList.user}}</td>
+                            <td ng-bind-html="mailList.recipients | serialize:'<br>'"></td>
+                            <td align="center">
+                                <a href ng-click="manageRecipients(mailList);" title="Manage Recipients"><i class="glyphicon glyphicon-user"></i></a>
+                                &nbsp;
+                                <a href ng-click="deleteMailingList(mailList);" ng-if="hasRole('sysadmin')"
+                                   title="Delete Mailing List"><i class="glyphicon glyphicon-trash"></i></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="col-sm-2 col-md-3 admin-teaser-image text-right">
+        <img src="/img/admin/maillists.jpg"/>
+    </div>
+
+</div>

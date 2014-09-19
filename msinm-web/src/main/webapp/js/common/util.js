@@ -214,3 +214,40 @@ function initChartField(chartId, multiple) {
         });
     });
 }
+
+function initUserField(userId, multiple) {
+    $(document).ready(function () {
+        $(userId).select2({
+            placeholder: (multiple) ? "Select Users" : "Select user",
+            multiple: multiple,
+            allowClear: true,
+            minimumInputLength: 1,
+            type: "GET",
+            quietMillis: 50,
+            ajax: {
+                url: "/rest/user/search",
+                dataType: 'json',
+                data: function (term, page) {
+                    return {
+                        term: term,
+                        limit: 10
+                    };
+                },
+                results: function (data, page) {
+                    var results = [];
+                    for (i in data) {
+                        var user = data[i];
+                        results.push({ id: user.email, text: user.email, user: user });
+                    }
+                    return { results: results };
+                }
+            },
+            formatResult: function (data, term) {
+                var name = '';
+                if (data.user.firstName) name += data.user.firstName;
+                if (data.user.lastName) name += ' ' + data.user.lastName;
+                return data.text + ((name) ? ' ('  + name + ')' : '');
+            }
+        });
+    });
+}

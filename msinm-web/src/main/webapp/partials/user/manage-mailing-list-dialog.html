@@ -1,0 +1,56 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Manage Mailing Recipients</h2>
+    </div>
+
+    <div class="modal-body" ng-init="init()">
+        <div class="alert alert-danger" ng-if="error">{{error}}</div>
+
+        <form name="maillist_form">
+            <div>
+                <p>Add or remove recipients to the <strong>{{mailList.name}}</strong>.</p>
+            </div>
+
+            <div class="row">
+                <div class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+                    <input type="text" class="form-control input-sm" id="newRecipient" ng-model="mailList.newRecipient" />
+                </div>
+                <div class="col-xs-12 col-sm-8 col-md-6 col-lg-6">
+                    <button type="submit" class="btn btn-primary btn-sm" ng-click="addNewRecipient()"
+                            ng-disabled="!mailList.newRecipient">
+                        <span class="glyphicon glyphicon-plus"></span> Add Recipient
+                    </button>
+                </div>
+            </div>
+
+            <div class="row" style="padding-top: 20px">
+                <div class="col-xs-12 col-lg-12">
+                    <table class='table table-condensed table-hover'>
+                        <tr>
+                            <th>Current Recipient</th>
+                        </tr>
+                        <tr ng-repeat="email in mailList.recipients">
+                            <td>{{email}}</td>
+                            <td align="center">
+                                <a href ng-click="deleteRecipient(email);"
+                                   title="Delete Recipient"><i class="glyphicon glyphicon-trash"></i></a>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+
+            <div class="form-controls">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-click="update()">Update</button>
+
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

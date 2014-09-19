@@ -21,6 +21,7 @@ import dk.dma.msinm.common.templates.TemplateContext;
 import dk.dma.msinm.common.templates.TemplateService;
 import dk.dma.msinm.common.templates.TemplateType;
 import dk.dma.msinm.user.security.JbossJaasCacheFlusher;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.annotation.Resource;
@@ -28,7 +29,9 @@ import javax.ejb.SessionContext;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.security.Principal;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -104,6 +107,64 @@ public class UserService extends BaseService {
     public User findByPrincipal(Principal principal) {
         // Throughout MSI-NM, the email is used as the Principal name
         return findByEmail(principal.getName());
+    }
+
+    /**
+     * Searches for users matching the given term
+     * @param term the search term
+     * @param limit the maximum number of results
+     * @return the search result
+     */
+    public List<UserVo> searchUsers(String term, int limit) {
+        List<UserVo> result = new ArrayList<>();
+        if (StringUtils.isNotBlank(term)) {
+            List<User> users = em
+                    .createNamedQuery("User.searchUsers", User.class)
+                    .setParameter("term", "%" + term + "%")
+                    .setParameter("sort", term)
+                    .setMaxResults(limit)
+                    .getResultList();
+
+            users.forEach(user -> result.add(new UserVo(user)));
+        }
+        return result;
+    }
+
+    /**
+     * Returns the current caller or null if none is defined
+     * @return the current caller or null if none is defined
+     */
+    public User getCurrentUser() {
+        if (ctx != null && ctx.getCallerPrincipal() != null) {
+            return findByPrincipal(ctx.getCallerPrincipal());
+        }
+        return null;
+    }
+
+    /**
+     * Updates the current user.
+     *
+     * @param user the template user entity
+     * @return the updated user
+     */
+    public User updateCurrentUser(User user) throws Exception {
+        User existingUser = getCurrentUser();
+
+        if (existingUser == null || !existingUser.getEmail().equalsIgnoreCase(user.getEmail())) {
+            throw new IllegalArgumentException("Invalid user " + user.getEmail());
+        }
+
+        // Update the existing user
+        existingUser.setFirstName(user.getFirstName());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setLanguage(user.getLanguage());
+        existingUser.setVesselName(user.getVesselName());
+        existingUser.setMmsi(user.getMmsi());
+
+        // And save the user
+        existingUser = saveEntity(existingUser);
+
+        return existingUser;
     }
 
     /**
@@ -349,4 +410,5 @@ public class UserService extends BaseService {
         // Flush the jboss JAAS cache
         jbossJaasCacheFlusher.flushJaasCache(email);
     }
+
 }
