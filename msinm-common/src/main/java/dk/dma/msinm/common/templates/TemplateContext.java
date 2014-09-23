@@ -11,7 +11,7 @@ import java.util.*;
  */
 public class TemplateContext {
 
-    public static final String TEMPLATE_ROOT    = "/WEB-INF/classes/templates";
+    public static final String TEMPLATE_ROOT    = "/templates";
     public static final String BUNDLE_ROOT      = "templates";
     public static final String ENCODING         = "UTF-8";
 

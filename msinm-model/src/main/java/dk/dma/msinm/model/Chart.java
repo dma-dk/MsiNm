@@ -124,6 +124,16 @@ public class Chart extends VersionedEntity<Integer> {
         return location;
     }
 
+    /**
+     * Returns a string representation of the chart including chart number and international number
+     * @return a string representation of the chart
+     */
+    public String toFullChartNumber() {
+        return (internationalNumber == null)
+                ? chartNumber
+                : String.format("%s (INT %d)", chartNumber, internationalNumber);
+    }
+
     public String getChartNumber() {
         return chartNumber;
     }

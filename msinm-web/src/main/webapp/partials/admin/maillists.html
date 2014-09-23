@@ -38,7 +38,7 @@
                         </tr>
                         <tr ng-repeat="mailList in mailingLists | filter:search">
                             <td>{{mailList.name}}</td>
-                            <td>{{mailList.template}}</td>
+                            <td>{{mailList.template.name}}</td>
                             <td ng-bind-html="mailList.filterDescription | plain2html"></td>
                             <td>{{mailList.user}}</td>
                             <td ng-bind-html="mailList.recipients | serialize:'<br>'"></td>

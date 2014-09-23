@@ -24,8 +24,8 @@
                 <tr ng-repeat="mailList in mailingLists">
                     <td><input type="checkbox" ng-model="mailList.selected"></td>
                     <td>{{mailList.name}}</td>
-                    <td>{{mailList.template}}</td>
-                    <td>{{mailList.filterDescription}}</td>
+                    <td>{{mailList.template.name}}</td>
+                    <td ng-bind-html="mailList.filterDescription | plain2html"></td>
                     <td align="center">
                         <a href ng-click="deleteMailingList(mailList);" ng-if="canDelete(mailList)"
                            title="Delete Mailing List"><i class="glyphicon glyphicon-trash"></i></a>

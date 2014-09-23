@@ -19,7 +19,9 @@ import java.util.List;
 @Entity
 @NamedQueries({
         @NamedQuery(name  = "MailListTemplate.findByName",
-                query = "select mt from MailListTemplate mt where mt.name = :name")
+                query = "select mt from MailListTemplate mt where mt.name = :name"),
+        @NamedQuery(name  = "MailListTemplate.findByType",
+                query = "select mt from MailListTemplate mt where mt.type = :type")
 })
 public class MailListTemplate extends BaseEntity<Integer> {
 
@@ -27,11 +29,26 @@ public class MailListTemplate extends BaseEntity<Integer> {
     @Column(unique = true)
     String name;
 
+    /**
+     * The type is associated with the publisher using the template
+     */
+    @NotNull
+    String type;
+
+    /**
+     * The path to the Freemarker template
+     */
     @NotNull
     String template;
 
+    /**
+     * A resource bundle
+     */
     String bundle;
 
+    /**
+     * Whether the mail is used for individual messages or message lists
+     */
     boolean collated;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "template")
@@ -47,6 +64,14 @@ public class MailListTemplate extends BaseEntity<Integer> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public String getTemplate() {

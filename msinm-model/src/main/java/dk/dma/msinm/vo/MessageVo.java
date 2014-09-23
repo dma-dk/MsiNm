@@ -28,6 +28,7 @@ import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
 import org.apache.commons.lang.StringUtils;
 
+import javax.persistence.Transient;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -273,6 +274,20 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         }
     }
 
+    /**
+     * Returns the publication with the given type, or null if not found
+     * @param type the type of the publication
+     * @return the publication with the given type
+     */
+    @Transient
+    public PublicationVo getPublication(String type) {
+        return publications == null
+                ? null
+                : publications.stream()
+                    .filter(pub -> pub.getType().equals(type))
+                    .findFirst()
+                    .orElse(null);
+    }
 
     // ************ Getters and setters *************
 

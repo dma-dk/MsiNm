@@ -15,6 +15,8 @@
  */
 package dk.dma.msinm.service;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.Status;
@@ -33,6 +35,8 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 /**
  * Defines the search parameters
  */
+@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
 public class MessageSearchParams implements Serializable {
 
     public static final String DATE_FORMAT = "dd-MM-yyyy";
@@ -58,6 +62,9 @@ public class MessageSearchParams implements Serializable {
     SortBy sortBy = SortBy.ID;
     SortOrder sortOrder = SortOrder.DESC;
     boolean mapMode;
+
+    Date updatedFrom;
+    Date updatedTo;
 
     /**
      * Constructor
@@ -104,6 +111,8 @@ public class MessageSearchParams implements Serializable {
         if (categoryIds.size() > 0) { desc.add(String.format("Category ID's: %s", categoryIds)); }
         if (chartIds.size() > 0) { desc.add(String.format("Chart ID's: %s", chartIds)); }
         if (bookmarks) { desc.add("Bookmarks: true"); }
+        if (updatedFrom != null) { desc.add(String.format("Updated from: %s", updatedFrom)); }
+        if (updatedTo != null) { desc.add(String.format("Updated to: %s", updatedTo)); }
 
         return desc.stream().collect(Collectors.joining(", "));
     }
@@ -190,6 +199,22 @@ public class MessageSearchParams implements Serializable {
         return params;
     }
 
+    /**
+     * Parses the request parameters and collects them in a MessageSearchParams entity
+     */
+    public static MessageSearchParams readParams(
+            String query,
+            String status,
+            String type,
+            String loc,
+            String areas,
+            String categories,
+            String charts,
+            String sortBy,
+            String sortOrder
+    ) throws ParseException {
+        return readParams(null, query, status, type, loc, areas, categories, charts, null, null, 999999, 0, sortBy, sortOrder, false);
+    }
 
     // *****************************
     // *** Getters and setters
@@ -329,5 +354,21 @@ public class MessageSearchParams implements Serializable {
 
     public void setMapMode(boolean mapMode) {
         this.mapMode = mapMode;
+    }
+
+    public Date getUpdatedFrom() {
+        return updatedFrom;
+    }
+
+    public void setUpdatedFrom(Date updatedFrom) {
+        this.updatedFrom = updatedFrom;
+    }
+
+    public Date getUpdatedTo() {
+        return updatedTo;
+    }
+
+    public void setUpdatedTo(Date updatedTo) {
+        this.updatedTo = updatedTo;
     }
 }

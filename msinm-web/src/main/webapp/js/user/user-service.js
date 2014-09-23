@@ -235,6 +235,16 @@ angular.module('msinm.user')
 
         return {
 
+            getUserMailingListTemplates: function(success, error) {
+                $http.get('/rest/mailing-lists/user-mailing-list-templates')
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
             getUserMailingLists: function(success, error) {
                 $http.get('/rest/mailing-lists/user-mailing-lists')
                     .success(function (data) {
@@ -255,6 +265,16 @@ angular.module('msinm.user')
                     });
             },
 
+            createMailingList: function(mailList, success, error) {
+                $http.post('/rest/mailing-lists/mailing-list', mailList)
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
             updateMailingList: function(mailList, success, error) {
                 $http.put('/rest/mailing-lists/mailing-list', mailList)
                     .success(function (data) {
@@ -267,6 +287,16 @@ angular.module('msinm.user')
 
             deleteMailingList: function(mailListId, success, error) {
                 $http.delete('/rest/mailing-lists/mailing-list/' + mailListId )
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
+            newMailingListTemplate: function(params, success, error) {
+                $http.get('/rest/mailing-lists/new-mailing-list-template?' + params)
                     .success(function (data) {
                         success(data);
                     })

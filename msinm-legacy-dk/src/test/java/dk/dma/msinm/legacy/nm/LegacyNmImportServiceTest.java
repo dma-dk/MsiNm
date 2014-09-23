@@ -24,6 +24,7 @@ import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
+import dk.dma.msinm.common.templates.TemplateConfiguration;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
 import dk.dma.msinm.legacy.msi.service.LegacyMessageService;
 import dk.dma.msinm.model.Area;
@@ -43,7 +44,6 @@ import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
-import dk.dma.msinm.test.TestTemplateConfiguration;
 import dk.dma.msinm.user.Role;
 import dk.dma.msinm.user.User;
 import org.jglue.cdiunit.AdditionalClasses;
@@ -67,7 +67,7 @@ import static org.junit.Assert.assertNotNull;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, LegacyNmImportService.class, LegacyMessageService.class, Settings.class,
+        TestDatabaseConfiguration.class, TemplateConfiguration.class, SqlProducer.class, LegacyNmImportService.class, LegacyMessageService.class, Settings.class,
         Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class, MsiNmApp.class
 })
 public class LegacyNmImportServiceTest extends MsiNmUnitTest

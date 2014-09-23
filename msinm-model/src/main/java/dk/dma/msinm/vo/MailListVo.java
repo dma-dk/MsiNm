@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 public class MailListVo extends BaseVo<MailList> {
 
     Integer id;
-    String template;
+    MailListTemplateVo template;
     List<String> recipients;
     String user;
     String name;
@@ -43,7 +43,7 @@ public class MailListVo extends BaseVo<MailList> {
     public MailListVo(MailList mailList) {
         super(mailList);
         id = mailList.getId();
-        template = mailList.getTemplate().getName();
+        template = new MailListTemplateVo(mailList.getTemplate());
         if (mailList.getRecipients().size() > 0) {
             recipients = mailList.getRecipients().stream()
                     .map(User::getEmail)
@@ -107,11 +107,11 @@ public class MailListVo extends BaseVo<MailList> {
         this.id = id;
     }
 
-    public String getTemplate() {
+    public MailListTemplateVo getTemplate() {
         return template;
     }
 
-    public void setTemplate(String template) {
+    public void setTemplate(MailListTemplateVo template) {
         this.template = template;
     }
 

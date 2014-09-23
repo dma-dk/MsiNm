@@ -21,10 +21,10 @@ import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
+import dk.dma.msinm.common.templates.TemplateConfiguration;
 import dk.dma.msinm.model.*;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
-import dk.dma.msinm.test.TestTemplateConfiguration;
 import dk.dma.msinm.user.UserService;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
@@ -49,7 +49,7 @@ import static org.junit.Assert.assertNotNull;
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
         UserService.class,
-        TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, Settings.class,
+        TestDatabaseConfiguration.class, TemplateConfiguration.class, SqlProducer.class, Settings.class,
         Sequences.class, LogConfiguration.class, EntityManager.class
 })
 public class MessageServiceTest extends MsiNmUnitTest {

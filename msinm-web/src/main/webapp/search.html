@@ -83,6 +83,7 @@
                             <li class="divider"></li>
                             <li><a href ng-click="pdf()">Generate PDF</a></li>
                             <li><a href ng-click="calendar()">Add to calendar</a></li>
+                            <li ng-if="hasRole('user')"><a href ng-click="createMailingList()">Create mailing list...</a></li>
                         </ul>
                     </div>
                     <input id="query" type="text" class="form-control" placeholder="Search Terms" ng-model="query"

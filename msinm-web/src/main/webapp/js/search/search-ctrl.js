@@ -56,22 +56,33 @@ angular.module('msinm.search')
             }
         };
 
+        // Assemple the current search params
+        $scope.params = function (paged) {
+            var p = 'lang=' + $scope.language
+                + '&q=' + encodeURIComponent($scope.query)
+                + '&status=' + encodeURIComponent($scope.status)
+                + '&type=' + encodeURIComponent($scope.type)
+                + '&loc=' + encodeURIComponent(JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations))
+                + '&areas=' + encodeURIComponent($scope.areas)
+                + '&categories=' + encodeURIComponent($scope.categories)
+                + '&charts=' + encodeURIComponent($scope.charts)
+                + '&from=' + encodeURIComponent($("#dateFrom").val())
+                + '&to=' + encodeURIComponent($("#dateTo").val())
+                + '&sortBy=' + ($scope.sortBy)
+                + '&sortOrder=' + ($scope.sortDesc ? 'DESC' : 'ASC');
+
+            if (paged) {
+                p = p + '&maxHits=' + $scope.pageSize
+                    + '&startIndex=' + ($scope.currentPage - 1) * $scope.pageSize
+                    + '&mapMode=' + $scope.mapMode;
+            }
+
+            return p;
+        }
+
         $scope.search = function () {
             MessageService.search(
-                $scope.query,
-                $scope.status,
-                $scope.type,
-                JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations),
-                $scope.areas,
-                $scope.categories,
-                $scope.charts,
-                $("#dateFrom").val(),
-                $("#dateTo").val(),
-                $scope.pageSize,
-                ($scope.currentPage - 1) * $scope.pageSize,
-                $scope.sortBy,
-                $scope.sortDesc ? 'DESC' : 'ASC',
-                $scope.mapMode,
+                $scope.params(true),
                 function(data) {
                     $scope.searchResult = data;
                     $scope.paginationVisible = (data && data.total > $scope.pageSize);
@@ -208,19 +219,7 @@ angular.module('msinm.search')
         };
 
         $scope.pdf = function () {
-            $window.location = '/rest/messages/search-pdf?'
-            + 'lang=' + $scope.language
-            + '&q=' + encodeURIComponent($scope.query)
-            + '&status=' + encodeURIComponent($scope.status)
-            + '&type=' + encodeURIComponent($scope.type)
-            + '&loc=' + encodeURIComponent(JSON.stringify($scope.mapMode ? $scope.bbox : $scope.locations))
-            + '&areas=' + encodeURIComponent($scope.areas)
-            + '&categories=' + encodeURIComponent($scope.categories)
-            + '&charts=' + encodeURIComponent($scope.charts)
-            + '&from=' + encodeURIComponent($("#dateFrom").val())
-            + '&to=' + encodeURIComponent($("#dateTo").val())
-            + '&sortBy=' + ($scope.sortBy)
-            + '&sortOrder=' + ($scope.sortDesc ? 'DESC' : 'ASC');
+            $window.location = '/rest/messages/search-pdf?' + $scope.params(false);
         };
 
         $scope.calendar = function()  {
@@ -252,6 +251,18 @@ angular.module('msinm.search')
                 resolve: {
                     locations: function(){
                         return $scope.locations;
+                    }
+                }
+            });
+        };
+
+        $scope.createMailingList = function () {
+            $modal.open({
+                controller: "NewMailingListCtrl",
+                templateUrl : "partials/user/new-mailing-list-dialog.html",
+                resolve: {
+                    filterParams: function(){
+                        return $scope.params(false);
                     }
                 }
             });

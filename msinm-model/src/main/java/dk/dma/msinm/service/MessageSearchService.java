@@ -420,7 +420,8 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
         // Build the predicates based on the search parameters
         PredicateHelper<Tuple> tuplePredicateBuilder = new PredicateHelper<>(builder, tupleQuery)
                 .equals(msgRoot.get("status"), param.getStatus())
-                .between(msgRoot.get("created"), param.getFrom(), param.getTo());
+                .between(msgRoot.get("created"), param.getFrom(), param.getTo())
+                .between(msgRoot.get("updated"), param.getUpdatedFrom(), param.getUpdatedTo());
 
         // Compute the type closure
         Set<Type> types = new HashSet<>();

@@ -231,6 +231,59 @@ angular.module('msinm.user')
 
 
     /**
+     * The NewMailingListCtrl is used for creating a new mailing list base on search filter parameters
+     */
+    .controller('NewMailingListCtrl', ['$scope', '$modal', '$timeout', 'MailingListService', 'filterParams',
+        function ($scope, $modal, $timeout, MailingListService, filterParams) {
+            'use strict';
+
+            $scope.focusMe = true;
+            $scope.filterParams = filterParams;
+            $scope.error = undefined;
+            $scope.mailList = {};
+            $scope.templates = [];
+
+            $scope.newMailingListTemplate = function () {
+                MailingListService.newMailingListTemplate(
+                    $scope.filterParams,
+                    function(data) {
+                        $scope.mailList = data;
+                    },
+                    function(data) {
+                        $scope.error = "Error: " + data + ".";
+                    }
+                );
+
+                $timeout(function () {
+                    MailingListService.getUserMailingListTemplates(
+                        function(data) {
+                            $scope.templates = data;
+                            if (!$scope.mailList.template && $scope.templates.length > 0) {
+                                $scope.mailList.template = $scope.templates[0];
+                            }
+                        },
+                        function(data) {
+                            $scope.error = "Error: " + data + ".";
+                        }
+                    );
+                }, 100);
+            };
+
+            $scope.save = function() {
+                MailingListService.createMailingList(
+                    $scope.mailList,
+                    function(data) {
+                        $scope.$dismiss('closed');
+                    },
+                    function(data) {
+                        $scope.error = "Error: " + data + ".";
+                    }
+                );
+            };
+        }])
+
+
+    /**
      * The NewPasswordCtrl handles setting a new password
      */
     .controller('NewPasswordCtrl', ['$scope', '$location', 'UserService', 'email', 'token',

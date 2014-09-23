@@ -15,6 +15,10 @@
             padding:0;
         }
 
+        a {
+            color: #000000;
+        }
+
         .page-break  {
             clear: left;
             display:block;
@@ -79,10 +83,12 @@
     <div>*</div>
     </#if>
 <div>
-    <strong>${msg.seriesIdentifier.fullId}</strong>.
-    <@areaLineage area=msg.area />
-    <#if msg.descs?has_content && msg.descs[0].vicinity?has_content> - ${msg.descs[0].vicinity}</#if>
-    <#if msg.descs?has_content && msg.descs[0].title?has_content> - ${msg.descs[0].title}</#if>
+    <a href="${baseUri}/index.html#/message/${msg.id?c}" target="_blank">
+        <strong>${msg.seriesIdentifier.fullId}</strong>.
+        <@areaLineage area=msg.area />
+        <#if msg.descs?has_content && msg.descs[0].vicinity?has_content> - ${msg.descs[0].vicinity}</#if>
+        <#if msg.descs?has_content && msg.descs[0].title?has_content> - ${msg.descs[0].title}</#if>
+    </a>
 </div>
 
 <table>
@@ -175,7 +181,7 @@
             <td class="field-value">
                 <#list msg.charts as chart>
                 ${chart.chartNumber}
-                    <#if chart.internationalNumber?has_content>${chart.internationalNumber?c}</#if>
+                    <#if chart.internationalNumber?has_content>(INT ${chart.internationalNumber?c})</#if>
                     <#if chart_has_next>, </#if>
                 </#list>
             </td>

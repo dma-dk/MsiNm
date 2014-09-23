@@ -10,6 +10,21 @@ public class TimeUtils {
 
     /**
      * Resets the time part of the date to 0:0:0
+     * @param cal the date to reset
+     * @return the reset date
+     */
+    public static Calendar resetTime(Calendar cal) {
+        if (cal != null) {
+            cal.set(Calendar.HOUR_OF_DAY, 0);            // set hour to midnight
+            cal.set(Calendar.MINUTE, 0);                 // set minute in hour
+            cal.set(Calendar.SECOND, 0);                 // set second in minute
+            cal.set(Calendar.MILLISECOND, 0);            // set millis in second
+        }
+        return cal;
+    }
+
+    /**
+     * Resets the time part of the date to 0:0:0
      * @param date the date to reset
      * @return the reset date
      */
@@ -17,13 +32,22 @@ public class TimeUtils {
         if (date != null) {
             Calendar cal = Calendar.getInstance();       // get calendar instance
             cal.setTime(date);                           // set cal to date
-            cal.set(Calendar.HOUR_OF_DAY, 0);            // set hour to midnight
-            cal.set(Calendar.MINUTE, 0);                 // set minute in hour
-            cal.set(Calendar.SECOND, 0);                 // set second in minute
-            cal.set(Calendar.MILLISECOND, 0);            // set millis in second
-            date = cal.getTime();
+            date = resetTime(cal).getTime();
         }
         return date;
+    }
+
+    /**
+     * Resets the seconds part of the date to 0
+     * @param cal the date to reset
+     * @return the reset date
+     */
+    public static Calendar resetSeconds(Calendar cal) {
+        if (cal != null) {
+            cal.set(Calendar.SECOND, 0);                 // set second in minute
+            cal.set(Calendar.MILLISECOND, 0);            // set millis in second
+        }
+        return cal;
     }
 
     /**
@@ -35,9 +59,7 @@ public class TimeUtils {
         if (date != null) {
             Calendar cal = Calendar.getInstance();       // get calendar instance
             cal.setTime(date);                           // set cal to date
-            cal.set(Calendar.SECOND, 0);                 // set second in minute
-            cal.set(Calendar.MILLISECOND, 0);            // set millis in second
-            date = cal.getTime();
+            date = resetSeconds(cal).getTime();
         }
         return date;
     }

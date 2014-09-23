@@ -316,6 +316,7 @@ public class UserService extends BaseService {
             // Update the existing user
             existnigUser.setFirstName(user.getFirstName());
             existnigUser.setLastName(user.getLastName());
+            existnigUser.setLanguage(user.getLanguage());
             existnigUser.getRoles().clear();
             for (String role : roles) {
                 existnigUser.getRoles().add(findRoleByName(role));

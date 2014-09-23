@@ -1,0 +1,118 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Create Mailing Lists</h2>
+    </div>
+
+    <div class="modal-body" ng-init="newMailingListTemplate()">
+        <div class="alert alert-danger" ng-if="error">{{error}}</div>
+
+        <form name="maillist_form">
+            <div>
+                <p>Create a new mailing list based on the current message search filter.<br>
+                    Mails are sent according to the selected schedule, when messages match the filter criteria.</p>
+            </div>
+
+            <div class="form-group mailing-list-field">
+                <label>Name</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <input type="text" id="name" name="name" class="form-control input-sm"
+                               focus="focusMe" ng-model="mailList.name" autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mailing-list-field">
+                <label>Type</label>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <select ng-model="mailList.template" ng-options="template.name for template in templates" class="form-control input-sm" />
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mailing-list-field">
+                <label>Message Filter</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <blockquote style="font-size: 11px; margin-bottom: 0px">
+                            <div id="filter" ng-bind-html="mailList.filterDescription | plain2html"></div>
+                        </blockquote>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group mailing-list-field">
+                <label>Schedule</label>
+                <div class="row">
+                    <div class="col-sm-6">
+                        <select class="form-control input-sm" ng-model="mailList.schedule">
+                            <option value="CONTINUOUS">Continuous</option>
+                            <option value="DAILY">Daily</option>
+                            <option value="WEEKLY">Weekly</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6" ng-if="mailList.schedule == 'WEEKLY'">
+                        <select class="form-control input-sm" ng-model="mailList.scheduleTime">
+                            <option value="1">Mondays</option>
+                            <option value="2">Tuesdays</option>
+                            <option value="3">Wednesdays</option>
+                            <option value="4">Thursdays</option>
+                            <option value="5">Fridays</option>
+                            <option value="6">Saturdays</option>
+                            <option value="7">Sundays</option>
+                        </select>
+                    </div>
+                    <div class="col-sm-6" ng-if="mailList.schedule == 'DAILY'">
+                        at&nbsp;
+                        <input type="number" placeholde="HH" min="0" max="23" ng-model="mailList.scheduleTime">
+                        &nbsp;o'clock.
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-group mailing-list-field" ng-if="hasRole('admin') && mailList.schedule != 'CONTINUOUS'">
+                <label>Included Messages</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <input type="radio" ng-value="true" ng-model="mailList.changedMessages" > Include changed message matching filter <br/>
+                        <input type="radio" ng-value="false" ng-model="mailList.changedMessages" > Include all message matching filter
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mailing-list-field" ng-if="hasRole('admin') && mailList.schedule != 'CONTINUOUS' && mailList.template && mailList.template.collated">
+                <label>Empty results</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <input type="checkbox" ng-model="mailList.sendIfEmpty" > Send mails for empty message lists
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mailing-list-field" ng-if="hasRole('admin')">
+                <label>Public Mailing List</label>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <input type="checkbox" ng-model="mailList.publicMailingList" > Public mailing list
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group mailing-list-field">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="maillist_form.$pristine || !maillist_form.name.$valid"
+                            ng-click="save()">Save</button>
+
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

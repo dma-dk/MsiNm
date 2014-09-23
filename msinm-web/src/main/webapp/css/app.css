@@ -407,3 +407,11 @@ input[readonly] {
     height: 128px;
     line-height: 128px;
 }
+
+/**
+ * Mailing list styles
+ */
+
+.mailing-list-field {
+    margin-bottom: 20px;
+}

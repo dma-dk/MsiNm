@@ -280,13 +280,17 @@ public class LegacyFiringExerciseImportService extends BaseService {
         // The messages left in the "current" list needs to be cancelled
         for (ListIterator<Message> msgIt = messages.listIterator(); msgIt.hasNext(); ) {
             Message msg = msgIt.next();
+            boolean msgRemoved = false;
             for (ListIterator<Message> curIt = current.listIterator(); curIt.hasNext(); ) {
                 Message curMsg = curIt.next();
                 if (msg.getArea().getId().equals(curMsg.getArea().getId()) &&
                         sameDateHourMinute(msg.getValidFrom(), curMsg.getValidFrom()) &&
                         sameDateHourMinute(msg.getValidTo(), curMsg.getValidTo())) {
                     // This is a matching MSI - remove from the lists
-                    msgIt.remove();
+                    if (!msgRemoved) {
+                        msgIt.remove();
+                        msgRemoved = true;
+                    }
                     curIt.remove();
                 }
             }

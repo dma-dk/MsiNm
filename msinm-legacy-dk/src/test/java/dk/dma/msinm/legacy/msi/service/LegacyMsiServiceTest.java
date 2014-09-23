@@ -24,13 +24,24 @@ import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
+import dk.dma.msinm.common.templates.TemplateConfiguration;
 import dk.dma.msinm.legacy.msi.model.LegacyMessage;
-import dk.dma.msinm.model.*;
-import dk.dma.msinm.service.MessageService;
+import dk.dma.msinm.model.Area;
+import dk.dma.msinm.model.AreaDesc;
+import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.CategoryDesc;
+import dk.dma.msinm.model.Chart;
+import dk.dma.msinm.model.Location;
+import dk.dma.msinm.model.LocationDesc;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.model.MessageDesc;
+import dk.dma.msinm.model.Point;
+import dk.dma.msinm.model.PointDesc;
+import dk.dma.msinm.model.Publication;
+import dk.dma.msinm.model.Reference;
+import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
-import dk.dma.msinm.test.TestTemplateConfiguration;
-import dk.dma.msinm.user.UserService;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.BeforeClass;
@@ -46,7 +57,7 @@ import javax.persistence.EntityManager;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, LegacyMsiImportRestService.class, LegacyMessageService.class, Settings.class,
+        TestDatabaseConfiguration.class, TemplateConfiguration.class, SqlProducer.class, LegacyMsiImportRestService.class, LegacyMessageService.class, Settings.class,
         Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class, MsiNmApp.class
 })
 public class LegacyMsiServiceTest extends MsiNmUnitTest

@@ -19,6 +19,7 @@ import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.db.SqlProducer;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
+import dk.dma.msinm.common.templates.TemplateConfiguration;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.AreaDesc;
 import dk.dma.msinm.model.Location;
@@ -27,7 +28,6 @@ import dk.dma.msinm.model.Point;
 import dk.dma.msinm.model.PointDesc;
 import dk.dma.msinm.test.MsiNmUnitTest;
 import dk.dma.msinm.test.TestDatabaseConfiguration;
-import dk.dma.msinm.test.TestTemplateConfiguration;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.BeforeClass;
@@ -47,7 +47,7 @@ import static org.junit.Assert.assertNull;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, TestTemplateConfiguration.class, SqlProducer.class, Settings.class,
+        TestDatabaseConfiguration.class, TemplateConfiguration.class, SqlProducer.class, Settings.class,
         LogConfiguration.class, EntityManager.class
 })
 public class AreaServiceTest extends MsiNmUnitTest {

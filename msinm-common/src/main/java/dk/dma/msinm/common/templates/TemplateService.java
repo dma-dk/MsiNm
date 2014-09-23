@@ -31,7 +31,7 @@ public class TemplateService {
     MsiNmApp app;
 
     @Inject
-    Configuration templateConfiguration;
+    TemplateConfiguration templateConfiguration;
 
     /**
      * Produces a new {@code TemplateContext} instantiated with the Freemarker configuration
@@ -39,7 +39,7 @@ public class TemplateService {
      */
     @Produces
     public TemplateContext getTemplateContext() {
-        return new TemplateContext(templateConfiguration);
+        return new TemplateContext(templateConfiguration.getConfiguration());
     }
 
     /**
