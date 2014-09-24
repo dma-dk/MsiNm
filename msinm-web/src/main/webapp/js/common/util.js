@@ -215,7 +215,7 @@ function initChartField(chartId, multiple) {
     });
 }
 
-function initUserField(userId, multiple) {
+function initUserField(userId, multiple, Auth) {
     $(document).ready(function () {
         $(userId).select2({
             placeholder: (multiple) ? "Select Users" : "Select user",
@@ -233,6 +233,7 @@ function initUserField(userId, multiple) {
                         limit: 10
                     };
                 },
+                params: { headers: { "Authorization": Auth.authorizationHeader() } },
                 results: function (data, page) {
                     var results = [];
                     for (i in data) {

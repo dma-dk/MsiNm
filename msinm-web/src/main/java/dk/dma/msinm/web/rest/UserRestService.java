@@ -66,7 +66,7 @@ public class UserRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    // TODO @RolesAllowed({ "admin" })
+    @RolesAllowed({ "admin" })
     public List<UserVo> searchCharts(@QueryParam("term") String term, @QueryParam("limit") int limit) {
         log.info(String.format("Searching for users term='%s', limit=%d", term, limit));
         return userService.searchUsers(term, limit);

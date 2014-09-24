@@ -133,8 +133,8 @@ angular.module('msinm.admin')
     /**
      * The ManageMailingListCtrl is used in the dialog that manages mailing list recipients
      */
-    .controller('ManageMailingListCtrl', ['$scope', '$timeout', 'MailingListService', 'mailList',
-        function ($scope, $timeout, MailingListService, mailList) {
+    .controller('ManageMailingListCtrl', ['$scope', '$timeout', 'MailingListService', 'Auth', 'mailList',
+        function ($scope, $timeout, MailingListService, Auth, mailList) {
             'use strict';
 
             $scope.mailList = angular.copy(mailList);
@@ -142,7 +142,7 @@ angular.module('msinm.admin')
 
             $scope.init = function () {
                 $timeout(function () {
-                    initUserField("#newRecipient", false);
+                    initUserField("#newRecipient", false, Auth);
                 }, 500);
             };
 
