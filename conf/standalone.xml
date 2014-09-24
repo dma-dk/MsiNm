@@ -391,6 +391,9 @@
                     <jms-topic name="cacheTopic">
                       <entry name="topic/cache"/>
                     </jms-topic>
+                    <jms-topic name="messageTopic">
+                        <entry name="java:/jms/topic/messageTopic"/>
+                    </jms-topic>
                 </jms-destinations>
             </hornetq-server>
         </subsystem>

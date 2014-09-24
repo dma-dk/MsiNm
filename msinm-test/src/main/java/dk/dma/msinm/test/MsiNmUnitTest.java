@@ -54,7 +54,7 @@ public class MsiNmUnitTest {
         entityManagerFactory = Persistence.createEntityManagerFactory(TEST_UNIT_NAME, props);
         entityManager = entityManagerFactory.createEntityManager();
 
-        TestDatabaseConfiguration.entityManager = entityManager;
+        TestResources.entityManager = entityManager;
 
         entityManager.getTransaction().begin();
     }

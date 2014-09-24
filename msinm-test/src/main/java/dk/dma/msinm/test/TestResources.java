@@ -16,14 +16,16 @@
 package dk.dma.msinm.test;
 
 import javax.enterprise.inject.Produces;
+import javax.jms.JMSContext;
 import javax.persistence.EntityManager;
 
 /**
- * Returns the entity manager that should be used for test purposes.
+ * Returns the various test resources, such as a JMS context and an
+ * entity manager that should be used for test purposes.
  * <p></p>
  * The entity manager is instantiated by the {@code MsiNmUnitTest} class.
  */
-public class TestDatabaseConfiguration {
+public class TestResources {
 
     protected static EntityManager entityManager;
 
@@ -31,4 +33,10 @@ public class TestDatabaseConfiguration {
     public EntityManager getEntityManager() {
         return entityManager;
     }
+
+    @Produces
+    public JMSContext getJMSContext() {
+        return null;
+    }
+
 }

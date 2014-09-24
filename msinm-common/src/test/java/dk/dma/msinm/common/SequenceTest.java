@@ -22,7 +22,7 @@ import dk.dma.msinm.common.sequence.Sequence;
 import dk.dma.msinm.common.sequence.SequenceEntity;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.test.MsiNmUnitTest;
-import dk.dma.msinm.test.TestDatabaseConfiguration;
+import dk.dma.msinm.test.TestResources;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.Assert;
@@ -38,7 +38,7 @@ import javax.persistence.EntityManager;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, SqlProducer.class, Sequences.class,
+        TestResources.class, SqlProducer.class, Sequences.class,
         LogConfiguration.class, EntityManager.class
 })
 public class SequenceTest extends MsiNmUnitTest {

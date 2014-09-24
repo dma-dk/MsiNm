@@ -19,7 +19,7 @@ import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.db.SqlProducer;
 import dk.dma.msinm.common.sequence.Sequences;
 import dk.dma.msinm.common.settings.Settings;
-import dk.dma.msinm.test.TestDatabaseConfiguration;
+import dk.dma.msinm.test.TestResources;
 import org.apache.lucene.queryparser.classic.ParseException;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
@@ -37,7 +37,7 @@ import static org.junit.Assert.assertEquals;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, SqlProducer.class, Settings.class,
+        TestResources.class, SqlProducer.class, Settings.class,
         Sequences.class, LogConfiguration.class, EntityManager.class
 })
 public class LuceneIndexTest {

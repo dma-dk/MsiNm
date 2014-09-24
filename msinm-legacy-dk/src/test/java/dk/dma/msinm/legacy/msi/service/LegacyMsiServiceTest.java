@@ -41,7 +41,7 @@ import dk.dma.msinm.model.Publication;
 import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.test.MsiNmUnitTest;
-import dk.dma.msinm.test.TestDatabaseConfiguration;
+import dk.dma.msinm.test.TestResources;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.BeforeClass;
@@ -57,7 +57,7 @@ import javax.persistence.EntityManager;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, TemplateConfiguration.class, SqlProducer.class, LegacyMsiImportRestService.class, LegacyMessageService.class, Settings.class,
+        TestResources.class, TemplateConfiguration.class, SqlProducer.class, LegacyMsiImportRestService.class, LegacyMessageService.class, Settings.class,
         Sequences.class, LogConfiguration.class, AuditorFactory.class, EntityManager.class, MsiNmApp.class
 })
 public class LegacyMsiServiceTest extends MsiNmUnitTest

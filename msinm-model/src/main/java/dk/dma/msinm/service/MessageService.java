@@ -56,6 +56,8 @@ import javax.ejb.Stateless;
 import javax.ejb.TransactionAttribute;
 import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
+import javax.jms.JMSContext;
+import javax.jms.Topic;
 import java.awt.print.Book;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -85,6 +87,12 @@ public class MessageService extends BaseService {
 
     @Resource
     SessionContext ctx;
+
+    @Inject
+    JMSContext jmsContext;
+
+    @Resource(mappedName = "java:/jms/topic/messageTopic")
+    Topic messageTopic;
 
     @Inject
     MessageCache messageCache;
@@ -356,7 +364,25 @@ public class MessageService extends BaseService {
 
         msg = saveMessage(msg);
 
+        // Broadcast the update
+        sendStatusUpdate(msg);
+
         return msg;
+    }
+
+    /**
+     * Broadcasts a JMS message to indicate that the message status has changed
+     * @param message the message
+     */
+    public void sendStatusUpdate(Message message) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("ID", message.getId());
+        body.put("STATUS", message.getStatus().name());
+        try {
+            jmsContext.createProducer().send(messageTopic, body);
+        } catch (Exception e) {
+            log.error("Failed sending JMS: " + e, e);
+        }
     }
 
     /**

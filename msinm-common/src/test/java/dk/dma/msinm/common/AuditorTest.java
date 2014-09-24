@@ -22,7 +22,7 @@ import dk.dma.msinm.common.audit.AuditorFactory;
 import dk.dma.msinm.common.config.LogConfiguration;
 import dk.dma.msinm.common.db.SqlProducer;
 import dk.dma.msinm.test.MsiNmUnitTest;
-import dk.dma.msinm.test.TestDatabaseConfiguration;
+import dk.dma.msinm.test.TestResources;
 import org.jglue.cdiunit.AdditionalClasses;
 import org.jglue.cdiunit.CdiRunner;
 import org.junit.Assert;
@@ -39,7 +39,7 @@ import java.util.List;
  */
 @RunWith(CdiRunner.class)
 @AdditionalClasses(value = {
-        TestDatabaseConfiguration.class, SqlProducer.class, AuditorFactory.class,
+        TestResources.class, SqlProducer.class, AuditorFactory.class,
         LogConfiguration.class, EntityManager.class
 })
 public class AuditorTest extends MsiNmUnitTest {
