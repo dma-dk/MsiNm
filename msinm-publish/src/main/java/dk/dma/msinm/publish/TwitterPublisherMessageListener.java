@@ -1,4 +1,4 @@
-package dk.dma.msinm.service;
+package dk.dma.msinm.publish;
 
 import org.slf4j.Logger;
 

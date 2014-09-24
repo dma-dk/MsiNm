@@ -85,7 +85,7 @@ angular.module('msinm.admin')
             $scope.mailingLists = [];
 
             $scope.loadMailingLists = function () {
-                MailingListService.getUserMailingLists(
+                MailingListService.getAllMailingLists(
                     function(data) {
                         $scope.mailingLists = data;
                     },
@@ -138,6 +138,10 @@ angular.module('msinm.admin')
             'use strict';
 
             $scope.mailList = angular.copy(mailList);
+            if (!$scope.mailList.recipients) {
+                $scope.mailList.recipients = [];
+            }
+
             $scope.mailList.newRecipient = undefined;
 
             $scope.init = function () {

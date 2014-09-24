@@ -245,6 +245,16 @@ angular.module('msinm.user')
                     });
             },
 
+            getAllMailingLists: function(success, error) {
+                $http.get('/rest/mailing-lists/all-mailing-lists')
+                    .success(function (data) {
+                        success(data);
+                    })
+                    .error(function (data) {
+                        error(data);
+                    });
+            },
+
             getUserMailingLists: function(success, error) {
                 $http.get('/rest/mailing-lists/user-mailing-lists')
                     .success(function (data) {

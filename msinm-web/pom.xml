@@ -50,6 +50,11 @@
         </dependency>
         <dependency>
             <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-publish</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
             <artifactId>msinm-reporting</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>

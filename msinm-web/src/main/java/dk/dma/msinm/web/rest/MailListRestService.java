@@ -4,7 +4,7 @@ import dk.dma.msinm.common.util.JsonUtils;
 import dk.dma.msinm.model.MailList;
 import dk.dma.msinm.model.MailListTemplate;
 import dk.dma.msinm.service.MailListService;
-import dk.dma.msinm.service.MailPublisher;
+import dk.dma.msinm.publish.MailPublisher;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
@@ -74,6 +74,23 @@ public class MailListRestService {
 
         return templates.stream()
                 .map(MailListTemplateVo::new)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns all mail lists
+     * @return all mail lists
+     */
+    @GET
+    @Path("/all-mailing-lists")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    @RolesAllowed({"admin"})
+    @Lock(LockType.READ)
+    public List<MailListVo> findAllMailLists() {
+        return mailListService.findAllMailLists().stream()
+                .map(MailListVo::new)
                 .collect(Collectors.toList());
     }
 

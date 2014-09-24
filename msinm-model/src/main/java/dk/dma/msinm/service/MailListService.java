@@ -132,6 +132,14 @@ public class MailListService extends BaseService {
     }
 
     /**
+     * Returns all mailing lists
+     * @return all mailing lists
+     */
+    public List<MailList> findAllMailLists() {
+        return getAll(MailList.class);
+    }
+
+    /**
      * Returns the available mail lists for the given user
      * @param user the user
      * @return the available mail lists for the given user
@@ -171,6 +179,23 @@ public class MailListService extends BaseService {
     public MailList findPublicMailListByTemplateAndName(MailListTemplate template, String name) {
         try {
             return em.createNamedQuery("MailList.findPublicMailListByTemplateAndName", MailList.class)
+                    .setParameter("template", template)
+                    .setParameter("name", name)
+                    .getSingleResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Finds the mail list with the given template and name
+     * @param template the template of the system mail list
+     * @param name the name of the system mail list
+     * @return the mail list with the given name
+     */
+    public MailList findMailListByTemplateAndName(MailListTemplate template, String name) {
+        try {
+            return em.createNamedQuery("MailList.findMailListByTemplateAndName", MailList.class)
                     .setParameter("template", template)
                     .setParameter("name", name)
                     .getSingleResult();

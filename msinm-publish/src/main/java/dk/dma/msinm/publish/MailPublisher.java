@@ -1,8 +1,9 @@
-package dk.dma.msinm.service;
+package dk.dma.msinm.publish;
 
 import dk.dma.msinm.model.MailList;
 import dk.dma.msinm.model.MailListTemplate;
 import dk.dma.msinm.model.Status;
+import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.PublicationVo;
 import org.slf4j.Logger;
@@ -21,7 +22,7 @@ import javax.inject.Inject;
 @Singleton
 @Startup
 @Lock(LockType.READ)
-public class MailPublisher extends Publisher {
+public class MailPublisher extends BaseMailPublisher {
 
     public static final String MAIL_PUBLISHER_TYPE = "mail";
 
@@ -111,7 +112,7 @@ public class MailPublisher extends Publisher {
     }
 
     /**
-     * Called every hour to update the status of expired published messages
+     * Called periodically to process the mailing list
      */
     @Schedule(persistent = false, second = "44", minute = "*/5", hour = "*", dayOfWeek = "*", year = "*")
     public void periodicProcessPendingMailingLists() {

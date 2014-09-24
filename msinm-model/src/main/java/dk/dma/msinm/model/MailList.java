@@ -32,6 +32,8 @@ import java.util.List;
                 query = "select m from MailList m where m.publicMailingList = true"),
     @NamedQuery(name  = "MailList.findPublicMailListByTemplateAndName",
                 query = "select m from MailList m where m.publicMailingList = true and m.template = :template and m.name = :name"),
+    @NamedQuery(name  = "MailList.findMailListByTemplateAndName",
+                query = "select m from MailList m where m.template = :template and m.name = :name"),
     @NamedQuery(name  = "MailList.findPendingMailListsOfType",
                 query = "select m from MailList m join m.template t where t.type = :type and m.nextExecution is not null and CURRENT_TIMESTAMP > m.nextExecution"),
 })
