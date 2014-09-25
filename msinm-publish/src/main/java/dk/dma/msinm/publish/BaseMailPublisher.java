@@ -64,7 +64,7 @@ public abstract class BaseMailPublisher extends Publisher {
         // Get the mail lists for this publication type
         List<MailList> pendingMailLists = mailListService.findPendingMailListsOfType(getType());
         for (MailList mailList : pendingMailLists) {
-            log.info("Processing mail list " + mailList.getName() + " of type " + getType());
+            log.debug("Processing mail list " + mailList.getName() + " of type " + getType());
             Date executionTime = new Date();
 
             try {

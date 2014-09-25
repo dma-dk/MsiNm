@@ -70,6 +70,15 @@ public class PublishingService {
     }
 
     /**
+     * Prior to changing state of an existing message, let the registered publishers check up on publications.
+     * @param message the message about to be updated
+     */
+    public void setStatus(Message message) {
+        // Let publishers check up on their own publications
+        instantiatePublishers(false).forEach(publisher -> publisher.setStatus(message));
+    }
+
+    /**
      * Returns the list of available publishers
      * @return the list of available publishers
      */

@@ -78,6 +78,12 @@ angular.module('msinm.search')
                     .error(error);
             },
 
+            generatePublication: function(url, msg, success, error) {
+                $http.post(url, msg)
+                    .success(success)
+                    .error(error);
+            },
+
             getMessageHistory: function(id, success, error) {
                 $http.get('/rest/messages/history/' + id)
                     .success(success)

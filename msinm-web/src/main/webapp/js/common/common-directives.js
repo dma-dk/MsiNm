@@ -84,17 +84,17 @@ angular.module('msinm.common')
                 json: "="
             },
             link: function(scope, element, attrs) {
-                try {
-                    scope.data = JSON.parse(scope.json);
-                } catch (e) {
-                }
+                try { scope.data = JSON.parse(scope.json); } catch (e) {}
+                scope.$watch(
+                    function() { return scope.json; },
+                    function (newValue) {
+                        try { scope.data = JSON.parse(scope.json); } catch (e) {}
+                    },
+                    true);
                 scope.$watch(
                     function() { return scope.data; },
                     function (newValue) {
-                        try {
-                            scope.json = JSON.stringify(scope.data);
-                        } catch (e) {
-                        }
+                        try { scope.json = JSON.stringify(scope.data); } catch (e) {}
                     },
                     true);
             }

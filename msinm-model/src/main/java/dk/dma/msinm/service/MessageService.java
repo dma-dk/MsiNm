@@ -362,6 +362,9 @@ public class MessageService extends BaseService {
 
         msg.setStatus(status);
 
+        // And let publishers have a say
+        publishingService.setStatus(msg);
+
         msg = saveMessage(msg);
 
         // Broadcast the update

@@ -54,8 +54,8 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
     Date cancellationDate;
     Set<ReferenceVo> references;
     List<String> lightsListNumbers;
-    boolean originalInformation;
-    boolean bookmarked;
+    Boolean originalInformation;
+    Boolean bookmarked;
     Boolean firingExercise;
     List<PublicationVo> publications;
     List<RepoFileVo> attachments;
@@ -154,7 +154,9 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         if (lightsListNumbers != null) {
             message.getLightsListNumbers().addAll(lightsListNumbers);
         }
-        message.setOriginalInformation(originalInformation);
+        if (originalInformation != null) {
+            message.setOriginalInformation(originalInformation);
+        }
         if (publications != null) {
             publications.forEach(publication -> message.getPublications().add(publication.toEntity(message)));
         }
@@ -403,11 +405,11 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         this.lightsListNumbers = lightsListNumbers;
     }
 
-    public boolean isOriginalInformation() {
+    public Boolean isOriginalInformation() {
         return originalInformation;
     }
 
-    public void setOriginalInformation(boolean originalInformation) {
+    public void setOriginalInformation(Boolean originalInformation) {
         this.originalInformation = originalInformation;
     }
 
@@ -419,11 +421,11 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         this.repoPath = repoPath;
     }
 
-    public boolean isBookmarked() {
+    public Boolean isBookmarked() {
         return bookmarked;
     }
 
-    public void setBookmarked(boolean bookmarked) {
+    public void setBookmarked(Boolean bookmarked) {
         this.bookmarked = bookmarked;
     }
 

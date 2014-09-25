@@ -79,6 +79,14 @@ public abstract class Publisher {
     }
 
     /**
+     * Prior to updating the status of an existing message, let the publisher check up on the publication.
+     * Default implementation does nothing.
+     * @param message the message about to be updated
+     */
+    public void setStatus(Message message) {
+    }
+
+    /**
      * Returns the key for the active setting of this publisher
      * @return the key for the active setting of this publisher
      */

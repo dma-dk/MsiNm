@@ -79,7 +79,7 @@
 
 <#macro renderMessage msg>
 <!-- Title line -->
-    <#if msg.originalInformation>
+    <#if msg.originalInformation?has_content && msg.originalInformation>
     <div>*</div>
     </#if>
 <div>

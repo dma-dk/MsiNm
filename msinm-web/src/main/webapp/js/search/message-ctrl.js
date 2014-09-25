@@ -330,33 +330,41 @@ angular.module('msinm.search')
             $scope.loadMessageDetails();
 
 
+            // Updates various message attributes from the UI
+            $scope.updateMessageFromUI = function(trimJson) {
+                // Update area
+                var areaData = $("#editorArea").select2("data");
+                $scope.msg.area = areaData ? areaData.area : undefined;
+                if (areaData && areaData.area && trimJson) {
+                    areaData.area.parent = null; // Trim json
+                }
+
+                // Update Categories
+                var categoryData = $("#editorCategories").select2("data");
+                $scope.msg.categories = [];
+                for (var i in categoryData) {
+                    $scope.msg.categories.push(categoryData[i].category);
+                    if (trimJson) {
+                        categoryData[i].category.parent = null; // Trim json
+                    }
+                }
+
+                // Update charts
+                var chartData = $("#editorCharts").select2("data");
+                $scope.msg.charts = [];
+                for (var j in chartData) {
+                    $scope.msg.charts.push(chartData[j].chart);
+                }
+            }
+
             // Save the current message
             $scope.saveMessage = function () {
 
                 // Prevent double-submissions
                 $scope.messageSaved = true;
 
-                // Update area
-                var area = $("#editorArea").select2("data");
-                $scope.msg.area = area;
-                if (area) {
-                    area.parent = null; // Trim json
-                }
-
-                // Update Categories
-                var categories = $("#editorCategories").select2("data");
-                $scope.msg.categories = [];
-                for (var i in categories) {
-                    $scope.msg.categories.push(categories[i]);
-                    categories[i].parent = null; // Trim json
-                }
-
-                // Update charts
-                var charts = $("#editorCharts").select2("data");
-                $scope.msg.charts = [];
-                for (var j in charts) {
-                    $scope.msg.charts.push(charts[j]);
-                }
+                // Update select2-related attributes
+                $scope.updateMessageFromUI(true);
 
                 // Save or update the message
                 if ($scope.action == 'edit' && $scope.messageId) {
@@ -396,6 +404,36 @@ angular.module('msinm.search')
                         $.inArray($scope.msg.seriesIdentifier.mainType, pub.messageTypes) > -1  ||
                         $.inArray($scope.msg.type, pub.messageTypes) > -1;
             };
+
+
+            // Called with a publisher-specific endpoint to generate a publication
+            $scope.generatePublication = function(type) {
+
+                // Update select2-related attributes
+                $scope.updateMessageFromUI(false);
+
+                MessageService.generatePublication(
+                    '/rest/publisher/' + type + '/generate',
+                    $scope.msg,
+                    function (data) {
+                        for (var p in $scope.msg.publications) {
+                            var pub = $scope.msg.publications[p];
+                            if (pub.type == type) {
+                                $.extend(true, pub, data);
+                                if(!$scope.$$phase) {
+                                    $scope.$apply();
+                                }
+                                break;
+                            }
+                        }
+                    },
+                    function (data) {
+                        console.error("Failed generating publication " + data);
+                        growlNotifications.add('<h4>Generating Publication Failed</h4>', 'danger', 3000);
+                    }
+                );
+            }
+
 
             // Reload the message details
             $scope.reloadMessage = function () {
