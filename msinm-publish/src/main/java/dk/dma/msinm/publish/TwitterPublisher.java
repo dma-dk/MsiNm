@@ -145,7 +145,7 @@ public class TwitterPublisher extends Publisher {
      * Composes a Twitter message from the given message
      *
      * @param msg the message
-     * @return the updated message
+     * @return the publication
      */
     @POST
     @Path("/generate")

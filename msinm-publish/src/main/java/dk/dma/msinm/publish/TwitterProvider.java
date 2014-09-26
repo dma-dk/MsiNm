@@ -22,8 +22,8 @@ public class TwitterProvider {
 
     public static final Setting API_KEY = new DefaultSetting("publishTwitterApiKey", "CqgrxkIiBA3sC35TmoZ5F5Oru");
     public static final Setting API_SECRET = new DefaultSetting("publishTwitterApiSecret", "xZXl9vsW3LCtX1Py6U2VqYUmyAK0GGYZ4RINFyXgNwV7PPcQip");
-    public static final Setting ACCESS_TOKEN = new DefaultSetting("publishTwitterAccessToken", "2829892014-7H4sbjgrsxbeR4yfQ27oi48KR1GlUUbLAuX3DZS");
-    public static final Setting ACCESS_TOKEN_SECRET = new DefaultSetting("publishTwitterAccessTokenSecret", "OIBdkCPXQ4YB2vboB6HuCZeIk13w16aQiH4yAhiSmoUWc");
+    public static final Setting ACCESS_TOKEN = new DefaultSetting("publishTwitterAccessToken", "2829892014-kqkkQLD88xhfakDlbxY0rUPdRA72Nw14e6KED0n");
+    public static final Setting ACCESS_TOKEN_SECRET = new DefaultSetting("publishTwitterAccessTokenSecret", "9brE9Ed6qak2UqluvvVG1CAShqaeezEUv5pqdQ5QZQlAG");
 
     public static final int MAX_LENGTH = 140;
 

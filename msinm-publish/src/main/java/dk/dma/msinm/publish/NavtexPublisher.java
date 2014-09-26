@@ -10,9 +10,12 @@ import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.user.User;
+import dk.dma.msinm.vo.AreaVo;
 import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.PublicationVo;
 import org.apache.commons.lang.StringUtils;
+import org.jboss.resteasy.annotations.GZIP;
+import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -22,8 +25,13 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +44,7 @@ import java.util.stream.Collectors;
 @Singleton
 @Startup
 @Lock(LockType.READ)
+@Path("/publisher/navtex")
 public class NavtexPublisher extends BaseMailPublisher {
 
     public static final String NAVTEX_PUBLISHER_TYPE = "navtex";
@@ -67,13 +76,15 @@ public class NavtexPublisher extends BaseMailPublisher {
     }
 
     /**
-     * {@inheritDoc}
+     * Creates a template Navtex publication
+     * @param publish whether to publish or not
+     * @param message the message
+     * @return the template Navtex publication
      */
-    @Override
-    public void newTemplateMessage(MessageVo messageVo) {
+    protected PublicationVo createNavtexPublication(boolean publish, String message) {
         PublicationVo publication = new PublicationVo();
         publication.setType(getType());
-        publication.setPublish(false);
+        publication.setPublish(publish);
 
         // Enable Navtex for MSI messages only
         publication.setMessageTypes(Collections.singleton(SeriesIdType.MSI.name()));
@@ -83,14 +94,22 @@ public class NavtexPublisher extends BaseMailPublisher {
             data.getTransmitter().put(transmitter, Boolean.FALSE);
         }
         data.setPriority(NavtexPriority.ROUTINE);
-        data.setMessage("");
+        data.setMessage(message);
         try {
             publication.setData(JsonUtils.toJson(data));
         } catch (IOException e) {
             log.warn("Failed formatting publication data " + data);
         }
+        return publication;
+    }
 
-        messageVo.checkCreatePublications().add(publication);
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void newTemplateMessage(MessageVo messageVo) {
+        messageVo.checkCreatePublications().add(createNavtexPublication(false, ""));
     }
 
     /**
@@ -179,6 +198,41 @@ public class NavtexPublisher extends BaseMailPublisher {
         }
         return navtexData;
     }
+
+    // ***************************************
+    // *** Generate Navtex template
+    // ***************************************
+
+    /**
+     * Composes a Navtex message from the given message
+     *
+     * @param msg the message
+     * @return the publication
+     */
+    @POST
+    @Path("/generate")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @GZIP
+    @NoCache
+    public PublicationVo generateNavtexMessage(MessageVo msg) throws Exception {
+
+        // Prefer English
+        msg.sortDescsByLang("en");
+
+        PublicationVo pub = msg.getPublication(getType());
+        if (pub == null) {
+            pub = createNavtexPublication(true, "");
+        }
+
+
+
+        return pub;
+    }
+
+    // ***************************************
+    // *** Mail support
+    // ***************************************
 
     /**
      * {@inheritDoc}
