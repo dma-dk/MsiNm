@@ -109,7 +109,7 @@
 
                     <#if ref.type == 'REPETITION'>
                         (${text("nm.ref.repitition")})
-                    <#elseif ref.type == 'REPETITION'>
+                    <#elseif ref.type == 'CANCELLATION'>
                         (${text("nm.ref.cancelled")})
                     <#elseif ref.type == 'UPDATE'>
                         (${text("nm.ref.updated")})

@@ -6,6 +6,7 @@ import freemarker.ext.beans.ResourceBundleModel;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 import freemarker.template.TemplateException;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.enterprise.inject.Produces;
@@ -76,22 +77,24 @@ public class TemplateService {
     public TemplateContext getTemplateContext(TemplateType type, String templatePath, Map<String, Object> data, String language, String bundleName) {
         TemplateContext ctx = getTemplateContext(type, templatePath, data);
 
-        // Load the resource bundle with the given language and name, and save it in the "text" data property
         Locale locale = app.getLocale(language);
-        ResourceBundle bundle = null;
-        try {
-            bundle = ResourceBundle.getBundle(ctx.getFullBundleName(bundleName), locale);
-        } catch (Exception e) {
-            // Fall back to using the english locale
-            locale = Locale.ENGLISH;
-            bundle = ResourceBundle.getBundle(ctx.getFullBundleName(bundleName), locale);
-        }
-        ResourceBundleModel resourceBundleModel = new ResourceBundleModel(bundle, new BeansWrapper());
-
         ctx.setLocale(locale);
-        ctx.setBundle(bundle);
-        ctx.getData().put(BUNDLE_PROPERTY, resourceBundleModel);
 
+        // Load the resource bundle with the given language and name, and save it in the "text" data property
+        ResourceBundle bundle;
+        if (StringUtils.isNotBlank(bundleName)) {
+            try {
+                bundle = ResourceBundle.getBundle(ctx.getFullBundleName(bundleName), locale);
+            } catch (Exception e) {
+                // Fall back to using the english locale
+                locale = Locale.ENGLISH;
+                bundle = ResourceBundle.getBundle(ctx.getFullBundleName(bundleName), locale);
+            }
+
+            ResourceBundleModel resourceBundleModel = new ResourceBundleModel(bundle, new BeansWrapper());
+            ctx.setBundle(bundle);
+            ctx.getData().put(BUNDLE_PROPERTY, resourceBundleModel);
+        }
         return ctx;
     }
 

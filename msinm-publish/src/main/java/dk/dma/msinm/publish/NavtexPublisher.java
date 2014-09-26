@@ -1,6 +1,8 @@
 package dk.dma.msinm.publish;
 
 import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.common.templates.TemplateContext;
+import dk.dma.msinm.common.templates.TemplateType;
 import dk.dma.msinm.common.util.JsonUtils;
 import dk.dma.msinm.model.MailList;
 import dk.dma.msinm.model.MailListTemplate;
@@ -31,11 +33,14 @@ import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import java.io.IOException;
 import java.io.Serializable;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
@@ -220,12 +225,32 @@ public class NavtexPublisher extends BaseMailPublisher {
         // Prefer English
         msg.sortDescsByLang("en");
 
+        // Get or create the Navtext publication and Navtex data
         PublicationVo pub = msg.getPublication(getType());
         if (pub == null) {
             pub = createNavtexPublication(true, "");
         }
+        NavtexData navtexData = JsonUtils.fromJson(pub.getData(), NavtexData.class);
 
+        // Generate Navtex message
+        Map<String, Object> data = new HashMap<>();
+        data.put("msg", msg);
+        data.put("pub", pub);
+        data.put("navtex", navtexData);
 
+        SimpleDateFormat navtexUtcDate = new SimpleDateFormat("ddHHmm 'UTC' MMM yy", Locale.US);
+        navtexUtcDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+        data.put("dateFormat", navtexUtcDate);
+
+        TemplateContext ctx = templateService.getTemplateContext(
+                TemplateType.MESSAGE,
+                "navtex-message.ftl",
+                data,
+                "en",
+                null);
+        String navtexMessage = templateService.process(ctx);
+        navtexData.setMessage(navtexMessage);
+        pub.setData(JsonUtils.toJson(navtexData));
 
         return pub;
     }
