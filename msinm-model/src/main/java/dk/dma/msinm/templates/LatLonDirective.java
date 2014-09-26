@@ -1,8 +1,13 @@
 package dk.dma.msinm.templates;
 
-import dk.dma.msinm.common.util.PositionFormat;
+import dk.dma.msinm.common.util.PositionFormatter;
 import freemarker.core.Environment;
-import freemarker.template.*;
+import freemarker.template.SimpleNumber;
+import freemarker.template.TemplateDirectiveBody;
+import freemarker.template.TemplateDirectiveModel;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateModel;
+import freemarker.template.TemplateModelException;
 
 import java.io.IOException;
 import java.util.Map;
@@ -36,13 +41,13 @@ public class LatLonDirective implements TemplateDirectiveModel {
             Double lon = (lonModel == null) ? null : lonModel.getAsNumber().doubleValue();
 
             if (lat != null) {
-                env.getOut().write(PositionFormat.formatLat(env.getLocale(), lat));
+                env.getOut().write(PositionFormatter.format(env.getLocale(), PositionFormatter.LATLON_DEC.getLatFormat(), lat));
             }
             if (lon != null) {
                 if (lat != null) {
                     env.getOut().write("  ");
                 }
-                env.getOut().write(PositionFormat.formatLon(env.getLocale(), lon));
+                env.getOut().write(PositionFormatter.format(env.getLocale(), PositionFormatter.LATLON_DEC.getLonFormat(), lon));
             }
         } catch (Exception e) {
             // Prefer robustness over correctness
