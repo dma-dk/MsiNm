@@ -9,10 +9,10 @@ import dk.dma.msinm.model.MailListTemplate;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Publication;
 import dk.dma.msinm.model.SeriesIdType;
+import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.user.User;
-import dk.dma.msinm.vo.AreaVo;
 import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.PublicationVo;
 import org.apache.commons.lang.StringUtils;
@@ -34,7 +34,6 @@ import javax.ws.rs.Produces;
 import java.io.IOException;
 import java.io.Serializable;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -134,6 +133,39 @@ public class NavtexPublisher extends BaseMailPublisher {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setStatus(Message message) {
+        checkNavtexPublication(message);
+    }
+
+    /**
+     * Check if the Navtex publication needs have a placeholder id updated
+     * @param message the message to check
+     */
+    private void checkNavtexPublication(Message message) {
+        Publication pub = message.getPublication(getType());
+        if (pub != null && message.getSeriesIdentifier().getNumber() != null) {
+
+            try {
+                NavtexData data = JsonUtils.fromJson(pub.getData(), NavtexData.class);
+                String navtexMessage = data.getMessage();
+
+                SeriesIdentifier placeHolderId = message.getSeriesIdentifier().copy();
+                placeHolderId.setNumber(null);
+                if (navtexMessage.contains(placeHolderId.getFullId())) {
+                    navtexMessage = navtexMessage.replace(placeHolderId.getFullId(), message.getSeriesIdentifier().getFullId());
+                    data.setMessage(navtexMessage);
+                    pub.setData(JsonUtils.toJson(data));
+                }
+            } catch (IOException e) {
+                log.debug("Could not update series number in Twitter message");
+            }
+        }
+    }
+
+    /**
      * Removes any invalid Navtex publication
      * @param message the message to check
      */
@@ -187,21 +219,6 @@ public class NavtexPublisher extends BaseMailPublisher {
         } catch (Exception e) {
             log.error("Failed creating mail list " + e, e);
         }
-    }
-
-    /**
-     * Returns a cache of Navtex data used internally
-     * @param mailData the mail Freemarker data
-     * @return the map
-     */
-    @SuppressWarnings("unchecked")
-    private Map<Integer, NavtexData> getNavtexDataMap(Map<String, Object> mailData) {
-        Map<Integer, NavtexData> navtexData = (Map<Integer, NavtexData>)mailData.get("navtexData");
-        if (navtexData == null) {
-            navtexData = new HashMap<>();
-            mailData.put("navtexData", navtexData);
-        }
-        return navtexData;
     }
 
     // ***************************************
@@ -258,6 +275,21 @@ public class NavtexPublisher extends BaseMailPublisher {
     // ***************************************
     // *** Mail support
     // ***************************************
+
+    /**
+     * Returns a cache of Navtex data used internally
+     * @param mailData the mail Freemarker data
+     * @return the map
+     */
+    @SuppressWarnings("unchecked")
+    private Map<Integer, NavtexData> getNavtexDataMap(Map<String, Object> mailData) {
+        Map<Integer, NavtexData> navtexData = (Map<Integer, NavtexData>)mailData.get("navtexData");
+        if (navtexData == null) {
+            navtexData = new HashMap<>();
+            mailData.put("navtexData", navtexData);
+        }
+        return navtexData;
+    }
 
     /**
      * {@inheritDoc}
