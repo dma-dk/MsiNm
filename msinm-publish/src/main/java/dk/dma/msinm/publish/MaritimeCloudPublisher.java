@@ -337,7 +337,7 @@ public class MaritimeCloudPublisher extends Publisher {
 
             if (date != null && searchResult.getMessages().size() > 0 &&
                     searchResult.getMessages().stream().allMatch(msg -> msg.getUpdated().getTime() <= date.getTime())) {
-                log.info("Active message list not changed after " + date);
+                log.debug("Active message list not changed after " + date);
                 result.setUnchanged(true);
 
             } else {
