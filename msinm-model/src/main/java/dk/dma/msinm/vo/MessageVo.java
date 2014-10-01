@@ -41,6 +41,9 @@ import java.util.Set;
 public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     Integer id;
+    Date created;
+    Date updated;
+    Integer version;
     SeriesIdentifier seriesIdentifier;
     Type type;
     Status status;
@@ -96,6 +99,9 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
         }
 
         if (compFilter.include("details")) {
+            created = message.getCreated();
+            updated = message.getUpdated();
+            version = message.getVersion();
             area = (message.getArea() == null) ? null : new AreaVo(message.getArea(), compFilter);
             status = message.getStatus();
             message.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, compFilter)));
@@ -299,6 +305,30 @@ public class MessageVo extends LocalizableVo<Message, MessageVo.MessageDescVo> {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public Date getCreated() {
+        return created;
+    }
+
+    public void setCreated(Date created) {
+        this.created = created;
+    }
+
+    public Date getUpdated() {
+        return updated;
+    }
+
+    public void setUpdated(Date updated) {
+        this.updated = updated;
+    }
+
+    public Integer getVersion() {
+        return version;
+    }
+
+    public void setVersion(Integer version) {
+        this.version = version;
     }
 
     public SeriesIdentifier getSeriesIdentifier() {

@@ -42,9 +42,9 @@ public class MsdlUtils {
         MCMessage msg = new MCMessage();
 
         msg.setId(message.getId());
-        //msg.setVersion(message.getVersion());
-        //msg.setCreated(Timestamp.create(message.getCreated().getTime()));
-        //msg.setUpdated(Timestamp.create(message.getUpdated().getTime()));
+        msg.setVersion(message.getVersion());
+        msg.setCreated(Timestamp.create(message.getCreated().getTime()));
+        msg.setUpdated(Timestamp.create(message.getUpdated().getTime()));
 
         switch (message.getType()) {
             case PERMANENT_NOTICE: msg.setType(MCType.PERMANENT_NOTICE); break;

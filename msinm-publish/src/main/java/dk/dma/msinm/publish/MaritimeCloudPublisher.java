@@ -30,12 +30,14 @@ import dk.dma.msinm.vo.MessageVo;
 import dma.msinm.AbstractMCMsiNmService;
 import dma.msinm.MCMessage;
 import dma.msinm.MCMsiNmUpdatesBroadcast;
+import dma.msinm.MCSearchResult;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
 import net.maritimecloud.mms.MmsClient;
 import net.maritimecloud.mms.MmsClientConfiguration;
 import net.maritimecloud.mms.MmsConnection;
 import net.maritimecloud.mms.MmsConnectionClosingCode;
+import net.maritimecloud.util.Timestamp;
 import net.maritimecloud.util.geometry.Position;
 import net.maritimecloud.util.geometry.PositionReader;
 import net.maritimecloud.util.geometry.PositionTime;
@@ -50,9 +52,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import java.net.URI;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 /**
  * Main interface to the Maritime Cloud service
@@ -293,8 +293,13 @@ public class MaritimeCloudPublisher extends Publisher {
         try {
             mmsClient.endpointRegister(new AbstractMCMsiNmService() {
                 @Override
-                protected List<MCMessage> activeMessages(Context context) {
-                    return getActiveMessages();
+                protected MCSearchResult activeMessages(Context context, String lang) {
+                    return getActiveMessages(lang);
+                }
+
+                @Override
+                protected MCSearchResult activeMessagesIfUpdates(Context context, String lang, Timestamp date) {
+                    return getActiveMessagesIfUpdates(lang, date);
                 }
             }).awaitRegistered(4, TimeUnit.SECONDS);
 
@@ -306,22 +311,48 @@ public class MaritimeCloudPublisher extends Publisher {
 
     /**
      * Returns the list of active messages converted to MCMessage messages
+     * @param lang the language
      * @return the list of active messages converted to MCMessage messages
      */
-    private List<MCMessage> getActiveMessages() {
+    private MCSearchResult getActiveMessages(String lang) {
+        return getActiveMessagesIfUpdates(lang, null);
+    }
+
+    /**
+     * Returns the list of active messages converted to MCMessage messages if there are any updates after the given timestamp
+     * @param lang the language
+     * @param date the threshold timestamp
+     * @return the list of active messages converted to MCMessage messages or null if no updates after the given timestamp
+     */
+    private MCSearchResult getActiveMessagesIfUpdates(String lang, Timestamp date) {
+
+        MCSearchResult result = new MCSearchResult();
+        result.setSearchTime(Timestamp.now());
+
         try {
             long t0 = System.currentTimeMillis();
-            MessageSearchParams params = MessageSearchParams.readParams("en", "", "PUBLISHED", "", "", "", "", "", "", "", 1000, 0, "ID", "DESC", false);
+            MessageSearchParams params = MessageSearchParams.readParams(lang, "", "PUBLISHED", "", "", "", "", "", "", "", 1000, 0, "ID", "DESC", false);
             MessageSearchResult searchResult =  messageSearchService.search(params);
             log.info(String.format("Search [%s] returns %d of %d messages in %d ms", params.toString(), searchResult.getMessages().size(), searchResult.getTotal(), System.currentTimeMillis() - t0));
 
-            return searchResult.getMessages().stream()
-                    .map(MsdlUtils::convert)
-                    .collect(Collectors.toList());
+            if (date != null && searchResult.getMessages().size() > 0 &&
+                    searchResult.getMessages().stream().allMatch(msg -> msg.getUpdated().getTime() <= date.getTime())) {
+                log.info("Active message list not changed after " + date);
+                result.setUnchanged(true);
+
+            } else {
+                searchResult.getMessages().stream()
+                        .map(MsdlUtils::convert)
+                        .forEach(result::addMessages);
+                result.setUnchanged(false);
+            }
+
         } catch (Exception e) {
             log.error("Error finding published messages", e);
-            return null;
+            result.setError(e.getMessage());
         }
+
+        return result;
     }
 
 
