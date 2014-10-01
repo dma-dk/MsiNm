@@ -185,7 +185,6 @@
         <module>msinm-model</module>
         <module>msinm-reporting</module>
         <module>msinm-lucene</module>
-        <module>msinm-cloud</module>
         <module>msinm-publish</module>
         <module>msinm-web</module>
         <module>msinm-legacy-dk</module>

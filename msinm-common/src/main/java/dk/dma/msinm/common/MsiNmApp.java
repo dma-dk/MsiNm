@@ -34,9 +34,10 @@ import java.util.Locale;
 @DependsOn("Settings")
 public class MsiNmApp {
 
-    private final static Setting LANGUAGES      = new DefaultSetting("languages", "en");
-    private final static Setting ORGANIZATION   = new DefaultSetting("organization", "N/A");
-    private final static Setting BASE_URI       = new DefaultSetting("baseUri", "http://localhost:8080");
+    private final static Setting LANGUAGES          = new DefaultSetting("languages", "en");
+    private final static Setting ORGANIZATION       = new DefaultSetting("organization", "N/A");
+    private final static Setting ORGANIZATION_NAME  = new DefaultSetting("organizationName", "N/A");
+    private final static Setting BASE_URI           = new DefaultSetting("baseUri", "http://localhost:8080");
 
     @Inject
     Settings settings;
@@ -89,6 +90,14 @@ public class MsiNmApp {
      */
     public String getOrganization() {
         return settings.get(ORGANIZATION);
+    }
+
+    /**
+     * Returns the name of the organization running the MSI-NM system
+     * @return the name of the organization running the MSI-NM system
+     */
+    public String getOrganizationName() {
+        return settings.get(ORGANIZATION_NAME);
     }
 
     /**
