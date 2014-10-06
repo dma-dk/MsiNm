@@ -333,14 +333,16 @@ public class MaritimeCloudPublisher extends Publisher {
         MCSearchResult result = new MCSearchResult();
         result.setSearchTime(Timestamp.now());
 
+        // Compute the last update time.
+        // This is the last updated time of all published, cancelled and expired messages.
+        Date lastUpdated = messageService.findLastUpdated();
+        result.setLastUpdate(lastUpdated == null ? null : Timestamp.create(lastUpdated.getTime()));
+
         // Check if a threshold timestamp has been specified
-        if (date != null) {
-            Date lastUpdated = messageService.findLastUpdated();
-            if (lastUpdated != null && lastUpdated.getTime() <= date.getTime()) {
-                log.debug("Active message list not changed after " + date);
-                result.setUnchanged(true);
-                return result;
-            }
+        if (date != null && lastUpdated != null && lastUpdated.getTime() <= date.getTime()) {
+            log.debug("Active message list not changed after " + date);
+            result.setUnchanged(true);
+            return result;
         }
 
         // Perform the search
