@@ -253,7 +253,7 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
      */
     private List<Location> convertLocations(List<Location> locations) {
         return locations.stream()
-                .map(loc -> loc.getType() == LocationType.CIRCLE ? circle2polygon(loc, 20) : loc)
+                .map(loc -> loc.getType() == LocationType.CIRCLE ? circle2polygon(loc, 40) : loc)
                 .collect(Collectors.toList());
     }
 
