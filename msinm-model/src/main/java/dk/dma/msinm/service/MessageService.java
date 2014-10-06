@@ -66,6 +66,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -459,6 +460,20 @@ public class MessageService extends BaseService {
                     Integer.parseInt(parts[2]),
                     2000 + Integer.parseInt(parts[3]),
                     parts[1]);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    /**
+     * Returns the last updated time of messages that has been published at any point of time
+     * @return the last updated time
+     */
+    public Date findLastUpdated() {
+        try {
+            return em.createNamedQuery("Message.findLastUpdatedWithStatus", Date.class)
+                    .setParameter("statusList", EnumSet.of(Status.PUBLISHED, Status.CANCELLED, Status.EXPIRED))
+                    .getSingleResult();
         } catch (Exception e) {
             return null;
         }

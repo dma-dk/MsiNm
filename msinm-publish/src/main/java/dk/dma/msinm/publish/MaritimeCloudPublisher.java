@@ -54,6 +54,7 @@ import javax.ejb.Startup;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.net.URI;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -332,25 +333,29 @@ public class MaritimeCloudPublisher extends Publisher {
         MCSearchResult result = new MCSearchResult();
         result.setSearchTime(Timestamp.now());
 
+        // Check if a threshold timestamp has been specified
+        if (date != null) {
+            Date lastUpdated = messageService.findLastUpdated();
+            if (lastUpdated != null && lastUpdated.getTime() <= date.getTime()) {
+                log.debug("Active message list not changed after " + date);
+                result.setUnchanged(true);
+                return result;
+            }
+        }
+
+        // Perform the search
         try {
             long t0 = System.currentTimeMillis();
             MessageSearchParams params = MessageSearchParams.readParams(lang, "", "PUBLISHED", "", "", "", "", "", "", "", 1000, 0, "ID", "DESC", false);
             MessageSearchResult searchResult =  messageSearchService.search(params);
             log.info(String.format("Search [%s] returns %d of %d messages in %d ms", params.toString(), searchResult.getMessages().size(), searchResult.getTotal(), System.currentTimeMillis() - t0));
 
-            if (date != null && searchResult.getMessages().size() > 0 &&
-                    searchResult.getMessages().stream().allMatch(msg -> msg.getUpdated().getTime() <= date.getTime())) {
-                log.debug("Active message list not changed after " + date);
-                result.setUnchanged(true);
-
-            } else {
-                searchResult.getMessages().stream()
-                        .map(this::fetchAttachments)    // Fetch message attachments
-                        .map(MsdlUtils::convert)        // Convert to MCMessage
-                        .map(this::externalizeMessage)  // Externalize HTML links and attachments
-                        .forEach(result::addMessages);  // Add to search result
-                result.setUnchanged(false);
-            }
+            searchResult.getMessages().stream()
+                    .map(this::fetchAttachments)    // Fetch message attachments
+                    .map(MsdlUtils::convert)        // Convert to MCMessage
+                    .map(this::externalizeMessage)  // Externalize HTML links and attachments
+                    .forEach(result::addMessages);  // Add to search result
+            result.setUnchanged(false);
 
         } catch (Exception e) {
             log.error("Error finding published messages", e);

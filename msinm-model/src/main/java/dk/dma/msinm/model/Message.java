@@ -44,6 +44,8 @@ import java.util.*;
                 query="SELECT msg FROM Message msg where msg.status = 'PUBLISHED' and msg.validTo is not null and msg.validTo < CURRENT_TIMESTAMP "),
     @NamedQuery(name="Message.findActiveByCategory",
                 query="SELECT distinct msg FROM Message msg left join msg.categories c where msg.status = 'PUBLISHED' and c.lineage like :lineage order by msg.validFrom asc"),
+    @NamedQuery(name="Message.findLastUpdatedWithStatus",
+            query="SELECT max(msg.updated) FROM Message msg where msg.status in :statusList")
 })
 public class Message extends VersionedEntity<Integer> implements ILocalizable<MessageDesc>, IPreloadable {
 
