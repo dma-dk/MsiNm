@@ -17,6 +17,7 @@ package dk.dma.msinm.publish;
 
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
+import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
@@ -51,7 +52,9 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+import java.io.IOException;
 import java.net.URI;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -342,8 +345,10 @@ public class MaritimeCloudPublisher extends Publisher {
 
             } else {
                 searchResult.getMessages().stream()
-                        .map(MsdlUtils::convert)
-                        .forEach(result::addMessages);
+                        .map(this::fetchAttachments)    // Fetch message attachments
+                        .map(MsdlUtils::convert)        // Convert to MCMessage
+                        .map(this::externalizeMessage)  // Externalize HTML links and attachments
+                        .forEach(result::addMessages);  // Add to search result
                 result.setUnchanged(false);
             }
 
@@ -366,7 +371,60 @@ public class MaritimeCloudPublisher extends Publisher {
         Message message = messageService.getCachedMessage(id);
         MessageVo msg = new MessageVo(message, filter);
 
-        broadcast(MsdlUtils.convert(msg));
+        // Fetch attachments
+        msg = fetchAttachments(msg);
+
+        // Convert to an MCMessage
+        MCMessage cloudMsg = MsdlUtils.convert(msg);
+
+        // Externalize links and attachments
+        cloudMsg = externalizeMessage(cloudMsg);
+
+        broadcast(cloudMsg);
     }
 
+
+    /**
+     * Fetches the list of attachments for the given message
+     * @param msg the message to fetch attachments for
+     * @return the message enriched with the list of attachments
+     */
+    private MessageVo fetchAttachments(MessageVo msg) {
+        try {
+            List<RepoFileVo> attachments = messageService.getMessageAttacthments(msg.getId());
+            if (attachments.size() > 0) {
+                msg.setAttachments(attachments);
+            }
+        } catch (IOException e) {
+            log.debug("Failed to load message attachments: " + e);
+        }
+        return msg;
+    }
+
+    /**
+     * Utility method that will process the message details HTML and turn all
+     * images and links into absolute URL's pointing back to the MSI-NM server.
+     * Also, attachments are turned into absolute URL's
+     *
+     * @param msg the message to process
+     * @return the processed message
+     */
+    private MCMessage externalizeMessage(MCMessage msg) {
+        try {
+            if (msg.getDescs() != null) {
+                msg.getDescs()
+                        .forEach(desc -> desc.setDescription(messageService.externalizeHtml(desc.getDescription())));
+            }
+            if (msg.getAttachments() != null) {
+                msg.getAttachments()
+                        .forEach(att -> {
+                            att.setPath(app.getBaseUri() + att.getPath());
+                            att.setThumbnail(app.getBaseUri() + att.getThumbnail());
+                        });
+            }
+        } catch (Exception e) {
+            log.debug("Failed to externalize message HTML details: " + e);
+        }
+        return msg;
+    }
 }

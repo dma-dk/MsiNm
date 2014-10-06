@@ -18,7 +18,6 @@ package dk.dma.msinm.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
-import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.common.repo.RepositoryService;
@@ -46,6 +45,10 @@ import dk.dma.msinm.vo.MessageHistoryVo;
 import dk.dma.msinm.vo.MessageVo;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.slf4j.Logger;
 
 import javax.annotation.Resource;
@@ -58,7 +61,6 @@ import javax.ejb.TransactionAttributeType;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Topic;
-import java.awt.print.Book;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -598,6 +600,45 @@ public class MessageService extends BaseService {
     }
 
     /***************************************/
+    /** Externalizing html links          **/
+    /***************************************/
+
+    /**
+     * Utility method that will process the HTML and turn all images and links into
+     * absolute URL's pointing back to the MSI-NM server.
+     * @param html the HTML to process
+     * @return the processed HTML
+     */
+    public String externalizeHtml(String html) {
+        if (StringUtils.isNotBlank(html)) {
+            Document doc = Jsoup.parse(html, app.getBaseUri());
+            externalizeLinks(doc, "a", "href");
+            externalizeLinks(doc, "img", "src");
+            html = doc.toString();
+        }
+        return html;
+    }
+
+    /**
+     * Make sure that links are absolute.
+     * @param doc the HTML document
+     */
+    protected void externalizeLinks(Document doc, String tag, String attr) {
+        Elements elms = doc.select(tag + "[" + attr + "]");
+        for (Element e : elms) {
+
+            String url = e.absUrl(attr);
+            if (url.length() == 0) {
+                // Disable link
+                e.attr(attr, "#");
+                continue;
+            }
+            // Update the link to be the absolute link
+            e.attr(attr, url);
+        }
+    }
+
+    /***************************************/
     /** Message History methods           **/
     /***************************************/
 
@@ -875,6 +916,17 @@ public class MessageService extends BaseService {
         return repositoryService.getRepoUri(file);
     }
 
+    /**
+     * Returns the list of repository attachments for the message
+     * @param id the ID of the message to find the attachments for
+     * @return the attachments
+     */
+    public List<RepoFileVo> getMessageAttacthments(Integer id) throws IOException {
+        // Look up the attachments associated with the message
+        Path reportFolder = getMessageRepoFolder(id);
+        String uri = repositoryService.getRepoPath(reportFolder);
+        return repositoryService.listFiles(uri);
+    }
 
     /**
      * Returns the list of repository attachments for the message
@@ -882,9 +934,6 @@ public class MessageService extends BaseService {
      * @return the attachments
      */
     public List<RepoFileVo> getMessageAttacthments(Message message) throws IOException {
-        // Look up the attachments associated with the message
-        Path reportFolder = getMessageRepoFolder(message);
-        String uri = repositoryService.getRepoPath(reportFolder);
-        return repositoryService.listFiles(uri);
+        return getMessageAttacthments(message.getId());
     }
 }

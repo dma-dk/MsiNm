@@ -1,5 +1,6 @@
 package dk.dma.msinm.publish;
 
+import dk.dma.msinm.common.repo.RepoFileVo;
 import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.vo.AreaVo;
@@ -10,6 +11,7 @@ import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.ReferenceVo;
 import dma.msinm.MCArea;
 import dma.msinm.MCAreaDesc;
+import dma.msinm.MCAttachment;
 import dma.msinm.MCCategory;
 import dma.msinm.MCCategoryDesc;
 import dma.msinm.MCChart;
@@ -99,6 +101,10 @@ public class MsdlUtils {
 
         if (message.getDescs() != null) {
             message.getDescs().forEach(desc -> msg.addDescs(convert(desc)));
+        }
+
+        if (message.getAttachments() != null) {
+            message.getAttachments().forEach(att -> msg.addAttachments(convert(att)));
         }
 
         return msg;
@@ -246,6 +252,19 @@ public class MsdlUtils {
         }
 
         return ref;
+    }
+
+    /**
+     * Converts a RepoFileVo to a Maritime Cloud attachment
+     * @param attachment the RepoFileVo to convert
+     * @return the corresponding Maritime Cloud attachment
+     */
+    public static MCAttachment convert(RepoFileVo attachment) {
+        MCAttachment att = new MCAttachment();
+        att.setName(attachment.getName());
+        att.setPath("/rest/repo/file/" + attachment.getPath());
+        att.setThumbnail("/rest/repo/thumb/" + attachment.getPath());
+        return att;
     }
 
     /**
