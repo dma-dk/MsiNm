@@ -41,8 +41,7 @@
                 <div class="col-sm-1 table-item-field">Time</div>
                 <div ng-if="msg.descs[0].time" class="col-sm-11 table-item-value" ng-bind-html="msg.descs[0].time | plain2html"></div>
                 <div ng-if="!msg.descs[0].time" class="col-sm-11 table-item-value">
-                    {{msg.validFrom | date : 'dd/MM/yy'}}
-                    <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
+                    <msi-valid-from-to msg="msg"/>
                 </div>
             </div>
 

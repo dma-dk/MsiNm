@@ -18,8 +18,7 @@
                         </span>
                         </div>
                         <div class="map-image-date">
-                            <small>{{msg.validFrom | date : 'dd/MM/yy'}}</small>
-                            <small ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</small>
+                            <small><msi-valid-from-to msg="msg"/></small>
                         </div>
                     </div>
                     <div class="map-image-details">

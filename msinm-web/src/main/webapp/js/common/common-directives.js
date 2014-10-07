@@ -205,6 +205,37 @@ angular.module('msinm.common')
 
 
     /**
+     * Prints the validFrom - validTo date interval
+     */
+    .directive('msiValidFromTo', ['$rootScope', function ($rootScope) {
+        return {
+            restrict: 'E',
+            scope: {
+                msg: "="
+            },
+            link: function(scope, element, attrs) {
+                var lang = $rootScope.language;
+                var time = '';
+                var from = moment(scope.msg.validFrom);
+                time = from.locale(lang).format("lll");
+                if (scope.msg.validTo) {
+                    var to = moment(scope.msg.validTo);
+                    var fromDate = from.locale(lang).format("ll");
+                    var toDate = to.locale(lang).format("ll");
+                    var toDateTime = to.locale(lang).format("lll");
+                    if (fromDate == toDate) {
+                        // Same dates
+                        time += " - " + toDateTime.replace(toDate, '');
+                    } else {
+                        time += " - " + toDateTime;
+                    }
+                }
+                element.html(time);
+            }
+        };
+    }])
+
+    /**
      * Show element active/inactive depending on the current location.
      * Usage:
      * <pre>

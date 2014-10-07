@@ -26,8 +26,7 @@
         <tr ng-repeat-end style="cursor: pointer">
             <td nowrap msi-message-details="msg.id" msi-messages="searchResult.messages"><span msi-message-id="msg"></span></td>
             <td nowrap msi-message-details="msg.id" msi-messages="searchResult.messages">
-                {{msg.validFrom | date : 'dd/MM/yy'}}
-                <span ng-if="msg.validTo">&nbsp;-&nbsp; {{msg.validTo | date : 'dd/MM/yy'}}</span>
+                <msi-valid-from-to msg="msg"/>
             </td>
             <td msi-message-details="msg.id" msi-messages="searchResult.messages">{{msg.descs[0].title}}</td>
             <td msi-message-details="msg.id" msi-messages="searchResult.messages"><span msi-message-area="msg"></span></td>
