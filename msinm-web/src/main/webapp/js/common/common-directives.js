@@ -159,7 +159,7 @@ angular.module('msinm.common')
                 areaDivider: "@"
             },
             link: function(scope, element, attrs) {
-                var divider = (attrs.areaDivider) ? attrs.areaDivider : " - "
+                var divider = (attrs.areaDivider) ? attrs.areaDivider : " - ";
                 scope.$watch(
                     function() { return scope.msiArea; },
                     function (newValue) {
