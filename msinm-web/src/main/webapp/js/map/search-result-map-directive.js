@@ -78,13 +78,16 @@ angular.module('msinm.map')
 
             var msiContext = {
                 strokeWidth: function(feature) {
-                    return feature.attributes.bg ? 4 : 2;
+                    return feature.attributes.bg ? 4 : 1.5;
                 },
                 strokeColor: function(feature) {
                     return feature.attributes.bg ? "#ffffff" : "#8f2f7b";
                 },
                 fillColor: function(feature) {
                     return feature.attributes.bg ? "#ffffff" : "#ad57a1";
+                },
+                fillOpacity: function(feature) {
+                    return (feature.data.locType && (feature.data.locType == 'POLYGON' || feature.data.locType == 'CIRCLE')) ? 0.3 : 1.0;
                 },
                 graphicSize: function(feature) {
                     return 20;
@@ -110,7 +113,7 @@ angular.module('msinm.map')
                         graphicYOffset : "${graphicOffset}",
                         graphicXOffset : "${graphicOffset}",
                         fillColor: "${fillColor}",
-                        fillOpacity: 1.0,
+                        fillOpacity: "${fillOpacity}",
                         pointRadius: 8,
                         strokeWidth: "${strokeWidth}",
                         strokeColor: "${strokeColor}",
@@ -214,8 +217,10 @@ angular.module('msinm.map')
                             var loc = msg.locations[j];
 
                             var title = (msg.descs && msg.descs.length > 0) ? msg.descs[0].title : "N/A";
-                            var bgAttr = { id : i, description: cropTxt(title, 20), type : "msi", msi : msg, icon: icon, bg:true  };
-                            MapService.createLocationFeature(loc, bgAttr, features);
+
+                            // Enable to display white outline of polygons
+                            //var bgAttr = { id : i, description: cropTxt(title, 20), type : "msi", msi : msg, icon: icon, bg:true  };
+                            //MapService.createLocationFeature(loc, bgAttr, features);
 
                             // Flick the "showVertices to true to show icons for each vertex
                             var attr = { id : i, description: cropTxt(title, 20), type : "msi", msi : msg, icon: icon, showVertices:false  };

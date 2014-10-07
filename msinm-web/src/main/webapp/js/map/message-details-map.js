@@ -40,6 +40,9 @@ angular.module('msinm.map')
                     fillColor: function(feature) {
                         return feature.attributes.bg ? "#ffffff" : "#ad57a1";
                     },
+                    fillOpacity: function(feature) {
+                        return (feature.data.locType && (feature.data.locType == 'POLYGON' || feature.data.locType == 'CIRCLE')) ? 0.3 : 1.0;
+                    },
                     graphicSize: function(feature) {
                         return 20;
                     },
@@ -58,7 +61,7 @@ angular.module('msinm.map')
                             graphicYOffset : "${graphicOffset}",
                             graphicXOffset : "${graphicOffset}",
                             fillColor: "${fillColor}",
-                            fillOpacity: 1.0,
+                            fillOpacity: "${fillOpacity}",
                             pointRadius: 8,
                             strokeWidth: "${strokeWidth}",
                             strokeColor: "${strokeColor}",
