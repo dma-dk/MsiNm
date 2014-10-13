@@ -32,6 +32,7 @@ angular.module('msinm.conf')
             'FRONT_PAGE_FIRING_TOMORROW': '<h4>Firing Exercises Tomorrow</h4>',
             'FRONT_PAGE_MISC': '<h2>Report Observations</h2><p>If you observe an incident relevant to the maritime community, '
                 + 'please file a report in the <a href="/report.html">Report</a> section</p>'
+                + '<h2>Documentation</h2><p>Download the <a href="/MSI_NM User Manual v1.0.pdf" target="_blank">MSI-NM User Manual</a>.</p>'
                 + '<h2>Other sources</h2><p>Please find the official MSI and NM\'s for the Danish Maritime Area at:</p>'
                 + '<ul><li><a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/Advarsler/Sider/default.aspx" target="_blank">Active MSI - DK</a></li>'
                 + '<li><a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/EfterretningerForSoefarende/Sider/Default.aspx" target="_blank">Current and Historical NM - DK</a></li></ul>'
@@ -64,6 +65,7 @@ angular.module('msinm.conf')
             'FRONT_PAGE_FIRING_TOMORROW': 'Skydeøvelser i morgen',
             'FRONT_PAGE_MISC': '<h2>Observationer</h2><p>Hvis du observerer noget af maritim interesse '
                 + 'kan du indsende en rapport via <a href="/report.html">Rapportering</a> siden</p>'
+                + '<h2>Dokumentation</h2><p>Download <a href="/MSI_NM User Manual v1.0.pdf" target="_blank">MSI-NM Brugermanualen</a>.</p>'
                 + '<h2>Øvrige kilder</h2><p>Den officielle liste af MSI og NM\'er for det Danske maritime område findes:</p>'
                 + '<ul><li><a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/Advarsler/Sider/default.aspx" target="_blank">Aktive MSI - DK</a></li>'
                 + '<li><a href="http://www.soefartsstyrelsen.dk/AdvarslerEfterretninger/EfterretningerForSoefarende/Sider/Default.aspx" target="_blank">Nuværende og historiske NM - DK</a></li></ul>'

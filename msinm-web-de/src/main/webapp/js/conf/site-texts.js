@@ -32,6 +32,7 @@ angular.module('msinm.conf')
             'FRONT_PAGE_FIRING_TOMORROW': '<h4>Firing Exercises Tomorrow</h4>',
             'FRONT_PAGE_MISC': '<h2>Report Observations</h2><p>If you observe an incident relevant to the maritime community, '
                 + 'please file a report in the <a href="/report.html">Report</a> section</p>'
+                + '<h2>Documentation</h2><p>Download the <a href="/MSI_NM User Manual v1.0.pdf" target="_blank">MSI-NM User Manual</a>.</p>'
                 + '<h2>Other sources</h2><p>Please find the official MSI and NM\'s for the German Maritime Area at:</p>'
                 + '<ul><li><a href="http://www.bsh.de/en/Products/Subscriptions/Nachrichten_fuer_Seefahrer_/" target="_blank">Notices to Mariners</a></ul>'
 
@@ -62,6 +63,7 @@ angular.module('msinm.conf')
             'FRONT_PAGE_FIRING_TOMORROW': '<h4>Firing Exercises Tomorrow</h4>',
             'FRONT_PAGE_MISC': '<h2>Report Observations</h2><p>If you observe an incident relevant to the maritime community, '
                 + 'please file a report in the <a href="/report.html">Report</a> section</p>'
+                + '<h2>Documentation</h2><p>Download the <a href="/MSI_NM User Manual v1.0.pdf" target="_blank">MSI-NM User Manual</a>.</p>'
                 + '<h2>Other sources</h2><p>Please find the official MSI and NM\'s for the German Maritime Area at:</p>'
                 + '<ul><li><a href="http://www.bsh.de/en/Products/Subscriptions/Nachrichten_fuer_Seefahrer_/" target="_blank">Notices to Mariners</a></ul>'
         });

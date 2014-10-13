@@ -32,6 +32,7 @@ angular.module('msinm.conf')
             'FRONT_PAGE_FIRING_TOMORROW': '<h4>Firing Exercises Tomorrow</h4>',
             'FRONT_PAGE_MISC': '<h2>Report Observations</h2><p>If you observe an incident relevant to the Korean maritime community, '
                 + 'please file a report in the <a href="/report.html">Report</a> section</p>'
+                + '<h2>Documentation</h2><p>Download the <a href="/MSI_NM User Manual v1.0.pdf" target="_blank">MSI-NM User Manual</a>.</p>'
                 + '<h2>Other sources</h2>'
                 + '<ul><li><a href="http://http://kriso.re.kr/" target="_blank">Kriso</a></li></ul>'
 
@@ -61,6 +62,7 @@ angular.module('msinm.conf')
             'FRONT_PAGE_FIRING_TODAY': '<h4>오늘 연습을 발사</h4>',
             'FRONT_PAGE_FIRING_TOMORROW': '<h4>발사 연습 내일</h4>',
             'FRONT_PAGE_MISC': '<h2>보고서 관찰</h2><p>당신이 한국의 해상 지역 사회에 관련된 사건을 관찰하는 경우, <a href="/report.html">보고서</a> 절에 신고하시기 바랍니다.</p> '
+                + '<h2>문서</h2><p><a href="/MSI_NM User Manual v1.0.pdf" target="_blank">MSI-NM 사용자 설명서를</a> 다운로드.</p>'
                 + '<h2>기타 소스</h2>'
                 + '<ul><li><a href="http://http://kriso.re.kr/" target="_blank">선박해양플랜트연구소</a></li></ul>'
         });
