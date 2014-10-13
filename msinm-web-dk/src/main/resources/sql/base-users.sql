@@ -4,21 +4,21 @@ insert into User (id, created, updated, version, email, first_name, last_name, p
 insert into User (id, created, updated, version, email, first_name, last_name, password, password_salt, language) values (-2, current_timestamp, current_timestamp, 1, 'mcb@dma.dk', 'Mads', 'Billesø', 'be4a67597af2867f138d24edb7b1dac60aca4c46547d809dc9dd4598457f50a6b1f084f408aedc73f99a2e74eb2724685cf2acc0e9d12e8fee7ae329bf2b8ab5', 'mcb@dma.dk', 'da');
 insert into User (id, created, updated, version, email, first_name, last_name, password, password_salt, language) values (-3, current_timestamp, current_timestamp, 1, 'vii@dma.dk', 'Visti', 'Iversen', '2482e4adfdcee39b5b6c95e7576c5ae16b711cd5112a1c097a4a6ca99efaf6615bdc857796a84f4bcfaf7b62915aedef1acd81c5009fca0a3e45aa4ad644ff0c', 'vii@dma.dk', 'da');
 
-insert into msi.Role (id, name) values (0, 'user');
-insert into msi.Role (id, name) values (-1, 'admin');
-insert into msi.Role (id, name) values (-2, 'editor');
-insert into msi.Role (id, name) values (-3, 'sysadmin');
+insert into Role (id, name) values (0, 'user');
+insert into Role (id, name) values (-1, 'admin');
+insert into Role (id, name) values (-2, 'editor');
+insert into Role (id, name) values (-3, 'sysadmin');
 
-insert into msi.User_Role (user_id, roles_id) values (0,0);
-insert into msi.User_Role (user_id, roles_id) values (0,-1);
-insert into msi.User_Role (user_id, roles_id) values (0,-2);
-insert into msi.User_Role (user_id, roles_id) values (0,-3);
-insert into msi.User_Role (user_id, roles_id) values (-1,0);
-insert into msi.User_Role (user_id, roles_id) values (-2,0);
-insert into msi.User_Role (user_id, roles_id) values (-2,-1);
-insert into msi.User_Role (user_id, roles_id) values (-2,-2);
-insert into msi.User_Role (user_id, roles_id) values (-2,-3);
-insert into msi.User_Role (user_id, roles_id) values (-3,0);
-insert into msi.User_Role (user_id, roles_id) values (-3,-1);
-insert into msi.User_Role (user_id, roles_id) values (-3,-2);
+insert into User_Role (user_id, roles_id) values (0,0);
+insert into User_Role (user_id, roles_id) values (0,-1);
+insert into User_Role (user_id, roles_id) values (0,-2);
+insert into User_Role (user_id, roles_id) values (0,-3);
+insert into User_Role (user_id, roles_id) values (-1,0);
+insert into User_Role (user_id, roles_id) values (-2,0);
+insert into User_Role (user_id, roles_id) values (-2,-1);
+insert into User_Role (user_id, roles_id) values (-2,-2);
+insert into User_Role (user_id, roles_id) values (-2,-3);
+insert into User_Role (user_id, roles_id) values (-3,0);
+insert into User_Role (user_id, roles_id) values (-3,-1);
+insert into User_Role (user_id, roles_id) values (-3,-2);
 
