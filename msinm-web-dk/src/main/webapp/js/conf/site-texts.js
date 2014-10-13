@@ -24,7 +24,7 @@ angular.module('msinm.conf')
             'FOOTER_DISCLAIMER': 'Disclaimer',
             'FOOTER_COOKIES': 'Cookies',
 
-            'FRONT_PAGE_TEASER': '<h1>Welcome to MSI-NM</h1><p>MSI-NM is an effort by the Danish Maritime Authority to combine MSI and NM P&T.</p>',
+            'FRONT_PAGE_TEASER': '<h1>Welcome to MSI-NM</h1><p>MSI-NM is an ACCSEAS project by the Danish Maritime Authority to combine MSI and NM T&P.</p>',
             'FRONT_PAGE_ACTIVE_WARNINGS': '<h2>Active Warnings</h2><p>For a detailed list of the active MSI-NM warnings, please go to the <a href="/search.html">Search</a> section.</p>',
             'FRONT_PAGE_FIRING_TITLE': '<h2>Firing Exercises</h2>',
             'FRONT_PAGE_FIRING_DESC': '<p>Please find a summary of the firing exercises below</p>',
@@ -56,7 +56,7 @@ angular.module('msinm.conf')
             'FOOTER_COOKIES': 'Cookies',
 
 
-            'FRONT_PAGE_TEASER': '<h1>Velkommen til MSI-NM</h1><p>MSI-NM er et projekt fra den Danske Søfartsstyrelse hvor man kombinerer MSI og NM P&T.</p>',
+            'FRONT_PAGE_TEASER': '<h1>Velkommen til MSI-NM</h1><p>MSI-NM er et ACCSEAS projekt fra den Danske Søfartsstyrelse hvor man kombinerer MSI og NM T&P.</p>',
             'FRONT_PAGE_ACTIVE_WARNINGS': '<h2>Aktive advarsler</h2><p>For en detaljeret liste over MSI-NM advarsler og efterretninger, benyt <a href="/search.html">Søgningen</a>.</p>',
             'FRONT_PAGE_FIRING_TITLE': 'Skydeøvelser',
             'FRONT_PAGE_FIRING_DESC': 'Nedenfor findes en opsummering af skydeøvelser i de Danske farvande',

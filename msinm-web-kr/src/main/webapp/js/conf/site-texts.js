@@ -24,7 +24,7 @@ angular.module('msinm.conf')
             'FOOTER_DISCLAIMER': 'Disclaimer',
             'FOOTER_COOKIES': 'Cookies',
 
-            'FRONT_PAGE_TEASER': '<h1>Welcome to MSI-NM</h1><p>MSI-NM is an effort by the Danish Maritime Authority to combine MSI and NM P&T.</p>',
+            'FRONT_PAGE_TEASER': '<h1>Welcome to MSI-NM</h1><p>MSI-NM is an ACCSEAS project by the Danish Maritime Authority to combine MSI and NM T&P.</p>',
             'FRONT_PAGE_ACTIVE_WARNINGS': '<h2>Active Warnings</h2><p>For a detailed list of the active MSI-NM warnings, please go to the <a href="/search.html">Search</a> section.</p>',
             'FRONT_PAGE_FIRING_TITLE': '<h2>Firing Exercises</h2>',
             'FRONT_PAGE_FIRING_DESC': '<p>Please find a summary of the firing exercises below</p>',
@@ -54,7 +54,7 @@ angular.module('msinm.conf')
             'FOOTER_DISCLAIMER': '책임의 한계',
             'FOOTER_COOKIES': '쿠키',
 
-            'FRONT_PAGE_TEASER': '<h1>MSI-NM 에 오신 것을 환영합니다</h1><p>MSI-NM은 MSI와 NM P & T를 결합하는 덴마크어 해양 당국의 노력.</p>',
+            'FRONT_PAGE_TEASER': '<h1>MSI-NM 에 오신 것을 환영합니다</h1><p>MSI-NM은 MSI와 NM T & P를 결합하는 덴마크어 해양 당국의 노력.</p>',
             'FRONT_PAGE_ACTIVE_WARNINGS': '<h2>활성 경고</h2><p>활성 MSI-NM 경고의 자세한 목록은 <a href="/search.html">검색</a> 섹션으로 이동하십시오.</p>',
             'FRONT_PAGE_FIRING_TITLE': '<h2>발사 연습</h2>',
             'FRONT_PAGE_FIRING_DESC': '<p>아래의 사격 연습의 요약을 찾아주세요</p>',

@@ -205,7 +205,7 @@ public class MaritimeCloudPublisher extends Publisher {
         MmsClientConfiguration mmsConf = MmsClientConfiguration.create(maritimeId);
         mmsConf.properties().setName(CLOUD_SERVICE_NAME);
         mmsConf.properties().setOrganization(app.getOrganizationName());
-        mmsConf.properties().setDescription("MSI and NM P&T messages from the " + app.getOrganizationName());
+        mmsConf.properties().setDescription("MSI and NM T&P messages from the " + app.getOrganizationName());
 
         // Hook up a position reader
         mmsConf.setPositionReader(new PositionReader() {
