@@ -1,0 +1,15 @@
+
+# Months picked from the built-in locale
+# months: Januar,Februar,März,April,Mai,Juni,Juli,August,September,Oktober,November,Dezember
+seasons: printemps,été,automne,hiver
+
+translate_rule:    mi-(\w+)              ->      mid-$1
+translate_rule:    au début de          <->      beginning
+translate_rule:    fin de               <->      end
+translate_rule:    heures                ->      hours
+translate_rule:    semaine              <->      week
+translate_rule:    Jusqu'à nouvel ordre <->      Until further notice
+translate_rule:    Jusqu'à et y compris <->      Until and including
+translate_rule:    jusqu'à              <->      Until
+
+
