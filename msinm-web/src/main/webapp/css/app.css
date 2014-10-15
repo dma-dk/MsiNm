@@ -367,6 +367,7 @@ input[readonly] {
 
 .attachment {
     text-align: center;
+    position: relative;
 }
 
 .attachment-image {
@@ -388,6 +389,13 @@ input[readonly] {
     display: inline-block;
     margin: 4px;
     vertical-align: top;
+}
+
+.attachment-delete-btn {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    cursor: pointer;
 }
 
 .size-32 {

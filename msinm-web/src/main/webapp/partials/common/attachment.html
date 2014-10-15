@@ -9,4 +9,5 @@
     <div class="attachment-label">
         {{file.name}}
     </div>
+    <a ng-if="deletable" ng-click="deleteFile()" class="attachment-delete-btn" title="Delete {{file.name}}"><i class="glyphicon glyphicon-minus-sign red"></i></a>
 </div>

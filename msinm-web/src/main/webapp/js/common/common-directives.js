@@ -102,7 +102,7 @@ angular.module('msinm.common')
     }])
 
 
-    .directive('msiAttachment', [function () {
+    .directive('msiAttachment', ['$http', function ($http) {
         return {
             restrict: 'E',
             templateUrl: '/partials/common/attachment.html',
@@ -110,12 +110,26 @@ angular.module('msinm.common')
             scope: {
                 file: "=",
                 size: "@",
-                clickable: "@"
+                clickable: "@",
+                deletable: "@",
+                fileDeleted: '&fileDeleted'
             },
             link: function(scope, element, attrs) {
                 scope.thumbnailUrl = "/rest/repo/thumb/" + scope.file.path + "?size=" + scope.size;
                 scope.fileUrl = "/rest/repo/file/" + scope.file.path;
                 scope.imageClass = "attachment-image size-" + scope.size;
+
+                scope.deleteFile = function() {
+                    $http.delete("/rest/repo/file/" + scope.file.path)
+                        .success(function (data) {
+                            if (scope.fileDeleted) {
+                                scope.fileDeleted({ file: scope.file });
+                            }
+                        })
+                        .error(function (data) {
+                            console.error("Error deleting " + scope.file + ": " + data);
+                        });
+                }
             }
         };
     }])

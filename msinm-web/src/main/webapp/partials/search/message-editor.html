@@ -234,7 +234,7 @@
                         </span>
 
                         <span class="editor-attachment" ng-repeat="file in msg.attachments">
-                            <msi-attachment file="file" size="64" clickable="true"></msi-attachment>
+                            <msi-attachment file="file" size="64" clickable="true" deletable="true" file-deleted="attachmentDeleted(file)"></msi-attachment>
                         </span>
                     </div>
                 </div>

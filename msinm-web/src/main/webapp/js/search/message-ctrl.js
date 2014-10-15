@@ -432,7 +432,7 @@ angular.module('msinm.search')
                         growlNotifications.add('<h4>Generating Publication Failed</h4>', 'danger', 3000);
                     }
                 );
-            }
+            };
 
 
             // Reload the message details
@@ -464,6 +464,15 @@ angular.module('msinm.search')
 
             // Callback, called when an attachment has been uploaded
             $scope.attachmentUploaded = function(result) {
+                $scope.listFiles();
+                if(!$scope.$$phase) {
+                    $scope.$apply();
+                }
+            };
+
+
+            // Callback, called when an attachment has been deleted
+            $scope.attachmentDeleted = function(file) {
                 $scope.listFiles();
                 if(!$scope.$$phase) {
                     $scope.$apply();

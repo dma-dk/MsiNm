@@ -43,6 +43,7 @@ import javax.inject.Inject;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.DefaultValue;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -275,6 +276,33 @@ public class RepositoryService {
     }
 
     /**
+     * Deletes the file specified by the path
+     * @param path the path
+     * @return the response
+     */
+    @DELETE
+    @javax.ws.rs.Path("/file/{file:.+}")
+    //@RolesAllowed({ "editor" })
+    public String deleteFile(@PathParam("file") String path) throws IOException {
+
+        // TODO: The @RolesAllowed annotation has been commented out for now, because deleting
+        //       a file with a space in the file name would yield an unauthorized-exception. WTF!!!
+        //       Consider checking the role programmatically via the UserService...
+
+        Path f = repoRoot.resolve(path);
+
+        if (Files.notExists(f) || Files.isDirectory(f)) {
+            log.warn("Failed deleting file: " + f);
+            throw new WebApplicationException(404);
+        }
+
+        Files.delete(f);
+        log.info("Deleted file " + f);
+
+        return "OK";
+    }
+
+    /**
      * Returns the thumbnail to use for the file specified by the path
      * @param path the path
      * @param size the icon size, either 32, 64 or 128
@@ -354,7 +382,7 @@ public class RepositoryService {
     @javax.ws.rs.Path("/upload/{folder:.+}")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces("application/json;charset=UTF-8")
-    @RolesAllowed({ "admin" })
+    @RolesAllowed({ "editor" })
     public List<String> uploadFile(@PathParam("folder") String path, @Context HttpServletRequest request) throws FileUploadException, IOException {
 
         Path folder = repoRoot.resolve(path);

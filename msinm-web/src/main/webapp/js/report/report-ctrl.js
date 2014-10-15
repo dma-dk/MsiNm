@@ -89,5 +89,13 @@ angular.module('msinm.report')
             }
         };
 
+        // Callback, called when an attachment has been deleted
+        $scope.attachmentDeleted = function(result) {
+            $scope.listFiles();
+            if(!$scope.$$phase) {
+                $scope.$apply();
+            }
+        };
+
     }]);
 
