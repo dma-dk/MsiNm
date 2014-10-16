@@ -386,7 +386,7 @@ angular.module('msinm.search')
                         $scope.msg,
                         function (data) {
                             console.log("Created message")
-                            $window.location = '/search.html#/search/edit/manage/' + data.id;
+                            $rootScope.go('/search/edit/manage/' + data.id);
                         },
                         function (data) {
                             $scope.messageSaved = false;
@@ -443,7 +443,7 @@ angular.module('msinm.search')
 
             // Manage the message
             $scope.manageMessage = function () {
-                $window.location = '/search.html#/search/edit/manage/' + $scope.messageId;
+                $rootScope.go('/search/edit/manage/' + $scope.messageId);
             };
 
             // Fetches the attachments belonging the the current message
@@ -612,7 +612,7 @@ angular.module('msinm.search')
             // Edit the message
             $scope.edit = function () {
                 if ($scope.msg.status == 'DRAFT' || $rootScope.hasRole('sysadmin')) {
-                    $window.location = '/search.html#/search/edit/editor/' + $scope.messageId;
+                    $rootScope.go('/search/edit/editor/' + $scope.messageId);
                 }
             };
 
@@ -692,7 +692,7 @@ angular.module('msinm.search')
                 DialogService.showConfirmDialog(
                     "Copy Message?", "Copy Message '" + $scope.msg.seriesIdentifier.fullId + "' ?")
                     .then(function() {
-                        $window.location = '/search.html#/search/edit/copy/' + $scope.messageId + "/REFERENCE";
+                        $rootScope.go('/search/edit/copy/' + $scope.messageId + "/REFERENCE");
                     });
             };
 
@@ -717,7 +717,7 @@ angular.module('msinm.search')
                             $scope.msg = data;
                             $scope.resetHistory();
                             if (modalOptions.cancelOptions.createCancelMessage) {
-                                $window.location = '/search.html#/search/edit/copy/' + data.id + "/CANCELLATION"
+                                $rootScope.go('/search/edit/copy/' + data.id + "/CANCELLATION");
                             }
                         },
                         function (data) {
