@@ -1,0 +1,62 @@
+
+<json-data json="pub.data" data="jsonData">
+    <div class="row">
+        <div class="col-xs-12 col-sm-8 col-md-6 col-lg-5">
+            <h5>Broadcast</h5>
+            <table>
+                <tr>
+                    <td colspan="2"><input type="radio" ng-model="jsonData.broadcast" value="GENERAL"/> General</td>
+                </tr>
+                <tr>
+                    <td><input type="radio" ng-model="jsonData.broadcast" value="SELECTIVE"/> Selective to&nbsp;</td>
+                    <td><input type="text" class="form-control input-sm" id="navdatArea" placeholder="Areas"
+                               ng-model="jsonData.areas" ng-disabled="jsonData.broadcast != 'SELECTIVE'"/></td>
+                </tr>
+                <tr>
+                    <td><input type="radio" ng-model="jsonData.broadcast" value="DEDICATED"/> Dedicated to&nbsp;</td>
+                    <td><input type="text" class="form-control input-sm" id="navdatMmsi" placeholder="MMSI List"
+                               ng-model="jsonData.mmsi" ng-disabled="jsonData.broadcast != 'DEDICATED'" /></td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="col-xs-12 col-sm-8 col-md-6 col-lg-3">
+            <h5>Priority</h5>
+            <input type="radio" ng-model="jsonData.priority" value="NONE"/> None <br/>
+            <input type="radio" ng-model="jsonData.priority" value="ROUTINE"/> Routine <br/>
+            <input type="radio" ng-model="jsonData.priority" value="IMPORTANT"/> Important <br/>
+            <input type="radio" ng-model="jsonData.priority" value="VITAL"/> Vital <br/>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-10 col-md-6 col-lg-6">
+            <h5>Navdat Message <button class="btn btn-default btn-xs" style="float: right" onclick="generateNavdat()">Generate</button></h5>
+            <textarea id="navdatMessage" style="width: 100%; height: 120px; border: 1px solid lightgray;" ng-model="jsonData.message" lang-flag="'en'" spellcheck="false"></textarea>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-xs-12 col-sm-10 col-md-6 col-lg-6">
+            <input type="checkbox" ng-model="jsonData.includeAttachments"> Include attachments <br/>
+
+            <input type="checkbox" ng-model="jsonData.encrypted"> Encrypt using
+            <select class="input-xs" ng-model="jsonData.encryption">
+                <option value="SHA-256">SHA-256</option>
+                <option value="SHA-512">SHA-512</option>
+            </select>
+        </div>
+    </div>
+
+
+    <script type="application/javascript">
+        function generateNavdat() {
+            var scope = angular.element($("#navdatMessage")).scope();
+            scope.generatePublication('navdat')
+        }
+
+        /**initAreaField("#navdatArea", true);**/
+    </script>
+</json-data>
