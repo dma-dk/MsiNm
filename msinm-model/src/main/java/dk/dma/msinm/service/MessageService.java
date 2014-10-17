@@ -28,6 +28,7 @@ import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.common.templates.TemplateContext;
 import dk.dma.msinm.common.templates.TemplateService;
 import dk.dma.msinm.common.templates.TemplateType;
+import dk.dma.msinm.common.util.TimeUtils;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Bookmark;
 import dk.dma.msinm.model.Category;
@@ -143,6 +144,7 @@ public class MessageService extends BaseService {
      */
     public MessageVo newTemplateMessage() {
         MessageVo messageVo = new MessageVo();
+        messageVo.setValidFrom(TimeUtils.resetTime(new Date()));
         messageVo.setLocations(new ArrayList<>());
         SeriesIdentifier id = new SeriesIdentifier();
         id.setAuthority(app.getOrganization());
