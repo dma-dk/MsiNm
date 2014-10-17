@@ -18,6 +18,8 @@ package dk.dma.msinm.web.rest;
 import dk.dma.msinm.user.User;
 import dk.dma.msinm.user.UserService;
 import dk.dma.msinm.user.UserVo;
+import dk.dma.msinm.user.security.SecurityServletFilter;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -27,14 +29,17 @@ import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.ArrayList;
@@ -180,6 +185,39 @@ public class UserRestService {
         }
         return "User " + userVo.getEmail() + " created/updated.";
     }
+
+    /**
+     * Checks if the current user has the given role.
+     * Will return:
+     * <ul>
+     *     <li>'true': If the user has the given role</li>
+     *     <li>'false': If the user does not have the given role</li>
+     *     <li>'error': If user authentication failed</li>
+     * </ul>
+     */
+    @GET
+    @Path("/check-role/{role}")
+    @Produces("application/json")
+    @NoCache
+    public String checkRole(@PathParam("role") String role, @Context HttpServletRequest request) {
+        if (StringUtils.isBlank(role)) {
+            return String.valueOf(true);
+        }
+
+        User user = userService.getCurrentUser();
+        if (user == null) {
+            // Check if there was an authentication error, e.g. if the JWT token has expired
+            if (request.getAttribute(SecurityServletFilter.AUTH_ERROR_ATTR) != null) {
+                return "error";
+            }
+            // User just not authenticated
+            return String.valueOf(false);
+        }
+
+        // User authenticated - check role
+        return String.valueOf(user.hasRole(role));
+    }
+
 
     /**
      * Helper class used for setting a new password

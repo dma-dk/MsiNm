@@ -90,7 +90,6 @@ angular.module('msinm.user')
             hasRole: function(role) {
                 return $rootScope.currentUser && $rootScope.currentUser.roles.indexOf(role) > -1;
             }
-
         }
     }])
 
@@ -324,15 +323,39 @@ angular.module('msinm.user')
  */
 checkRole = function (role) {
     return {
-        load: function ($q, Auth) {
+        load: function ($q, Auth, $http) {
 
-            if ((role && Auth.hasRole(role))) {
-                var deferred = $q.defer();
-                deferred.resolve();
-                return deferred.promise;
-            } else {
+            function unauthorizedAccess() {
                 console.error("User must have role " + role + ". Redirecting to front page");
                 location.href = "/";
+            }
+
+            // NB: Originally, we just checked using Auth.hasRole(role)
+            // However, calling the server will keep the session alive
+            // and trap expired sessions.
+            if (role) {
+                var deferred = $q.defer();
+                $http.get("/rest/user/check-role/" + role)
+                    .success(function(data) {
+                        // The server has returned 'true', 'false' or 'error'
+                        if (data == 'true') {
+                            deferred.resolve();
+                        } else {
+                            if (data == 'error') {
+                                Auth.logout();
+                            }
+                            deferred.reject();
+                            unauthorizedAccess();
+                        }
+                    })
+                    .error(function(data) {
+                        deferred.reject();
+                        unauthorizedAccess();
+                    });
+
+                return deferred.promise;
+            } else {
+                unauthorizedAccess();
             }
         }
     }
