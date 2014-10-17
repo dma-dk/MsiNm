@@ -43,6 +43,10 @@
     background-color: #428bca;
 }
 
+.admin-nav-sidebar > .active > a:visited {
+    background-color: #428bca;
+}
+
 .admin-main {
     padding: 0 20px 20px 20px;
     min-height: 400px;
