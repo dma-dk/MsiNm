@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.web;
 
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.reporting.Report;
@@ -50,6 +51,9 @@ public class ReportMapImageServlet extends AbstractMapImageServlet  {
 
     @Inject
     ReportService reportService;
+
+    @Inject
+    MsiNmApp app;
 
     /**
      * Main GET method
@@ -127,10 +131,11 @@ public class ReportMapImageServlet extends AbstractMapImageServlet  {
      */
     private synchronized Image getReportImage() {
         if (reportImage == null) {
+            String imageUrl = app.getBaseUri() + "/img/msi.png";
             try {
-                reportImage = ImageIO.read(new URL("http://localhost:8080/img/msi.png"));
+                reportImage = ImageIO.read(new URL(imageUrl));
             } catch (IOException e) {
-                log.error("This should never happen");
+                log.error("This should never happen - could not load image from " + imageUrl);
             }
         }
         return reportImage;

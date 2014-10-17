@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.web;
 
+import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.service.MessageService;
@@ -49,6 +50,9 @@ public class MessageMapImageServlet extends AbstractMapImageServlet  {
 
     @Inject
     MessageService messageService;
+
+    @Inject
+    MsiNmApp app;
 
     /**
      * Main GET method
@@ -135,10 +139,11 @@ public class MessageMapImageServlet extends AbstractMapImageServlet  {
      */
     private synchronized Image getMsiImage() {
         if (msiImage == null) {
+            String imageUrl = app.getBaseUri() + "/img/msi.png";
             try {
-                msiImage = ImageIO.read(new URL("http://localhost:8080/img/msi.png"));
+                msiImage = ImageIO.read(new URL(imageUrl));
             } catch (IOException e) {
-                log.error("This should never happen");
+                log.error("This should never happen - could not load image from " + imageUrl);
             }
         }
         return msiImage;
@@ -151,10 +156,11 @@ public class MessageMapImageServlet extends AbstractMapImageServlet  {
      */
     private synchronized Image getNmImage() {
         if (nmImage == null) {
+            String imageUrl = app.getBaseUri() + "/img/nm.png";
             try {
-                nmImage = ImageIO.read(new URL("http://localhost:8080/img/nm.png"));
+                nmImage = ImageIO.read(new URL(imageUrl));
             } catch (IOException e) {
-                log.error("This should never happen");
+                log.error("This should never happen - could not load image from " + imageUrl);
             }
         }
         return nmImage;
