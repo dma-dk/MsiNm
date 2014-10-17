@@ -14,6 +14,7 @@ import dk.dma.msinm.service.MessageService;
 import dk.dma.msinm.service.Publisher;
 import dk.dma.msinm.vo.MessageVo;
 import dk.dma.msinm.vo.PublicationVo;
+import org.apache.commons.lang.StringUtils;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
 import org.slf4j.Logger;
@@ -218,22 +219,28 @@ public class NavdatPublisher extends Publisher {
      */
     public void publishMessage(Integer id) throws Exception {
 
+        if (!isActive()) {
+            return;
+        }
+
         Message message = messageService.getCachedMessage(id);
         Publication pub = message.getPublication(getType());
+        if (pub == null  || StringUtils.isBlank(pub.getData()) || !pub.isPublish()) {
+            return;
+        }
+
         NavdatData data = JsonUtils.fromJson(pub.getData(), NavdatData.class);
 
-        if (isActive() && pub.isPublish()) {
-            // TODO: Proper NAVDAT PUBLISHING
-            log.info("******** PUBLISH " + message.getSeriesIdentifier().getFullId() + " to Navdat **********");
-            log.info("Broadcast: " + data.getBroadcast());
-            log.info("Areas: " + data.getAreas());
-            log.info("MMSI: " + data.getMmsi());
-            log.info("Message: " + data.getMessage());
-            log.info("Include attachments: " + data.getIncludeAttachments());
-            log.info("Encrypted: " + data.getEncrypted());
-            log.info("Encryption: " + data.getEncryption());
-            log.info("*********************************************");
-        }
+        // TODO: Proper NAVDAT PUBLISHING
+        log.info("******** PUBLISH " + message.getSeriesIdentifier().getFullId() + " to Navdat **********");
+        log.info("Broadcast: " + data.getBroadcast());
+        log.info("Areas: " + data.getAreas());
+        log.info("MMSI: " + data.getMmsi());
+        log.info("Message: " + data.getMessage());
+        log.info("Include attachments: " + data.getIncludeAttachments());
+        log.info("Encrypted: " + data.getEncrypted());
+        log.info("Encryption: " + data.getEncryption());
+        log.info("*********************************************");
     }
 
     // *******************************
