@@ -306,7 +306,7 @@ public class MailListService extends BaseService {
             throw new Exception("Unauthorized access");
         }
         boolean owner = original.getUser() != null && original.getUser().getId().equals(caller.getId());
-        if (!owner && !caller.hasRole("sysadmin")) {
+        if (!owner && !caller.hasRole("admin")) {
             throw new Exception("Unauthorized access");
         }
 
