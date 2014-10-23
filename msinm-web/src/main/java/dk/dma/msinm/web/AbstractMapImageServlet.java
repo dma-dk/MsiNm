@@ -45,13 +45,17 @@ import static dk.dma.msinm.model.Location.LocationType;
  */
 public abstract class AbstractMapImageServlet extends HttpServlet  {
 
-    static final String STATIC_IMAGE_URL = "http://staticmap.openstreetmap.de/staticmap.php?center=%f,%f&zoom=%d&size=%dx%d";
+    static final String STATIC_IMAGE_URL = "%s?center=%f,%f&zoom=%d&size=%dx%d";
     static final String IMAGE_PLACEHOLDER = "/img/map_image_placeholder.png";
 
     static GlobalMercator mercator = new GlobalMercator();
 
     @Inject
     Logger log;
+
+    @Inject
+    @Setting(value = "mapImageServer", defaultValue = "http://staticmap.openstreetmap.de/staticmap.php")
+    String mapImageServer;
 
     @Inject
     @Setting(value = "mapImageSize", defaultValue = "256")
@@ -65,6 +69,8 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
     @Setting(value = "mapImageZoomLevel", defaultValue = "8")
     Long zoomLevel;
 
+
+
     /**
      * Fetches the map image and crops it if specified
      * @param centerPt the center point
@@ -76,6 +82,7 @@ public abstract class AbstractMapImageServlet extends HttpServlet  {
         long fetchSize = mapImageSize + 2 * mapImageIndent;
         String url = String.format(
                 STATIC_IMAGE_URL,
+                mapImageServer,
                 centerPt.getLat(),
                 centerPt.getLon(),
                 zoom,
