@@ -359,7 +359,10 @@ public class LegacyMsiImportService extends BaseService {
 
                     // Areas
                     Area area = createAreaTemplate(area1En, area1Da, null);
-                    area = createAreaTemplate(area2En, area2Da, area);
+                    // Annoyingly, legacy data has Danmark as a sub-area of Danmark
+                    if (!StringUtils.equals(area1En, area2En) || !StringUtils.equals(area1Da, area2Da)) {
+                        area = createAreaTemplate(area2En, area2Da, area);
+                    }
                     message.setArea(area);
 
                     // Categories

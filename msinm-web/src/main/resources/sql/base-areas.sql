@@ -5,7 +5,6 @@ INSERT INTO Area (id, sortOrder, parent_id) VALUES (-29,-9.038817863745905,-10);
 INSERT INTO Area (id, sortOrder, parent_id) VALUES (-45,-4.038817863745905,-10);
 INSERT INTO Area (id, sortOrder, parent_id) VALUES (-58,120.9611821362541,-10);
 INSERT INTO Area (id, sortOrder, parent_id) VALUES (-115,-19.038817863745905,-10);
-INSERT INTO Area (id, sortOrder, parent_id) VALUES (-152,130.96118213625408,-10);
 INSERT INTO Area (id, sortOrder, parent_id) VALUES (-219,37.211182136254095,-10);
 INSERT INTO Area (id, sortOrder, parent_id) VALUES (-232,70.9611821362541,-10);
 INSERT INTO Area (id, sortOrder, parent_id) VALUES (-588,23.461182136254095,-10);
@@ -32,8 +31,6 @@ INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-59,'en','North Sea',-5
 INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-60,'da','Nordsøen',-58);
 INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-116,'en','Baltic',-115);
 INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-117,'da','Østersøen',-115);
-INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-153,'en','Denmark',-152);
-INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-154,'da','Danmark',-152);
 INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-220,'en','Kattegat',-219);
 INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-221,'da','Kattegat',-219);
 INSERT INTO AreaDesc (id, lang, name, entity_id) VALUES (-233,'en','Liimfiord',-232);
