@@ -415,7 +415,7 @@ public abstract class AbstractLuceneIndex<T extends VersionedEntity<?>> {
                     field,
                     new StandardAnalyzer(LuceneUtils.LUCENE_VERSION));
             parser.setDefaultOperator(QueryParser.OR_OPERATOR);
-            //parser.setAllowLeadingWildcard(true); // NB: Expensive!
+            parser.setAllowLeadingWildcard(true); // NB: Expensive!
             query = parser.parse(freeTextSearch);
 
         } else {
