@@ -101,7 +101,7 @@
                         <input type="radio" value="PUBLISHED" id="messageStatus" ng-model="status">&nbsp;Published &nbsp;
                         <input type="radio" value="EXPIRED" ng-model="status">&nbsp;Expired&nbsp;
                         <input type="radio" value="CANCELLED" ng-model="status">&nbsp;Cancelled&nbsp;
-                        <span ng-show="hasRole('admin')">
+                        <span ng-show="hasRole('editor')">
                             <input type="radio" value="DRAFT" ng-model="status">&nbsp;Draft&nbsp;
                             <input type="radio" value="DELETED" ng-model="status">&nbsp;Deleted&nbsp;
                         </span>
@@ -111,7 +111,7 @@
                     </div>
                 </div>
 
-                <div class="row"">
+                <div class="row">
                     <div class="col-xs-12 col-sm-8 col-md-6 col-lg-6" style="margin-top: 5px;">
                         <select multiple class="form-control input-sm select2-multiple" id="messageType" ng-model="type">
                             <option></option>
