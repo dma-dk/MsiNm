@@ -61,7 +61,7 @@ public class CalendarService {
     private Logger log;
 
     @Inject
-    @Setting(value = "reportRecipient", defaultValue = "peder@carolus.dk") // TODO: Change
+    @Setting(value = "reportRecipient", defaultValue = "msinm@e-navigation.net")
     String reportRecipient;
 
     /**

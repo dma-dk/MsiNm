@@ -39,11 +39,11 @@ public class MailService {
     Session mailSession;
 
     @Inject
-    @Setting(value = "mailSender", defaultValue = "peder@carolus.dk")
+    @Setting(value = "mailSender", defaultValue = "msinm@e-navigation.net")
     String mailSender;
 
     @Inject
-    @Setting(value = "mailValidRecipients", defaultValue = "peder@carolus.dk")
+    @Setting(value = "mailValidRecipients", defaultValue = "msinm@e-navigation.net")
     String validRecipients;
 
     @Inject
