@@ -85,7 +85,7 @@
 <div>
     <a href="${baseUri}/index.html#/message/${msg.id?c}" target="_blank">
         <strong>${msg.seriesIdentifier.fullId}</strong>.
-        <@areaLineage area=msg.area />
+        <#if msg.area??><@areaLineage area=msg.area /></#if>
         <#if msg.descs?has_content && msg.descs[0].vicinity?has_content> - ${msg.descs[0].vicinity}</#if>
         <#if msg.descs?has_content && msg.descs[0].title?has_content> - ${msg.descs[0].title}</#if>
     </a>

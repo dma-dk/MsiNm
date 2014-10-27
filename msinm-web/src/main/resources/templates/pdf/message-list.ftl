@@ -27,12 +27,14 @@
 <table class="message-table">
     <#list messages as msg>
 
-        <#assign area=areaHeading(msg.area) />
-        <#if areaHeadings && area?? && area.id != areaHeadingId>
-            <#assign areaHeadingId=area.id />
-            <tr>
-                <td colspan="2"><h4 style="color: #8f2f7b; font-size: 16px;"><@areaLineage area=areaHeading(area) /></h4></td>
-            </tr>
+        <#if msg.area??>
+            <#assign area=areaHeading(msg.area) />
+            <#if areaHeadings && area?? && area.id != areaHeadingId>
+                <#assign areaHeadingId=area.id />
+                <tr>
+                    <td colspan="2"><h4 style="color: #8f2f7b; font-size: 16px;"><@areaLineage area=areaHeading(area) /></h4></td>
+                </tr>
+            </#if>
         </#if>
         <tr>
             <td class="table-image">
