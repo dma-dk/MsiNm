@@ -46,11 +46,11 @@ public class JWTService {
     Logger log;
 
     @Inject
-    @Setting(value = "jwtTimeoutMinutes", defaultValue = "30")
+    @Setting(value = "jwtTimeoutMinutes", defaultValue = "600") // 10 hours
     Long jwtTimeoutMinutes;
 
     @Inject
-    @Setting(value = "jwtReauthMinutes", defaultValue = "10")
+    @Setting(value = "jwtReauthMinutes", defaultValue = "180")  // 3 hours
     Long jwtReauthMinutes;
 
     @Inject
