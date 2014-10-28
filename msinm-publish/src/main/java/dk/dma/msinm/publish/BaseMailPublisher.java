@@ -99,7 +99,7 @@ public abstract class BaseMailPublisher extends Publisher {
                 });
 
                 // Check if there is anything to send
-                if (result.getTotal() == 0 &&
+                if (messages.size() == 0 &&
                         (!mailList.isSendIfEmpty() || !mailList.getTemplate().isCollated() || mailList.getSchedule() == MailList.Schedule.CONTINUOUS)) {
                     continue;
                 }
