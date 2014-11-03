@@ -24,7 +24,6 @@ import org.apache.commons.fileupload.FileItemFactory;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
@@ -97,62 +96,21 @@ public class LocationRestService {
 
         try {
             // Fetch all "Placemark" elements
-            NodeList nodes = (NodeList) xpath.evaluate("//kml:Placemark", inputSource, XPathConstants.NODESET);
+            NodeList placemarks = (NodeList) xpath.evaluate("//kml:Placemark", inputSource, XPathConstants.NODESET);
 
-            for (int i = 0; i < nodes.getLength(); i++) {
-                Location loc = new Location();
+            for (int i = 0; i < placemarks.getLength(); i++) {
 
-                // Extract the name for the Placemark
-                Node name = (Node) xpath.evaluate("kml:name", nodes.item(i), XPathConstants.NODE);
-                if (name != null && StringUtils.isNotBlank(name.getTextContent())) {
-                    loc.createDesc("en").setDescription(name.getTextContent());
-                }
+                // Fetch all "Point" coordinates
+                NodeList coordinates = (NodeList) xpath.evaluate("//kml:Point/kml:coordinates", placemarks.item(i), XPathConstants.NODESET);
+                extractLocations(result, coordinates, Location.LocationType.POINT);
 
-                // Try to match either POINT, POLYLINE or POLYGON
-                loc.setType(Location.LocationType.POINT);
-                Node coordinates = (Node) xpath.evaluate(
-                        "kml:Point/kml:coordinates",
-                        nodes.item(i),
-                        XPathConstants.NODE);
+                // Fetch all "Polyline" coordinates
+                coordinates = (NodeList) xpath.evaluate("//kml:LineString/kml:coordinates", placemarks.item(i), XPathConstants.NODESET);
+                extractLocations(result, coordinates, Location.LocationType.POLYLINE);
 
-                if (coordinates == null) {
-                    loc.setType(Location.LocationType.POLYLINE);
-                    coordinates = (Node) xpath.evaluate(
-                            "kml:LineString/kml:coordinates",
-                            nodes.item(i),
-                            XPathConstants.NODE);
-                }
-                if (coordinates == null) {
-                    loc.setType(Location.LocationType.POLYGON);
-                    coordinates = (Node) xpath.evaluate(
-                            "kml:Polygon/kml:outerBoundaryIs/kml:LinearRing/kml:coordinates",
-                            nodes.item(i),
-                            XPathConstants.NODE);
-                }
-
-                if (coordinates != null) {
-                    // Parse the coordinates which has the format of tuples, "longitude,latitude,altitude", separated by whitespace
-                    String txt = coordinates.getTextContent().trim();
-                    for (String coord : txt.split("\\s+")) {
-                        String[] lonLatAlt = coord.split(",");
-                        if (lonLatAlt.length == 3) {
-                            Point pt = new Point();
-                            pt.setLon(Double.parseDouble(lonLatAlt[0]));
-                            pt.setLat(Double.parseDouble(lonLatAlt[1]));
-                            pt.setLocation(loc);
-                            loc.addPoint(pt);
-                        }
-                    }
-
-                    if (loc.getPoints().size() > 0) {
-                        // For polygons, skip the last point since it is identical to the first
-                        if (loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() > 1) {
-                            loc.getPoints().remove(loc.getPoints().size() - 1);
-                        }
-
-                        result.add(new LocationVo(loc));
-                    }
-                }
+                // Fetch all "Polygon" coordinates
+                coordinates = (NodeList) xpath.evaluate("//kml:Polygon/kml:outerBoundaryIs/kml:LinearRing/kml:coordinates", placemarks.item(i), XPathConstants.NODESET);
+                extractLocations(result, coordinates, Location.LocationType.POLYGON);
             }
 
         } catch (Exception e) {
@@ -160,6 +118,62 @@ public class LocationRestService {
         }
 
         return result;
+    }
+
+
+    /**
+     * Converts a list of coordinate nodes into a locations and adds them to the result
+     * @param result the result to update with coordinates
+     * @param coordinates the coordinates nodes
+     * @param type the type of location
+     */
+    void extractLocations(List<LocationVo> result, NodeList coordinates, Location.LocationType type) {
+        if (coordinates != null && coordinates.getLength() > 0) {
+            for (int i = 0; i < coordinates.getLength(); i++) {
+                LocationVo loc = extractLocation(coordinates.item(i), type);
+                if (loc != null) {
+                    result.add(loc);
+                }
+            }
+        }
+    }
+
+    /**
+     * Converts a list of coordinates into a location. Returns null if invalid
+     * @param coordinates the coordinates node
+     * @param type the type of location
+     * @return the location or null
+     */
+    LocationVo extractLocation(Node coordinates, Location.LocationType type) {
+        if (coordinates != null) {
+            Location loc = new Location();
+            loc.setType(type);
+
+            // Parse the coordinates which consist of white-space separated tuples with one of the following formats:
+            // * "longitude,latitude,altitude" (used by Google Earth)
+            // * "longitude,latitude"
+            String txt = coordinates.getTextContent().trim();
+            for (String coord : txt.split("\\s+")) {
+                String[] lonLatAlt = coord.split(",");
+                if (lonLatAlt.length == 2 || lonLatAlt.length == 3) {
+                    Point pt = new Point();
+                    pt.setLon(Double.parseDouble(lonLatAlt[0]));
+                    pt.setLat(Double.parseDouble(lonLatAlt[1]));
+                    pt.setLocation(loc);
+                    loc.addPoint(pt);
+                }
+            }
+
+            if (loc.getPoints().size() > 0) {
+                // For polygons, skip the last point since it is identical to the first
+                if (loc.getType() == Location.LocationType.POLYGON && loc.getPoints().size() > 1) {
+                    loc.getPoints().remove(loc.getPoints().size() - 1);
+                }
+
+                return new LocationVo(loc);
+            }
+        }
+        return null;
     }
 
     /**
