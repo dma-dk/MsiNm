@@ -144,7 +144,7 @@ public class MessageService extends BaseService {
      */
     public MessageVo newTemplateMessage() {
         MessageVo messageVo = new MessageVo();
-        messageVo.setValidFrom(TimeUtils.resetTime(new Date()));
+        messageVo.setValidFrom(new Date());
         messageVo.setLocations(new ArrayList<>());
         SeriesIdentifier id = new SeriesIdentifier();
         id.setAuthority(app.getOrganization());
