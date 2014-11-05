@@ -151,7 +151,7 @@ public class MessageService extends BaseService {
         id.setMainType(SeriesIdType.MSI);
         id.setYear(Calendar.getInstance().get(Calendar.YEAR));
         messageVo.setSeriesIdentifier(id);
-        messageVo.setType(Type.SUBAREA_WARNING);
+        messageVo.setType(Type.COASTAL_WARNING);
         messageVo.setRepoPath(repositoryService.getNewTempDir().getPath());
         publishingService.newTemplateMessage(messageVo);
         return messageVo;
