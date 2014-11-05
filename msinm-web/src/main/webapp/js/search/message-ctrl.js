@@ -70,8 +70,8 @@ angular.module('msinm.search')
                             $scope.msg.type = 'TEMPORARY_NOTICE';
                         }
                     } else if ($scope.msg.seriesIdentifier.mainType == 'MSI') {
-                        if ($.inArray($scope.msg.type, ['COSTAL_WARNING', 'SUBAREA_WARNING', 'NAVAREA_WARNING']) == -1) {
-                            $scope.msg.type = 'SUBAREA_WARNING';
+                        if ($.inArray($scope.msg.type, ['LOCAL_WARNING', 'COASTAL_WARNING', 'SUBAREA_WARNING', 'NAVAREA_WARNING']) == -1) {
+                            $scope.msg.type = 'COASTAL_WARNING';
                         }
                     }
                 },

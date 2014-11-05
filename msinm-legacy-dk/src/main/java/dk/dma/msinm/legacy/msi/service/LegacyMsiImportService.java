@@ -317,7 +317,7 @@ public class LegacyMsiImportService extends BaseService {
                     if ("Navtex".equals(messageType) || "Navwarning".equals(messageType)) {
                         message.setType(Type.SUBAREA_WARNING);
                     } else {
-                        message.setType(Type.COSTAL_WARNING);
+                        message.setType(Type.COASTAL_WARNING);
                     }
 
                     Date now = new Date();

@@ -53,9 +53,10 @@ public class MsdlUtils {
             case TEMPORARY_NOTICE: msg.setType(MCType.TEMPORARY_NOTICE); break;
             case PRELIMINARY_NOTICE: msg.setType(MCType.PRELIMINARY_NOTICE); break;
             case MISCELLANEOUS_NOTICE: msg.setType(MCType.MISCELLANEOUS_NOTICE); break;
-            case COSTAL_WARNING: msg.setType(MCType.COSTAL_WARNING); break;
+            case COASTAL_WARNING: msg.setType(MCType.COASTAL_WARNING); break;
             case SUBAREA_WARNING: msg.setType(MCType.SUBAREA_WARNING); break;
             case NAVAREA_WARNING: msg.setType(MCType.NAVAREA_WARNING); break;
+            case LOCAL_WARNING: msg.setType(MCType.LOCAL_WARNING); break;
         }
 
         switch (message.getStatus()) {

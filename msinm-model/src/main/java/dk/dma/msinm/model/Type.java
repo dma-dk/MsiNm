@@ -18,7 +18,8 @@ package dk.dma.msinm.model;
 /**
  * Message type for message series identifier
  */
-public enum Type {
+public enum
+        Type {
     // NtM types
     PERMANENT_NOTICE(false),
     TEMPORARY_NOTICE(false),
@@ -26,9 +27,10 @@ public enum Type {
     MISCELLANEOUS_NOTICE(false),
     
     // MSI types
-    COSTAL_WARNING(true),
+    COASTAL_WARNING(true),
     SUBAREA_WARNING(true),
-    NAVAREA_WARNING(true);
+    NAVAREA_WARNING(true),
+    LOCAL_WARNING(true);
 
     boolean msi;
 
