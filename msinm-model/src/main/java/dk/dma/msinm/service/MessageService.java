@@ -28,7 +28,6 @@ import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.common.templates.TemplateContext;
 import dk.dma.msinm.common.templates.TemplateService;
 import dk.dma.msinm.common.templates.TemplateType;
-import dk.dma.msinm.common.util.TimeUtils;
 import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Bookmark;
 import dk.dma.msinm.model.Category;
@@ -490,7 +489,7 @@ public class MessageService extends BaseService {
      * @return the new series identifier number
      */
     public int newSeriesIdentifierNumber(Type type, String authority, int year) {
-        Sequence sequence = new DefaultSequence("MESSAGE_SERIES_ID_" + type.getPrefix() + "_" + authority + "_" + year, 0);
+        Sequence sequence = new DefaultSequence("MESSAGE_SERIES_ID_" + type.getPrefix() + "_" + authority + "_" + year, 1);
         return (int) sequences.getNextValue(sequence);
     }
 
