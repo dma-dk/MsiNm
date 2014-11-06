@@ -367,11 +367,14 @@ public class LegacyMsiImportService extends BaseService {
 
                     // Categories
                     message.getCategories().clear();
+                    // Because of changes to the category structure, categories are no longer imported
+                    /**
                     Category category = createCategoryTemplate(category1En, category1Da, null);
                     category = createCategoryTemplate(category2En, category2Da, category);
                     if (category != null) {
                         message.getCategories().add(category);
                     }
+                     **/
 
                     // Locations
                     message.getLocations().clear();
