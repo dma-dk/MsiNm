@@ -1,5 +1,11 @@
 
-
+/**
+ * Returns the IE version. Tested for IE11 and earlier.
+ */
+function isIE () {
+    var match = navigator.userAgent.match(/(?:MSIE |Trident\/.*; rv:)(\d+)/);
+    return match ? parseInt(match[1]) : undefined;
+}
 
 Date.prototype.ddmmyyyy = function() {
     var yyyy = this.getFullYear().toString();

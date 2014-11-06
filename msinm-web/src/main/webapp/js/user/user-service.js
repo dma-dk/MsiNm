@@ -104,6 +104,12 @@ angular.module('msinm.user')
         });
 
         $rootScope.loginDlg = function() {
+            // Require IE 11 or newer
+            if (isIE() < 11) {
+                alert("For this prototype, please use IE version 11 or newer.\nOr use a new'ish version of Chrome, Firefox or Safari");
+                return;
+            }
+
             $rootScope.loginDialog = $modal.open({
                 controller: "UserCtrl",
                 templateUrl : "/partials/user/login-dialog.html",

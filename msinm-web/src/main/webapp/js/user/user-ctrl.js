@@ -70,6 +70,12 @@ angular.module('msinm.user')
         };
 
         $scope.registerDlg = function() {
+            // Require IE 11 or newer
+            if (isIE() < 11) {
+                alert("For this prototype, please use IE version 11 or newer.\nOr use a new'ish version of Chrome, Firefox or Safari");
+                return;
+            }
+
             $modal.open({
                 controller: "UserDetailsCtrl",
                 templateUrl : "/partials/user/user-details-dialog.html",
