@@ -6,6 +6,7 @@ package dk.dma.msinm.common.templates;
 public enum TemplateType {
     PDF("pdf"),
     MAIL("mail"),
+    Light("light"),
     MESSAGE("message");
 
     private String path;
