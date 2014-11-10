@@ -7,12 +7,12 @@ import java.util.Locale;
  * <p>
  * The format template can contain the following type parts:
  * <ul>
- *     <li>deg: The degrees of a position</li>
- *     <li>min: The minutes of a position</li>
- *     <li>sec: The seconds of a position</li>
- *     <li>dir: The direction of a position</li>
+ *     <li>DEG: The degrees of a position</li>
+ *     <li>MIN: The minutes of a position</li>
+ *     <li>SEC: The seconds of a position</li>
+ *     <li>DIR: The direction of a position</li>
  * </ul>
- * The numeric types can be tagged with a "-f" suffix, meaning that a floor version
+ * The numeric types can be tagged with a "-F" suffix, meaning that a floor version
  * of the value will be used (i.e. rounded down numerically).
  * <p>
  * Additionally, each type can be suffixed with a format specification. For the
@@ -21,16 +21,16 @@ import java.util.Locale;
  * <p>
  * Examples:
  * <ul>
- *     <li>min: the minutes.</li>
- *     <li>min-f: the rounded down minutes.</li>
- *     <li>min-f[%02d]: the rounded down minutes prefixed with zeros to ensure two integer digits.</li>
- *     <li>min[%06.3f]: the minutes formatted to have two integer digits and three decimal digits.</li>
- *     <li>dir[N,S]: the direction which emits "N" for positive values and "S" for negative values.</li>
+ *     <li>MIN: the minutes.</li>
+ *     <li>MIN-F: the rounded down minutes.</li>
+ *     <li>MIN-F[%02d]: the rounded down minutes prefixed with zeros to ensure two integer digits.</li>
+ *     <li>MIN[%06.3f]: the minutes formatted to have two integer digits and three decimal digits.</li>
+ *     <li>DIR[N,S]: the direction which emits "N" for positive values and "S" for negative values.</li>
  * </ul>
  *
  * <p>
- * Lat-lon pairs can be formatted using a "latLonFormat" template where all occurrences of "lat" is replaced
- * with the formatted latitude and all occurrences of "lon" is replaced with the formatted longitude.
+ * Lat-lon pairs can be formatted using a "latLonFormat" template where all occurrences of "LAT" is replaced
+ * with the formatted latitude and all occurrences of "LON" is replaced with the formatted longitude.
  *
  * <p>
  * The specified locale is used to define the decimal separator (period or comma).
@@ -39,16 +39,16 @@ import java.util.Locale;
 public class PositionFormatter {
 
     public static final Format LATLON_SEC = new Format(
-            "deg-f[%02d]° min-f[%02d]' sec-f[%02d]\"dir[N,S]",
-            "deg-f[%03d]° min-f[%02d]' sec-f[%02d]\"dir[E,W]");
+            "DEG-F[%02d]\u00B0 MIN-F[%02d]' SEC-F[%02d]\"DIR[N,S]",
+            "DEG-F[%03d]\u00B0 MIN-F[%02d]' SEC-F[%02d]\"DIR[E,W]");
 
     public static final Format LATLON_DEC = new Format(
-            "deg-f[%02d]° min[%06.3f]'dir[N,S]",
-            "deg-f[%03d]° min[%06.3f]'dir[E,W]");
+            "DEG-F[%02d]\u00B0 MIN[%06.3f]'DIR[N,S]",
+            "DEG-F[%03d]\u00B0 MIN[%06.3f]'DIR[E,W]");
 
     public static final Format LATLON_NAVTEX = new Format(
-            "deg-f[%02d]-min[%05.2f]dir[N,S]",
-            "deg-f[%03d]-min[%05.2f]dir[E,W]");
+            "DEG-F[%02d]-MIN[%05.2f]DIR[N,S]",
+            "DEG-F[%03d]-MIN[%05.2f]DIR[E,W]");
 
 
     /**
@@ -77,8 +77,8 @@ public class PositionFormatter {
     /**
      * Formats the position according to the give format using the default locale.
      *
-     * The latLonFormat is used as a template and all occurrences of "lat" is replaced
-     * with the latitude and all occurrences of "lon" is replaced with the longitude.
+     * The latLonFormat is used as a template and all occurrences of "LAT" is replaced
+     * with the latitude and all occurrences of "LON" is replaced with the longitude.
      *
      * @param format the position format
      * @param latLonFormat the combined lat lon template
@@ -106,8 +106,8 @@ public class PositionFormatter {
     /**
      * Formats the position according to the give format using the given locale.
      *
-     * The latLonFormat is used as a template and all occurrences of "lat" is replaced
-     * with the latitude and all occurrences of "lon" is replaced with the longitude.
+     * The latLonFormat is used as a template and all occurrences of "LAT" is replaced
+     * with the latitude and all occurrences of "LON" is replaced with the longitude.
      *
      * @param locale the locale
      * @param format the position format
@@ -119,12 +119,12 @@ public class PositionFormatter {
     public static String format(Locale locale, Format format, String latLonFormat, double lat, double lon) {
         // Set defaults
         format = (format == null) ? LATLON_SEC : format;
-        latLonFormat = (latLonFormat == null) ? "lat lon" : latLonFormat;
+        latLonFormat = (latLonFormat == null) ? "LAT LON" : latLonFormat;
 
         String latitude = format(locale, format.getLatFormat(), lat);
         String longitude = format(locale, format.getLonFormat(), lon);
 
-        return latLonFormat.replaceAll("lat", latitude).replaceAll("lon", longitude);
+        return latLonFormat.replaceAll("LAT", latitude).replaceAll("LON", longitude);
     }
 
     /**
@@ -157,22 +157,22 @@ public class PositionFormatter {
 
         StringBuilder result = new StringBuilder();
         Part p;
-        while ((p = findPart(format, "deg")) != null) {
+        while ((p = findPart(format, "DEG")) != null) {
             format = p.floor
                     ? p.replaceNumber(locale, degrees, "%02d")
                     : p.replaceNumber(locale, val, "%.2f");
         }
-        while ((p = findPart(format, "min")) != null) {
+        while ((p = findPart(format, "MIN")) != null) {
             format = p.floor
                     ? p.replaceNumber(locale, minutes, "%02d")
                     : p.replaceNumber(locale, fraction * 60.0, "%02f");
         }
-        while ((p = findPart(format, "sec")) != null) {
+        while ((p = findPart(format, "SEC")) != null) {
             format = p.floor
                     ? p.replaceNumber(locale, seconds, "%02d")
                     : p.replaceNumber(locale, fraction * 3600.0 - minutes * 60.0, "%02f");
         }
-        while ((p = findPart(format, "dir")) != null) {
+        while ((p = findPart(format, "DIR")) != null) {
             int signIndex = value >= 0.0 ? 0 : 1;
             format = p.replaceIndex(signIndex);
         }
@@ -198,9 +198,9 @@ public class PositionFormatter {
         p.before = format.substring(0, index);
 
         // Look for a floor postfix
-        if (format.indexOf(type + "-f") == index) {
+        if (format.indexOf(type + "-F") == index) {
             p.floor = true;
-            type = type + "-f";
+            type = type + "-F";
         }
 
         // Check if the format defines a "[%02d]" style format
@@ -215,7 +215,7 @@ public class PositionFormatter {
 
 
     public static void main(String[] args) {
-        System.out.println(PositionFormatter.format(Locale.ENGLISH, "deg[%02d], min[%2d], min[%.2f], sec[%02d], dir[N,S]", 55.0999));
+        System.out.println(PositionFormatter.format(Locale.ENGLISH, "DEG[%02d], MIN[%2d], MIN[%.2f], SEC[%02d], DIR[N,S]", 55.0999));
         System.out.println(PositionFormatter.format(Locale.ENGLISH, LATLON_DEC.getLatFormat(), 55.2211));
         System.out.println(PositionFormatter.format(Locale.ENGLISH, LATLON_NAVTEX.getLatFormat(), 55.512345));
     }
@@ -243,8 +243,8 @@ public class PositionFormatter {
     /**
      * Helper class
      * Encapsulates a part of a position format such as ""
-     * The type field can be one of "deg", "min", "sec" or "dir"
-     * The format can be a printf format for the numeric types (e.g. "%02d" or "%.2f") or a comma-separated array of values for "dir".
+     * The type field can be one of "DEG", "MIN", "SEC" or "DIR"
+     * The format can be a printf format for the numeric types (e.g. "%02d" or "%.2f") or a comma-separated array of values for "DIR".
      * The "before" and "after" fields contain the part of the format before and after the matched type part
      */
     static class Part {

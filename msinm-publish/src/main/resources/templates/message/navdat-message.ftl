@@ -64,7 +64,7 @@ Positions:
                 ${loc.descs[0].description}.
             </#if>
             <#list loc.points as point>
-                <@formatPos lat=point.lat lon=point.lon format="navtex"/>
+                <@formatPos lat=point.lat lon=point.lon format=posFormat/>
                 <#if point.descs?has_content && point.descs[0].description?has_content> (${point.descs[0].description})</#if>
                 <#if point_has_next> and </#if>
             </#list>
