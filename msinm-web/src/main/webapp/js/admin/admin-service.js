@@ -168,6 +168,37 @@ angular.module('msinm.admin')
         };
     }])
 
+    .factory('TemplatesService', [ '$http', '$rootScope', function($http, $rootScope) {
+        'use strict';
+
+        return {
+            getTemplates: function(success, error) {
+                $http.get('/rest/admin/templates/all?lang=' + $rootScope.language)
+                    .success(success)
+                    .error(error);
+            },
+
+            createTemplate: function(template, success, error) {
+                $http.post('/rest/admin/templates/template', template)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateTemplate: function(template, success, error) {
+                $http.put('/rest/admin/templates/template', template)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteTemplate: function(template, success, error) {
+                $http.delete('/rest/admin/templates/template/' + template.id)
+                    .success(success)
+                    .error(error);
+            }
+        };
+    }])
+
+
     .factory('SettingsService', [ '$http', function($http) {
         'use strict';
 

@@ -24,7 +24,7 @@
                     <input class="form-control input-sm col-sm-2" ng-model="search" type="text" placeholder="Filter">
                 </div>
                 <div class="col-sm-1">
-                    <button type="submit" class="btn btn-primary btn-sm">
+                    <button type="submit" class="btn btn-primary btn-sm" ng-click="addTemplate()">
                         <span class="glyphicon glyphicon-plus"></span> Add Template
                     </button>
                 </div>
@@ -40,12 +40,12 @@
                         </tr>
                         <tr ng-repeat="template in templates | filter:search">
                             <td>{{template.name}}</td>
-                            <td>{{mailList.template.name}}</td>
+                            <td>{{template.name}}</td>
                             <td ng-bind-html="template.categories | serialize:'<br>'"></td>
                             <td align="center">
-                                <a href title="Edit Template"><i class="glyphicon glyphicon-pencil"></i></a>
+                                <a href ng-click="editTemplate(template)" title="Edit Template"><i class="glyphicon glyphicon-pencil"></i></a>
                                 &nbsp;
-                                <a href title="Delete Template"><i class="glyphicon glyphicon-trash"></i></a>
+                                <a href ng-click="deleteTemplate(template)" title="Delete Template"><i class="glyphicon glyphicon-trash"></i></a>
                             </td>
                         </tr>
                     </table>

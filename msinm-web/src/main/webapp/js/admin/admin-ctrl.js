@@ -655,14 +655,119 @@ angular.module('msinm.admin')
     /**
      * The TemplatesCtrl handles templates for the administrator
      */
-    .controller('TemplatesCtrl', ['$scope', '$modal',
-        function ($scope, $modal) {
+    .controller('TemplatesCtrl', ['$scope', '$modal', 'TemplatesService', 'DialogService',
+        function ($scope, $modal, TemplatesService, DialogService) {
             'use strict';
 
         $scope.error = undefined;
         $scope.templates = [];
 
         $scope.loadTemplates = function () {
+        };
+
+        $scope.addTemplate = function () {
+            $scope.tempalteDlg(
+                { name:'', categories: {}},
+                'add'
+            );
+        };
+
+        $scope.editTemplate = function (template) {
+            $scope.tempalteDlg(
+                template,
+                'edit'
+            );
+        };
+
+        // Deletes the given template after confirmation
+        $scope.deleteTemplate = function (template) {
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                "Delete Template?", "Delete template " + template.name + "?")
+                .then(function() {
+                    TemplatesService.deleteTemplate(
+                        template,
+                        function (data) {
+                            $scope.loadTemplates();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
+        };
+
+        $scope.tempalteDlg = function (template, userAction) {
+            $scope.modalInstance = $modal.open({
+                controller: "TemplatesDialogCtrl",
+                templateUrl : "/partials/admin/templates-dialog.html",
+                resolve: {
+                    template: function(){
+                        return template;
+                    },
+                    userAction: function(){
+                        return userAction;
+                    }
+                }
+            });
+
+            $scope.modalInstance.result.then(function() {
+                $scope.loadTemplates();
+            }, function() {
+                // Cancelled
+            })['finally'](function(){
+                $scope.modalInstance = undefined;
+            });
+        };
+
+    }])
+
+
+    /**
+     * The TemplatesDialogCtrl is the Templates add/edit dialog controller
+     */
+    .controller('TemplatesDialogCtrl', ['$scope', '$modalInstance', 'TemplatesService', 'userAction', 'template',
+        function ($scope, $modalInstance, TemplatesService, userAction, template) {
+            'use strict';
+
+        $scope.userAction = userAction;
+        $scope.template = template;
+        $scope.focusMe = true;
+
+        $scope.createOrUpdateTemplate = function() {
+            if ($scope.userAction == 'add') {
+                $scope.createTemplate();
+            } else {
+                $scope.updateTemplate();
+            }
+        };
+
+        $scope.createTemplate = function() {
+            TemplatesService.createTemplate(
+                $scope.template,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the template data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        };
+
+        $scope.updateTemplate = function() {
+            TemplatesService.updateTemplate(
+                $scope.template,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the template data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
         };
 
     }])
