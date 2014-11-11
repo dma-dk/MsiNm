@@ -653,6 +653,21 @@ angular.module('msinm.admin')
 
 
     /**
+     * The TemplatesCtrl handles templates for the administrator
+     */
+    .controller('TemplatesCtrl', ['$scope', '$modal',
+        function ($scope, $modal) {
+            'use strict';
+
+        $scope.error = undefined;
+        $scope.templates = [];
+
+        $scope.loadTemplates = function () {
+        };
+
+    }])
+
+    /**
      * Settings Controller
      */
     .controller('SettingsCtrl', ['$scope', 'DialogService', 'SettingsService',

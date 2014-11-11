@@ -34,6 +34,9 @@ var app = angular.module('msinm.admin', [
         }).when('/admin/categories', {
             templateUrl: 'partials/admin/categories.html',
             resolve: checkRole('admin')
+        }).when('/admin/templates', {
+            templateUrl: 'partials/admin/templates.html',
+            resolve: checkRole('admin')
         }).when('/admin/publish', {
             templateUrl: 'partials/admin/publish.html',
             resolve: checkRole('admin')
