@@ -19,6 +19,7 @@
         <msinm-model.jar>msinm-model-${project.version}.jar</msinm-model.jar>
         <msinm-user.jar>msinm-user-${project.version}.jar</msinm-user.jar>
         <msinm-reporting.jar>msinm-reporting-${project.version}.jar</msinm-reporting.jar>
+        <msinm-templates.jar>msinm-templates-${project.version}.jar</msinm-templates.jar>
         <msinm-legacy-dk.jar>msinm-legacy-dk-${project.version}.jar</msinm-legacy-dk.jar>
     </properties>
 
@@ -57,6 +58,11 @@
         <dependency>
             <groupId>dk.dma.msinm</groupId>
             <artifactId>msinm-publish</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>dk.dma.msinm</groupId>
+            <artifactId>msinm-templates</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
         <dependency>

@@ -16,41 +16,89 @@
         <div ng-controller="TemplatesCtrl" ng-init="loadTemplates()">
 
             <p>
-                Manage message templates.
+                Manage message templates and template parameter types.
             </p>
 
-            <div class="row">
-                <div class="col-xs-8 col-sm-6 col-md-4">
-                    <input class="form-control input-sm col-sm-2" ng-model="search" type="text" placeholder="Filter">
-                </div>
-                <div class="col-sm-1">
-                    <button type="submit" class="btn btn-primary btn-sm" ng-click="addTemplate()">
-                        <span class="glyphicon glyphicon-plus"></span> Add Template
-                    </button>
-                </div>
-            </div>
+            <tabset class="template-tabs">
 
-            <div class="row" style="padding-top: 20px;">
-                <div class="col-sm-12 col-md-10">
-                    <table class='table table-condensed table-hover'>
-                        <tr>
-                            <th>Template</th>
-                            <th>Categories</th>
-                            <th>Action</th>
-                        </tr>
-                        <tr ng-repeat="template in templates | filter:search">
-                            <td>{{template.name}}</td>
-                            <td>{{template.name}}</td>
-                            <td ng-bind-html="template.categories | serialize:'<br>'"></td>
-                            <td align="center">
-                                <a href ng-click="editTemplate(template)" title="Edit Template"><i class="glyphicon glyphicon-pencil"></i></a>
-                                &nbsp;
-                                <a href ng-click="deleteTemplate(template)" title="Delete Template"><i class="glyphicon glyphicon-trash"></i></a>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            </div>
+                <!-- Templates tab -->
+                <tab heading="Templates">
+                    <div class="template-tab">
+
+                        <div class="row">
+                            <div class="col-xs-8 col-sm-6 col-md-4">
+                                <input class="form-control input-sm col-sm-2" ng-model="search" type="text" placeholder="Filter">
+                            </div>
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary btn-sm" ng-click="addTemplate()">
+                                    <span class="glyphicon glyphicon-plus"></span> Add Template
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top: 20px;">
+                            <div class="col-sm-12 col-md-10">
+                                <table class='table table-condensed table-hover'>
+                                    <tr>
+                                        <th>Template</th>
+                                        <th>Categories</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    <tr ng-repeat="template in templates | filter:search">
+                                        <td>{{template.name}}</td>
+                                        <td ng-bind-html="template.categories | serialize:'<br>'"></td>
+                                        <td align="center">
+                                            <a href ng-click="editTemplate(template)" title="Edit Template"><i class="glyphicon glyphicon-pencil"></i></a>
+                                            &nbsp;
+                                            <a href ng-click="deleteTemplate(template)" title="Delete Template"><i class="glyphicon glyphicon-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </tab>
+
+                <!-- Parameter Types tab -->
+                <tab heading="Parameter Types">
+                    <div class="template-tab">
+
+                        <div class="row">
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary btn-sm" ng-click="addParameterType()">
+                                    <span class="glyphicon glyphicon-plus"></span> Add Parameter Type
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top: 20px;">
+                            <div class="col-sm-12 col-md-10">
+                                <table class='table table-condensed table-hover'>
+                                    <tr>
+                                        <th>Parameter Type</th>
+                                        <th>Values</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    <tr ng-repeat="paramType in parameterTypes">
+                                        <td>{{paramType.name}}</td>
+                                        <td>
+                                            <div ng-repeat="val in paramType.values">{{val.descs[0].shortValue ? val.descs[0].shortValue : val.descs[0].longValue}}</div>
+                                        </td>
+                                        <td align="center">
+                                            <a href ng-click="editParameterType(paramType)" title="Edit Parameter Type"><i class="glyphicon glyphicon-pencil"></i></a>
+                                            &nbsp;
+                                            <a href ng-click="deleteParameterType(paramType)" title="Delete Parameter Type"><i class="glyphicon glyphicon-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </tab>
+            </tabset>
+
         </div>
 
     </div>

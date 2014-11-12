@@ -23,6 +23,7 @@ import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.CategoryService;
+import dk.dma.msinm.templates.model.ListParamType;
 import dk.dma.msinm.user.User;
 import org.slf4j.Logger;
 
@@ -70,6 +71,10 @@ public class BaseDataLoader extends BaseService {
     @Sql("/sql/base-charts.sql")
     String chartsSql;
 
+    @Inject
+    @Sql("/sql/base-listparamtype.sql")
+    String listParamTypeSql;
+
     /**
      * Checks whether to load base data or not
      */
@@ -87,6 +92,8 @@ public class BaseDataLoader extends BaseService {
         if (checkLoadBaseData(Category.class, categoriesSql)) {
             categoryService.updateLineages();
         }
+
+        checkLoadBaseData(ListParamType.class, listParamTypeSql);
     }
 
     /**

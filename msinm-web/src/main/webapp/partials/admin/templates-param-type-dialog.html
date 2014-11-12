@@ -1,0 +1,82 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2 ng-show="userAction == 'add'">Create Parameter Type</h2>
+        <h2 ng-show="userAction == 'edit'">Edit Parameter Type</h2>
+    </div>
+
+    <div class="modal-body">
+        <div class="alert alert-danger" ng-show="error">{{error}}</div>
+
+        <p>
+            A template parameter type defines a list of values for a named parameter.
+            Each value is localized and exists in a short and long form, which can e.g.
+            be used for a message description field and a NAVTEX message field respectively.
+        </p>
+        <p>
+            If the short form is left empty, the long form is used, and vice versa.
+        </p>
+
+        <form name="edit_form">
+
+            <div class="form-controls">
+                <div class="form-group">
+                    <h5>Parameter Type</h5>
+                    <input type="text" name="typefield" class="form-control input-sm" placeholder="Unique Parameter Type Name"
+                           focus="focusMe" ng-model="parameterType.name" ng-disabled="userAction == 'edit'"
+                           autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                </div>
+
+                <div class="form-group">
+                    <h5>Parameter Type Values</h5>
+                    <div class="template-parmeter-values">
+                        <table class='table table-condensed table-hover'>
+                            <tr>
+                                <th>#</th>
+                                <th>Short Value</th>
+                                <th>Long Value</th>
+                                <th></th>
+                            </tr>
+                            <tr ng-repeat="val in parameterType.values">
+                                <td>
+                                    {{val.sortKey}}
+                                    <br/>
+                                    <a href ng-click="changeSortOrder(val, true);"
+                                       title="Move Up"><i class="glyphicon glyphicon-arrow-up"></i></a>
+                                    <a href ng-click="changeSortOrder(val, false);"
+                                       title="Move Down"><i class="glyphicon glyphicon-arrow-down"></i></a>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control input-sm" ng-repeat="desc in val.descs" ng-model="desc.shortValue" lang-flag="desc.lang"/><br/>
+                                </td>
+                                <td>
+                                    <input type="text" class="form-control input-sm" ng-repeat="desc in val.descs" ng-model="desc.longValue" lang-flag="desc.lang"/><br/>
+                                </td>
+                                <td align="center">
+                                    <a href ng-click="deleteValue(val);"
+                                       title="Delete Value"><i class="glyphicon glyphicon-trash"></i></a>
+                                    <a href ng-click="addValueBelow(val);"
+                                       title="Add Value Below"><i class="glyphicon glyphicon-plus"></i></a>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="!(edit_form.typefield.$valid)"
+                            ng-click="createOrUpdateParameterType()">
+                        <span ng-show="userAction == 'add'">Create</span>
+                        <span ng-show="userAction == 'edit'">Update</span>
+                    </button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

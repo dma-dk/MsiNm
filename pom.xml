@@ -186,6 +186,7 @@
         <module>msinm-reporting</module>
         <module>msinm-lucene</module>
         <module>msinm-publish</module>
+        <module>msinm-templates</module>
         <module>msinm-web</module>
         <module>msinm-legacy-dk</module>
         <module>msinm-web-dk</module>
