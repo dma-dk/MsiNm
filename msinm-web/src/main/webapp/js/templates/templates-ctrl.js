@@ -21,7 +21,7 @@ angular.module('msinm.templates')
 
         // Loads templates and parameter types
         $scope.loadAll = function () {
-            //$scope.loadTemplates();
+            $scope.loadTemplates();
             $scope.loadListParamTypes();
             $scope.loadCompositeParamTypes();
         };
@@ -48,11 +48,8 @@ angular.module('msinm.templates')
             $scope.templateDlg(
                 {   name:'',
                     categories: {},
-                    parameters: [ { name: 'Ship Type', type: 'ShipType', mandatory: true } ],
-                    fieldTemplates: [
-                        { field : 'title:en', fmTemplate: '${msg.categories[0].descs[0].name}' }, { field : 'title:da', fmTemplate: '${msg.categories[0].descs[0].name}' },
-                        { field : 'description:en', fmTemplate: '' }, { field : 'description:da', fmTemplate: '' }
-                    ]
+                    parameters: [],
+                    fieldTemplates: []
                 },
                 'add'
             );
@@ -277,17 +274,45 @@ angular.module('msinm.templates')
      * ********************************************************************************
      * The TemplatesDialogCtrl is the Templates add/edit dialog controller
      */
-    .controller('TemplatesDialogCtrl', ['$scope', '$modalInstance', 'TemplatesService', 'userAction', 'template',
-        function ($scope, $modalInstance, TemplatesService, userAction, template) {
+    .controller('TemplatesDialogCtrl', ['$scope', '$modalInstance', '$timeout', 'LangService', 'TemplatesService', 'userAction', 'template',
+        function ($scope, $modalInstance, $timeout, LangService, TemplatesService, userAction, template) {
         'use strict';
 
         $scope.userAction = userAction;
         $scope.template = angular.copy(template);
         $scope.focusMe = true;
 
+        $timeout(function () {
+            initCategoryField("#templateCategories", true);
+            if (template.categories && template.categories.length > 0) {
+                var data = [];
+                $scope.template.categoryIds = '';
+                for (var i in template.categories) {
+                    var cat = template.categories[i];
+                    if ($scope.template.categoryIds != '') {
+                        $scope.template.categoryIds += ',';
+                    }
+                    $scope.template.categoryIds += cat.id;
+                    data.push({id: cat.id, text: LangService.descForLangOrDefault(cat).name, category: cat });
+                }
+                $("#templateCategories").select2("data", data);
+            } else {
+                $("#templateCategories").select2("data", null);
+            }
+        }, 200);
 
         // Creates or updates the template
         $scope.createOrUpdateTemplate = function() {
+
+            // Update Categories
+            var categoryData = $("#templateCategories").select2("data");
+            $scope.template.categories = [];
+            for (var i in categoryData) {
+                $scope.template.categories.push(categoryData[i].category);
+                // Trim json
+                categoryData[i].category.parent = null; // Trim json
+            }
+
             if ($scope.userAction == 'add') {
                 $scope.createTemplate();
             } else {

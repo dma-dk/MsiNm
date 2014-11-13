@@ -240,7 +240,7 @@ angular.module('msinm.search')
                     msg.categoryIds = '';
                     for (var i in msg.categories) {
                         var cat = msg.categories[i];
-                        if (msg.categoryIds == '') {
+                        if (msg.categoryIds != '') {
                             msg.categoryIds += ',';
                         }
                         msg.categoryIds += cat.id;
@@ -275,7 +275,7 @@ angular.module('msinm.search')
                     var data = [];
                     for (var i in charts) {
                         var chart = charts[i];
-                        if ($scope.msg.chartIds == '') {
+                        if ($scope.msg.chartIds != '') {
                             $scope.msg.chartIds += ',';
                         }
                         $scope.msg.chartIds += chart.id;
