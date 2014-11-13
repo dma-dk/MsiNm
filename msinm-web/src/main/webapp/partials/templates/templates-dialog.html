@@ -32,30 +32,9 @@
                 </div>
 
                 <div class="form-group">
-                    <h5>
-                        Parameters
-                        <label class="btn btn-default btn-xs" style="float: right" ng-click="addParameter()">
-                            <span class="glyphicon glyphicon-plus"> Add Parameter</span>
-                        </label>
-                    </h5>
+                    <h5>Parameters</h5>
                     <div>
-                        <table class='table table-condensed table-hover'>
-                            <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Mandatory</th>
-                                <th></th>
-                            </tr>
-                            <tr ng-repeat="param in template.parameters">
-                                <td>{{param.name}}</td>
-                                <td>{{param.type}}</td>
-                                <td><input type="checkbox" ng-model="param.mandatory" disabled="disabled"></td>
-                                <td align="center">
-                                    <a href ng-click="deleteParameter(param);"
-                                       title="Delete Recipient"><i class="glyphicon glyphicon-trash"></i></a>
-                                </td>
-                            </tr>
-                        </table>
+                        <msi-template-param-list parameters="template.parameters"></msi-template-param-list>
                     </div>
                 </div>
 

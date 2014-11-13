@@ -1,7 +1,6 @@
 package dk.dma.msinm.templates.vo;
 
 import dk.dma.msinm.common.model.DataFilter;
-import dk.dma.msinm.common.vo.BaseVo;
 import dk.dma.msinm.templates.model.ListParamType;
 
 import java.util.ArrayList;
@@ -10,10 +9,8 @@ import java.util.List;
 /**
  * Value object for the {@code ListParamType} model entity
  */
-public class ListParamTypeVo extends BaseVo<ListParamType> {
+public class ListParamTypeVo extends ParamTypeVo<ListParamType> {
 
-    Integer id;
-    String name;
     List<ListParamValueVo> values = new ArrayList<>();
 
     /**
@@ -33,8 +30,6 @@ public class ListParamTypeVo extends BaseVo<ListParamType> {
 
         DataFilter compFilter = dataFilter.forComponent(ListParamType.class);
 
-        id = listParamType.getId();
-        name = listParamType.getName();
         listParamType.getValues().forEach(val -> checkCreateValues().add(new ListParamValueVo(val, compFilter)));
     }
 
@@ -49,7 +44,7 @@ public class ListParamTypeVo extends BaseVo<ListParamType> {
         if (values != null) {
             values.stream()
                     .filter(ListParamValueVo::isDefined)
-                    .forEach(val -> listParamType.getValues().add(val.toEntity()));
+                    .forEach(val -> listParamType.getValues().add(val.toEntity(listParamType)));
         }
 
         return listParamType;
@@ -74,22 +69,6 @@ public class ListParamTypeVo extends BaseVo<ListParamType> {
         if (values != null) {
             values.forEach(val -> val.sortDescs(lang));
         }
-    }
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
     }
 
     public List<ListParamValueVo> getValues() {

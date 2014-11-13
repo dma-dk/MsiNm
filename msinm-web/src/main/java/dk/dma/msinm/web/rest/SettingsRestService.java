@@ -1,8 +1,8 @@
 package dk.dma.msinm.web.rest;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
+import dk.dma.msinm.common.vo.JsonSerializable;
 import org.apache.commons.lang.StringUtils;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -12,8 +12,12 @@ import org.slf4j.Logger;
 import javax.annotation.security.RolesAllowed;
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import javax.ws.rs.*;
-import java.io.Serializable;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -78,8 +82,7 @@ public class SettingsRestService {
     /**
      * VO for settings
      */
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    public static class SettingsVo implements Serializable {
+    public static class SettingsVo implements JsonSerializable {
 
         String key;
         String value;

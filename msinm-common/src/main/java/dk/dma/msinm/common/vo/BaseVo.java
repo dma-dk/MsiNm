@@ -15,11 +15,7 @@
  */
 package dk.dma.msinm.common.vo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.model.BaseEntity;
-
-import java.io.Serializable;
 
 /**
  * Base class for value objects.
@@ -28,14 +24,8 @@ import java.io.Serializable;
  *     <li>A constructor that takes a BaseEntity is used for converting an entity into a VO.</li>
  *     <li>A {@code toEntity()} method is used for converting the VO back into an entity.</li>
  * </ul>
- *
- * To allow for a more compact JSON serialization, the VO's do not serialize null properties.
- * Hence all implementing VO classes should e.g. take care not to instantiate lists to empty
- * lists, but leave them as null until an actual value is added.
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public abstract class BaseVo<E extends BaseEntity> implements Serializable {
+public abstract class BaseVo<E extends BaseEntity> implements JsonSerializable {
 
     /**
      * Constructor

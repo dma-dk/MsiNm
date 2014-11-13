@@ -15,19 +15,19 @@
  */
 package dk.dma.msinm.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import dk.dma.msinm.common.vo.JsonSerializable;
 import dk.dma.msinm.model.Location;
 import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.Status;
 import dk.dma.msinm.model.Type;
-import org.apache.commons.lang.StringUtils;
 
-import java.io.Serializable;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static org.apache.commons.lang.StringUtils.isNotBlank;
@@ -35,9 +35,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 /**
  * Defines the search parameters
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class MessageSearchParams implements Serializable {
+public class MessageSearchParams implements JsonSerializable {
 
     public static final String DATE_FORMAT = "dd-MM-yyyy";
 

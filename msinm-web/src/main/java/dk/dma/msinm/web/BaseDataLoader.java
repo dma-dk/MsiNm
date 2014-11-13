@@ -23,6 +23,7 @@ import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.CategoryService;
+import dk.dma.msinm.templates.model.CompositeParamType;
 import dk.dma.msinm.templates.model.ListParamType;
 import dk.dma.msinm.user.User;
 import org.slf4j.Logger;
@@ -75,6 +76,10 @@ public class BaseDataLoader extends BaseService {
     @Sql("/sql/base-listparamtype.sql")
     String listParamTypeSql;
 
+    @Inject
+    @Sql("/sql/base-compositeparamtype.sql")
+    String compositeParamTypeSql;
+
     /**
      * Checks whether to load base data or not
      */
@@ -94,6 +99,8 @@ public class BaseDataLoader extends BaseService {
         }
 
         checkLoadBaseData(ListParamType.class, listParamTypeSql);
+
+        checkLoadBaseData(CompositeParamType.class, compositeParamTypeSql);
     }
 
     /**

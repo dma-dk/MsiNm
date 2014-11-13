@@ -1,5 +1,6 @@
 package dk.dma.msinm.templates.service;
 
+import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -34,51 +35,102 @@ public class TemplateRestService {
     Logger log;
 
     @Inject
-    ListParamService listParamService;
+    ParamTypeService paramTypeService;
 
 
-    /**
-     * Returns all list parameter types.
-     * NB: Returns all language variants, but sorted by the given language
-     *
-     * @return returns all list parameter types
-     */
     @GET
-    @Path("/allParameterTypes")
+    @Path("/param-type-names")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    @Lock(LockType.READ)
+    public List<String> getParameterTypeNames() {
+        return paramTypeService.getParameterTypeNames();
+    }
+
+    /*****************************************/
+    /** List parameter type methods         **/
+    /*****************************************/
+
+    @GET
+    @Path("/list-param-types")
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
     @Lock(LockType.READ)
     public List<ListParamTypeVo> getListParameterTypes(@QueryParam("lang") String lang) {
-        return listParamService.getListParamTypes(lang);
+        return paramTypeService.getListParamTypes(lang);
     }
 
     @POST
-    @Path("/parameterType")
+    @Path("/list-param-type")
     @Consumes("application/json")
     @Produces("application/json")
     @RolesAllowed({"admin"})
     public String createListParameterType(ListParamTypeVo typeVo) throws Exception {
-        listParamService.createParamType(typeVo);
+        paramTypeService.createListParamType(typeVo);
         return "OK";
     }
 
     @PUT
-    @Path("/parameterType")
+    @Path("/list-param-type")
     @Consumes("application/json")
     @Produces("application/json")
     @RolesAllowed({"admin"})
     public String updateListParameterType(ListParamTypeVo typeVo) throws Exception {
-        listParamService.updateParamType(typeVo);
+        paramTypeService.updateListParamType(typeVo);
         return "OK";
     }
 
     @DELETE
-    @Path("/parameterType/{typeId}")
+    @Path("/list-param-type/{typeId}")
     @Produces("application/json")
     @RolesAllowed({"admin"})
     public String deleteListParameterType(@PathParam("typeId") Integer typeId) throws Exception {
-        listParamService.deleteParamType(typeId);
+        paramTypeService.deleteParamType(typeId);
+        return "OK";
+    }
+
+    /*****************************************/
+    /** List parameter type methods         **/
+    /*****************************************/
+
+    @GET
+    @Path("/composite-param-types")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    @Lock(LockType.READ)
+    public List<CompositeParamTypeVo> getCompositeParameterTypes() {
+        return paramTypeService.getCompositeParamTypes();
+    }
+
+    @POST
+    @Path("/composite-param-type")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({"admin"})
+    public String createCompositeParameterType(CompositeParamTypeVo typeVo) throws Exception {
+        paramTypeService.createCompositeParamType(typeVo);
+        return "OK";
+    }
+
+    @PUT
+    @Path("/composite-param-type")
+    @Consumes("application/json")
+    @Produces("application/json")
+    @RolesAllowed({"admin"})
+    public String updateCompositeParameterType(CompositeParamTypeVo typeVo) throws Exception {
+        paramTypeService.updateCompositeParamType(typeVo);
+        return "OK";
+    }
+
+    @DELETE
+    @Path("/composite-param-type/{typeId}")
+    @Produces("application/json")
+    @RolesAllowed({"admin"})
+    public String deleteCompositeParameterType(@PathParam("typeId") Integer typeId) throws Exception {
+        paramTypeService.deleteParamType(typeId);
         return "OK";
     }
 

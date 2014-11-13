@@ -10,7 +10,7 @@
         <div class="alert alert-danger" ng-show="error">{{error}}</div>
 
         <p>
-            A template parameter type defines a list of values for a named parameter.
+            A list parameter type defines a list of values for a named parameter.
             Each value is localized and exists in a short and long form, which can e.g.
             be used for a message description field and a NAVTEX message field respectively.
         </p>
@@ -24,7 +24,7 @@
                 <div class="form-group">
                     <h5>Parameter Type</h5>
                     <input type="text" name="typefield" class="form-control input-sm" placeholder="Unique Parameter Type Name"
-                           focus="focusMe" ng-model="parameterType.name" ng-disabled="userAction == 'edit'"
+                           focus="focusMe" ng-model="parameterType.name"
                            autocapitalize="off" autocorrect="off" autocomplete="off" required />
                 </div>
 

@@ -1,0 +1,48 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2 ng-show="userAction == 'add'">Create Parameter Type</h2>
+        <h2 ng-show="userAction == 'edit'">Edit Parameter Type</h2>
+    </div>
+
+    <div class="modal-body">
+        <div class="alert alert-danger" ng-show="error">{{error}}</div>
+
+        <p>
+            A composite parameter type defines a list of nested template parameters.
+        </p>
+
+        <form name="edit_form">
+
+            <div class="form-controls">
+                <div class="form-group">
+                    <h5>Parameter Type</h5>
+                    <input type="text" name="typefield" class="form-control input-sm" placeholder="Unique Parameter Type Name"
+                           focus="focusMe" ng-model="parameterType.name"
+                           autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                </div>
+
+                <div class="form-group">
+                    <h5>Nested parameters</h5>
+                    <div>
+                        <msi-template-param-list parameters="parameterType.parameters"></msi-template-param-list>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="!(edit_form.typefield.$valid)"
+                            ng-click="createOrUpdateParameterType()">
+                        <span ng-show="userAction == 'add'">Create</span>
+                        <span ng-show="userAction == 'edit'">Update</span>
+                    </button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

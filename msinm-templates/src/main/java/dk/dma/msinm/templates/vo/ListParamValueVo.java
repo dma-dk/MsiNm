@@ -4,6 +4,7 @@ import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizedDesc;
 import dk.dma.msinm.common.vo.LocalizableVo;
 import dk.dma.msinm.common.vo.LocalizedDescVo;
+import dk.dma.msinm.templates.model.ListParamType;
 import dk.dma.msinm.templates.model.ListParamValue;
 import dk.dma.msinm.templates.model.ListParamValueDesc;
 import org.apache.commons.lang.StringUtils;
@@ -52,6 +53,12 @@ public class ListParamValueVo extends LocalizableVo<ListParamValue, ListParamVal
             value.getDescs().removeIf(desc -> !desc.descDefined());
         }
 
+        return value;
+    }
+
+    public ListParamValue toEntity(ListParamType listParamType) {
+        ListParamValue value = toEntity();
+        value.setListParamType(listParamType);
         return value;
     }
 

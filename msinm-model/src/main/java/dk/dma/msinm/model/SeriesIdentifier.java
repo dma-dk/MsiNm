@@ -15,20 +15,19 @@
  */
 package dk.dma.msinm.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import dk.dma.msinm.common.vo.JsonSerializable;
 
-import javax.persistence.*;
+import javax.persistence.Embeddable;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.Transient;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
 
 /**
  * A unique identifier for an MSI or NtM message
  */
 @Embeddable
-@JsonIgnoreProperties(ignoreUnknown=true)
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class SeriesIdentifier implements Serializable {
+public class SeriesIdentifier implements JsonSerializable {
 
     private static final long serialVersionUID = 1L;
 

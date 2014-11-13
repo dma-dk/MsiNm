@@ -31,26 +31,56 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
-            getParameterTypes: function(success, error) {
-                $http.get('/rest/templates/allParameterTypes?lang=' + $rootScope.language)
+            getParamTypeNames: function(success, error) {
+                $http.get('/rest/templates/param-type-names')
                     .success(success)
                     .error(error);
             },
 
-            createParameterType: function(parameterType, success, error) {
-                $http.post('/rest/templates/parameterType', parameterType)
+            getListParamTypes: function(success, error) {
+                $http.get('/rest/templates/list-param-types?lang=' + $rootScope.language)
                     .success(success)
                     .error(error);
             },
 
-            updateParameterType: function(parameterType, success, error) {
-                $http.put('/rest/templates/parameterType', parameterType)
+            createListParamType: function(parameterType, success, error) {
+                $http.post('/rest/templates/list-param-type', parameterType)
                     .success(success)
                     .error(error);
             },
 
-            deleteParameterType: function(parameterType, success, error) {
-                $http.delete('/rest/templates/parameterType/' + parameterType.id)
+            updateListParamType: function(parameterType, success, error) {
+                $http.put('/rest/templates/list-param-type', parameterType)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteListParamType: function(parameterType, success, error) {
+                $http.delete('/rest/templates/list-param-type/' + parameterType.id)
+                    .success(success)
+                    .error(error);
+            },
+
+            getCompositeParamTypes: function(success, error) {
+                $http.get('/rest/templates/composite-param-types')
+                    .success(success)
+                    .error(error);
+            },
+
+            createCompositeParamType: function(parameterType, success, error) {
+                $http.post('/rest/templates/composite-param-type', parameterType)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateCompositeParamType: function(parameterType, success, error) {
+                $http.put('/rest/templates/composite-param-type', parameterType)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteCompositeParamType: function(parameterType, success, error) {
+                $http.delete('/rest/templates/composite-param-type/' + parameterType.id)
                     .success(success)
                     .error(error);
             }

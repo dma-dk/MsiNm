@@ -1,11 +1,10 @@
 package dk.dma.msinm.publish;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.templates.TemplateContext;
 import dk.dma.msinm.common.templates.TemplateService;
 import dk.dma.msinm.common.templates.TemplateType;
 import dk.dma.msinm.common.util.JsonUtils;
+import dk.dma.msinm.common.vo.JsonSerializable;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Publication;
 import dk.dma.msinm.model.SeriesIdType;
@@ -29,7 +28,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -269,9 +267,7 @@ public class NavdatPublisher extends Publisher {
     /**
      * Navdat Data
      */
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public static class NavdatData implements Serializable {
+    public static class NavdatData implements JsonSerializable {
         NavdatPriority priority;
         NavdatBroadcast broadcast;
         String message;

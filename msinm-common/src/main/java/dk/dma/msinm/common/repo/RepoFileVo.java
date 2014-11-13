@@ -1,16 +1,11 @@
 package dk.dma.msinm.common.repo;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-
-import java.io.Serializable;
+import dk.dma.msinm.common.vo.JsonSerializable;
 
 /**
  * Represents a file in the repository
  */
-@JsonIgnoreProperties(ignoreUnknown=true)
-@JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-public class RepoFileVo implements Serializable {
+public class RepoFileVo implements JsonSerializable {
 
     String name;
     String path;

@@ -15,35 +15,35 @@ angular.module('msinm.templates')
 
         $scope.error = undefined;
         $scope.templates = [];
-        $scope.parameterTypes = [];
+        $scope.listParamTypes = [];
+        $scope.compositeParamTypes = [];
 
+
+        // Loads templates and parameter types
+        $scope.loadAll = function () {
+            //$scope.loadTemplates();
+            $scope.loadListParamTypes();
+            $scope.loadCompositeParamTypes();
+        };
+
+        // ****************************************
+        // Templates functionality
+        // ****************************************
+
+        // Loads the templates
         $scope.loadTemplates = function () {
-            /*** TODO
              // Load all templates, then load the parameter types
              TemplatesService.getTemplates(
              function (data) {
                 $scope.templates = data;
-                TemplatesService.getParameterTypes(
-                    function (data) {
-                        $scope.parameterTypes = data;
-                    },
-                    function () {
-                        console.log("Error fetching parameter types");
-                    });
             },
              function () {
                 console.log("Error fetching templates");
             });
-             **/
-            TemplatesService.getParameterTypes(
-                function (data) {
-                    $scope.parameterTypes = data;
-                },
-                function () {
-                    console.log("Error fetching parameter types");
-                });
         };
 
+
+        // Adds a new template
         $scope.addTemplate = function () {
             $scope.templateDlg(
                 {   name:'',
@@ -58,12 +58,15 @@ angular.module('msinm.templates')
             );
         };
 
+
+        // Edits the given template
         $scope.editTemplate = function (template) {
             $scope.templateDlg(
                 template,
                 'edit'
             );
         };
+
 
         // Deletes the given template after confirmation
         $scope.deleteTemplate = function (template) {
@@ -83,6 +86,8 @@ angular.module('msinm.templates')
                 });
         };
 
+
+        // Opens the template in the template editor dialog
         $scope.templateDlg = function (template, userAction) {
             $scope.modalInstance = $modal.open({
                 controller: "TemplatesDialogCtrl",
@@ -107,30 +112,51 @@ angular.module('msinm.templates')
             });
         };
 
-        $scope.addParameterType = function () {
-            $scope.parameterTypeDlg(
+
+        // ****************************************
+        // List parameter type functionality
+        // ****************************************
+
+        // Loads the list parameter types
+        $scope.loadListParamTypes = function () {
+            TemplatesService.getListParamTypes(
+                function (data) {
+                    $scope.listParamTypes = data;
+                },
+                function () {
+                    console.log("Error fetching list parameter types");
+                });
+        };
+
+
+        // Adds a new list parameter type
+        $scope.addListParamType = function () {
+            $scope.listParamTypeDlg(
                 {   name:'', values:[] },
                 'add'
             );
         };
 
-        $scope.editParameterType = function (parameterType) {
-            $scope.parameterTypeDlg(
+
+        // Edits the given list parameter type
+        $scope.editListParamType = function (parameterType) {
+            $scope.listParamTypeDlg(
                 parameterType,
                 'edit'
             );
         };
 
+
         // Deletes the given parameter type after confirmation
-        $scope.deleteParameterType = function (parameterType) {
+        $scope.deleteListParamType = function (parameterType) {
             // Get confirmation
             DialogService.showConfirmDialog(
                 "Delete Parameter Type?", "Delete parameter type " + parameterType.name + "?")
                 .then(function() {
-                    TemplatesService.deleteParameterType(
+                    TemplatesService.deleteListParamType(
                         parameterType,
                         function (data) {
-                            $scope.loadTemplates();
+                            $scope.loadListParamTypes();
                         },
                         function (data) {
                             console.error("ERROR " + data);
@@ -139,10 +165,12 @@ angular.module('msinm.templates')
                 });
         };
 
-        $scope.parameterTypeDlg = function (parameterType, userAction) {
+
+        // Opens the list parameter type editor dialog
+        $scope.listParamTypeDlg = function (parameterType, userAction) {
             $scope.modalInstance = $modal.open({
-                controller: "ParameterTypeDialogCtrl",
-                templateUrl : "/partials/templates/templates-param-type-dialog.html",
+                controller: "ListParamTypeDialogCtrl",
+                templateUrl : "/partials/templates/list-param-type-dialog.html",
                 resolve: {
                     parameterType: function(){
                         return parameterType;
@@ -154,7 +182,7 @@ angular.module('msinm.templates')
             });
 
             $scope.modalInstance.result.then(function() {
-                $scope.loadTemplates();
+                $scope.loadListParamTypes();
             }, function() {
                 // Cancelled
             })['finally'](function(){
@@ -162,6 +190,83 @@ angular.module('msinm.templates')
             });
         };
 
+
+        // ****************************************
+        // Composite parameter type functionality
+        // ****************************************
+
+        // Loads the composite parameter types
+        $scope.loadCompositeParamTypes = function () {
+            TemplatesService.getCompositeParamTypes(
+                function (data) {
+                    $scope.compositeParamTypes = data;
+                },
+                function () {
+                    console.log("Error fetching composite parameter types");
+                });
+        };
+
+
+        // Adds a new composite parameter type
+        $scope.addCompositeParamType = function () {
+            $scope.compositeParamTypeDlg(
+                {   name:'', parameters:[] },
+                'add'
+            );
+        };
+
+
+        // Edits the given composite parameter type
+        $scope.editCompositeParamType = function (parameterType) {
+            $scope.compositeParamTypeDlg(
+                parameterType,
+                'edit'
+            );
+        };
+
+
+        // Deletes the given parameter type after confirmation
+        $scope.deleteCompositeParamType = function (parameterType) {
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                "Delete Parameter Type?", "Delete parameter type " + parameterType.name + "?")
+                .then(function() {
+                    TemplatesService.deleteCompositeParamType(
+                        parameterType,
+                        function (data) {
+                            $scope.loadCompositeParamTypes();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
+        };
+
+
+        // Opens the composite parameter type editor dialog
+        $scope.compositeParamTypeDlg = function (parameterType, userAction) {
+            $scope.modalInstance = $modal.open({
+                controller: "CompositeParamTypeDialogCtrl",
+                templateUrl : "/partials/templates/composite-param-type-dialog.html",
+                resolve: {
+                    parameterType: function(){
+                        return parameterType;
+                    },
+                    userAction: function(){
+                        return userAction;
+                    }
+                }
+            });
+
+            $scope.modalInstance.result.then(function() {
+                $scope.loadCompositeParamTypes();
+            }, function() {
+                // Cancelled
+            })['finally'](function(){
+                $scope.modalInstance = undefined;
+            });
+        };
 
     }])
 
@@ -180,6 +285,8 @@ angular.module('msinm.templates')
         $scope.template = angular.copy(template);
         $scope.focusMe = true;
 
+
+        // Creates or updates the template
         $scope.createOrUpdateTemplate = function() {
             if ($scope.userAction == 'add') {
                 $scope.createTemplate();
@@ -188,6 +295,8 @@ angular.module('msinm.templates')
             }
         };
 
+
+        // Creates the template
         $scope.createTemplate = function() {
             TemplatesService.createTemplate(
                 $scope.template,
@@ -202,6 +311,8 @@ angular.module('msinm.templates')
                 });
         };
 
+
+        // Updates the template
         $scope.updateTemplate = function() {
             TemplatesService.updateTemplate(
                 $scope.template,
@@ -218,13 +329,14 @@ angular.module('msinm.templates')
 
     }])
 
+
     /**
      * ********************************************************************************
-     * ParameterTypeDialogCtrl
+     * ListParamTypeDialogCtrl
      * ********************************************************************************
-     * The ParameterTypeDialogCtrl is the parameter type add/edit dialog controller
+     * The ListParamTypeDialogCtrl is the parameter type add/edit dialog controller
      */
-    .controller('ParameterTypeDialogCtrl', ['$scope', '$modalInstance', 'LangService', 'TemplatesService', 'userAction', 'parameterType',
+    .controller('ListParamTypeDialogCtrl', ['$scope', '$modalInstance', 'LangService', 'TemplatesService', 'userAction', 'parameterType',
         function ($scope, $modalInstance, LangService, TemplatesService, userAction, parameterType) {
         'use strict';
 
@@ -232,11 +344,15 @@ angular.module('msinm.templates')
         $scope.parameterType = angular.copy(parameterType);
         $scope.focusMe = true;
 
+
+        // Ensures that the parameter type descriptor contains the mandatory fields
         function ensureValueFields(desc) {
             desc.shortValue = '';
             desc.longValue = '';
         }
 
+
+        // Checks that the parameter values array is not empty and updates the sortKey of all values
         $scope.checkValues = function () {
             if ($scope.parameterType.values.length == 0) {
                 $scope.parameterType.values.push(LangService.checkDescs({ }, ensureValueFields));
@@ -251,6 +367,8 @@ angular.module('msinm.templates')
 
         $scope.checkValues();
 
+
+        // Adds a new empty value below the given value
         $scope.addValueBelow = function (val) {
             var index = $.inArray(val, $scope.parameterType.values);
             if (index >= 0) {
@@ -259,6 +377,8 @@ angular.module('msinm.templates')
             }
         };
 
+
+        // Deletes the given value from the parameter value list
         $scope.deleteValue = function (val) {
             var index = $.inArray(val, $scope.parameterType.values);
             if (index >= 0) {
@@ -267,6 +387,8 @@ angular.module('msinm.templates')
             }
         };
 
+
+        // Moves the given value up or down in the parameter value list
         $scope.changeSortOrder = function(val, moveUp) {
             var index = $.inArray(val, $scope.parameterType.values);
             if ((moveUp && index > 0) || (!moveUp && index >= 0 && index < $scope.parameterType.values.length - 1)) {
@@ -276,6 +398,8 @@ angular.module('msinm.templates')
             }
         };
 
+
+        // Creates or updates the list parameter type
         $scope.createOrUpdateParameterType = function() {
             if ($scope.userAction == 'add') {
                 $scope.createParameterType();
@@ -284,8 +408,10 @@ angular.module('msinm.templates')
             }
         };
 
+
+        // Creates the list parameter type
         $scope.createParameterType = function() {
-            TemplatesService.createParameterType(
+            TemplatesService.createListParamType(
                 $scope.parameterType,
                 function(data) {
                     $modalInstance.close();
@@ -298,8 +424,69 @@ angular.module('msinm.templates')
                 });
         };
 
+
+        // Updates the list parameter type
         $scope.updateParameterType = function() {
-            TemplatesService.updateParameterType(
+            TemplatesService.updateListParamType(
+                $scope.parameterType,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the parameter type data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        };
+
+    }])
+
+
+    /**
+     * ********************************************************************************
+     * CompositeParamTypeDialogCtrl
+     * ********************************************************************************
+     * The CompositeParamTypeDialogCtrl is the parameter type add/edit dialog controller
+     */
+    .controller('CompositeParamTypeDialogCtrl', ['$scope', '$modalInstance', 'LangService', 'TemplatesService', 'userAction', 'parameterType',
+        function ($scope, $modalInstance, LangService, TemplatesService, userAction, parameterType) {
+        'use strict';
+
+        $scope.userAction = userAction;
+        $scope.parameterType = angular.copy(parameterType);
+        $scope.focusMe = true;
+
+
+        // Creates or updates the composite parameter type
+        $scope.createOrUpdateParameterType = function() {
+            if ($scope.userAction == 'add') {
+                $scope.createParameterType();
+            } else {
+                $scope.updateParameterType();
+            }
+        };
+
+
+        // Creates the composite parameter type
+        $scope.createParameterType = function() {
+            TemplatesService.createCompositeParamType(
+                $scope.parameterType,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the parameter type data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        };
+
+
+        // Updates the composite parameter type
+        $scope.updateParameterType = function() {
+            TemplatesService.updateCompositeParamType(
                 $scope.parameterType,
                 function(data) {
                     $modalInstance.close();
@@ -313,5 +500,4 @@ angular.module('msinm.templates')
         };
 
     }]);
-
 

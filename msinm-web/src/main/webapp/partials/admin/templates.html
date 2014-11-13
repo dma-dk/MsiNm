@@ -13,13 +13,14 @@
 
         <h1 class="page-header">Templates</h1>
 
-        <div ng-controller="TemplatesCtrl" ng-init="loadTemplates()">
+        <div ng-controller="TemplatesCtrl" ng-init="loadAll()">
 
             <p>
                 Manage message templates and template parameter types.
             </p>
 
             <tabset class="template-tabs">
+
 
                 <!-- Templates tab -->
                 <tab heading="Templates">
@@ -60,13 +61,14 @@
                     </div>
                 </tab>
 
-                <!-- Parameter Types tab -->
+
+                <!-- List Parameter Types tab -->
                 <tab heading="List Parameter Types">
                     <div class="template-tab">
 
                         <div class="row">
                             <div class="col-sm-1">
-                                <button type="submit" class="btn btn-primary btn-sm" ng-click="addParameterType()">
+                                <button type="submit" class="btn btn-primary btn-sm" ng-click="addListParamType()">
                                     <span class="glyphicon glyphicon-plus"></span> Add List Parameter Type
                                 </button>
                             </div>
@@ -80,15 +82,15 @@
                                         <th>Values</th>
                                         <th>Action</th>
                                     </tr>
-                                    <tr ng-repeat="paramType in parameterTypes">
+                                    <tr ng-repeat="paramType in listParamTypes">
                                         <td>{{paramType.name}}</td>
                                         <td>
                                             <div ng-repeat="val in paramType.values">{{val.descs[0].shortValue ? val.descs[0].shortValue : val.descs[0].longValue}}</div>
                                         </td>
                                         <td align="center">
-                                            <a href ng-click="editParameterType(paramType)" title="Edit Parameter Type"><i class="glyphicon glyphicon-pencil"></i></a>
+                                            <a href ng-click="editListParamType(paramType)" title="Edit Parameter Type"><i class="glyphicon glyphicon-pencil"></i></a>
                                             &nbsp;
-                                            <a href ng-click="deleteParameterType(paramType)" title="Delete Parameter Type"><i class="glyphicon glyphicon-trash"></i></a>
+                                            <a href ng-click="deleteListParamType(paramType)" title="Delete Parameter Type"><i class="glyphicon glyphicon-trash"></i></a>
                                         </td>
                                     </tr>
                                 </table>
@@ -97,6 +99,46 @@
 
                     </div>
                 </tab>
+
+
+                <!-- Composite Parameter Types tab -->
+                <tab heading="Composite Parameter Types">
+                    <div class="template-tab">
+
+                        <div class="row">
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary btn-sm" ng-click="addCompositeParamType()">
+                                    <span class="glyphicon glyphicon-plus"></span> Add Composite Parameter Type
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top: 20px;">
+                            <div class="col-sm-12 col-md-10">
+                                <table class='table table-condensed table-hover'>
+                                    <tr>
+                                        <th>Parameter Type</th>
+                                        <th>Parameters</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    <tr ng-repeat="paramType in compositeParamTypes">
+                                        <td>{{paramType.name}}</td>
+                                        <td>
+                                            <div ng-repeat="param in paramType.parameters">{{param.name}}</div>
+                                        </td>
+                                        <td align="center">
+                                            <a href ng-click="editCompositeParamType(paramType)" title="Edit Parameter Type"><i class="glyphicon glyphicon-pencil"></i></a>
+                                            &nbsp;
+                                            <a href ng-click="deleteCompositeParamType(paramType)" title="Delete Parameter Type"><i class="glyphicon glyphicon-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </tab>
+
             </tabset>
 
         </div>

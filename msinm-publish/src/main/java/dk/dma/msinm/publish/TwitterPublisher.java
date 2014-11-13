@@ -1,8 +1,7 @@
 package dk.dma.msinm.publish;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.util.JsonUtils;
+import dk.dma.msinm.common.vo.JsonSerializable;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Publication;
 import dk.dma.msinm.service.Publisher;
@@ -24,7 +23,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -182,9 +180,7 @@ public class TwitterPublisher extends Publisher {
     /**
      * Twitter Data
      */
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public static class TwitterData implements Serializable {
+    public static class TwitterData implements JsonSerializable {
         String message;
 
         public String getMessage() {

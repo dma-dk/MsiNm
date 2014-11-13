@@ -1,0 +1,34 @@
+<table class='table table-condensed table-hover'>
+    <tr>
+        <th>#</th>
+        <th>Name</th>
+        <th>Type</th>
+        <th>Mandatory</th>
+        <th>List</th>
+        <th></th>
+    </tr>
+    <tr ng-repeat="param in parameters">
+        <td style="vertical-align: middle;" nowrap>
+            {{param.sortKey}}&nbsp;
+            <a href ng-click="changeSortOrder(param, true);"
+               title="Move Up"><i class="glyphicon glyphicon-arrow-up"></i></a>
+            <a href ng-click="changeSortOrder(param, false);"
+               title="Move Down"><i class="glyphicon glyphicon-arrow-down"></i></a>
+        </td>
+        <td>
+            <input type="text" class="form-control input-sm" placeholder="Parameter Name" ng-model="param.name" />
+        </td>
+        <td>
+            <select class="form-control input-sm" ng-model="param.type" ng-options="paramType for paramType in parameterTypes" >
+            </select>
+        </td>
+        <td style="vertical-align: middle; text-align: center;"><input type="checkbox" ng-model="param.mandatory"></td>
+        <td style="vertical-align: middle; text-align: center;"><input type="checkbox" ng-model="param.list"></td>
+        <td  style="vertical-align: middle; text-align: center;">
+            <a href ng-click="addParameterBelow(param);"
+               title="Add Parameter Below"><i class="glyphicon glyphicon-plus"></i></a>
+            <a href ng-click="deleteParameter(param);"
+               title="Delete Parameter"><i class="glyphicon glyphicon-trash"></i></a>
+        </td>
+    </tr>
+</table>

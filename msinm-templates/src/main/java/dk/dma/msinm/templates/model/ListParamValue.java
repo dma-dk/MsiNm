@@ -4,9 +4,11 @@ import dk.dma.msinm.common.model.BaseEntity;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizable;
 import dk.dma.msinm.common.model.IPreloadable;
+import dk.dma.msinm.model.Location;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.validation.constraints.NotNull;
 import java.util.ArrayList;
@@ -18,11 +20,23 @@ import java.util.List;
 @Entity
 public class ListParamValue extends BaseEntity<Integer>  implements ILocalizable<ListParamValueDesc>, IPreloadable {
 
+    @ManyToOne
+    @NotNull
+    ListParamType listParamType;
+
     @NotNull
     private int sortKey;
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     List<ListParamValueDesc> descs = new ArrayList<>();
+
+    public ListParamType getListParamType() {
+        return listParamType;
+    }
+
+    public void setListParamType(ListParamType listParamType) {
+        this.listParamType = listParamType;
+    }
 
     public int getSortKey() {
         return sortKey;

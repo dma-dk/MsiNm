@@ -15,13 +15,12 @@
  */
 package dk.dma.msinm.legacy.msi.service;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.audit.Auditor;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
 import dk.dma.msinm.common.settings.SettingsEntity;
 import dk.dma.msinm.common.util.TimeUtils;
+import dk.dma.msinm.common.vo.JsonSerializable;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.slf4j.Logger;
 
@@ -38,7 +37,6 @@ import javax.ws.rs.GET;
 import javax.ws.rs.PUT;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
-import java.io.Serializable;
 import java.util.Date;
 
 
@@ -185,9 +183,7 @@ public class LegacyMsiImportRestService {
     /**
      * Helper class that contains information about the state of the legacy MSI integration
      */
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public static class LegacyMsiImportVo implements Serializable {
+    public static class LegacyMsiImportVo implements JsonSerializable {
         boolean active;
         boolean firingExercises;
         Date startDate;

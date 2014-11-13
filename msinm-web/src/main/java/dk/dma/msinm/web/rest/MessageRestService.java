@@ -15,8 +15,6 @@
  */
 package dk.dma.msinm.web.rest;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.repo.RepoFileVo;
@@ -25,21 +23,18 @@ import dk.dma.msinm.common.time.TimeModel;
 import dk.dma.msinm.common.time.TimeParser;
 import dk.dma.msinm.common.time.TimeProcessor;
 import dk.dma.msinm.common.time.TimeTranslator;
-import dk.dma.msinm.model.Location;
+import dk.dma.msinm.common.vo.JsonSerializable;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.model.Reference;
 import dk.dma.msinm.model.ReferenceType;
-import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.model.SeriesIdentifier;
 import dk.dma.msinm.model.Status;
-import dk.dma.msinm.model.Type;
 import dk.dma.msinm.service.CalendarService;
 import dk.dma.msinm.service.CategoryService;
 import dk.dma.msinm.service.MessageSearchParams;
 import dk.dma.msinm.service.MessageSearchResult;
 import dk.dma.msinm.service.MessageSearchService;
 import dk.dma.msinm.service.MessageService;
-import dk.dma.msinm.service.Publisher;
 import dk.dma.msinm.service.PublishingService;
 import dk.dma.msinm.vo.MessageHistoryVo;
 import dk.dma.msinm.vo.MessageVo;
@@ -68,16 +63,12 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static dk.dma.msinm.service.Publisher.PublisherContext;
 
@@ -763,9 +754,7 @@ public class MessageRestService {
     /**
      * Helper class used changing the status of a message
      */
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public static class MessageStatusVo {
+    public static class MessageStatusVo implements JsonSerializable {
         Integer messageId;
         Status status;
 
@@ -789,9 +778,7 @@ public class MessageRestService {
     /**
      * Helper class used for submitting message transformation data
      */
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public static class TransformVo {
+    public static class TransformVo implements JsonSerializable {
         MessageVo message;
         String template;
         String lang;
@@ -824,9 +811,7 @@ public class MessageRestService {
     /**
      * Helper class used for translating time descriptions
      */
-    @JsonIgnoreProperties(ignoreUnknown=true)
-    @JsonSerialize(include = JsonSerialize.Inclusion.NON_NULL)
-    public static class MessageTimeVo {
+    public static class MessageTimeVo implements JsonSerializable {
         Date validFrom, validTo;
         List<LocalizedTimeVo> times;
 
