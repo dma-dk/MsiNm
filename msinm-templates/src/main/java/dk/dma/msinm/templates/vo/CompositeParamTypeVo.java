@@ -57,6 +57,10 @@ public class CompositeParamTypeVo extends ParamTypeVo<CompositeParamType> {
         return parameters;
     }
 
+    // ***********************************
+    // Getters and setters
+    // ***********************************
+
     public List<TemplateParamVo> getParameters() {
         return parameters;
     }

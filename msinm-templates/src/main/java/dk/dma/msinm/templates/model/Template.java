@@ -27,12 +27,20 @@ public class Template extends VersionedEntity<Integer> {
     @Column(unique=true)
     String name;
 
-    @ManyToMany(cascade = CascadeType.ALL)
+    @ManyToMany
     List<Category> categories = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sortKey")
     List<TemplateParam> parameters = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "template", orphanRemoval = true)
+    @OrderBy("sortKey")
+    List<FieldTemplate> fieldTemplates = new ArrayList<>();
+
+    // ***********************************
+    // Getters and setters
+    // ***********************************
 
     public String getName() {
         return name;
@@ -56,5 +64,13 @@ public class Template extends VersionedEntity<Integer> {
 
     public void setParameters(List<TemplateParam> parameters) {
         this.parameters = parameters;
+    }
+
+    public List<FieldTemplate> getFieldTemplates() {
+        return fieldTemplates;
+    }
+
+    public void setFieldTemplates(List<FieldTemplate> fieldTemplates) {
+        this.fieldTemplates = fieldTemplates;
     }
 }

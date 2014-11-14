@@ -17,6 +17,10 @@ public abstract class ParamType extends BaseEntity<Integer> {
     @Column(unique=true)
     protected String name;
 
+    // ***********************************
+    // Getters and setters
+    // ***********************************
+
     public String getName() {
         return name;
     }

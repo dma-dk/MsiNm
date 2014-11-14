@@ -14,22 +14,6 @@ public class ListParamValueDesc extends DescEntity<ListParamValue> {
     private String shortValue;
     private String longValue;
 
-    public String getShortValue() {
-        return shortValue;
-    }
-
-    public void setShortValue(String shortValue) {
-        this.shortValue = shortValue;
-    }
-
-    public String getLongValue() {
-        return longValue;
-    }
-
-    public void setLongValue(String longValue) {
-        this.longValue = longValue;
-    }
-
     /**
      * {@inheritDoc}
      */
@@ -48,6 +32,26 @@ public class ListParamValueDesc extends DescEntity<ListParamValue> {
     @Override
     public boolean descDefined() {
         return ILocalizedDesc.fieldsDefined(shortValue, longValue);
+    }
+
+    // ***********************************
+    // Getters and setters
+    // ***********************************
+
+    public String getShortValue() {
+        return shortValue;
+    }
+
+    public void setShortValue(String shortValue) {
+        this.shortValue = shortValue;
+    }
+
+    public String getLongValue() {
+        return longValue;
+    }
+
+    public void setLongValue(String longValue) {
+        this.longValue = longValue;
     }
 
 }

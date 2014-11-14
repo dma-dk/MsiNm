@@ -71,6 +71,10 @@ public class ListParamTypeVo extends ParamTypeVo<ListParamType> {
         }
     }
 
+    // ***********************************
+    // Getters and setters
+    // ***********************************
+
     public List<ListParamValueVo> getValues() {
         return values;
     }

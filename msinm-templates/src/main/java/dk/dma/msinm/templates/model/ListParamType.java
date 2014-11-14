@@ -1,8 +1,5 @@
 package dk.dma.msinm.templates.model;
 
-import dk.dma.msinm.common.model.DataFilter;
-import dk.dma.msinm.common.model.IPreloadable;
-
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.NamedQueries;
@@ -20,11 +17,15 @@ import java.util.List;
         @NamedQuery(name  = "ListParamType.findAll",
                 query = "select t from ListParamType t order by lower(t.name) asc")
 })
-public class ListParamType extends ParamType implements IPreloadable {
+public class ListParamType extends ParamType {
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "listParamType", orphanRemoval = true)
     @OrderBy("sortKey")
     List<ListParamValue> values = new ArrayList<>();
+
+    // ***********************************
+    // Getters and setters
+    // ***********************************
 
     public List<ListParamValue> getValues() {
         return values;
@@ -34,11 +35,4 @@ public class ListParamType extends ParamType implements IPreloadable {
         this.values = values;
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void preload(DataFilter dataFilter) {
-        values.forEach(v -> {});
-    }
 }

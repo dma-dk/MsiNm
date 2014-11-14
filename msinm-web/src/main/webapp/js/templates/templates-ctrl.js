@@ -65,6 +65,18 @@ angular.module('msinm.templates')
         };
 
 
+        // Copies the given template
+        $scope.copyTemplate = function (template) {
+            var tmpl = angular.copy(template);
+            delete tmpl.id;
+            tmpl.name = '';
+            $scope.templateDlg(
+                tmpl,
+                'add'
+            );
+        };
+
+
         // Deletes the given template after confirmation
         $scope.deleteTemplate = function (template) {
             // Get confirmation
@@ -281,7 +293,53 @@ angular.module('msinm.templates')
         $scope.userAction = userAction;
         $scope.template = angular.copy(template);
         $scope.focusMe = true;
+        $scope.fieldTemplates = [ ];
 
+        if (!$scope.template.fieldTemplates) {
+            $scope.template.fieldTemplates = [];
+        }
+
+        // Checks if the template contains the field template for the given field and language
+        $scope.containsFieldTemplate = function(field, lang) {
+            for (var f in $scope.template.fieldTemplates) {
+                var tmpl = $scope.template.fieldTemplates[f];
+                if (tmpl.field == field && tmpl.lang == lang) {
+                    return true;
+                }
+            }
+            return false;
+        };
+
+
+        // Sorts the field templates by sort key
+        $scope.sortFieldTemplates = function () {
+            $scope.template.fieldTemplates.sort(function(d1, d2){
+                return d1.sortKey - d2.sortKey;
+            });
+        };
+
+        // Load the field templates
+        TemplatesService.getFieldTemplates(
+            function (data) {
+                for (var f in data) {
+                    var tmpl = data[f];
+                    if (!$scope.containsFieldTemplate(tmpl.field, tmpl.lang)) {
+                        if ($scope.userAction == 'add' && tmpl.defaultField) {
+                            $scope.template.fieldTemplates.push(tmpl);
+                        } else {
+                            $scope.fieldTemplates.push(tmpl);
+                        }
+                    }
+                }
+                $scope.sortFieldTemplates();
+            },
+            function (data) {
+                console.error("Failed loading field templates")
+            }
+        );
+
+
+        // Initialize the categories
         $timeout(function () {
             initCategoryField("#templateCategories", true);
             if (template.categories && template.categories.length > 0) {
@@ -300,6 +358,19 @@ angular.module('msinm.templates')
                 $("#templateCategories").select2("data", null);
             }
         }, 200);
+
+
+        // Adds the given field template to the template
+        $scope.addFieldTemplate = function (fieldTemplate) {
+            // Remove from the list of available field templates
+            var index = $.inArray(fieldTemplate, $scope.fieldTemplates);
+            $scope.fieldTemplates.splice(index, 1);
+
+            // Add to the template
+            $scope.template.fieldTemplates.push(fieldTemplate);
+            $scope.sortFieldTemplates();
+        };
+
 
         // Creates or updates the template
         $scope.createOrUpdateTemplate = function() {

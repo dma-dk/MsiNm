@@ -28,6 +28,10 @@ public abstract class ParamTypeVo<T extends ParamType> extends BaseVo<T> {
         name = paramType.getName();
     }
 
+    // ***********************************
+    // Getters and setters
+    // ***********************************
+
     public Integer getId() {
         return id;
     }

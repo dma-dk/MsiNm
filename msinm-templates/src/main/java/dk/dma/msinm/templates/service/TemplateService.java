@@ -10,6 +10,7 @@ import dk.dma.msinm.templates.model.ListParamValue;
 import dk.dma.msinm.templates.model.ParamType;
 import dk.dma.msinm.templates.model.Template;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
+import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
 import org.apache.commons.lang.StringUtils;
@@ -104,6 +105,9 @@ public class TemplateService extends BaseService {
         original.getCategories().clear();
         template.getCategories().forEach(cat -> original.getCategories().add(getByPrimaryKey(Category.class, cat.getId())));
 
+        original.getFieldTemplates().clear();
+        original.getFieldTemplates().addAll(template.getFieldTemplates());
+
         template = saveEntity(original);
         log.info("Updated template " + template);
 
@@ -125,6 +129,30 @@ public class TemplateService extends BaseService {
         return false;
     }
 
+
+    /**
+     * Returns the list of available field templates
+     * @return the list of available field templates
+     */
+    public List<FieldTemplateVo> getFieldTemplates() {
+        List<FieldTemplateVo> fieldTemplates = new ArrayList<>();
+
+        // Add "title" fields
+        int sortKey = 10;
+        for (String lang : app.getLanguages()) {
+            fieldTemplates.add(new FieldTemplateVo("title", lang, sortKey++, true));
+        }
+
+        // Add "description" fields
+        sortKey = 20;
+        for (String lang : app.getLanguages()) {
+            fieldTemplates.add(new FieldTemplateVo("description", lang, sortKey++, true));
+        }
+
+        // TODO: Publication fields
+
+        return fieldTemplates;
+    }
 
     // *******************************************
     // ** List parameter type functionality

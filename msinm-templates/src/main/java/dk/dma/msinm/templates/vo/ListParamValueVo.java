@@ -73,9 +73,17 @@ public class ListParamValueVo extends LocalizableVo<ListParamValue, ListParamVal
         return desc;
     }
 
+    /**
+     * Returns if this list parameter value defines any data
+     * @return if this list parameter value defines any data
+     */
     public boolean isDefined() {
         return getDescs() != null && getDescs().stream().anyMatch(ListParamValueDescVo::descDefined);
     }
+
+    // ***********************************
+    // Getters and setters
+    // ***********************************
 
     public Integer getId() {
         return id;
@@ -136,6 +144,18 @@ public class ListParamValueVo extends LocalizableVo<ListParamValue, ListParamVal
             return desc;
         }
 
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public boolean descDefined() {
+            return ILocalizedDesc.fieldsDefined(shortValue, longValue);
+        }
+
+        // ***********************************
+        // Getters and setters
+        // ***********************************
+
         public String getShortValue() {
             return shortValue;
         }
@@ -150,14 +170,6 @@ public class ListParamValueVo extends LocalizableVo<ListParamValue, ListParamVal
 
         public void setLongValue(String longValue) {
             this.longValue = longValue;
-        }
-
-        /**
-         * {@inheritDoc}
-         */
-        @Override
-        public boolean descDefined() {
-            return ILocalizedDesc.fieldsDefined(shortValue, longValue);
         }
     }
 

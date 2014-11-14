@@ -1,10 +1,7 @@
 package dk.dma.msinm.templates.model;
 
 import dk.dma.msinm.common.model.BaseEntity;
-import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.model.ILocalizable;
-import dk.dma.msinm.common.model.IPreloadable;
-import dk.dma.msinm.model.Location;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -18,7 +15,7 @@ import java.util.List;
  * Entity class for the list parameter type values
  */
 @Entity
-public class ListParamValue extends BaseEntity<Integer>  implements ILocalizable<ListParamValueDesc>, IPreloadable {
+public class ListParamValue extends BaseEntity<Integer>  implements ILocalizable<ListParamValueDesc> {
 
     @ManyToOne
     @NotNull
@@ -29,6 +26,22 @@ public class ListParamValue extends BaseEntity<Integer>  implements ILocalizable
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "entity", orphanRemoval = true)
     List<ListParamValueDesc> descs = new ArrayList<>();
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ListParamValueDesc createDesc(String lang) {
+        ListParamValueDesc desc = new ListParamValueDesc();
+        desc.setLang(lang);
+        desc.setEntity(this);
+        getDescs().add(desc);
+        return desc;
+    }
+
+    // ***********************************
+    // Getters and setters
+    // ***********************************
 
     public ListParamType getListParamType() {
         return listParamType;
@@ -54,26 +67,6 @@ public class ListParamValue extends BaseEntity<Integer>  implements ILocalizable
     @Override
     public void setDescs(List<ListParamValueDesc> descs) {
         this.descs = descs;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public ListParamValueDesc createDesc(String lang) {
-        ListParamValueDesc desc = new ListParamValueDesc();
-        desc.setLang(lang);
-        desc.setEntity(this);
-        getDescs().add(desc);
-        return desc;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void preload(DataFilter dataFilter) {
-        getDescs().forEach(desc -> {});
     }
 
 }

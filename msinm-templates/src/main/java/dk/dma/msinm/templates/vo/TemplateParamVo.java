@@ -9,7 +9,6 @@ import org.apache.commons.lang.StringUtils;
  */
 public class TemplateParamVo extends BaseVo<TemplateParam> {
 
-    Integer id;
     String type;
     String name;
     boolean mandatory;
@@ -30,7 +29,6 @@ public class TemplateParamVo extends BaseVo<TemplateParam> {
     public TemplateParamVo(TemplateParam param) {
         super(param);
 
-        id = param.getId();
         type = param.getType();
         name = param.getName();
         mandatory = param.isMandatory();
@@ -44,7 +42,6 @@ public class TemplateParamVo extends BaseVo<TemplateParam> {
     @Override
     public TemplateParam toEntity() {
         TemplateParam param = new TemplateParam();
-        param.setId(id);
         param.setType(type);
         param.setName(name);
         param.setMandatory(mandatory);
@@ -61,13 +58,9 @@ public class TemplateParamVo extends BaseVo<TemplateParam> {
         return StringUtils.isNotBlank(name) && StringUtils.isNotBlank(type);
     }
 
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
+    // ***********************************
+    // Getters and setters
+    // ***********************************
 
     public String getType() {
         return type;

@@ -17,6 +17,7 @@ public class TemplateVo extends BaseVo<Template> {
     String name;
     List<CategoryVo> categories;
     List<TemplateParamVo> parameters;
+    List<FieldTemplateVo> fieldTemplates;
 
     /**
      * Constructor
@@ -39,6 +40,7 @@ public class TemplateVo extends BaseVo<Template> {
         name = template.getName();
         template.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, compFilter)));
         template.getParameters().forEach(param -> checkCreateParameters().add(new TemplateParamVo(param)));
+        template.getFieldTemplates().forEach(ft -> checkCreateFieldTemplates().add(new FieldTemplateVo(ft)));
     }
 
     /**
@@ -57,6 +59,11 @@ public class TemplateVo extends BaseVo<Template> {
             parameters.stream()
                     .filter(TemplateParamVo::isDefined)
                     .forEach(param -> template.getParameters().add(param.toEntity()));
+        }
+        if (fieldTemplates != null) {
+            fieldTemplates.stream()
+                    .filter(FieldTemplateVo::isDefined)
+                    .forEach(ft -> template.getFieldTemplates().add(ft.toEntity(template)));
         }
         return template;
     }
@@ -84,6 +91,16 @@ public class TemplateVo extends BaseVo<Template> {
     }
 
     /**
+     * Returns or creates the list of field templates
+     * @return the list of field templates
+     */
+    public List<FieldTemplateVo> checkCreateFieldTemplates() {
+        if (fieldTemplates == null) {
+            fieldTemplates = new ArrayList<>();
+        }
+        return fieldTemplates;
+    }
+    /**
      * Sorts all category descriptors by the given language
      * @param lang the language
      */
@@ -92,6 +109,10 @@ public class TemplateVo extends BaseVo<Template> {
             categories.forEach(cat -> cat.sortDescs(lang));
         }
     }
+
+    // ***********************************
+    // Getters and setters
+    // ***********************************
 
     public Integer getId() {
         return id;
@@ -123,5 +144,13 @@ public class TemplateVo extends BaseVo<Template> {
 
     public void setParameters(List<TemplateParamVo> parameters) {
         this.parameters = parameters;
+    }
+
+    public List<FieldTemplateVo> getFieldTemplates() {
+        return fieldTemplates;
+    }
+
+    public void setFieldTemplates(List<FieldTemplateVo> fieldTemplates) {
+        this.fieldTemplates = fieldTemplates;
     }
 }

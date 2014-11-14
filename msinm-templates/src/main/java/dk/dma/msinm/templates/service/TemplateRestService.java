@@ -1,6 +1,7 @@
 package dk.dma.msinm.templates.service;
 
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
+import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
@@ -9,8 +10,6 @@ import org.jboss.resteasy.annotations.cache.NoCache;
 
 import javax.annotation.security.PermitAll;
 import javax.annotation.security.RolesAllowed;
-import javax.ejb.Lock;
-import javax.ejb.LockType;
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -43,7 +42,6 @@ public class TemplateRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    @Lock(LockType.READ)
     public List<TemplateVo> getTemplates(@QueryParam("lang") String lang) {
         return templateService.getTemplates(lang);
     }
@@ -77,6 +75,15 @@ public class TemplateRestService {
         return "OK";
     }
 
+    @GET
+    @Path("/field-templates")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<FieldTemplateVo> getFieldTemplates() {
+        return templateService.getFieldTemplates();
+    }
+
     /*****************************************/
     /** Common parameter type methods       **/
     /*****************************************/
@@ -86,7 +93,6 @@ public class TemplateRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    @Lock(LockType.READ)
     public List<String> getParameterTypeNames() {
         return templateService.getParameterTypeNames();
     }
@@ -100,7 +106,6 @@ public class TemplateRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    @Lock(LockType.READ)
     public List<ListParamTypeVo> getListParameterTypes(@QueryParam("lang") String lang) {
         return templateService.getListParamTypes(lang);
     }
@@ -143,7 +148,6 @@ public class TemplateRestService {
     @Produces("application/json;charset=UTF-8")
     @GZIP
     @NoCache
-    @Lock(LockType.READ)
     public List<CompositeParamTypeVo> getCompositeParameterTypes() {
         return templateService.getCompositeParamTypes();
     }

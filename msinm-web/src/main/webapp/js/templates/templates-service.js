@@ -31,6 +31,12 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
+            getFieldTemplates: function(success, error) {
+                $http.get('/rest/templates/field-templates')
+                    .success(success)
+                    .error(error);
+            },
+
             getParamTypeNames: function(success, error) {
                 $http.get('/rest/templates/param-type-names')
                     .success(success)

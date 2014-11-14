@@ -32,6 +32,10 @@ public class TemplateParam extends BaseEntity<Integer> {
 
     int sortKey;
 
+    // ***********************************
+    // Getters and setters
+    // ***********************************
+
     public String getType() {
         return type;
     }
