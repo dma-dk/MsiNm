@@ -39,9 +39,8 @@
                                 <th></th>
                             </tr>
                             <tr ng-repeat="val in parameterType.values">
-                                <td>
-                                    {{val.sortKey}}
-                                    <br/>
+                                <td nowrap>
+                                    {{val.sortKey}}&nbsp;
                                     <a href ng-click="changeSortOrder(val, true);"
                                        title="Move Up"><i class="glyphicon glyphicon-arrow-up"></i></a>
                                     <a href ng-click="changeSortOrder(val, false);"
