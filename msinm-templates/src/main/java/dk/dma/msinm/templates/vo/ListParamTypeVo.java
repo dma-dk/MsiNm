@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Value object for the {@code ListParamType} model entity
  */
-public class ListParamTypeVo extends ParamTypeVo<ListParamType> {
+public class ListParamTypeVo extends ParamTypeVo {
 
     List<ListParamValueVo> values = new ArrayList<>();
 
@@ -17,26 +17,29 @@ public class ListParamTypeVo extends ParamTypeVo<ListParamType> {
      * Constructor
      */
     public ListParamTypeVo() {
+        setKind(Kind.LIST);
     }
 
     /**
      * Constructor
      *
-     * @param listParamType the entity
+     * @param paramType the entity
      * @param dataFilter what type of data to include from the entity
      */
-    public ListParamTypeVo(ListParamType listParamType, DataFilter dataFilter) {
-        super(listParamType);
+    public ListParamTypeVo(ListParamType paramType, DataFilter dataFilter) {
+        this();
 
         DataFilter compFilter = dataFilter.forComponent(ListParamType.class);
 
-        listParamType.getValues().forEach(val -> checkCreateValues().add(new ListParamValueVo(val, compFilter)));
+        id = paramType.getId();
+        name = paramType.getName();
+        paramType.getValues().forEach(val -> checkCreateValues().add(new ListParamValueVo(val, compFilter)));
     }
 
     /**
-     * {@inheritDoc}
+     * Converts the VO to an entity
+     * @return the entity
      */
-    @Override
     public ListParamType toEntity() {
         ListParamType listParamType = new ListParamType();
         listParamType.setId(id);

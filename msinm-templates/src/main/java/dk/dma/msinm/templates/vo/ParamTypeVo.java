@@ -1,31 +1,25 @@
 package dk.dma.msinm.templates.vo;
 
-import dk.dma.msinm.common.vo.BaseVo;
-import dk.dma.msinm.templates.model.ParamType;
+import dk.dma.msinm.common.vo.JsonSerializable;
 
 /**
  * Abstract value object super class for the {@code ParamType} derived model entity
  */
-public abstract class ParamTypeVo<T extends ParamType> extends BaseVo<T> {
+public abstract class ParamTypeVo implements JsonSerializable {
+
+    /**
+     * Defines the kind of parameter type
+     */
+    enum Kind { BASE, LIST, COMPOSITE }
+
     Integer id;
     String name;
+    Kind kind;
 
     /**
      * Constructor
      */
     public ParamTypeVo() {
-    }
-
-    /**
-     * Constructor
-     *
-     * @param paramType the entity
-     */
-    public ParamTypeVo(T paramType) {
-        super(paramType);
-
-        id = paramType.getId();
-        name = paramType.getName();
     }
 
     // ***********************************
@@ -48,4 +42,11 @@ public abstract class ParamTypeVo<T extends ParamType> extends BaseVo<T> {
         this.name = name;
     }
 
+    public Kind getKind() {
+        return kind;
+    }
+
+    public void setKind(Kind kind) {
+        this.kind = kind;
+    }
 }

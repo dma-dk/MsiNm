@@ -3,7 +3,9 @@
  */
 angular.module('msinm.templates')
 
-
+    /**
+     * Manages a list of template parameters
+     */
     .directive('msiTemplateParamList', ['TemplatesService', function (TemplatesService) {
         return {
             restrict: 'E',
@@ -75,6 +77,42 @@ angular.module('msinm.templates')
                         scope.checkParameters();
                     }
                 };
+            }
+        };
+    }])
+
+
+    /**
+     * Manages user submitted template data based on a list of template parameters
+     */
+    .directive('msiTemplateParamData', ['TemplatesService', function (TemplatesService) {
+        return {
+            restrict: 'E',
+            templateUrl: '/partials/templates/template-param-data.html',
+            replace: true,
+            scope: {
+                parameters: "=",
+                data: "="
+            },
+            link: function(scope, element, attrs) {
+
+                // Load the parameter types
+                scope.parameterTypes = {};
+                TemplatesService.getParamTypes(
+                    function (data) {
+                        // Build a look-up map for param types
+                        for (var p in data) {
+                            var paramType = data[p];
+                            scope.parameterTypes[paramType.name] = paramType;
+                        }
+                    },
+                    function (data) {
+                        console.error("Error loading parameter types");
+                    }
+                );
+
+
+
             }
         };
     }]);

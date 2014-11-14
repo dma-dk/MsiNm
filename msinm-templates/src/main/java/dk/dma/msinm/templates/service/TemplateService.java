@@ -9,9 +9,11 @@ import dk.dma.msinm.templates.model.ListParamType;
 import dk.dma.msinm.templates.model.ListParamValue;
 import dk.dma.msinm.templates.model.ParamType;
 import dk.dma.msinm.templates.model.Template;
+import dk.dma.msinm.templates.vo.BaseParamTypeVo;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
 import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
+import dk.dma.msinm.templates.vo.ParamTypeVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
@@ -283,35 +285,36 @@ public class TemplateService extends BaseService {
     // *******************************************
 
     /**
+     * Returns the list of base, list and composite parameter types
+     * NB: Returns all language variants, but sorted by the given language
+     * @param lang the language
+     * @return the list of base, list and composite parameter types
+     */
+    public List<ParamTypeVo> getParameterTypes(String lang) {
+        List<ParamTypeVo> parameterTypes = new ArrayList<>();
+
+        // Add "base" parameter type
+        parameterTypes.addAll(BaseParamTypeVo.getBaseParameterTypes());
+
+        // Add "list" parameter type
+        parameterTypes.addAll(getListParamTypes(lang));
+
+        // Add "composite" parameter type
+        parameterTypes.addAll(getCompositeParamTypes());
+
+        return parameterTypes;
+    }
+
+    /**
      * Returns the list of parameter names
      * @return Returns the list of parameter names
      */
     public List<String> getParameterTypeNames() {
 
-        List<String> names = new ArrayList<>();
-
-        // Add the base types
-        names.add("text");
-        names.add("number");
-        names.add("boolean");
-
-        // Add the list parameter types
-        names.addAll(
-                em.createNamedQuery("ListParamType.findAll", ListParamType.class)
-                        .getResultList()
-                        .stream()
-                        .map(ParamType::getName)
-                        .collect(Collectors.toList()));
-
-        // Add the composite parameter types
-        names.addAll(
-                em.createNamedQuery("CompositeParamType.findAll", CompositeParamType.class)
-                        .getResultList()
-                        .stream()
-                        .map(ParamType::getName)
-                        .collect(Collectors.toList()));
-
-        return names;
+        return getParameterTypes(app.getDefaultLanguage())
+                .stream()
+                .map(ParamTypeVo::getName)
+                .collect(Collectors.toList());
     }
 
     /**

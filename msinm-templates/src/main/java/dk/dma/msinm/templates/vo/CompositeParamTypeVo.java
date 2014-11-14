@@ -8,7 +8,7 @@ import java.util.List;
 /**
  * Value object for the {@code CompositeParamType} model entity
  */
-public class CompositeParamTypeVo extends ParamTypeVo<CompositeParamType> {
+public class CompositeParamTypeVo extends ParamTypeVo {
 
     List<TemplateParamVo> parameters = new ArrayList<>();
 
@@ -16,6 +16,7 @@ public class CompositeParamTypeVo extends ParamTypeVo<CompositeParamType> {
      * Constructor
      */
     public CompositeParamTypeVo() {
+        setKind(Kind.COMPOSITE);
     }
 
     /**
@@ -24,15 +25,16 @@ public class CompositeParamTypeVo extends ParamTypeVo<CompositeParamType> {
      * @param paramType the entity
      */
     public CompositeParamTypeVo(CompositeParamType paramType) {
-        super(paramType);
-
+        this();
+        id = paramType.getId();
+        name = paramType.getName();
         paramType.getParameters().forEach(param -> checkCreateParameters().add(new TemplateParamVo(param)));
     }
 
     /**
-     * {@inheritDoc}
+     * Converts the VO to an entity
+     * @return the entity
      */
-    @Override
     public CompositeParamType toEntity() {
         CompositeParamType paramType = new CompositeParamType();
         paramType.setId(id);

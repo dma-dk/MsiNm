@@ -1,0 +1,20 @@
+
+<div>
+    <div ng-repeat="param in parameters">
+        <div ng-switch="parameterTypes[param.type].kind">
+
+            <div ng-switch-when="BASE">
+                base
+            </div>
+
+            <div ng-switch-when="LIST">
+                list
+            </div>
+
+            <div ng-switch-when="COMPOSITE" style="border: 1px solid gray; padding: 10px;">
+                composite
+            </div>
+
+        </div>
+    </div>
+</div>

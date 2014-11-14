@@ -219,6 +219,42 @@ angular.module('msinm.common')
 
 
     /**
+     * Validates a message ID format, e.g. MSI-DK-002-14
+     */
+    .directive('msiMessageIdEditor', function() {
+        return {
+            require : '^ngModel',
+            restrict : 'A',
+            link : function(scope, element, attr, ctrl) {
+
+                ctrl.$formatters.unshift(function(modelValue) {
+                    if (!modelValue) {
+                        return null;
+                    }
+                    return modelValue.fullId;
+                });
+
+                ctrl.$parsers.unshift(function(valueFromInput) {
+                    var val = parseMessageId(valueFromInput);
+                    ctrl.$setValidity('messageId', val !== undefined);
+                    return val;
+                });
+
+                element.bind('change', function(event) {
+                    if (!ctrl.$modelValue) {
+                        ctrl.$viewValue = null;
+                    } else {
+                        ctrl.$viewValue = ctrl.$modelValue.fullId;
+                    }
+                    ctrl.$render();
+                });
+
+            }
+        }
+    })
+
+
+    /**
      * Prints the validFrom - validTo date interval
      */
     .directive('msiValidFromTo', ['$rootScope', function ($rootScope) {

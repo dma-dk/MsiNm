@@ -286,8 +286,8 @@ angular.module('msinm.templates')
      * ********************************************************************************
      * The TemplatesDialogCtrl is the Templates add/edit dialog controller
      */
-    .controller('TemplatesDialogCtrl', ['$scope', '$modalInstance', '$timeout', 'LangService', 'TemplatesService', 'userAction', 'template',
-        function ($scope, $modalInstance, $timeout, LangService, TemplatesService, userAction, template) {
+    .controller('TemplatesDialogCtrl', ['$scope', '$modal', '$modalInstance', '$timeout', 'LangService', 'TemplatesService', 'userAction', 'template',
+        function ($scope, $modal, $modalInstance, $timeout, LangService, TemplatesService, userAction, template) {
         'use strict';
 
         $scope.userAction = userAction;
@@ -423,6 +423,50 @@ angular.module('msinm.templates')
                 });
         };
 
+
+        // Test the current template
+        $scope.test = function () {
+            $modal.open({
+                controller: "TestTemplateDialogCtrl",
+                templateUrl : "/partials/templates/test-template-dialog.html",
+                resolve: {
+                    template: function(){
+                        return $scope.template;
+                    }
+                }
+            });
+
+        };
+    }])
+
+
+    /**
+     * ********************************************************************************
+     * TestTemplateDialogCtrl
+     * ********************************************************************************
+     * The TestTemplateDialogCtrl is the template test dialog controller
+     */
+    .controller('TestTemplateDialogCtrl', ['$scope', '$modalInstance', '$cookieStore', 'TemplatesService', 'template',
+        function ($scope, $modalInstance, $cookieStore, TemplatesService, template) {
+        'use strict';
+
+        $scope.template = angular.copy(template);
+        $scope.paramData = [];
+        $scope.messageId = $cookieStore.get('testMessageId');
+        $scope.focusMe = true;
+
+        if (!$scope.template.fieldTemplates) {
+            $scope.template.fieldTemplates = [];
+        }
+
+        // Test the current template
+        $scope.test = function (messageId) {
+            if (messageId) {
+                $scope.messageId = messageId;
+                $cookieStore.put('testMessageId', $scope.messageId);
+                alert("TEST");
+            }
+        };
     }])
 
 

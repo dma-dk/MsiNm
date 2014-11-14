@@ -3,6 +3,7 @@ package dk.dma.msinm.templates.service;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
 import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
+import dk.dma.msinm.templates.vo.ParamTypeVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -87,6 +88,15 @@ public class TemplateRestService {
     /*****************************************/
     /** Common parameter type methods       **/
     /*****************************************/
+
+    @GET
+    @Path("/param-types")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<ParamTypeVo> getParameterTypes(@QueryParam("lang") String lang) {
+        return templateService.getParameterTypes(lang);
+    }
 
     @GET
     @Path("/param-type-names")

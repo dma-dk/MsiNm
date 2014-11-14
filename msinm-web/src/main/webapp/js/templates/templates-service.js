@@ -37,6 +37,12 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
+            getParamTypes: function(success, error) {
+                $http.get('/rest/templates/param-types')
+                    .success(success)
+                    .error(error);
+            },
+
             getParamTypeNames: function(success, error) {
                 $http.get('/rest/templates/param-type-names')
                     .success(success)

@@ -73,6 +73,22 @@ function getLang(defaultLang) {
 }
 
 
+// Parses the given id as a message ID, e.g. MSI-DK-002-14
+function parseMessageId(id) {
+    var parts = (id) ? id.toUpperCase().split('-') : [];
+    if (parts.length == 4 && /^(MSI)|(NM)$/.test(parts[0]) && !isNaN(parts[2]) && !isNaN(parts[3]) && parts[3].length == 2) {
+        return {
+            mainType: parts[0],
+            authority: parts[1],
+            number: parseInt(parts[2]),
+            year: 2000 + parseInt(parts[3]),
+            fullId: id.toUpperCase()
+        };
+    }
+    return undefined;
+}
+
+
 /** Area selection **/
 
 function formatParentAreas(area) {

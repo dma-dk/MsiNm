@@ -151,6 +151,10 @@ input.ng-invalid-pwmatch {
     border-color: red;
 }
 
+input.ng-invalid-messageId {
+    border-color: red;
+}
+
 .localized:disabled {
     background-color: #eeeeee!important;
 }
