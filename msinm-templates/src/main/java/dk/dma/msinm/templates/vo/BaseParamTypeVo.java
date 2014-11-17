@@ -1,18 +1,20 @@
 package dk.dma.msinm.templates.vo;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
+
 import java.util.Arrays;
 import java.util.List;
 
 /**
  * Value object for base template parameter types, such as "text", "number", "boolean", etc
  */
+@JsonTypeName("BASE")
 public class BaseParamTypeVo extends ParamTypeVo {
 
     /**
      * Constructor
      */
     public BaseParamTypeVo() {
-        setKind(Kind.BASE);
     }
 
     /**

@@ -1,18 +1,38 @@
 
-<div>
+<div style="border-left: 1px solid #cccccc; padding-left: 10px;">
     <div ng-repeat="param in parameters">
         <div ng-switch="parameterTypes[param.type].kind">
 
-            <div ng-switch-when="BASE">
-                base
+            <div ng-switch-when="BASE" class="row" style="padding-top: 5px;">
+                <div class="col-sm-4 col-md-3 col-lg-3" style="text-align: right; padding-right: 10px;">
+                    {{param.name}}
+                    <span class="red" ng-if="param.mandatory">*</span>
+                </div>
+                <div class="col-sm-7 col-md-6 col-lg-5">
+                    <input type="text" class="form-control input-sm" ng-model="data[param.name]"
+                           ng-if="param.type == 'text'" ng-required="param.mandatory"/>
+                    <input type="number" class="form-control input-sm" ng-model="data[param.name]" ng-if="param.type == 'number'"
+                           ng-required="param.mandatory"/>
+                    <input type="checkbox" ng-model="data[param.name]" ng-if="param.type == 'boolean'"
+                           ng-required="param.mandatory"/>
+                </div>
             </div>
 
-            <div ng-switch-when="LIST">
-                list
+            <div ng-switch-when="LIST" class="row" style="padding-top: 5px;">
+                <div class="col-sm-4 col-md-3 col-lg-3" style="text-align: right; padding-right: 10px;">
+                    {{param.name}}
+                    <span class="red" ng-if="param.mandatory">*</span>
+                </div>
+                <div class="col-sm-7 col-md-6 col-lg-5">
+                    <select class="form-control input-sm" ng-model="data[param.name]" ng-options="val.descs[0].shortValue for val in parameterTypes[param.type].values" >
+                    </select>
+                </div>
             </div>
 
-            <div ng-switch-when="COMPOSITE" style="border: 1px solid gray; padding: 10px;">
-                composite
+            <div ng-switch-when="COMPOSITE">
+                <recursive>
+                    <msi-template-param-data parameter-types="parameterTypes" parameters="parameterTypes[param.type].parameters" data="data"></msi-template-param-data>
+                </recursive>
             </div>
 
         </div>

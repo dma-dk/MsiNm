@@ -2,8 +2,10 @@ package dk.dma.msinm.templates.vo;
 
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.vo.BaseVo;
+import dk.dma.msinm.model.SeriesIdType;
 import dk.dma.msinm.templates.model.Template;
 import dk.dma.msinm.vo.CategoryVo;
+import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ public class TemplateVo extends BaseVo<Template> {
     Integer id;
     String name;
     List<CategoryVo> categories;
+    String type;
     List<TemplateParamVo> parameters;
     List<FieldTemplateVo> fieldTemplates;
 
@@ -38,6 +41,7 @@ public class TemplateVo extends BaseVo<Template> {
 
         id = template.getId();
         name = template.getName();
+        type = (template.getType() != null) ? template.getType().name() : null;
         template.getCategories().forEach(cat -> checkCreateCategories().add(new CategoryVo(cat, compFilter)));
         template.getParameters().forEach(param -> checkCreateParameters().add(new TemplateParamVo(param)));
         template.getFieldTemplates().forEach(ft -> checkCreateFieldTemplates().add(new FieldTemplateVo(ft)));
@@ -51,6 +55,7 @@ public class TemplateVo extends BaseVo<Template> {
         Template template = new Template();
         template.setId(id);
         template.setName(name);
+        template.setType(StringUtils.isBlank(type) ? null : SeriesIdType.valueOf(type));
         if (categories != null) {
             categories.stream()
                     .forEach(cat -> template.getCategories().add(cat.toEntity()));
@@ -110,6 +115,20 @@ public class TemplateVo extends BaseVo<Template> {
         }
     }
 
+    /**
+     * Returns the Freemarker template that matches the given field and language
+     * @param field the field to match
+     * @param lang the language to match
+     * @return the Freemarker template that matches the given field and language
+     */
+    public FieldTemplateVo findFieldTemplate(String field, String lang) {
+        return fieldTemplates
+                .stream()
+                .filter(ft -> ft.getField().equals(field) && StringUtils.equals(lang, ft.getLang()))
+                .findFirst()
+                .get();
+    }
+
     // ***********************************
     // Getters and setters
     // ***********************************
@@ -136,6 +155,14 @@ public class TemplateVo extends BaseVo<Template> {
 
     public void setCategories(List<CategoryVo> categories) {
         this.categories = categories;
+    }
+
+    public String getType() {
+        return type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
     }
 
     public List<TemplateParamVo> getParameters() {

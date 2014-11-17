@@ -147,6 +147,42 @@
                     </div>
                 </tab>
 
+
+
+                <!-- Freemarker Includes tab -->
+                <tab heading="Freemarker Includes">
+                    <div class="template-tab">
+
+                        <div class="row">
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary btn-sm" ng-click="addFmInclude()">
+                                    <span class="glyphicon glyphicon-plus"></span> Add Freemarker Include
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top: 20px;">
+                            <div class="col-sm-12 col-md-10">
+                                <table class='table table-condensed table-hover'>
+                                    <tr>
+                                        <th>Include Name</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    <tr ng-repeat="fmInclude in fmIncludes">
+                                        <td>{{fmInclude.name}}</td>
+                                        <td align="center">
+                                            <a href ng-click="editFmInclude(fmInclude)" title="Edit Freemarker Include"><i class="glyphicon glyphicon-pencil"></i></a>
+                                            &nbsp;
+                                            <a href ng-click="deleteFmInclude(fmInclude)" title="Delete Freemarker Include"><i class="glyphicon glyphicon-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </tab>
+
             </tabset>
 
         </div>

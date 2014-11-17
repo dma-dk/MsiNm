@@ -18,17 +18,29 @@
         <form name="edit_form">
 
             <div class="form-controls">
-                <div class="form-group">
-                    <h5 for="name">Name</h5>
-                    <input type="text" id="name" name="namefield" class="form-control input-sm" placeholder="Unique Template Name"
-                           focus="focusMe" ng-model="template.name"
-                           autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                <div class="form-group row">
+                    <div class="col-sm-12 col-md-6">
+                        <h5 for="name">Name</h5>
+                        <input type="text" id="name" name="namefield" class="form-control input-sm" placeholder="Unique Template Name"
+                               focus="focusMe" ng-model="template.name"
+                               autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                    </div>
                 </div>
 
-                <div class="form-group">
-                    <h5>Categories</h5>
-                    <input type="text" id="templateCategories" name="categories" class="form-control input-sm"
-                           ng-model="template.categoryIds" placeholder="Categories" />
+                <div class="form-group row">
+                    <div class="col-sm-12 col-md-6">
+                        <h5>Categories</h5>
+                        <input type="text" id="templateCategories" name="categories" class="form-control input-sm"
+                               ng-model="template.categoryIds" placeholder="Categories" />
+                    </div>
+                    <div class="col-sm-12 col-md-6">
+                        <h5>Type</h5>
+                        <select class="form-control input-sm" id="templateTypes" ng-model="template.type">
+                            <option></option>
+                            <option value="NM">NM</option>
+                            <option value="MSI">MSI</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="form-group">
@@ -87,4 +99,3 @@
         </form>
     </div>
 </div>
-

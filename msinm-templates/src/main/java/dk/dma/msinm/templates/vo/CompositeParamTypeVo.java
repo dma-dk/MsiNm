@@ -1,5 +1,6 @@
 package dk.dma.msinm.templates.vo;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import dk.dma.msinm.templates.model.CompositeParamType;
 
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 /**
  * Value object for the {@code CompositeParamType} model entity
  */
+@JsonTypeName("COMPOSITE")
 public class CompositeParamTypeVo extends ParamTypeVo {
 
     List<TemplateParamVo> parameters = new ArrayList<>();
@@ -16,7 +18,6 @@ public class CompositeParamTypeVo extends ParamTypeVo {
      * Constructor
      */
     public CompositeParamTypeVo() {
-        setKind(Kind.COMPOSITE);
     }
 
     /**

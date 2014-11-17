@@ -7,6 +7,11 @@ angular.module('msinm.templates')
         'use strict';
 
         return {
+
+            // *******************************
+            // Template functionality
+            // *******************************
+
             getTemplates: function(success, error) {
                 $http.get('/rest/templates/all?lang=' + $rootScope.language)
                     .success(success)
@@ -37,6 +42,10 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
+            // *******************************
+            // Parameter type functionality
+            // *******************************
+
             getParamTypes: function(success, error) {
                 $http.get('/rest/templates/param-types')
                     .success(success)
@@ -48,6 +57,10 @@ angular.module('msinm.templates')
                     .success(success)
                     .error(error);
             },
+
+            // *******************************
+            // List Parameter type functionality
+            // *******************************
 
             getListParamTypes: function(success, error) {
                 $http.get('/rest/templates/list-param-types?lang=' + $rootScope.language)
@@ -73,6 +86,10 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
+            // *******************************
+            // Composite type functionality
+            // *******************************
+
             getCompositeParamTypes: function(success, error) {
                 $http.get('/rest/templates/composite-param-types')
                     .success(success)
@@ -93,6 +110,43 @@ angular.module('msinm.templates')
 
             deleteCompositeParamType: function(parameterType, success, error) {
                 $http.delete('/rest/templates/composite-param-type/' + parameterType.id)
+                    .success(success)
+                    .error(error);
+            },
+
+            // *******************************
+            // Freemarker functionality
+            // *******************************
+
+            getFmIncludes: function(success, error) {
+                $http.get('/rest/templates/fm-includes')
+                    .success(success)
+                    .error(error);
+            },
+
+            createFmInclude: function(fmInclude, success, error) {
+                $http.post('/rest/templates/fm-include', fmInclude)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateFmInclude: function(fmInclude, success, error) {
+                $http.put('/rest/templates/fm-include', fmInclude)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteFmInclude: function(fmInclude, success, error) {
+                $http.delete('/rest/templates/fm-include/' + fmInclude.id)
+                    .success(success)
+                    .error(error);
+            },
+
+            processFmTemplate: function(msgId, fieldTemplate, success, error) {
+                $http.post('/rest/templates/process-field-template', {
+                        msgId : msgId,
+                        fieldTemplate : fieldTemplate
+                    })
                     .success(success)
                     .error(error);
             }

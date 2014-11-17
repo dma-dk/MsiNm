@@ -1,0 +1,49 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2 ng-show="userAction == 'add'">Create Freemarker Include File</h2>
+        <h2 ng-show="userAction == 'edit'">Edit Freemarker Include File</h2>
+    </div>
+
+    <div class="modal-body">
+        <div class="alert alert-danger" ng-show="error">{{error}}</div>
+
+        <p>
+            A Freemarker include file is automatically included in all field templates.
+            They can thus be used for common functionality, such as Freemarker macros.
+        </p>
+
+        <form name="edit_form">
+
+            <div class="form-controls">
+                <div class="form-group">
+                    <h5>Name</h5>
+                    <input type="text" name="namefield" class="form-control input-sm" placeholder="Unique Include Name"
+                           focus="focusMe" ng-model="fmInclude.name"
+                           autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                </div>
+
+                <div class="form-group">
+                    <h5>Freemarker Template</h5>
+                    <div>
+                        <textarea class="field-template-editor" ng-model="fmInclude.fmTemplate" spellcheck="false"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="!(edit_form.namefield.$valid)"
+                            ng-click="createOrUpdateFmInclude()">
+                        <span ng-show="userAction == 'add'">Create</span>
+                        <span ng-show="userAction == 'edit'">Update</span>
+                    </button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>

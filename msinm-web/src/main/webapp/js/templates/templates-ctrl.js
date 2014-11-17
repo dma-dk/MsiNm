@@ -17,6 +17,7 @@ angular.module('msinm.templates')
         $scope.templates = [];
         $scope.listParamTypes = [];
         $scope.compositeParamTypes = [];
+        $scope.fmIncludes = [];
 
 
         // Loads templates and parameter types
@@ -24,6 +25,7 @@ angular.module('msinm.templates')
             $scope.loadTemplates();
             $scope.loadListParamTypes();
             $scope.loadCompositeParamTypes();
+            $scope.loadFmIncludes();
         };
 
         // ****************************************
@@ -141,7 +143,7 @@ angular.module('msinm.templates')
         // Adds a new list parameter type
         $scope.addListParamType = function () {
             $scope.listParamTypeDlg(
-                {   name:'', values:[] },
+                {   name:'', kind:'LIST', values:[] },
                 'add'
             );
         };
@@ -219,7 +221,7 @@ angular.module('msinm.templates')
         // Adds a new composite parameter type
         $scope.addCompositeParamType = function () {
             $scope.compositeParamTypeDlg(
-                {   name:'', parameters:[] },
+                {   name:'', kind:'COMPOSITE', parameters:[] },
                 'add'
             );
         };
@@ -270,6 +272,86 @@ angular.module('msinm.templates')
 
             $scope.modalInstance.result.then(function() {
                 $scope.loadCompositeParamTypes();
+            }, function() {
+                // Cancelled
+            })['finally'](function(){
+                $scope.modalInstance = undefined;
+            });
+        };
+
+
+        // ****************************************
+        // Freemarker Include functionality
+        // ****************************************
+
+        // Loads the Freemarker includes
+        $scope.loadFmIncludes = function () {
+            TemplatesService.getFmIncludes(
+                function (data) {
+                    $scope.fmIncludes = data;
+                },
+                function () {
+                    console.log("Error fetching Freemarker includes");
+                });
+        };
+
+
+        // Adds a new Freemarker include
+        $scope.addFmInclude = function () {
+            $scope.fmIncludeDlg(
+                {   name:'',
+                    fmTemplate: ''
+                },
+                'add'
+            );
+        };
+
+
+        // Edits the given Freemarker include
+        $scope.editFmInclude = function (fmInclude) {
+            $scope.fmIncludeDlg(
+                fmInclude,
+                'edit'
+            );
+        };
+
+
+        // Deletes the given Freemarker include after confirmation
+        $scope.deleteFmInclude = function (fmInclude) {
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                "Delete Freemarker Include?", "Delete Freemarker include " + fmInclude.name + "?")
+                .then(function() {
+                    TemplatesService.deleteFmInclude(
+                        fmInclude,
+                        function (data) {
+                            $scope.loadFmIncludes();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
+        };
+
+
+        // Opens the Freemarker include in the editor dialog
+        $scope.fmIncludeDlg = function (fmInclude, userAction) {
+            $scope.modalInstance = $modal.open({
+                controller: "FmIncludeDialogCtrl",
+                templateUrl : "/partials/templates/fm-include-dialog.html",
+                resolve: {
+                    fmInclude: function(){
+                        return fmInclude;
+                    },
+                    userAction: function(){
+                        return userAction;
+                    }
+                }
+            });
+
+            $scope.modalInstance.result.then(function() {
+                $scope.loadFmIncludes();
             }, function() {
                 // Cancelled
             })['finally'](function(){
@@ -338,8 +420,7 @@ angular.module('msinm.templates')
             }
         );
 
-
-        // Initialize the categories
+        // Initialize the types field and the categories field
         $timeout(function () {
             initCategoryField("#templateCategories", true);
             if (template.categories && template.categories.length > 0) {
@@ -357,7 +438,7 @@ angular.module('msinm.templates')
             } else {
                 $("#templateCategories").select2("data", null);
             }
-        }, 200);
+        }, 100);
 
 
         // Adds the given field template to the template
@@ -451,20 +532,68 @@ angular.module('msinm.templates')
         'use strict';
 
         $scope.template = angular.copy(template);
-        $scope.paramData = [];
+        $scope.paramData = {};
         $scope.messageId = $cookieStore.get('testMessageId');
         $scope.focusMe = true;
 
         if (!$scope.template.fieldTemplates) {
             $scope.template.fieldTemplates = [];
         }
+        $scope.fieldResults = [];
+        for (var t in $scope.template.fieldTemplates) {
+            var fieldTemplate = $scope.template.fieldTemplates[t];
+            $scope.fieldResults.push({
+                field: fieldTemplate.field,
+                lang: fieldTemplate.lang,
+                result: ''
+            });
+        }
+
+        // Load the parameter types
+        $scope.parameterTypes = {};
+        TemplatesService.getParamTypes(
+            function (data) {
+                // Build a look-up map for param types
+                for (var p in data) {
+                    var paramType = data[p];
+                    $scope.parameterTypes[paramType.name] = paramType;
+                }
+            },
+            function (data) {
+                console.error("Error loading parameter types");
+            }
+        );
+
+        $scope.paramsValid = function (params) {
+            var valid = true;
+            for (var p in params) {
+                var param = params[p];
+                var paramType = $scope.parameterTypes[param.type];
+                if (paramType && paramType.kind == 'COMPOSITE') {
+                    valid = valid && $scope.paramsValid(paramType.parameters);
+                } else {
+                    valid = valid && (!param.mandatory || $scope.paramData[param.name] !== undefined);
+                }
+            }
+            return valid;
+        };
 
         // Test the current template
         $scope.test = function (messageId) {
             if (messageId) {
                 $scope.messageId = messageId;
                 $cookieStore.put('testMessageId', $scope.messageId);
-                alert("TEST");
+
+                TemplatesService.processFmTemplate(
+                    messageId.fullId,
+                    $scope.template.fieldTemplates[0],
+                    function (data) {
+                        $scope.fieldResults[0].result = data;
+                    },
+                    function (data) {
+                        $scope.fieldResults[0].result = "ERROR:\n" + data;
+                    }
+                )
             }
         };
     }])
@@ -639,5 +768,65 @@ angular.module('msinm.templates')
                 });
         };
 
+    }])
+
+
+    /**
+     * ********************************************************************************
+     * FmIncludeDialogCtrl
+     * ********************************************************************************
+     * The FmIncludeDialogCtrl is the Freemarker includes add/edit dialog controller
+     */
+    .controller('FmIncludeDialogCtrl', ['$scope', '$modalInstance', 'TemplatesService', 'userAction', 'fmInclude',
+        function ($scope, $modalInstance, TemplatesService, userAction, fmInclude) {
+        'use strict';
+
+        $scope.userAction = userAction;
+        $scope.fmInclude = angular.copy(fmInclude);
+        $scope.focusMe = true;
+
+
+        // Creates or updates the Freemarker include file
+        $scope.createOrUpdateFmInclude = function() {
+            if ($scope.userAction == 'add') {
+                $scope.createFmInclude();
+            } else {
+                $scope.updateFmInclude();
+            }
+        };
+
+
+        // Creates the composite parameter type
+        $scope.createFmInclude = function() {
+            TemplatesService.createFmInclude(
+                $scope.fmInclude,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the Freemarker template data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        };
+
+
+        // Updates the composite parameter type
+        $scope.updateFmInclude = function() {
+            TemplatesService.updateFmInclude(
+                $scope.fmInclude,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the Freemarker template data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        };
+
     }]);
+
 

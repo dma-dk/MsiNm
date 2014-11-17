@@ -91,28 +91,11 @@ angular.module('msinm.templates')
             templateUrl: '/partials/templates/template-param-data.html',
             replace: true,
             scope: {
+                parameterTypes: "=",
                 parameters: "=",
                 data: "="
             },
             link: function(scope, element, attrs) {
-
-                // Load the parameter types
-                scope.parameterTypes = {};
-                TemplatesService.getParamTypes(
-                    function (data) {
-                        // Build a look-up map for param types
-                        for (var p in data) {
-                            var paramType = data[p];
-                            scope.parameterTypes[paramType.name] = paramType;
-                        }
-                    },
-                    function (data) {
-                        console.error("Error loading parameter types");
-                    }
-                );
-
-
-
             }
         };
     }]);

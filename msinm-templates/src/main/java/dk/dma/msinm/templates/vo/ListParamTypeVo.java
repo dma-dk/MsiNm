@@ -1,5 +1,6 @@
 package dk.dma.msinm.templates.vo;
 
+import com.fasterxml.jackson.annotation.JsonTypeName;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.templates.model.ListParamType;
 
@@ -9,6 +10,7 @@ import java.util.List;
 /**
  * Value object for the {@code ListParamType} model entity
  */
+@JsonTypeName("LIST")
 public class ListParamTypeVo extends ParamTypeVo {
 
     List<ListParamValueVo> values = new ArrayList<>();
@@ -17,7 +19,6 @@ public class ListParamTypeVo extends ParamTypeVo {
      * Constructor
      */
     public ListParamTypeVo() {
-        setKind(Kind.LIST);
     }
 
     /**

@@ -2,6 +2,7 @@ package dk.dma.msinm.templates.model;
 
 import dk.dma.msinm.common.model.VersionedEntity;
 import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.SeriesIdType;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -30,6 +31,8 @@ public class Template extends VersionedEntity<Integer> {
     @ManyToMany
     List<Category> categories = new ArrayList<>();
 
+    SeriesIdType type;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @OrderBy("sortKey")
     List<TemplateParam> parameters = new ArrayList<>();
@@ -56,6 +59,14 @@ public class Template extends VersionedEntity<Integer> {
 
     public void setCategories(List<Category> categories) {
         this.categories = categories;
+    }
+
+    public SeriesIdType getType() {
+        return type;
+    }
+
+    public void setType(SeriesIdType type) {
+        this.type = type;
     }
 
     public List<TemplateParam> getParameters() {

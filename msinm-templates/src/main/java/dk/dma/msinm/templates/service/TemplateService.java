@@ -4,7 +4,10 @@ import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Category;
+import dk.dma.msinm.model.Message;
+import dk.dma.msinm.service.MessageService;
 import dk.dma.msinm.templates.model.CompositeParamType;
+import dk.dma.msinm.templates.model.FmInclude;
 import dk.dma.msinm.templates.model.ListParamType;
 import dk.dma.msinm.templates.model.ListParamValue;
 import dk.dma.msinm.templates.model.ParamType;
@@ -12,16 +15,25 @@ import dk.dma.msinm.templates.model.Template;
 import dk.dma.msinm.templates.vo.BaseParamTypeVo;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
 import dk.dma.msinm.templates.vo.FieldTemplateVo;
+import dk.dma.msinm.templates.vo.FmIncludeVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import dk.dma.msinm.templates.vo.ParamTypeVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
+import dk.dma.msinm.vo.MessageVo;
+import freemarker.cache.StringTemplateLoader;
+import freemarker.template.Configuration;
+import freemarker.template.TemplateException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.io.IOException;
+import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -32,6 +44,9 @@ public class TemplateService extends BaseService {
 
     @Inject
     private Logger log;
+
+    @Inject
+    MessageService messageService;
 
     @Inject
     private MsiNmApp app;
@@ -99,7 +114,8 @@ public class TemplateService extends BaseService {
         Template original = getByPrimaryKey(Template.class, templateVo.getId());
         Template template = templateVo.toEntity();
 
-        original.setName(templateVo.getName());
+        original.setName(template.getName());
+        original.setType(template.getType());
         original.getParameters().clear();
         original.getParameters().addAll(template.getParameters());
 
@@ -330,6 +346,125 @@ public class TemplateService extends BaseService {
             return true;
         }
         return false;
+    }
+
+    // *******************************************
+    // ** Freemarker functionality
+    // *******************************************
+
+    /**
+     * Returns the Freemarker includes
+     * @return the Freemarker includes
+     */
+    public List<FmIncludeVo> getFmIncludes() {
+
+        return em.createNamedQuery("FmInclude.findAll", FmInclude.class)
+                .getResultList()
+                .stream()
+                .map(FmIncludeVo::new)
+                .collect(Collectors.toList());
+    }
+
+
+    /**
+     * Creates a new Freemarker include from the given value object
+     * @param fmIncludeVo the Freemarker include value object
+     * @return the new entity
+     */
+    public FmInclude createFmInclude(FmIncludeVo fmIncludeVo) {
+
+        // Ensure validity of the type name
+        if (StringUtils.isBlank(fmIncludeVo.getName())) {
+            throw new IllegalArgumentException("Invalid Freemarker include name: " + fmIncludeVo.getName());
+        }
+
+        FmInclude fmInclude = fmIncludeVo.toEntity();
+        fmInclude = saveEntity(fmInclude);
+        log.info("Created Freemarker include " + fmInclude);
+
+        return fmInclude;
+    }
+
+    /**
+     * Updates an existing Freemarker include from the given value object
+     * @param fmIncludeVo the Freemarker include value object
+     * @return the updated entity
+     */
+    public FmInclude updateFmInclude(FmIncludeVo fmIncludeVo) {
+
+        FmInclude original = getByPrimaryKey(FmInclude.class, fmIncludeVo.getId());
+
+        original.setName(fmIncludeVo.getName());
+        original.setFmTemplate(fmIncludeVo.getFmTemplate());
+
+        original = saveEntity(original);
+        log.info("Updated Freemarker include " + original);
+
+        return original;
+    }
+
+    /**
+     * Deletes the Freemarker include with the given id
+     * @param id the id of the Freemarker include to delete
+     */
+    public boolean deleteFmInclude(Integer id) {
+
+        FmInclude fmInclude = getByPrimaryKey(FmInclude.class, id);
+        if (fmInclude != null) {
+            remove(fmInclude);
+            log.info("Deleted Freemarker include " + id);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Executes the field template with the
+     * @param msgSeriesId the message series id
+     * @param fieldTemplate the field template
+     * @return the generated contents
+     */
+    public String processFieldTemplate(String msgSeriesId, FieldTemplateVo fieldTemplate) throws IOException, TemplateException {
+
+        long t0 = System.currentTimeMillis();
+
+        // Resolve the message
+        Message message = messageService.findBySeriesIdentifier(msgSeriesId);
+        if (message == null) {
+            return null;
+        }
+        // Get the cached version, since it has all related data cached
+        message = messageService.getCachedMessage(message.getId());
+
+
+        // Construct the Freemarker template
+        StringTemplateLoader fmLoader = new StringTemplateLoader();
+
+        // Add all Freemarker includes to the template
+        StringBuilder fullFieldTemplate = new StringBuilder();
+        getFmIncludes().forEach(fmInclude -> {
+            fmLoader.putTemplate(fmInclude.getName(), fmInclude.getFmTemplate());
+            fullFieldTemplate.append(String.format("<#include \"%s\">%n", fmInclude.getName()));
+        });
+        fullFieldTemplate.append(fieldTemplate.getFmTemplate());
+
+        fmLoader.putTemplate("fieldTemplate", fullFieldTemplate.toString());
+        Configuration cfg = new Configuration();
+        cfg.setTemplateLoader(fmLoader);
+        cfg.setLocale(app.getLocale(fieldTemplate.getLang()));
+
+        // Assemble the data used for the Freemarker transformation
+        Map<String, Object> data = new HashMap<>();
+        DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(fieldTemplate.getLang());
+        data.put("msg", new MessageVo(message, filter));
+
+        // Execute the Freemarker template
+        StringWriter result = new StringWriter();
+        cfg.getTemplate("fieldTemplate").process(data, result);
+
+        log.info(String.format("Processed Freemarker template for %s:%s in %d ms",
+                fieldTemplate.getField(), fieldTemplate.getLang(), System.currentTimeMillis() - t0));
+        return result.toString();
     }
 
 }

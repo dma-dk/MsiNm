@@ -1,7 +1,10 @@
 package dk.dma.msinm.templates.service;
 
+import dk.dma.msinm.common.vo.JsonSerializable;
+import dk.dma.msinm.templates.model.FmInclude;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
 import dk.dma.msinm.templates.vo.FieldTemplateVo;
+import dk.dma.msinm.templates.vo.FmIncludeVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import dk.dma.msinm.templates.vo.ParamTypeVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
@@ -49,8 +52,8 @@ public class TemplateRestService {
 
     @POST
     @Path("/template")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String createTemplate(TemplateVo templateVo) throws Exception {
         templateService.createTemplate(templateVo);
@@ -59,8 +62,8 @@ public class TemplateRestService {
 
     @PUT
     @Path("/template")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String updateTemplate(TemplateVo templateVo) throws Exception {
         templateService.updateTemplate(templateVo);
@@ -69,7 +72,7 @@ public class TemplateRestService {
 
     @DELETE
     @Path("/template/{templateId}")
-    @Produces("application/json")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String deleteTemplate(@PathParam("templateId") Integer templateId) throws Exception {
         templateService.deleteTemplate(templateId);
@@ -122,8 +125,8 @@ public class TemplateRestService {
 
     @POST
     @Path("/list-param-type")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String createListParameterType(ListParamTypeVo typeVo) throws Exception {
         templateService.createListParamType(typeVo);
@@ -132,8 +135,8 @@ public class TemplateRestService {
 
     @PUT
     @Path("/list-param-type")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String updateListParameterType(ListParamTypeVo typeVo) throws Exception {
         templateService.updateListParamType(typeVo);
@@ -142,7 +145,7 @@ public class TemplateRestService {
 
     @DELETE
     @Path("/list-param-type/{typeId}")
-    @Produces("application/json")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String deleteListParameterType(@PathParam("typeId") Integer typeId) throws Exception {
         templateService.deleteParamType(typeId);
@@ -164,8 +167,8 @@ public class TemplateRestService {
 
     @POST
     @Path("/composite-param-type")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String createCompositeParameterType(CompositeParamTypeVo typeVo) throws Exception {
         templateService.createCompositeParamType(typeVo);
@@ -174,8 +177,8 @@ public class TemplateRestService {
 
     @PUT
     @Path("/composite-param-type")
-    @Consumes("application/json")
-    @Produces("application/json")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String updateCompositeParameterType(CompositeParamTypeVo typeVo) throws Exception {
         templateService.updateCompositeParamType(typeVo);
@@ -184,7 +187,7 @@ public class TemplateRestService {
 
     @DELETE
     @Path("/composite-param-type/{typeId}")
-    @Produces("application/json")
+    @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"admin"})
     public String deleteCompositeParameterType(@PathParam("typeId") Integer typeId) throws Exception {
         templateService.deleteParamType(typeId);
@@ -192,4 +195,83 @@ public class TemplateRestService {
     }
 
 
+    // *******************************************
+    // ** Freemarker functionality
+    // *******************************************
+
+    @GET
+    @Path("/fm-includes")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<FmIncludeVo> getFmIncludes() {
+        return templateService.getFmIncludes();
+    }
+
+    @POST
+    @Path("/fm-include")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"admin"})
+    public String createFmInclude(FmIncludeVo fmIncludeVo) throws Exception {
+        templateService.createFmInclude(fmIncludeVo);
+        return "OK";
+    }
+
+    @PUT
+    @Path("/fm-include")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"admin"})
+    public String updateFmInclude(FmIncludeVo fmIncludeVo) throws Exception {
+        templateService.updateFmInclude(fmIncludeVo);
+        return "OK";
+    }
+
+    @DELETE
+    @Path("/fm-include/{fmIncludeId}")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"admin"})
+    public String deleteFmInclude(@PathParam("fmIncludeId") Integer fmIncludeId) throws Exception {
+        templateService.deleteFmInclude(fmIncludeId);
+        return "OK";
+    }
+
+    @POST
+    @Path("/process-field-template")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"editor"})
+    public String processFieldTemplate(ProcessFieldTemplateVo processFieldTemplate) throws Exception {
+        return templateService.processFieldTemplate(processFieldTemplate.getMsgId(), processFieldTemplate.getFieldTemplate());
+    }
+
+
+    /***************************
+     * Helper VO classes
+     ***************************/
+
+    /**
+     * Helper class used changing the status of a message
+     */
+    public static class ProcessFieldTemplateVo implements JsonSerializable {
+        String msgId;
+        FieldTemplateVo fieldTemplate;
+
+        public String getMsgId() {
+            return msgId;
+        }
+
+        public void setMsgId(String msgId) {
+            this.msgId = msgId;
+        }
+
+        public FieldTemplateVo getFieldTemplate() {
+            return fieldTemplate;
+        }
+
+        public void setFieldTemplate(FieldTemplateVo fieldTemplate) {
+            this.fieldTemplate = fieldTemplate;
+        }
+    }
 }
