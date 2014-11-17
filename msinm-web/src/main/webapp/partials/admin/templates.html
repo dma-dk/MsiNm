@@ -43,6 +43,7 @@
                                     <tr>
                                         <th>Template</th>
                                         <th>Categories</th>
+                                        <th>Type</th>
                                         <th>Parameters</th>
                                         <th>Actions</th>
                                     </tr>
@@ -51,6 +52,7 @@
                                         <td>
                                             <div ng-repeat="cat in template.categories">{{cat.descs[0].name}}</div>
                                         </td>
+                                        <td>{{template.type}}</td>
                                         <td>
                                             <div ng-repeat="param in template.parameters">{{param.name}}</div>
                                         </td>

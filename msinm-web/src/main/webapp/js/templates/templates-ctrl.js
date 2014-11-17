@@ -340,6 +340,7 @@ angular.module('msinm.templates')
             $scope.modalInstance = $modal.open({
                 controller: "FmIncludeDialogCtrl",
                 templateUrl : "/partials/templates/fm-include-dialog.html",
+                size: 'lg',
                 resolve: {
                     fmInclude: function(){
                         return fmInclude;
