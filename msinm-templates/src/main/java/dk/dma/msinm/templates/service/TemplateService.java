@@ -419,12 +419,12 @@ public class TemplateService extends BaseService {
     }
 
     /**
-     * Executes the field template with the
+     * Executes the field templates of the given template for the given message
      * @param msgSeriesId the message series id
-     * @param fieldTemplate the field template
-     * @return the generated contents
+     * @param template the template
+     * @return the updated template
      */
-    public String processFieldTemplate(String msgSeriesId, FieldTemplateVo fieldTemplate) throws IOException, TemplateException {
+    public TemplateVo processTemplate(String msgSeriesId, TemplateVo template) throws IOException, TemplateException {
 
         long t0 = System.currentTimeMillis();
 
@@ -441,30 +441,39 @@ public class TemplateService extends BaseService {
         StringTemplateLoader fmLoader = new StringTemplateLoader();
 
         // Add all Freemarker includes to the template
-        StringBuilder fullFieldTemplate = new StringBuilder();
+        StringBuilder freemarkerIncludes = new StringBuilder();
         getFmIncludes().forEach(fmInclude -> {
             fmLoader.putTemplate(fmInclude.getName(), fmInclude.getFmTemplate());
-            fullFieldTemplate.append(String.format("<#include \"%s\">%n", fmInclude.getName()));
+            freemarkerIncludes.append(String.format("<#include \"%s\">%n", fmInclude.getName()));
         });
-        fullFieldTemplate.append(fieldTemplate.getFmTemplate());
 
-        fmLoader.putTemplate("fieldTemplate", fullFieldTemplate.toString());
-        Configuration cfg = new Configuration();
-        cfg.setTemplateLoader(fmLoader);
-        cfg.setLocale(app.getLocale(fieldTemplate.getLang()));
+        // Execute all field templates
+        for (FieldTemplateVo fieldTemplate : template.getFieldTemplates()) {
 
-        // Assemble the data used for the Freemarker transformation
-        Map<String, Object> data = new HashMap<>();
-        DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(fieldTemplate.getLang());
-        data.put("msg", new MessageVo(message, filter));
+            if (StringUtils.isBlank(fieldTemplate.getFmTemplate())) {
+                continue;
+            }
 
-        // Execute the Freemarker template
-        StringWriter result = new StringWriter();
-        cfg.getTemplate("fieldTemplate").process(data, result);
+            // The full Freemarker template is the Freemarker includes + the field template
+            fmLoader.putTemplate("fieldTemplate", String.valueOf(freemarkerIncludes) + fieldTemplate.getFmTemplate());
+            Configuration cfg = new Configuration();
+            cfg.setTemplateLoader(fmLoader);
+            cfg.setLocale(app.getLocale(fieldTemplate.getLang()));
 
-        log.info(String.format("Processed Freemarker template for %s:%s in %d ms",
-                fieldTemplate.getField(), fieldTemplate.getLang(), System.currentTimeMillis() - t0));
-        return result.toString();
+            // Assemble the data used for the Freemarker transformation
+            Map<String, Object> data = new HashMap<>();
+            DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(fieldTemplate.getLang());
+            data.put("msg", new MessageVo(message, filter));
+
+            // Execute the Freemarker template
+            StringWriter result = new StringWriter();
+            cfg.getTemplate("fieldTemplate").process(data, result);
+            fieldTemplate.setResult(result.toString());
+        }
+
+
+        log.info(String.format("Processed Freemarker template in %d ms", System.currentTimeMillis() - t0));
+        return template;
     }
 
 }

@@ -30,11 +30,11 @@
                     <label>Field Results</label>
                     <div>
                         <tabset class="field-templates">
-                            <tab ng-repeat="fieldResult in fieldResults" heading="{{fieldResult.field}}:{{fieldResult.lang}}">
+                            <tab ng-repeat="tmpl in template.fieldTemplates" heading="{{tmpl.field}}:{{tmpl.lang}}">
                                 <div class="field-template">
                                     <div class="row">
                                         <div class="col-lg-12">
-                                            <textarea class="field-template-editor" ng-model="fieldResult.result" spellcheck="false" disabled="disabled"></textarea>
+                                            <textarea class="field-template-editor" ng-model="tmpl.result" spellcheck="false" disabled="disabled"></textarea>
                                         </div>
                                     </div>
                                 </div>

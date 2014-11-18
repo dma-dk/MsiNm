@@ -15,6 +15,7 @@ public class FieldTemplateVo extends BaseVo<FieldTemplate> {
     String fmTemplate;
     int sortKey;
     boolean defaultField;
+    String result;
 
     /**
      * Constructor
@@ -119,5 +120,13 @@ public class FieldTemplateVo extends BaseVo<FieldTemplate> {
 
     public void setDefaultField(boolean defaultField) {
         this.defaultField = defaultField;
+    }
+
+    public String getResult() {
+        return result;
+    }
+
+    public void setResult(String result) {
+        this.result = result;
     }
 }

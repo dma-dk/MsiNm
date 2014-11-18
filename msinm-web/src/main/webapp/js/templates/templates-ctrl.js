@@ -540,15 +540,6 @@ angular.module('msinm.templates')
         if (!$scope.template.fieldTemplates) {
             $scope.template.fieldTemplates = [];
         }
-        $scope.fieldResults = [];
-        for (var t in $scope.template.fieldTemplates) {
-            var fieldTemplate = $scope.template.fieldTemplates[t];
-            $scope.fieldResults.push({
-                field: fieldTemplate.field,
-                lang: fieldTemplate.lang,
-                result: ''
-            });
-        }
 
         // Load the parameter types
         $scope.parameterTypes = {};
@@ -585,14 +576,14 @@ angular.module('msinm.templates')
                 $scope.messageId = messageId;
                 $cookieStore.put('testMessageId', $scope.messageId);
 
-                TemplatesService.processFmTemplate(
+                TemplatesService.processTemplate(
                     messageId.fullId,
-                    $scope.template.fieldTemplates[0],
+                    $scope.template,
                     function (data) {
-                        $scope.fieldResults[0].result = data;
+                        $scope.template = data;
                     },
                     function (data) {
-                        $scope.fieldResults[0].result = "ERROR:\n" + data;
+                        $scope.error = "ERROR";
                     }
                 )
             }

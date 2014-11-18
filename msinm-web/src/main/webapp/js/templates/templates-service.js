@@ -142,10 +142,10 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
-            processFmTemplate: function(msgId, fieldTemplate, success, error) {
-                $http.post('/rest/templates/process-field-template', {
+            processTemplate: function(msgId, template, success, error) {
+                $http.post('/rest/templates/process-template', {
                         msgId : msgId,
-                        fieldTemplate : fieldTemplate
+                        template : template
                     })
                     .success(success)
                     .error(error);

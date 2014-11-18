@@ -1,7 +1,6 @@
 package dk.dma.msinm.templates.service;
 
 import dk.dma.msinm.common.vo.JsonSerializable;
-import dk.dma.msinm.templates.model.FmInclude;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
 import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.FmIncludeVo;
@@ -238,12 +237,12 @@ public class TemplateRestService {
     }
 
     @POST
-    @Path("/process-field-template")
+    @Path("/process-template")
     @Consumes("application/json;charset=UTF-8")
     @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"editor"})
-    public String processFieldTemplate(ProcessFieldTemplateVo processFieldTemplate) throws Exception {
-        return templateService.processFieldTemplate(processFieldTemplate.getMsgId(), processFieldTemplate.getFieldTemplate());
+    public TemplateVo processTemplate(ProcessTemplateVo processTemplate) throws Exception {
+        return templateService.processTemplate(processTemplate.getMsgId(), processTemplate.getTemplate());
     }
 
 
@@ -252,11 +251,11 @@ public class TemplateRestService {
      ***************************/
 
     /**
-     * Helper class used changing the status of a message
+     * Helper class used for processing a template
      */
-    public static class ProcessFieldTemplateVo implements JsonSerializable {
+    public static class ProcessTemplateVo implements JsonSerializable {
         String msgId;
-        FieldTemplateVo fieldTemplate;
+        TemplateVo template;
 
         public String getMsgId() {
             return msgId;
@@ -266,12 +265,12 @@ public class TemplateRestService {
             this.msgId = msgId;
         }
 
-        public FieldTemplateVo getFieldTemplate() {
-            return fieldTemplate;
+        public TemplateVo getTemplate() {
+            return template;
         }
 
-        public void setFieldTemplate(FieldTemplateVo fieldTemplate) {
-            this.fieldTemplate = fieldTemplate;
+        public void setTemplate(TemplateVo template) {
+            this.template = template;
         }
     }
 }
