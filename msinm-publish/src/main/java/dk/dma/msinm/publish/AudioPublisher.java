@@ -133,6 +133,32 @@ public class AudioPublisher extends Publisher {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getFieldTemplateLanguages() {
+        // Returns the audio language
+        return new String[] { settings.get(AUDIO_LANG) };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
+        PublicationVo pub = messageVo.getPublication(getType());
+        if (pub != null) {
+            try {
+                AudioData data = JsonUtils.fromJson(pub.getData(), AudioData.class);
+                data.setMessage(result);
+                pub.setData(JsonUtils.toJson(data));
+            } catch (IOException e) {
+                log.debug("Could not update Audio message with field template result");
+            }
+        }
+    }
+
+    /**
      * Check if the Audio publication needs have a placeholder id updated
      * @param message the message to check
      */

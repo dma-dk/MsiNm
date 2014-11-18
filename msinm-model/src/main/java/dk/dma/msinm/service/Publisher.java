@@ -39,7 +39,8 @@ public abstract class Publisher {
                         getType(),
                         getClass(),
                         getPriority(),
-                        isActive())
+                        isActive(),
+                        getFieldTemplateLanguages())
         );
     }
 
@@ -87,6 +88,26 @@ public abstract class Publisher {
     }
 
     /**
+     * Publications can be updated from Freemarker templates. This method will return
+     * the languages for which a Freemarker template result can be injected.
+     * Returns null means that field templates injection is not supported
+     * @return the languages for which a Freemarker template result can be injected
+     */
+    public String[] getFieldTemplateLanguages() {
+        return null; // No field templates by default
+    }
+
+    /**
+     * Publications can be updated from Freemarker templates. This method is called
+     * to inject a Freemarker template result for a specific language in a message value object.
+     * @param messageVo the message value object
+     * @param result the field template result
+     * @param language the language
+     */
+    public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
+    }
+
+    /**
      * Returns the key for the active setting of this publisher
      * @return the key for the active setting of this publisher
      */
@@ -130,6 +151,7 @@ public abstract class Publisher {
         Class<? extends Publisher> publisherClass;
         int priority;
         boolean active;
+        String[] fieldTemplateLanguages;
 
         /**
          * No-arg constructor
@@ -143,11 +165,12 @@ public abstract class Publisher {
          * @param publisherClass the publisher class
          * @param priority the priority
          */
-        public PublisherContext(String type, Class<? extends Publisher> publisherClass, int priority, boolean active) {
+        public PublisherContext(String type, Class<? extends Publisher> publisherClass, int priority, boolean active, String[] fieldTemplateLanguages) {
             this.type = type;
             this.publisherClass = publisherClass;
             this.priority = priority;
             this.active = active;
+            this.fieldTemplateLanguages = fieldTemplateLanguages;
         }
 
         public String getType() {
@@ -164,6 +187,10 @@ public abstract class Publisher {
 
         public boolean isActive() {
             return active;
+        }
+
+        public String[] getFieldTemplateLanguages() {
+            return fieldTemplateLanguages;
         }
     }
 }

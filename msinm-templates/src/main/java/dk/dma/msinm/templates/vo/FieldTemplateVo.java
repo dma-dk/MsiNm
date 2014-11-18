@@ -16,6 +16,7 @@ public class FieldTemplateVo extends BaseVo<FieldTemplate> {
     int sortKey;
     boolean defaultField;
     String result;
+    String error;
 
     /**
      * Constructor
@@ -128,5 +129,13 @@ public class FieldTemplateVo extends BaseVo<FieldTemplate> {
 
     public void setResult(String result) {
         this.result = result;
+    }
+
+    public String getError() {
+        return error;
+    }
+
+    public void setError(String error) {
+        this.error = error;
     }
 }

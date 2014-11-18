@@ -42,6 +42,7 @@ import java.util.Map;
 public class NavdatPublisher extends Publisher {
 
     public static final String NAVDAT_PUBLISHER_TYPE = "navdat";
+    public static final String NAVDAT_LANG = "en";
 
     @Inject
     Logger log;
@@ -131,6 +132,32 @@ public class NavdatPublisher extends Publisher {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getFieldTemplateLanguages() {
+        // Returns the Navdat language
+        return new String[] { NAVDAT_LANG };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
+        PublicationVo pub = messageVo.getPublication(getType());
+        if (pub != null) {
+            try {
+                NavdatData data = JsonUtils.fromJson(pub.getData(), NavdatData.class);
+                data.setMessage(result);
+                pub.setData(JsonUtils.toJson(data));
+            } catch (IOException e) {
+                log.debug("Could not update Navdat message with field template result");
+            }
+        }
+    }
+
+    /**
      * Check if the Navdat publication needs have a placeholder id updated
      * @param message the message to check
      */
@@ -183,7 +210,7 @@ public class NavdatPublisher extends Publisher {
     public PublicationVo generateNavdatMessage(MessageVo msg) throws Exception {
 
         // Prefer English
-        msg.sortDescsByLang("en");
+        msg.sortDescsByLang(NAVDAT_LANG);
 
         // Get or create the Navdat publication and Navdat data
         PublicationVo pub = msg.getPublication(getType());
@@ -202,7 +229,7 @@ public class NavdatPublisher extends Publisher {
                 TemplateType.MESSAGE,
                 "navdat-message.ftl",
                 data,
-                "en",
+                NAVDAT_LANG,
                 null);
         String navdatMessage = templateService.process(ctx);
         navdatData.setMessage(navdatMessage);

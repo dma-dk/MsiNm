@@ -6,6 +6,7 @@ import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.service.MessageService;
+import dk.dma.msinm.service.PublishingService;
 import dk.dma.msinm.templates.model.CompositeParamType;
 import dk.dma.msinm.templates.model.FmInclude;
 import dk.dma.msinm.templates.model.ListParamType;
@@ -47,6 +48,9 @@ public class TemplateService extends BaseService {
 
     @Inject
     MessageService messageService;
+
+    @Inject
+    PublishingService publishingService;
 
     @Inject
     private MsiNmApp app;
@@ -167,10 +171,18 @@ public class TemplateService extends BaseService {
             fieldTemplates.add(new FieldTemplateVo("description", lang, sortKey++, true));
         }
 
-        // TODO: Publication fields
+        // Publication fields
+        publishingService.getPublisherContexts().stream()
+                .filter(pub -> pub.isActive() && pub.getFieldTemplateLanguages() != null)
+                .forEach(pub -> {
+                    for (String lang : pub.getFieldTemplateLanguages()) {
+                        fieldTemplates.add(new FieldTemplateVo(pub.getType(), lang, 1000 - pub.getPriority(), false));
+                    }
+                });
 
         return fieldTemplates;
     }
+
 
     // *******************************************
     // ** List parameter type functionality
@@ -471,7 +483,8 @@ public class TemplateService extends BaseService {
                 cfg.getTemplate("fieldTemplate").process(data, result);
                 fieldTemplate.setResult(result.toString());
             } catch (Exception e) {
-                fieldTemplate.setResult("Error processing template " + fieldTemplate.getField() + ":\n" + e.getMessage());
+                fieldTemplate.setError("Error processing template " + fieldTemplate.getField()
+                        + ":" + fieldTemplate.getLang() + "\n" + e.getMessage());
             }
         }
 

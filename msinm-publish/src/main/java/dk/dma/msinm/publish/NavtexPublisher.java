@@ -52,6 +52,7 @@ import java.util.stream.Collectors;
 public class NavtexPublisher extends BaseMailPublisher {
 
     public static final String NAVTEX_PUBLISHER_TYPE = "navtex";
+    public static final String NAVTEX_LANG = "en";
 
     public static final String TEMPLATE_NAVTEX_NAME = "Navtex";
     public static final String MAIL_LIST_NAME_PREFIX = "Navtex for ";
@@ -141,6 +142,33 @@ public class NavtexPublisher extends BaseMailPublisher {
     }
 
     /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getFieldTemplateLanguages() {
+        // Returns the Navtex language
+        return new String[] { NAVTEX_LANG };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
+        PublicationVo pub = messageVo.getPublication(getType());
+        if (pub != null) {
+            try {
+                NavtexData data = JsonUtils.fromJson(pub.getData(), NavtexData.class);
+                data.setMessage(result);
+                pub.setData(JsonUtils.toJson(data));
+            } catch (IOException e) {
+                log.debug("Could not update Navtex message with field template result");
+            }
+        }
+    }
+
+
+    /**
      * Check if the Navtex publication needs have a placeholder id updated
      * @param message the message to check
      */
@@ -212,7 +240,7 @@ public class NavtexPublisher extends BaseMailPublisher {
 
                     MessageSearchParams filter = new MessageSearchParams();
                     filter.setStatus(Status.PUBLISHED);
-                    mailListService.updateFilter(mailList, filter, "en");
+                    mailListService.updateFilter(mailList, filter, NAVTEX_LANG);
                     mailListService.createMailList(mailList);
                 }
             }
@@ -240,7 +268,7 @@ public class NavtexPublisher extends BaseMailPublisher {
     public PublicationVo generateNavtexMessage(MessageVo msg) throws Exception {
 
         // Prefer English
-        msg.sortDescsByLang("en");
+        msg.sortDescsByLang(NAVTEX_LANG);
 
         // Get or create the Navtext publication and Navtex data
         PublicationVo pub = msg.getPublication(getType());
@@ -263,7 +291,7 @@ public class NavtexPublisher extends BaseMailPublisher {
                 TemplateType.MESSAGE,
                 "navtex-message.ftl",
                 data,
-                "en",
+                NAVTEX_LANG,
                 null);
         String navtexMessage = templateService.process(ctx);
         navtexData.setMessage(navtexMessage);

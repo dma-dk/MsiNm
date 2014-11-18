@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 public class TwitterPublisher extends Publisher {
 
     public static final String TWITTER_PUBLISHER_TYPE = "twitter";
+    public static final String TWITTER_LANG = "en";
 
     @Inject
     Logger log;
@@ -93,6 +94,33 @@ public class TwitterPublisher extends Publisher {
     public void setStatus(Message message) {
         checkTwitterPublication(message);
     }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String[] getFieldTemplateLanguages() {
+        // Returns the Twitter language
+        return new String[] { TWITTER_LANG };
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
+        PublicationVo pub = messageVo.getPublication(getType());
+        if (pub != null) {
+            try {
+                TwitterData data = JsonUtils.fromJson(pub.getData(), TwitterData.class);
+                data.setMessage(result);
+                pub.setData(JsonUtils.toJson(data));
+            } catch (IOException e) {
+                log.debug("Could not update Twitter message with field template result");
+            }
+        }
+    }
+
 
     /**
      * Check if the Twitter publication needs to be updated
@@ -154,7 +182,7 @@ public class TwitterPublisher extends Publisher {
     public PublicationVo generateTwitterMessage(MessageVo msg) throws Exception {
 
         // Prefer English
-        msg.sortDescsByLang("en");
+        msg.sortDescsByLang(TWITTER_LANG);
 
         // Build the title line
         String str = msg.getSeriesIdentifier().getFullId() + ": ";
