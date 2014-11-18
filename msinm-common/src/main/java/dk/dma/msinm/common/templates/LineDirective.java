@@ -48,6 +48,8 @@ public class LineDirective implements TemplateDirectiveModel {
             s = s.replace("\n", " ");
             s = s.replace("\r", " ");
             s = s.replaceAll("\\s+", " ").trim();
+            s = s.replace(" ,", ",");
+            s = s.replace(" .", ".");
 
             if (upperCase) {
                 s = s.toUpperCase();

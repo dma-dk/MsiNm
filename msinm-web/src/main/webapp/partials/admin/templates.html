@@ -38,13 +38,14 @@
                         </div>
 
                         <div class="row" style="padding-top: 20px;">
-                            <div class="col-sm-12 col-md-10">
+                            <div class="col-sm-12 col-md-12">
                                 <table class='table table-condensed table-hover'>
                                     <tr>
                                         <th>Template</th>
                                         <th>Categories</th>
                                         <th>Type</th>
                                         <th>Parameters</th>
+                                        <th>Fields</th>
                                         <th>Actions</th>
                                     </tr>
                                     <tr ng-repeat="template in templates | filter:search">
@@ -55,6 +56,9 @@
                                         <td>{{template.type}}</td>
                                         <td>
                                             <div ng-repeat="param in template.parameters">{{param.name}}</div>
+                                        </td>
+                                        <td>
+                                            <div ng-repeat="tmpl in template.fieldTemplates">{{tmpl.field}}:{{tmpl.lang}}</div>
                                         </td>
                                         <td align="center">
                                             <a href ng-click="editTemplate(template)" title="Edit Template"><i class="glyphicon glyphicon-pencil"></i></a>
