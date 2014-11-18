@@ -9,14 +9,15 @@ angular.module('msinm.templates')
      * ********************************************************************************
      * The TemplatesCtrl handles templates for the administrator
      */
-    .controller('TemplatesCtrl', ['$scope', '$modal', 'TemplatesService', 'DialogService',
-        function ($scope, $modal, TemplatesService, DialogService) {
+    .controller('TemplatesCtrl', ['$scope', '$modal', 'LangService', 'TemplatesService', 'DialogService',
+        function ($scope, $modal, LangService, TemplatesService, DialogService) {
         'use strict';
 
         $scope.error = undefined;
         $scope.templates = [];
         $scope.listParamTypes = [];
         $scope.compositeParamTypes = [];
+        $scope.dictTerms = [];
         $scope.fmIncludes = [];
 
 
@@ -25,6 +26,7 @@ angular.module('msinm.templates')
             $scope.loadTemplates();
             $scope.loadListParamTypes();
             $scope.loadCompositeParamTypes();
+            $scope.loadDictTerms();
             $scope.loadFmIncludes();
         };
 
@@ -272,6 +274,90 @@ angular.module('msinm.templates')
 
             $scope.modalInstance.result.then(function() {
                 $scope.loadCompositeParamTypes();
+            }, function() {
+                // Cancelled
+            })['finally'](function(){
+                $scope.modalInstance = undefined;
+            });
+        };
+
+
+        // ****************************************
+        // Dictionary functionality
+        // ****************************************
+
+        // Loads the list dictionary terms
+        $scope.loadDictTerms = function () {
+            TemplatesService.getDictTerms(
+                function (data) {
+                    $scope.dictTerms = data;
+                },
+                function () {
+                    console.log("Error fetching dictionary terms");
+                });
+        };
+
+
+        // Ensures that the dictionary term descriptor contains the mandatory fields
+        function ensureDictTermFields(desc) {
+            desc.value = '';
+        }
+
+
+        // Adds a new dictionary term
+        $scope.addDictTerm = function () {
+            $scope.dictTermDlg(
+                LangService.checkDescs({ key:'' }, ensureDictTermFields),
+                'add'
+            );
+        };
+
+
+        // Edits the given dictionary term
+        $scope.editDictTerm = function (dictTerm) {
+            $scope.dictTermDlg(
+                LangService.checkDescs(dictTerm, ensureDictTermFields),
+                'edit'
+            );
+        };
+
+
+        // Deletes the given dictionary term after confirmation
+        $scope.deleteDictTerm = function (dictTerm) {
+            // Get confirmation
+            DialogService.showConfirmDialog(
+                "Delete Dictionary Term?", "Delete Dictionary Term " + dictTerm.key + "?")
+                .then(function() {
+                    TemplatesService.deleteDictTerm(
+                        dictTerm,
+                        function (data) {
+                            $scope.loadDictTerms();
+                        },
+                        function (data) {
+                            console.error("ERROR " + data);
+                        }
+                    )
+                });
+        };
+
+
+        // Opens the dictionary term editor dialog
+        $scope.dictTermDlg = function (dictTerm, userAction) {
+            $scope.modalInstance = $modal.open({
+                controller: "DictTermDialogCtrl",
+                templateUrl : "/partials/templates/dict-term-dialog.html",
+                resolve: {
+                    dictTerm: function(){
+                        return dictTerm;
+                    },
+                    userAction: function(){
+                        return userAction;
+                    }
+                }
+            });
+
+            $scope.modalInstance.result.then(function() {
+                $scope.loadDictTerms();
             }, function() {
                 // Cancelled
             })['finally'](function(){
@@ -765,6 +851,66 @@ angular.module('msinm.templates')
 
     /**
      * ********************************************************************************
+     * DictTermDialogCtrl
+     * ********************************************************************************
+     * The DictTermDialogCtrl is the dictionary term add/edit dialog controller
+     */
+    .controller('DictTermDialogCtrl', ['$scope', '$modalInstance', 'TemplatesService', 'userAction', 'dictTerm',
+        function ($scope, $modalInstance, TemplatesService, userAction, dictTerm) {
+        'use strict';
+
+        $scope.userAction = userAction;
+        $scope.dictTerm = angular.copy(dictTerm);
+        $scope.focusMe = true;
+
+
+        // Creates or updates the dictionary term
+        $scope.createOrUpdateDictTerm = function() {
+            if ($scope.userAction == 'add') {
+                $scope.createDictTerm();
+            } else {
+                $scope.updateDictTerm();
+            }
+        };
+
+
+        // Creates the dictionary term
+        $scope.createDictTerm = function() {
+            TemplatesService.createDictTerm(
+                $scope.dictTerm,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the dictionary term data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        };
+
+
+        // Updates the dictionary term
+        $scope.updateDictTerm = function() {
+            TemplatesService.updateDictTerm(
+                $scope.dictTerm,
+                function(data) {
+                    $modalInstance.close();
+                },
+                function(data) {
+                    $scope.error = "An error happened. " + data + "Please check the dictionary term data.";
+                    if(!$scope.$$phase) {
+                        $scope.$apply();
+                    }
+                });
+        };
+
+    }])
+
+
+
+    /**
+     * ********************************************************************************
      * FmIncludeDialogCtrl
      * ********************************************************************************
      * The FmIncludeDialogCtrl is the Freemarker includes add/edit dialog controller
@@ -788,7 +934,7 @@ angular.module('msinm.templates')
         };
 
 
-        // Creates the composite parameter type
+        // Creates the Freemarker include file
         $scope.createFmInclude = function() {
             TemplatesService.createFmInclude(
                 $scope.fmInclude,
@@ -804,7 +950,7 @@ angular.module('msinm.templates')
         };
 
 
-        // Updates the composite parameter type
+        // Updates the Freemarker include file
         $scope.updateFmInclude = function() {
             TemplatesService.updateFmInclude(
                 $scope.fmInclude,

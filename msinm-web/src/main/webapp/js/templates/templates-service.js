@@ -115,6 +115,34 @@ angular.module('msinm.templates')
             },
 
             // *******************************
+            // Dictionary functionality
+            // *******************************
+
+            getDictTerms: function(success, error) {
+                $http.get('/rest/templates/dict-terms?lang=' + $rootScope.language)
+                    .success(success)
+                    .error(error);
+            },
+
+            createDictTerm: function(dictTerm, success, error) {
+                $http.post('/rest/templates/dict-term', dictTerm)
+                    .success(success)
+                    .error(error);
+            },
+
+            updateDictTerm: function(dictTerm, success, error) {
+                $http.put('/rest/templates/dict-term', dictTerm)
+                    .success(success)
+                    .error(error);
+            },
+
+            deleteDictTerm: function(dictTerm, success, error) {
+                $http.delete('/rest/templates/dict-term/' + dictTerm.id)
+                    .success(success)
+                    .error(error);
+            },
+
+            // *******************************
             // Freemarker functionality
             // *******************************
 

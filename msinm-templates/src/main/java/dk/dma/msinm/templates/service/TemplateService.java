@@ -8,6 +8,7 @@ import dk.dma.msinm.model.Message;
 import dk.dma.msinm.service.MessageService;
 import dk.dma.msinm.service.PublishingService;
 import dk.dma.msinm.templates.model.CompositeParamType;
+import dk.dma.msinm.templates.model.DictTerm;
 import dk.dma.msinm.templates.model.FmInclude;
 import dk.dma.msinm.templates.model.ListParamType;
 import dk.dma.msinm.templates.model.ListParamValue;
@@ -15,6 +16,7 @@ import dk.dma.msinm.templates.model.ParamType;
 import dk.dma.msinm.templates.model.Template;
 import dk.dma.msinm.templates.vo.BaseParamTypeVo;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
+import dk.dma.msinm.templates.vo.DictTermVo;
 import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.FmIncludeVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
@@ -22,6 +24,8 @@ import dk.dma.msinm.templates.vo.ParamTypeVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
 import dk.dma.msinm.vo.MessageVo;
 import freemarker.cache.StringTemplateLoader;
+import freemarker.ext.beans.BeansWrapper;
+import freemarker.ext.beans.ResourceBundleModel;
 import freemarker.template.Configuration;
 import freemarker.template.TemplateException;
 import org.apache.commons.lang.StringUtils;
@@ -31,10 +35,18 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.StringWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Properties;
+import java.util.ResourceBundle;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.stream.Collectors;
 
 /**
@@ -187,6 +199,7 @@ public class TemplateService extends BaseService {
     // *******************************************
     // ** List parameter type functionality
     // *******************************************
+
     /**
      * Returns the list parameter types
      * NB: Returns all language variants, but sorted by the given language
@@ -361,6 +374,115 @@ public class TemplateService extends BaseService {
     }
 
     // *******************************************
+    // ** Dictionary functionality
+    // *******************************************
+
+    /**
+     * Returns the template dictionary terms
+     * NB: Returns all language variants, but sorted by the given language
+     *
+     * @param lang the language to sort by
+     * @return the template dictionary terms
+     */
+    public List<DictTermVo> getDictTerms(String lang) {
+
+        List<DictTermVo> terms = em.createNamedQuery("DictTerm.findAll", DictTerm.class)
+                .getResultList()
+                .stream()
+                .map(DictTermVo::new)
+                .collect(Collectors.toList());
+
+        // Sort the type values by the given language
+        terms.stream().forEach(term -> term.sortDescs(lang));
+
+        return terms;
+    }
+
+
+    /**
+     * Creates a new template dictionary term from the given value object
+     * @param dictTermVo the template dictionary term value object
+     * @return the new entity
+     */
+    public DictTerm createDictTerm(DictTermVo dictTermVo) {
+
+        // Ensure validity of the type name
+        if (StringUtils.isBlank(dictTermVo.getKey())) {
+            throw new IllegalArgumentException("Invalid template dictionary term name: " + dictTermVo.getKey());
+        }
+
+        DictTerm dictTerm = dictTermVo.toEntity();
+        dictTerm = saveEntity(dictTerm);
+        log.info("Created template dictionary term " + dictTerm);
+
+        return dictTerm;
+    }
+
+    /**
+     * Updates an existing template dictionary term from the given value object
+     * @param dictTermVo the template dictionary term value object
+     * @return the updated entity
+     */
+    public DictTerm updateDictTerm(DictTermVo dictTermVo) {
+
+        // Ensure validity of the type name
+        if (StringUtils.isBlank(dictTermVo.getKey())) {
+            throw new IllegalArgumentException("Invalid template dictionary term name: " + dictTermVo.getKey());
+        }
+
+        DictTerm original = getByPrimaryKey(DictTerm.class, dictTermVo.getId());
+        original.setKey(dictTermVo.getKey());
+        original.getDescs().clear();
+        original.copyDescsAndRemoveBlanks(dictTermVo.toEntity().getDescs());
+
+        original = saveEntity(original);
+        log.info("Updated template dictionary term " + original);
+
+        return original;
+    }
+
+    /**
+     * Deletes the template dictionary term with the given id
+     * @param id the id of the template dictionary term to delete
+     */
+    public boolean deleteDictTerm(Integer id) {
+
+        DictTerm dictTerm = getByPrimaryKey(DictTerm.class, id);
+        if (dictTerm != null) {
+            remove(dictTerm);
+            log.info("Deleted template dictionary term " + id);
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns a template dictionary for the given language
+     * @param language the language
+     * @return the dictionary for the given language
+     */
+    private ResourceBundle getDictionary(String language) {
+        final Properties dict = new Properties();
+
+        // Read the dictionary terms into the Properties object
+        getDictTerms(language).stream()
+            .filter(term -> term.getDescs() != null && term.getDescs().size() > 0)
+            .forEach(term -> dict.setProperty(term.getKey(), term.getDescs().get(0).getValue()));
+
+        // Convert the Properties object to a resource bundle
+        return new ResourceBundle() {
+            @Override protected Object handleGetObject(String key) {
+                return dict.getProperty(key);
+            }
+
+            @Override public Enumeration<String> getKeys() {
+                Set<String> handleKeys = dict.stringPropertyNames();
+                return Collections.enumeration(handleKeys);
+            }
+        };
+    }
+
+    // *******************************************
     // ** Freemarker functionality
     // *******************************************
 
@@ -475,13 +597,27 @@ public class TemplateService extends BaseService {
 
                 // Assemble the data used for the Freemarker transformation
                 Map<String, Object> data = new HashMap<>();
+
+                // Add the message to the data
                 DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(fieldTemplate.getLang());
                 data.put("msg", new MessageVo(message, filter));
+
+                // TODO: add params
+
+                // Add the current dictionary
+                ResourceBundleModel resourceBundleModel = new ResourceBundleModel(getDictionary(fieldTemplate.getLang()), new BeansWrapper());
+                data.put("text", resourceBundleModel);
+
+                // Add misc other helper objects
+                SimpleDateFormat navtexUtcDate = new SimpleDateFormat("ddHHmm 'UTC' MMM yy", Locale.US);
+                navtexUtcDate.setTimeZone(TimeZone.getTimeZone("UTC"));
+                data.put("navtexDateFormat", navtexUtcDate);
 
                 // Execute the Freemarker template
                 StringWriter result = new StringWriter();
                 cfg.getTemplate("fieldTemplate").process(data, result);
                 fieldTemplate.setResult(result.toString());
+
             } catch (Exception e) {
                 fieldTemplate.setError("Error processing template " + fieldTemplate.getField()
                         + ":" + fieldTemplate.getLang() + "\n" + e.getMessage());

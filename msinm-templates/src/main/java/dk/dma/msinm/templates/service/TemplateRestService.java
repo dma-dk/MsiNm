@@ -2,6 +2,7 @@ package dk.dma.msinm.templates.service;
 
 import dk.dma.msinm.common.vo.JsonSerializable;
 import dk.dma.msinm.templates.vo.CompositeParamTypeVo;
+import dk.dma.msinm.templates.vo.DictTermVo;
 import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.FmIncludeVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
@@ -190,6 +191,49 @@ public class TemplateRestService {
     @RolesAllowed({"admin"})
     public String deleteCompositeParameterType(@PathParam("typeId") Integer typeId) throws Exception {
         templateService.deleteParamType(typeId);
+        return "OK";
+    }
+
+
+    // *******************************************
+    // ** Dictionary functionality
+    // *******************************************
+
+    @GET
+    @Path("/dict-terms")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<DictTermVo> getDictTerms(@QueryParam("lang") String lang) {
+        return templateService.getDictTerms(lang);
+    }
+
+    @POST
+    @Path("/dict-term")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"admin"})
+    public String createDictTerm(DictTermVo dictTermVo) throws Exception {
+        templateService.createDictTerm(dictTermVo);
+        return "OK";
+    }
+
+    @PUT
+    @Path("/dict-term")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"admin"})
+    public String updateDictTerm(DictTermVo dictTermVo) throws Exception {
+        templateService.updateDictTerm(dictTermVo);
+        return "OK";
+    }
+
+    @DELETE
+    @Path("/dict-term/{dictTermId}")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"admin"})
+    public String deleteDictTerm(@PathParam("dictTermId") Integer dictTermId) throws Exception {
+        templateService.deleteDictTerm(dictTermId);
         return "OK";
     }
 

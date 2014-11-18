@@ -16,8 +16,24 @@
         <div ng-controller="TemplatesCtrl" ng-init="loadAll()">
 
             <p>
-                Manage message templates and template parameter types.
+                Manage message templates and template parameter types. The functionality is grouped into the following areas:
             </p>
+            <dl class="dl-horizontal">
+                <dt>Templates</dt>
+                <dd>The actual definition of templates.</dd>
+
+                <dt>List Parameters</dt>
+                <dd>List parameter types that can be used in templates.</dd>
+
+                <dt>Composite Parameters</dt>
+                <dd>Composite parameter types that can be used in templates.</dd>
+
+                <dt>Includes</dt>
+                <dd>Freemarker functionality shared by all field templates.</dd>
+
+                <dt>Dictionary</dt>
+                <dd>Dictionary of translations that may be used in the template.</dd>
+            </dl>
 
             <tabset class="template-tabs">
 
@@ -77,7 +93,7 @@
 
 
                 <!-- List Parameter Types tab -->
-                <tab heading="List Parameter Types">
+                <tab heading="List Parameters">
                     <div class="template-tab">
 
                         <div class="row">
@@ -116,7 +132,7 @@
 
 
                 <!-- Composite Parameter Types tab -->
-                <tab heading="Composite Parameter Types">
+                <tab heading="Composite Parameters">
                     <div class="template-tab">
 
                         <div class="row">
@@ -156,7 +172,7 @@
 
 
                 <!-- Freemarker Includes tab -->
-                <tab heading="Freemarker Includes">
+                <tab heading="Includes">
                     <div class="template-tab">
 
                         <div class="row">
@@ -188,6 +204,48 @@
 
                     </div>
                 </tab>
+
+
+                <!-- Dictionary Terms tab -->
+                <tab heading="Dictionary">
+                    <div class="template-tab">
+
+                        <div class="row">
+                            <div class="col-sm-1">
+                                <button type="submit" class="btn btn-primary btn-sm" ng-click="addDictTerm()">
+                                    <span class="glyphicon glyphicon-plus"></span> Add Dictionary Term
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="row" style="padding-top: 20px;">
+                            <div class="col-lg-12">
+                                <table class='table table-condensed table-hover'>
+                                    <tr>
+                                        <th>Key</th>
+                                        <th>Value</th>
+                                    </tr>
+                                    <tr ng-repeat="dictTerm in dictTerms">
+                                        <td>{{dictTerm.key}}</td>
+                                        <td>
+                                            <div ng-repeat="desc in dictTerm.descs">
+                                                <flag lang="desc.lang" style="height: 12px;" style="opacity: 0.5;"></flag>
+                                                &nbsp;{{desc.value}}
+                                            </div>
+                                        </td>
+                                        <td align="center">
+                                            <a href ng-click="editDictTerm(dictTerm)" title="Edit Dictionary Term"><i class="glyphicon glyphicon-pencil"></i></a>
+                                            &nbsp;
+                                            <a href ng-click="deleteDictTerm(dictTerm)" title="Delete Dictionary Term"><i class="glyphicon glyphicon-trash"></i></a>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </tab>
+
 
             </tabset>
 

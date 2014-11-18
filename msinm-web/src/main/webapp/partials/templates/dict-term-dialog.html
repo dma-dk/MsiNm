@@ -1,0 +1,46 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2 ng-show="userAction == 'add'">Create Dictionary Term</h2>
+        <h2 ng-show="userAction == 'edit'">Edit Dictionary Term</h2>
+    </div>
+
+    <div class="modal-body">
+        <div class="alert alert-danger" ng-show="error">{{error}}</div>
+
+        <form name="edit_form">
+
+            <div class="form-controls">
+                <div class="form-group row">
+                    <div class="col-md-8 col-lg-4">
+                        <h5>Key</h5>
+                        <input type="text" name="keyfield" class="form-control input-sm" placeholder="Unique Key"
+                               focus="focusMe" ng-model="dictTerm.key"
+                               autocapitalize="off" autocorrect="off" autocomplete="off" required />
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <h5>Values</h5>
+                    <div>
+                        <input type="text" class="form-control input-sm" ng-repeat="desc in dictTerm.descs" ng-model="desc.value" lang-flag="desc.lang"/><br/>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <div style="margin-top: 24px">
+                    <button type="submit" class="btn btn-sm btn-primary"
+                            ng-disabled="!(edit_form.keyfield.$valid)"
+                            ng-click="createOrUpdateDictTerm()">
+                        <span ng-show="userAction == 'add'">Create</span>
+                        <span ng-show="userAction == 'edit'">Update</span>
+                    </button>
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Cancel</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
