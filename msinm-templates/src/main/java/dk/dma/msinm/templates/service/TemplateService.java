@@ -454,21 +454,25 @@ public class TemplateService extends BaseService {
                 continue;
             }
 
-            // The full Freemarker template is the Freemarker includes + the field template
-            fmLoader.putTemplate("fieldTemplate", String.valueOf(freemarkerIncludes) + fieldTemplate.getFmTemplate());
-            Configuration cfg = new Configuration();
-            cfg.setTemplateLoader(fmLoader);
-            cfg.setLocale(app.getLocale(fieldTemplate.getLang()));
+            try {
+                // The full Freemarker template is the Freemarker includes + the field template
+                fmLoader.putTemplate("fieldTemplate", String.valueOf(freemarkerIncludes) + fieldTemplate.getFmTemplate());
+                Configuration cfg = new Configuration();
+                cfg.setTemplateLoader(fmLoader);
+                cfg.setLocale(app.getLocale(fieldTemplate.getLang()));
 
-            // Assemble the data used for the Freemarker transformation
-            Map<String, Object> data = new HashMap<>();
-            DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(fieldTemplate.getLang());
-            data.put("msg", new MessageVo(message, filter));
+                // Assemble the data used for the Freemarker transformation
+                Map<String, Object> data = new HashMap<>();
+                DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(fieldTemplate.getLang());
+                data.put("msg", new MessageVo(message, filter));
 
-            // Execute the Freemarker template
-            StringWriter result = new StringWriter();
-            cfg.getTemplate("fieldTemplate").process(data, result);
-            fieldTemplate.setResult(result.toString());
+                // Execute the Freemarker template
+                StringWriter result = new StringWriter();
+                cfg.getTemplate("fieldTemplate").process(data, result);
+                fieldTemplate.setResult(result.toString());
+            } catch (Exception e) {
+                fieldTemplate.setResult("Error processing template " + fieldTemplate.getField() + ":\n" + e.getMessage());
+            }
         }
 
 
