@@ -1,6 +1,8 @@
 package dk.dma.msinm.templates.service;
 
 import dk.dma.msinm.common.MsiNmApp;
+import dk.dma.msinm.common.light.LightFormatter;
+import dk.dma.msinm.common.light.LightService;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.service.BaseService;
 import dk.dma.msinm.model.Category;
@@ -63,6 +65,9 @@ public class TemplateService extends BaseService {
 
     @Inject
     PublishingService publishingService;
+
+    @Inject
+    LightService lightService;
 
     @Inject
     private MsiNmApp app;
@@ -612,6 +617,7 @@ public class TemplateService extends BaseService {
                 SimpleDateFormat navtexUtcDate = new SimpleDateFormat("ddHHmm 'UTC' MMM yy", Locale.US);
                 navtexUtcDate.setTimeZone(TimeZone.getTimeZone("UTC"));
                 data.put("navtexDateFormat", navtexUtcDate);
+                data.put("lightFormatter", new LightFormatter(lightService, fieldTemplate.getLang()));
 
                 // Execute the Freemarker template
                 StringWriter result = new StringWriter();
