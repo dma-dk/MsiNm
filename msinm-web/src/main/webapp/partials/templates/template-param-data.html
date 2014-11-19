@@ -18,13 +18,20 @@
                         ng-model="data[param.name]" ng-options="val.descs[0].shortValue for val in parameterTypes[param.type].values" >
                 </select>
             </div>
+            <div class="col-lg-1 template-param-list-action" ng-if="param.list">
+                #1
+                <a href ng-click="addParameterBelow(param);"
+                   title="Add Parameter Value Below"><i class="glyphicon glyphicon-plus"></i></a>
+                <a href ng-click="addParameterBelow(param);"
+                   title="Remove Parameter Value"><i class="glyphicon glyphicon-minus"></i></a>
+            </div>
         </div>
 
         <fieldset class="nested-template-param-data" ng-if="parameterTypes[param.type].kind == 'COMPOSITE'">
             <legend class="nested-template-param-data">
                 {{param.name}}
-                <span ng-if="param.list">
-                    #1
+                <span class="template-param-list-action" ng-if="param.list">
+                    &nbsp; #1
                     <a href ng-click="addParameterBelow(param);"
                        title="Add Parameter Value Below"><i class="glyphicon glyphicon-plus"></i></a>
                     <a href ng-click="addParameterBelow(param);"
