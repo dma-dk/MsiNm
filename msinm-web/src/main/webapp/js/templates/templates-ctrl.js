@@ -51,7 +51,7 @@ angular.module('msinm.templates')
         $scope.addTemplate = function () {
             $scope.templateDlg(
                 {   name:'',
-                    categories: {},
+                    categories: [],
                     parameters: [],
                     fieldTemplates: []
                 },
@@ -619,7 +619,7 @@ angular.module('msinm.templates')
         'use strict';
 
         $scope.template = angular.copy(template);
-        $scope.paramData = {};
+        $scope.paramData = [];
         $scope.messageId = $cookieStore.get('testMessageId');
         $scope.focusMe = true;
 
@@ -642,15 +642,17 @@ angular.module('msinm.templates')
             }
         );
 
-        $scope.paramsValid = function (params) {
+        $scope.paramsValid = function (paramData) {
             var valid = true;
-            for (var p in params) {
-                var param = params[p];
-                var paramType = $scope.parameterTypes[param.type];
-                if (paramType && paramType.kind == 'COMPOSITE') {
-                    valid = valid && $scope.paramsValid(paramType.parameters);
-                } else {
-                    valid = valid && (!param.mandatory || $scope.paramData[param.name] !== undefined);
+            for (var p in paramData) {
+                var param = paramData[p];
+                if (param.kind == 'COMPOSITE') {
+                    for (var v in param.values) {
+                        valid = valid && $scope.paramsValid(param.values[v]);
+                    }
+                } else if (param.mandatory) {
+                    // Check that first value is well-defined
+                    valid = valid && (param.values[0] !== undefined);
                 }
             }
             return valid;
@@ -665,6 +667,7 @@ angular.module('msinm.templates')
                 TemplatesService.processTemplate(
                     messageId.fullId,
                     $scope.template,
+                    $scope.paramData,
                     function (data) {
                         $scope.template = data;
                     },

@@ -23,6 +23,7 @@ import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.FmIncludeVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import dk.dma.msinm.templates.vo.ParamTypeVo;
+import dk.dma.msinm.templates.vo.ParameterDataVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
 import dk.dma.msinm.vo.MessageVo;
 import freemarker.cache.StringTemplateLoader;
@@ -561,9 +562,10 @@ public class TemplateService extends BaseService {
      * Executes the field templates of the given template for the given message
      * @param msgSeriesId the message series id
      * @param template the template
+     * @param params the template parameter data
      * @return the updated template
      */
-    public TemplateVo processTemplate(String msgSeriesId, TemplateVo template) throws IOException, TemplateException {
+    public TemplateVo processTemplate(String msgSeriesId, TemplateVo template, List<ParameterDataVo> params) throws IOException, TemplateException {
 
         long t0 = System.currentTimeMillis();
 
@@ -607,7 +609,8 @@ public class TemplateService extends BaseService {
                 DataFilter filter = new DataFilter(MessageService.CACHED_MESSAGE_DATA).setLang(fieldTemplate.getLang());
                 data.put("msg", new MessageVo(message, filter));
 
-                // TODO: add params
+                // Add params
+                data.put("params", transformParameters(params, fieldTemplate.getLang()));
 
                 // Add the current dictionary
                 ResourceBundleModel resourceBundleModel = new ResourceBundleModel(getDictionary(fieldTemplate.getLang()), new BeansWrapper());
@@ -635,4 +638,48 @@ public class TemplateService extends BaseService {
         return template;
     }
 
+
+    /**
+     * Transforms the parameter data into something more suitable for Freemarker templates
+     * @param params the parameters
+     * @param language the language
+     * @return the transformed parameters
+     */
+    private Map<String, Object> transformParameters(List<ParameterDataVo> params, String language) {
+        Map<String, Object> result = new HashMap<>();
+
+        params.stream()
+                .filter(param -> param.getValues() != null && param.getValues().size() > 0)
+                .forEach(param -> {
+                    result.put(param.getName(), new ParamValue(param.getValues()));
+                });
+
+        return result;
+    }
+
+    public static class ParamValue {
+        Object value;
+        List<?> values;
+
+        public ParamValue(List values) {
+            this.values = values;
+            this.value = values.get(0);
+        }
+
+        public Object getValue() {
+            return value;
+        }
+
+        public void setValue(Object value) {
+            this.value = value;
+        }
+
+        public List<?> getValues() {
+            return values;
+        }
+
+        public void setValues(List<?> values) {
+            this.values = values;
+        }
+    }
 }

@@ -170,9 +170,10 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
-            processTemplate: function(msgId, template, success, error) {
+            processTemplate: function(msgId, template, params, success, error) {
                 $http.post('/rest/templates/process-template', {
                         msgId : msgId,
+                        params : params,
                         template : template
                     })
                     .success(success)

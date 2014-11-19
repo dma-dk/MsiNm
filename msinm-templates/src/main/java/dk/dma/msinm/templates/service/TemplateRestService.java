@@ -7,6 +7,7 @@ import dk.dma.msinm.templates.vo.FieldTemplateVo;
 import dk.dma.msinm.templates.vo.FmIncludeVo;
 import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import dk.dma.msinm.templates.vo.ParamTypeVo;
+import dk.dma.msinm.templates.vo.ParameterDataVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
@@ -286,7 +287,10 @@ public class TemplateRestService {
     @Produces("application/json;charset=UTF-8")
     @RolesAllowed({"editor"})
     public TemplateVo processTemplate(ProcessTemplateVo processTemplate) throws Exception {
-        return templateService.processTemplate(processTemplate.getMsgId(), processTemplate.getTemplate());
+        return templateService.processTemplate(
+                processTemplate.getMsgId(),
+                processTemplate.getTemplate(),
+                processTemplate.getParams());
     }
 
 
@@ -300,6 +304,7 @@ public class TemplateRestService {
     public static class ProcessTemplateVo implements JsonSerializable {
         String msgId;
         TemplateVo template;
+        List<ParameterDataVo> params;
 
         public String getMsgId() {
             return msgId;
@@ -315,6 +320,14 @@ public class TemplateRestService {
 
         public void setTemplate(TemplateVo template) {
             this.template = template;
+        }
+
+        public List<ParameterDataVo> getParams() {
+            return params;
+        }
+
+        public void setParams(List<ParameterDataVo> params) {
+            this.params = params;
         }
     }
 }

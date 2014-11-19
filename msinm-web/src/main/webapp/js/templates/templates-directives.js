@@ -96,6 +96,57 @@ angular.module('msinm.templates')
                 data: "="
             },
             link: function(scope, element, attrs) {
+
+                // Recursively update the parameter data structure
+                function updateData(parameters, data) {
+                    for (var p in parameters) {
+                        var param = parameters[p];
+                        var type = scope.parameterTypes[param.type];
+                        if (type) {
+                            var dataParam = {
+                                name : param.name,
+                                type : type.name,
+                                kind : type.kind,
+                                list : param.list,
+                                mandatory : param.mandatory,
+                                values : new Array(1)
+                            };
+                            data.push(dataParam);
+                            if (type.kind == 'COMPOSITE') {
+                                var nestedData = [];
+                                dataParam.values[0] = nestedData;
+                                updateData(type.parameters, nestedData);
+                            }
+                        }
+                    }
+                }
+
+                // Initially, parameterTypes may not have been loaded. So, listen for updates
+                scope.$watch(attrs.parameterTypes, function (newValue) {
+                    scope.data.length = 0;
+                    updateData(scope.parameters, scope.data);
+                }, true);
+
+                // Adds a new parameter data template below the given value
+                scope.addParameterBelow = function(index, param) {
+                    if (param.kind == 'COMPOSITE') {
+                        var type = scope.parameterTypes[param.type];
+                        if (type) {
+                            var nestedData = [];
+                            param.values.splice(index + 1, 0, nestedData);
+                            updateData(type.parameters, nestedData);
+                        }
+                    } else {
+                        param.values.splice(index + 1, 0, undefined);
+                    }
+                };
+
+                scope.deleteParameter = function(index, param) {
+                    param.values.splice(index, 1);
+                    if (param.values.length == 0) {
+                        scope.addParameterBelow(-1, param);
+                    }
+                }
             }
         };
     }]);
