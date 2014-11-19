@@ -1,40 +1,40 @@
 
-<div style="border-left: 1px solid #cccccc; padding-left: 10px;">
+<div>
     <div ng-repeat="param in parameters">
-        <div ng-switch="parameterTypes[param.type].kind">
 
-            <div ng-switch-when="BASE" class="row" style="padding-top: 5px;">
-                <div class="col-sm-4 col-md-3 col-lg-3" style="text-align: right; padding-right: 10px;">
-                    {{param.name}}
-                    <span class="red" ng-if="param.mandatory">*</span>
-                </div>
-                <div class="col-sm-7 col-md-6 col-lg-5">
-                    <input type="text" class="form-control input-sm" ng-model="data[param.name]"
-                           ng-if="param.type == 'text'" ng-required="param.mandatory"/>
-                    <input type="number" class="form-control input-sm" ng-model="data[param.name]" ng-if="param.type == 'number'"
-                           ng-required="param.mandatory"/>
-                    <input type="checkbox" ng-model="data[param.name]" ng-if="param.type == 'boolean'"
-                           ng-required="param.mandatory"/>
-                </div>
+        <div ng-if="parameterTypes[param.type].kind ==  'BASE' || parameterTypes[param.type].kind == 'LIST'" class="row" style="padding-top: 5px;">
+            <div class="col-sm-4 col-md-3 col-lg-3 template-param-data-name">
+                {{param.name}}
+                <span class="red" ng-if="param.mandatory">*</span>
             </div>
-
-            <div ng-switch-when="LIST" class="row" style="padding-top: 5px;">
-                <div class="col-sm-4 col-md-3 col-lg-3" style="text-align: right; padding-right: 10px;">
-                    {{param.name}}
-                    <span class="red" ng-if="param.mandatory">*</span>
-                </div>
-                <div class="col-sm-7 col-md-6 col-lg-5">
-                    <select class="form-control input-sm" ng-model="data[param.name]" ng-options="val.descs[0].shortValue for val in parameterTypes[param.type].values" >
-                    </select>
-                </div>
+            <div class="col-sm-7 col-md-6 col-lg-5">
+                <input type="text" class="form-control input-sm" ng-model="data[param.name]"
+                       ng-if="param.type == 'text'" ng-required="param.mandatory"/>
+                <input type="number" class="form-control input-sm" ng-model="data[param.name]" ng-if="param.type == 'number'"
+                       ng-required="param.mandatory"/>
+                <input type="checkbox" ng-model="data[param.name]" ng-if="param.type == 'boolean'"
+                       ng-required="param.mandatory"/>
+                <select class="form-control input-sm" ng-if="parameterTypes[param.type].kind == 'LIST'"
+                        ng-model="data[param.name]" ng-options="val.descs[0].shortValue for val in parameterTypes[param.type].values" >
+                </select>
             </div>
-
-            <div ng-switch-when="COMPOSITE">
-                <recursive>
-                    <msi-template-param-data parameter-types="parameterTypes" parameters="parameterTypes[param.type].parameters" data="data"></msi-template-param-data>
-                </recursive>
-            </div>
-
         </div>
+
+        <fieldset class="nested-template-param-data" ng-if="parameterTypes[param.type].kind == 'COMPOSITE'">
+            <legend class="nested-template-param-data">
+                {{param.name}}
+                <span ng-if="param.list">
+                    #1
+                    <a href ng-click="addParameterBelow(param);"
+                       title="Add Parameter Value Below"><i class="glyphicon glyphicon-plus"></i></a>
+                    <a href ng-click="addParameterBelow(param);"
+                       title="Remove Parameter Value"><i class="glyphicon glyphicon-minus"></i></a>
+                </span>
+            </legend>
+            <recursive>
+                <msi-template-param-data parameter-types="parameterTypes" parameters="parameterTypes[param.type].parameters" data="data"></msi-template-param-data>
+            </recursive>
+        </fieldset>
+
     </div>
 </div>

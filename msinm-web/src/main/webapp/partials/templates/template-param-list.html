@@ -4,6 +4,7 @@
         <th>Name</th>
         <th>Type</th>
         <th>Mandatory</th>
+        <th>List</th>
         <th></th>
     </tr>
     <tr ng-repeat="param in parameters">
@@ -22,6 +23,7 @@
             </select>
         </td>
         <td style="vertical-align: middle; text-align: center;"><input type="checkbox" ng-model="param.mandatory"></td>
+        <td style="vertical-align: middle; text-align: center;"><input type="checkbox" ng-model="param.list"></td>
         <td  style="vertical-align: middle; text-align: center;">
             <a href ng-click="addParameterBelow(param);"
                title="Add Parameter Below"><i class="glyphicon glyphicon-plus"></i></a>
