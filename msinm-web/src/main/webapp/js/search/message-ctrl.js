@@ -78,6 +78,29 @@ angular.module('msinm.search')
                 true);
 
 
+            // Load tempaltes when the categories changes
+            $scope.templates = [];
+
+            $scope.$watch(
+                function() { return $scope.msg.categoryIds },
+                function () {
+                    if (!$scope.msg.categoryIds) {
+                        $scope.templates = [];
+                        return;
+                    }
+                    MessageService.getTemplateNamesForCategories(
+                        $scope.msg.categoryIds,
+                        $scope.msg.seriesIdentifier.mainType,
+                        function (data) {
+                            $scope.templates = data;
+                            console.log("XXXXXXXXXXXX TEMPLATES " + data);
+                        },
+                        function (data) {
+                            console.error("Error loading templates for categories");
+                        }
+                    );
+                });
+
             // When the location editor detects a new locations list, it will
             // add blank desc records, and thus, yield to form dirty.
             // So, after loading a message, call this method that waits 100ms before

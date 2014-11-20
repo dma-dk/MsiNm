@@ -7,6 +7,8 @@ import dk.dma.msinm.model.SeriesIdType;
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.ManyToMany;
 import javax.persistence.NamedQueries;
 import javax.persistence.NamedQuery;
@@ -21,7 +23,9 @@ import java.util.List;
 @Entity
 @NamedQueries({
         @NamedQuery(name  = "Template.findAll",
-                query = "select t from Template t order by lower(t.name) asc")
+                query = "select t from Template t order by lower(t.name) asc"),
+        @NamedQuery(name  = "Template.findByCategories",
+                query = "select t from Template t where (t.type is null or t.type in (:types)) order by lower(t.name) asc")
 })
 public class Template extends VersionedEntity<Integer> {
 
@@ -31,6 +35,7 @@ public class Template extends VersionedEntity<Integer> {
     @ManyToMany
     List<Category> categories = new ArrayList<>();
 
+    @Enumerated(EnumType.STRING)
     SeriesIdType type;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

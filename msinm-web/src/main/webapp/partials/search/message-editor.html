@@ -191,6 +191,17 @@
                 <div class="col-sm-4" style="padding-left: 0">
                     <input type="text" class="form-control input-sm" id="editorCategories" ng-model="msg.categoryIds" />
                 </div>
+                <div class="col-sm-4" style="padding-left: 0">
+                    <div class="btn-group">
+                        <button class="btn btn-default btn-sm dropdown-toggle" data-toggle="dropdown">
+                            Execute Template
+                            <span class="caret"></span>
+                        </button>
+                        <ul class="dropdown-menu" role="menu">
+                            <li ng-repeat="template in templates" style="font-size: 10px"><a href ng-click="executeTemplate(template)">{{template}}</a></li>
+                        </ul>
+                    </div>
+                </div>
             </div>
             <div class="row" style="margin-top: 15px;">
                 <div class="col-sm-4" ng-repeat="desc in msg.descs">

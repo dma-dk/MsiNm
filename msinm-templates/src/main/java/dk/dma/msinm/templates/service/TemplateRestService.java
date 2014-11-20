@@ -25,7 +25,9 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * REST interface to access .
@@ -88,6 +90,20 @@ public class TemplateRestService {
     public List<FieldTemplateVo> getFieldTemplates() {
         return templateService.getFieldTemplates();
     }
+
+    @GET
+    @Path("/category-templates")
+    @Produces("application/json;charset=UTF-8")
+    @GZIP
+    @NoCache
+    public List<String> getTemplatesForCategories(
+            @QueryParam("categoryIds") String categoryIds, @QueryParam("type") String type) {
+        List<Integer> catIds = Arrays.asList(categoryIds.split(",")).stream()
+                .map(cat -> Integer.valueOf(cat.trim()))
+                .collect(Collectors.toList());
+        return templateService.getTemplatesForCategories(catIds, type);
+    }
+
 
     /*****************************************/
     /** Common parameter type methods       **/

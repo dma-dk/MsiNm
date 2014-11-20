@@ -1,6 +1,7 @@
 package dk.dma.msinm.templates.service;
 
 import dk.dma.msinm.common.MsiNmApp;
+import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.light.LightFormatter;
 import dk.dma.msinm.common.light.LightService;
 import dk.dma.msinm.common.model.DataFilter;
@@ -71,7 +72,12 @@ public class TemplateService extends BaseService {
     LightService lightService;
 
     @Inject
-    private MsiNmApp app;
+    MsiNmApp app;
+
+    @Inject
+    @Sql("/sql/template_categories.sql")
+    String templateCategoriesSql;
+
 
     // *******************************************
     // ** Template functionality
@@ -201,6 +207,30 @@ public class TemplateService extends BaseService {
         return fieldTemplates;
     }
 
+    /**
+     * Returns the (unique) names of the templates matching the given categories and message type
+     *
+     * @param categoryIds the categories to match
+     * @param type the message type to match
+     * @return the templates matching the given categories and message type
+     */
+    public List<String> getTemplatesForCategories(List<Integer> categoryIds, String type) {
+        long t0 = System.currentTimeMillis();
+
+        String types = "MSI".equals(type) ? "'MSI'" : ("NM".equals(type) ? "'NM'" : "'MSI','NM'");
+        String sql = templateCategoriesSql
+                .replace(":categoryIds", StringUtils.join(categoryIds, ","))
+                .replace(":types", types);
+
+        List<?> names = em.createNativeQuery(sql).getResultList();
+        List<String> templateNames = names.stream()
+                .map(Object::toString)
+                .collect(Collectors.toList());
+
+        log.info(String.format("Found %d templates matching categoryIds %s and type %s in %d ms",
+                templateNames.size(), categoryIds, type, System.currentTimeMillis() - t0));
+        return templateNames;
+    }
 
     // *******************************************
     // ** List parameter type functionality
@@ -652,4 +682,5 @@ public class TemplateService extends BaseService {
         ParameterDataVo.toFmParameterData(result, language, params);
         return result;
     }
+
 }
