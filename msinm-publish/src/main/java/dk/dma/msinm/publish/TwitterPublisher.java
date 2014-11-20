@@ -110,11 +110,12 @@ public class TwitterPublisher extends Publisher {
     @Override
     public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
         PublicationVo pub = messageVo.getPublication(getType());
-        if (pub != null) {
+        if (pub != null && TWITTER_LANG.equals(language)) {
             try {
                 TwitterData data = JsonUtils.fromJson(pub.getData(), TwitterData.class);
                 data.setMessage(result);
                 pub.setData(JsonUtils.toJson(data));
+                pub.setPublish(StringUtils.isNotBlank(result));
             } catch (IOException e) {
                 log.debug("Could not update Twitter message with field template result");
             }

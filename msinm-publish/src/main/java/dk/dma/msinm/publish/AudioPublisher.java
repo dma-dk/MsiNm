@@ -147,11 +147,12 @@ public class AudioPublisher extends Publisher {
     @Override
     public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
         PublicationVo pub = messageVo.getPublication(getType());
-        if (pub != null) {
+        if (pub != null && AUDIO_LANG.equals(language)) {
             try {
                 AudioData data = JsonUtils.fromJson(pub.getData(), AudioData.class);
                 data.setMessage(result);
                 pub.setData(JsonUtils.toJson(data));
+                pub.setPublish(StringUtils.isNotBlank(result));
             } catch (IOException e) {
                 log.debug("Could not update Audio message with field template result");
             }

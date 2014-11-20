@@ -156,11 +156,12 @@ public class NavtexPublisher extends BaseMailPublisher {
     @Override
     public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
         PublicationVo pub = messageVo.getPublication(getType());
-        if (pub != null) {
+        if (pub != null && NAVTEX_LANG.equals(language)) {
             try {
                 NavtexData data = JsonUtils.fromJson(pub.getData(), NavtexData.class);
                 data.setMessage(result);
                 pub.setData(JsonUtils.toJson(data));
+                pub.setPublish(StringUtils.isNotBlank(result));
             } catch (IOException e) {
                 log.debug("Could not update Navtex message with field template result");
             }

@@ -146,11 +146,12 @@ public class NavdatPublisher extends Publisher {
     @Override
     public void setFieldTemplateResult(MessageVo messageVo, String result, String language) {
         PublicationVo pub = messageVo.getPublication(getType());
-        if (pub != null) {
+        if (pub != null && NAVDAT_LANG.equals(language)) {
             try {
                 NavdatData data = JsonUtils.fromJson(pub.getData(), NavdatData.class);
                 data.setMessage(result);
                 pub.setData(JsonUtils.toJson(data));
+                pub.setPublish(StringUtils.isNotBlank(result));
             } catch (IOException e) {
                 log.debug("Could not update Navdat message with field template result");
             }
