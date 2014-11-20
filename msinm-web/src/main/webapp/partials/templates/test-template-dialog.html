@@ -22,10 +22,7 @@
                 </div>
 
                 <div class="form-group">
-                    <fieldset class="nested-template-param-data">
-                        <legend class="nested-template-param-data"><strong>Parameters</strong></legend>
-                        <msi-template-param-data parameter-types="parameterTypes" parameters="template.parameters" data="paramData"></msi-template-param-data>
-                    </fieldset>
+                    <msi-template-param-data parameters="template.parameters" data="paramData" params-valid="paramsValid"></msi-template-param-data>
                 </div>
 
                 <div class="form-group">
@@ -53,7 +50,7 @@
             <div class="form-group">
                 <div style="margin-top: 24px">
                     <button class="btn btn-sm" ng-click="$dismiss('aborted')">Close</button>
-                    <button class="btn btn-primary btn-sm" ng-disabled="!(messageId && test_form.idfield.$valid && paramsValid(paramData))"
+                    <button class="btn btn-primary btn-sm" ng-disabled="!(messageId && test_form.idfield.$valid && paramsValid)"
                             style="float: right;" ng-click="test(messageId)">Test</button>
                 </div>
             </div>

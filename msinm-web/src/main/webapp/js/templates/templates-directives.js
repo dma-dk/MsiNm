@@ -91,6 +91,63 @@ angular.module('msinm.templates')
             templateUrl: '/partials/templates/template-param-data.html',
             replace: true,
             scope: {
+                parameters: "=",
+                data: "=",
+                paramsValid: "="
+            },
+            link: function(scope, element, attrs) {
+
+                // Load the parameter types
+                scope.parameterTypes = {};
+                TemplatesService.getParamTypes(
+                    function (data) {
+                        // Build a look-up map for param types
+                        for (var p in data) {
+                            var paramType = data[p];
+                            scope.parameterTypes[paramType.name] = paramType;
+                        }
+                    },
+                    function (data) {
+                        console.error("Error loading parameter types");
+                    }
+                );
+
+                scope.checkParamsValid = function (paramData) {
+                    var valid = true;
+                    for (var p in paramData) {
+                        var param = paramData[p];
+                        if (param.kind == 'COMPOSITE') {
+                            for (var v in param.values) {
+                                valid = valid && scope.checkParamsValid(param.values[v]);
+                            }
+                        } else if (param.mandatory) {
+                            // Check that first value is well-defined
+                            valid = valid && (param.values[0] !== undefined);
+                        }
+                    }
+                    return valid;
+                };
+
+                scope.$watch(function() {
+                    return scope.data;
+                }, function (newValue) {
+                    scope.paramsValid = scope.checkParamsValid(scope.data);
+                }, true);
+
+            }
+        };
+    }])
+
+
+    /**
+     * Manages user submitted template data fields based on a list of template parameters
+     */
+    .directive('msiTemplateParamDataFields', ['TemplatesService', function (TemplatesService) {
+        return {
+            restrict: 'E',
+            templateUrl: '/partials/templates/template-param-data-fields.html',
+            replace: true,
+            scope: {
                 parameterTypes: "=",
                 parameters: "=",
                 data: "="

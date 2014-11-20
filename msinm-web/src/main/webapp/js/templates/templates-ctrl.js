@@ -620,6 +620,7 @@ angular.module('msinm.templates')
 
         $scope.template = angular.copy(template);
         $scope.paramData = [];
+        $scope.paramsValid = true;
         $scope.messageId = $cookieStore.get('testMessageId');
         $scope.focusMe = true;
 
@@ -627,36 +628,6 @@ angular.module('msinm.templates')
             $scope.template.fieldTemplates = [];
         }
 
-        // Load the parameter types
-        $scope.parameterTypes = {};
-        TemplatesService.getParamTypes(
-            function (data) {
-                // Build a look-up map for param types
-                for (var p in data) {
-                    var paramType = data[p];
-                    $scope.parameterTypes[paramType.name] = paramType;
-                }
-            },
-            function (data) {
-                console.error("Error loading parameter types");
-            }
-        );
-
-        $scope.paramsValid = function (paramData) {
-            var valid = true;
-            for (var p in paramData) {
-                var param = paramData[p];
-                if (param.kind == 'COMPOSITE') {
-                    for (var v in param.values) {
-                        valid = valid && $scope.paramsValid(param.values[v]);
-                    }
-                } else if (param.mandatory) {
-                    // Check that first value is well-defined
-                    valid = valid && (param.values[0] !== undefined);
-                }
-            }
-            return valid;
-        };
 
         // Test the current template
         $scope.test = function (messageId) {
