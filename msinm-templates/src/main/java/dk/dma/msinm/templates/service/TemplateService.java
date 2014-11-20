@@ -610,7 +610,7 @@ public class TemplateService extends BaseService {
                 data.put("msg", new MessageVo(message, filter));
 
                 // Add params
-                data.put("params", transformParameters(params, fieldTemplate.getLang()));
+                data.put("params", transformParameterData(params, fieldTemplate.getLang()));
 
                 // Add the current dictionary
                 ResourceBundleModel resourceBundleModel = new ResourceBundleModel(getDictionary(fieldTemplate.getLang()), new BeansWrapper());
@@ -645,41 +645,9 @@ public class TemplateService extends BaseService {
      * @param language the language
      * @return the transformed parameters
      */
-    private Map<String, Object> transformParameters(List<ParameterDataVo> params, String language) {
+    private Map<String, Object> transformParameterData(List<ParameterDataVo> params, String language) {
         Map<String, Object> result = new HashMap<>();
-
-        params.stream()
-                .filter(param -> param.getValues() != null && param.getValues().size() > 0)
-                .forEach(param -> {
-                    result.put(param.getName(), new ParamValue(param.getValues()));
-                });
-
+        ParameterDataVo.toFmParameterData(result, language, params);
         return result;
-    }
-
-    public static class ParamValue {
-        Object value;
-        List<?> values;
-
-        public ParamValue(List values) {
-            this.values = values;
-            this.value = values.get(0);
-        }
-
-        public Object getValue() {
-            return value;
-        }
-
-        public void setValue(Object value) {
-            this.value = value;
-        }
-
-        public List<?> getValues() {
-            return values;
-        }
-
-        public void setValues(List<?> values) {
-            this.values = values;
-        }
     }
 }
