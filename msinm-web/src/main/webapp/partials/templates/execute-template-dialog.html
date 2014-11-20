@@ -1,0 +1,33 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Execute Template {{templateName}}</h2>
+    </div>
+
+    <div class="modal-body">
+        <p>
+            Fill out the template parameters and execute the template.
+        </p>
+
+        <form name="execute_form">
+
+            <div class="form-controls">
+
+                <div class="form-group execute-template-param-list">
+                    <msi-template-param-data parameters="template.parameters" data="paramData" params-valid="paramsValid"></msi-template-param-data>
+                </div>
+
+            </div>
+
+            <div class="form-group">
+                <div style="margin-top: 24px">
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Close</button>
+                    <button class="btn btn-primary btn-sm" ng-disabled="!paramsValid"
+                            style="float: right;" ng-click="execute()">Execute</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

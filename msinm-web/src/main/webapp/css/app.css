@@ -463,3 +463,10 @@ legend.nested-template-param-data {
     vertical-align: middle;
     line-height: 26px;
 }
+
+.execute-template-param-list {
+    max-height: 400px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding-right: 10px;
+}

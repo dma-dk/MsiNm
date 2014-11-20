@@ -18,6 +18,12 @@ angular.module('msinm.templates')
                     .error(error);
             },
 
+            getTemplate: function(name, success, error) {
+                $http.get('/rest/templates/template/' + encodeURIComponent(name) + '?lang=' + $rootScope.language)
+                    .success(success)
+                    .error(error);
+            },
+
             createTemplate: function(template, success, error) {
                 $http.post('/rest/templates/template', template)
                     .success(success)
@@ -38,6 +44,13 @@ angular.module('msinm.templates')
 
             getFieldTemplates: function(success, error) {
                 $http.get('/rest/templates/field-templates')
+                    .success(success)
+                    .error(error);
+            },
+
+            getTemplateNamesForCategories: function(categoryIds, type, success, error) {
+                $http.get('/rest/templates/category-templates?categoryIds='
+                + categoryIds + "&type=" + type)
                     .success(success)
                     .error(error);
             },

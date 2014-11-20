@@ -6,8 +6,10 @@ angular.module('msinm.search')
     /********************************************
      * Controller that handles editing messages
      *******************************************/
-    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', '$window', '$location', 'growlNotifications', 'MessageService', 'LangService',
-        function ($scope, $rootScope, $routeParams, $modal, $timeout, $window, $location, growlNotifications, MessageService, LangService) {
+    .controller('MessageEditorCtrl', ['$scope', '$rootScope', '$routeParams', '$modal', '$timeout', '$window', '$location',
+            'growlNotifications', 'MessageService', 'LangService', 'TemplatesService',
+        function ($scope, $rootScope, $routeParams, $modal, $timeout, $window, $location,
+                  growlNotifications, MessageService, LangService, TemplatesService) {
             'use strict';
 
             $scope.dateFormat = "DD-MM-YYYY HH:mm";
@@ -78,7 +80,7 @@ angular.module('msinm.search')
                 true);
 
 
-            // Load tempaltes when the categories changes
+            // Load templates when the categories changes
             $scope.templates = [];
 
             $scope.$watch(
@@ -88,18 +90,28 @@ angular.module('msinm.search')
                         $scope.templates = [];
                         return;
                     }
-                    MessageService.getTemplateNamesForCategories(
+                    TemplatesService.getTemplateNamesForCategories(
                         $scope.msg.categoryIds,
                         $scope.msg.seriesIdentifier.mainType,
                         function (data) {
                             $scope.templates = data;
-                            console.log("XXXXXXXXXXXX TEMPLATES " + data);
                         },
                         function (data) {
                             console.error("Error loading templates for categories");
                         }
                     );
                 });
+
+            $scope.executeTemplate = function(templateName) {
+                $modal.open({
+                    templateUrl: '/partials/templates/execute-template-dialog.html',
+                    controller: 'ExecuteTemplateDialogCtrl',
+                    resolve: {
+                        templateName: function () { return templateName; },
+                        msg: function () { return $scope.msg; }
+                    }
+                });
+            };
 
             // When the location editor detects a new locations list, it will
             // add blank desc records, and thus, yield to form dirty.

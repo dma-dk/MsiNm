@@ -128,13 +128,6 @@ angular.module('msinm.search')
                 $http.get('/rest/admin/areas/area/' + areaId)
                     .success(success)
                     .error(error);
-            },
-
-            getTemplateNamesForCategories: function(categoryIds, type, success, error) {
-                $http.get('/rest/templates/category-templates?categoryIds='
-                    + categoryIds + "&type=" + type)
-                    .success(success)
-                    .error(error);
             }
 
         };

@@ -106,6 +106,26 @@ public class TemplateService extends BaseService {
     }
 
     /**
+     * Returns the template with the given name. Returns null if none is found.
+     * NB: Returns all language variants, but sorted by the given language
+     *
+     * @param name the name of the template
+     * @param lang the language
+     * @return the given template
+     */
+    public TemplateVo getTemplate(String name, String lang) {
+        try {
+            Template template = em.createNamedQuery("Template.findByName", Template.class)
+                    .setParameter("name", name)
+                    .getSingleResult();
+            return new TemplateVo(template, DataFilter.lang(lang));
+        } catch (Exception e) {
+            log.warn("Failed finding a template named " + name + ": " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
      * Creates a new template from the given value object
      * @param templateVo the template value object
      * @return the new entity
@@ -682,5 +702,4 @@ public class TemplateService extends BaseService {
         ParameterDataVo.toFmParameterData(result, language, params);
         return result;
     }
-
 }

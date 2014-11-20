@@ -53,6 +53,14 @@ public class TemplateRestService {
         return templateService.getTemplates(lang);
     }
 
+    @GET
+    @Path("/template/{name}")
+    @Produces("application/json;charset=UTF-8")
+    @NoCache
+    public TemplateVo getTemplate(@PathParam("name") String name, @QueryParam("lang") String lang) throws Exception {
+        return templateService.getTemplate(name, lang);
+    }
+
     @POST
     @Path("/template")
     @Consumes("application/json;charset=UTF-8")

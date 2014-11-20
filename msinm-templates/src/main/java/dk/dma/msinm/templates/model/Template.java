@@ -24,8 +24,8 @@ import java.util.List;
 @NamedQueries({
         @NamedQuery(name  = "Template.findAll",
                 query = "select t from Template t order by lower(t.name) asc"),
-        @NamedQuery(name  = "Template.findByCategories",
-                query = "select t from Template t where (t.type is null or t.type in (:types)) order by lower(t.name) asc")
+        @NamedQuery(name  = "Template.findByName",
+                query = "select t from Template t where t.name = :name")
 })
 public class Template extends VersionedEntity<Integer> {
 

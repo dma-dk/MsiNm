@@ -9,11 +9,12 @@ angular.module('msinm.common', []);
 angular.module('msinm.search', []);
 angular.module('msinm.map', []);
 angular.module('msinm.user', []);
+angular.module('msinm.templates', []);
 
 
 var app = angular.module('msinm', [
     'ngRoute', 'ngSanitize', 'ngCookies', 'ui.bootstrap', 'ui.tinymce', 'angularFileUpload', 'pascalprecht.translate', 'growlNotifications',
-    'msinm.common', 'msinm.search', 'msinm.conf', 'msinm.map', 'msinm.user'])
+    'msinm.common', 'msinm.search', 'msinm.conf', 'msinm.map', 'msinm.user', 'msinm.templates'])
     .config(['$routeProvider', function ($routeProvider) {
         'use strict';
 

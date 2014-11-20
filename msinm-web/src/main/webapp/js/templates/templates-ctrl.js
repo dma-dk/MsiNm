@@ -653,6 +653,47 @@ angular.module('msinm.templates')
 
     /**
      * ********************************************************************************
+     * ExecuteTemplateDialogCtrl
+     * ********************************************************************************
+     * The ExecuteTemplateDialogCtrl is the template execution dialog controller
+     */
+    .controller('ExecuteTemplateDialogCtrl', ['$scope', '$modalInstance', 'TemplatesService', 'templateName', 'msg',
+        function ($scope, $modalInstance, TemplatesService, templateName, msg) {
+        'use strict';
+
+        $scope.paramData = [];
+        $scope.paramsValid = true;
+        $scope.msg = msg;
+        $scope.template = { parameters: [] };
+        $scope.templateName = templateName;
+
+        TemplatesService.getTemplate(templateName,
+            function (data) {
+                $scope.template = data;
+            }, function (data) {
+                console.error("Error loading tempalte " + templateName);
+            });
+
+
+        // Execute the current template
+        $scope.execute = function () {
+            TemplatesService.processTemplate(
+                $scope.msg.seriesIdentifier.fullId,
+                $scope.template,
+                $scope.paramData,
+                function (data) {
+                    $scope.template = data;
+                },
+                function (data) {
+                    $scope.error = "ERROR";
+                }
+            )
+        };
+    }])
+
+
+    /**
+     * ********************************************************************************
      * ListParamTypeDialogCtrl
      * ********************************************************************************
      * The ListParamTypeDialogCtrl is the parameter type add/edit dialog controller
