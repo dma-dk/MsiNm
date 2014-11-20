@@ -142,11 +142,15 @@ public abstract class ParameterDataVo<V> implements JsonSerializable {
      */
     public static class FmBaseParamValue {
         Object value;
-        List<Object> values;
+        List<Object> values = new ArrayList<>();
 
         public FmBaseParamValue(List<Object> paramValues) {
-            this.values = paramValues;
-            this.value = values.get(0);
+            paramValues.stream()
+                    .filter(val -> val != null)
+                    .forEach(values::add);
+            if (values.size() > 0) {
+                value = values.get(0);
+            }
         }
 
         @Override
@@ -184,7 +188,7 @@ public abstract class ParameterDataVo<V> implements JsonSerializable {
 
         public FmListParamValue(List<ListParamValueVo> paramValues, String lang) {
             paramValues.stream()
-                .filter(ListParamValueVo::isDefined)
+                .filter(val -> val != null && val.isDefined())
                 .forEach(val -> {
                     val.sortDescs(lang);
                     ListParamValueVo.ListParamValueDescVo desc = val.getDescs().get(0);
@@ -247,12 +251,16 @@ public abstract class ParameterDataVo<V> implements JsonSerializable {
         List<Map<String, Object>> values = new ArrayList<>();
 
         public FmCompositeParamValue(List<List<ParameterDataVo>> paramValues, String lang) {
-            paramValues.forEach(param -> {
-                Map<String, Object> val = new HashMap<>();
-                ParameterDataVo.toFmParameterData(val, lang, param);
-                values.add(val);
-            });
-            value = values.get(0);
+            paramValues.stream()
+                .filter(param -> param != null)
+                .forEach(param -> {
+                    Map<String, Object> val = new HashMap<>();
+                    ParameterDataVo.toFmParameterData(val, lang, param);
+                    values.add(val);
+                });
+            if (values.size() > 0) {
+                value = values.get(0);
+            }
         }
 
         @Override

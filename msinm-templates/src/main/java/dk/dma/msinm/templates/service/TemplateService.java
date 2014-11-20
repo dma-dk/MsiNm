@@ -595,6 +595,7 @@ public class TemplateService extends BaseService {
                 continue;
             }
 
+            Map<String, Object> fmParams = null;
             try {
                 // The full Freemarker template is the Freemarker includes + the field template
                 fmLoader.putTemplate("fieldTemplate", String.valueOf(freemarkerIncludes) + fieldTemplate.getFmTemplate());
@@ -610,7 +611,8 @@ public class TemplateService extends BaseService {
                 data.put("msg", new MessageVo(message, filter));
 
                 // Add params
-                data.put("params", transformParameterData(params, fieldTemplate.getLang()));
+                fmParams = transformParameterData(params, fieldTemplate.getLang());
+                data.put("params", fmParams);
 
                 // Add the current dictionary
                 ResourceBundleModel resourceBundleModel = new ResourceBundleModel(getDictionary(fieldTemplate.getLang()), new BeansWrapper());
@@ -629,7 +631,7 @@ public class TemplateService extends BaseService {
 
             } catch (Exception e) {
                 fieldTemplate.setError("Error processing template " + fieldTemplate.getField()
-                        + ":" + fieldTemplate.getLang() + "\n" + e.getMessage());
+                        + ":" + fieldTemplate.getLang() + " : " + e.getMessage() + "\nParams:\n" + fmParams);
             }
         }
 
