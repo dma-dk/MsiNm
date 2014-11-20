@@ -191,6 +191,16 @@ angular.module('msinm.templates')
                     })
                     .success(success)
                     .error(error);
+            },
+
+            executeTemplate: function(message, template, params, success, error) {
+                $http.post('/rest/templates/execute-template', {
+                    message : message,
+                    params : params,
+                    template : template
+                })
+                    .success(success)
+                    .error(error);
             }
 
         };

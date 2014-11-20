@@ -677,12 +677,13 @@ angular.module('msinm.templates')
 
         // Execute the current template
         $scope.execute = function () {
-            TemplatesService.processTemplate(
-                $scope.msg.seriesIdentifier.fullId,
+            TemplatesService.executeTemplate(
+                $scope.msg,
                 $scope.template,
                 $scope.paramData,
                 function (data) {
-                    $scope.template = data;
+                    $scope.msg = data;
+                    $modalInstance.close(data);
                 },
                 function (data) {
                     $scope.error = "ERROR";

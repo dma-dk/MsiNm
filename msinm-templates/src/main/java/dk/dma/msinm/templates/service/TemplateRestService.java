@@ -9,6 +9,7 @@ import dk.dma.msinm.templates.vo.ListParamTypeVo;
 import dk.dma.msinm.templates.vo.ParamTypeVo;
 import dk.dma.msinm.templates.vo.ParameterDataVo;
 import dk.dma.msinm.templates.vo.TemplateVo;
+import dk.dma.msinm.vo.MessageVo;
 import org.jboss.ejb3.annotation.SecurityDomain;
 import org.jboss.resteasy.annotations.GZIP;
 import org.jboss.resteasy.annotations.cache.NoCache;
@@ -317,6 +318,18 @@ public class TemplateRestService {
                 processTemplate.getParams());
     }
 
+    @POST
+    @Path("/execute-template")
+    @Consumes("application/json;charset=UTF-8")
+    @Produces("application/json;charset=UTF-8")
+    @RolesAllowed({"editor"})
+    public MessageVo executeTemplate(ProcessTemplateVo processTemplate) throws Exception {
+        return templateService.executeTemplate(
+                processTemplate.getMessage(),
+                processTemplate.getTemplate(),
+                processTemplate.getParams());
+    }
+
 
     /***************************
      * Helper VO classes
@@ -327,6 +340,7 @@ public class TemplateRestService {
      */
     public static class ProcessTemplateVo implements JsonSerializable {
         String msgId;
+        MessageVo message;
         TemplateVo template;
         List<ParameterDataVo> params;
 
@@ -352,6 +366,14 @@ public class TemplateRestService {
 
         public void setParams(List<ParameterDataVo> params) {
             this.params = params;
+        }
+
+        public MessageVo getMessage() {
+            return message;
+        }
+
+        public void setMessage(MessageVo message) {
+            this.message = message;
         }
     }
 }

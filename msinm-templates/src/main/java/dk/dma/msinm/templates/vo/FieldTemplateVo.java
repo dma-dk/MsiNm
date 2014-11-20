@@ -79,6 +79,14 @@ public class FieldTemplateVo extends BaseVo<FieldTemplate> {
         return StringUtils.isNotBlank(fmTemplate);
     }
 
+    /**
+     * Returns the result, or if defined, the error
+     * @return the result, or if defined, the error
+     */
+    public String errorOrResult() {
+        return StringUtils.isNotBlank(error) ? error : result;
+    }
+
     // ***********************************
     // Getters and setters
     // ***********************************

@@ -79,6 +79,18 @@ public class PublishingService {
     }
 
     /**
+     * Publications can be updated from Freemarker templates. This method is called
+     * to inject a Freemarker template result for a specific language in a message value object.
+     * @param type the publisher type
+     * @param messageVo the message value object
+     * @param result the field template result
+     * @param language the language
+     */
+    public void setFieldTemplateResult(String type, MessageVo messageVo, String result, String language) throws  Exception {
+        instantiatePublisher(type).setFieldTemplateResult(messageVo, result, language);
+    }
+
+    /**
      * Returns the list of available publishers
      * @return the list of available publishers
      */

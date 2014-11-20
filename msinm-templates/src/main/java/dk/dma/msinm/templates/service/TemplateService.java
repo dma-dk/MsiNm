@@ -31,13 +31,11 @@ import freemarker.cache.StringTemplateLoader;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.ext.beans.ResourceBundleModel;
 import freemarker.template.Configuration;
-import freemarker.template.TemplateException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
-import java.io.IOException;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -610,14 +608,47 @@ public class TemplateService extends BaseService {
 
     /**
      * Executes the field templates of the given template for the given message
+     * @param messageVo the message
+     * @param template the template
+     * @param params the template parameter data
+     * @return the updated message
+     */
+    public MessageVo executeTemplate(MessageVo messageVo, TemplateVo template, List<ParameterDataVo> params) throws Exception {
+        Message message = messageVo.toEntity();
+
+        // Process the template
+        template = processTemplate(message, template, params);
+
+        // Update the message from the template result
+        for (FieldTemplateVo fieldTemplate : template.getFieldTemplates()) {
+            String result = fieldTemplate.errorOrResult();
+
+            if (fieldTemplate.getField().equals("title")) {
+                messageVo.checkCreateDesc(fieldTemplate.getLang()).setTitle(result);
+            } else if (fieldTemplate.getField().equals("description")) {
+                messageVo.checkCreateDesc(fieldTemplate.getLang()).setDescription(result);
+            } else {
+                try {
+                    // Find the matching publication
+                    publishingService.setFieldTemplateResult(fieldTemplate.getField(), messageVo, result, fieldTemplate.getLang());
+                } catch (Exception e) {
+                    log.error("Failed setting template result for publisher " + fieldTemplate.getField() + ": " + e.getMessage());
+                }
+            }
+        }
+
+        return messageVo;
+    }
+
+
+    /**
+     * Executes the field templates of the given template for the given message
      * @param msgSeriesId the message series id
      * @param template the template
      * @param params the template parameter data
      * @return the updated template
      */
-    public TemplateVo processTemplate(String msgSeriesId, TemplateVo template, List<ParameterDataVo> params) throws IOException, TemplateException {
-
-        long t0 = System.currentTimeMillis();
+    public TemplateVo processTemplate(String msgSeriesId, TemplateVo template, List<ParameterDataVo> params) throws Exception {
 
         // Resolve the message
         Message message = messageService.findBySeriesIdentifier(msgSeriesId);
@@ -627,6 +658,19 @@ public class TemplateService extends BaseService {
         // Get the cached version, since it has all related data cached
         message = messageService.getCachedMessage(message.getId());
 
+        return processTemplate(message, template, params);
+    }
+
+    /**
+     * Executes the field templates of the given template for the given message
+     * @param message the message
+     * @param template the template
+     * @param params the template parameter data
+     * @return the updated template
+     */
+    private TemplateVo processTemplate(Message message, TemplateVo template, List<ParameterDataVo> params) throws Exception {
+
+        long t0 = System.currentTimeMillis();
 
         // Construct the Freemarker template
         StringTemplateLoader fmLoader = new StringTemplateLoader();

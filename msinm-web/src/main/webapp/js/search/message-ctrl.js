@@ -103,6 +103,7 @@ angular.module('msinm.search')
                 });
 
             $scope.executeTemplate = function(templateName) {
+                $scope.updateMessageFromUI(false);
                 $modal.open({
                     templateUrl: '/partials/templates/execute-template-dialog.html',
                     controller: 'ExecuteTemplateDialogCtrl',
@@ -110,6 +111,9 @@ angular.module('msinm.search')
                         templateName: function () { return templateName; },
                         msg: function () { return $scope.msg; }
                     }
+                }).result.then(function (data) {
+                    $scope.msg = data;
+                    $scope.initMessage(false);
                 });
             };
 
@@ -247,7 +251,7 @@ angular.module('msinm.search')
 
 
             // Ensure the message structure is valid and initialized
-            $scope.initMessage = function () {
+            $scope.initMessage = function (pristine) {
                 $window.scrollTo(0,0);
 
                 var msg = $scope.msg;
@@ -297,7 +301,7 @@ angular.module('msinm.search')
 
                 $scope.locationsLoaded = true;  // Trigger the location editor
                 $scope.messageSaved = false; // Remove lock on save button
-                if ($scope.action == 'edit') {
+                if (pristine) {
                     $scope.setPristine();
                 }
             };
@@ -330,7 +334,7 @@ angular.module('msinm.search')
                         function (data) {
                             $scope.msg = data;
                             $scope.uploadUri = '/rest/repo/upload/' + $scope.msg.repoPath;
-                            $scope.initMessage();
+                            $scope.initMessage(true);
                         },
                         function (data) {
                             growlNotifications.add('<h4>Message Lookup Failed</h4>', 'danger', 3000);
@@ -340,7 +344,7 @@ angular.module('msinm.search')
                         function (data) {
                             $scope.msg = data;
                             $scope.uploadUri = '/rest/repo/upload-temp/' + $scope.msg.repoPath;
-                            $scope.initMessage();
+                            $scope.initMessage(true);
                         },
                         function (data) {
                             console.error("Error getting new temp dir" + data);
@@ -352,7 +356,7 @@ angular.module('msinm.search')
                         function (data) {
                             $scope.msg = data;
                             $scope.uploadUri = '/rest/repo/upload-temp/' + $scope.msg.repoPath;
-                            $scope.initMessage();
+                            $scope.initMessage(false);
                         },
                         function (data) {
                             console.error("Error getting new temp dir" + data);
@@ -390,7 +394,7 @@ angular.module('msinm.search')
                 for (var j in chartData) {
                     $scope.msg.charts.push(chartData[j].chart);
                 }
-            }
+            };
 
             // Save the current message
             $scope.saveMessage = function () {
