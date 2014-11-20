@@ -47,7 +47,7 @@ angular.module('msinm.templates')
             // *******************************
 
             getParamTypes: function(success, error) {
-                $http.get('/rest/templates/param-types')
+                $http.get('/rest/templates/param-types?lang=' + $rootScope.language)
                     .success(success)
                     .error(error);
             },
