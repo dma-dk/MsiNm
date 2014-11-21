@@ -6,6 +6,7 @@ import dk.dma.msinm.common.light.LightFormatter;
 import dk.dma.msinm.common.light.LightService;
 import dk.dma.msinm.common.model.DataFilter;
 import dk.dma.msinm.common.service.BaseService;
+import dk.dma.msinm.model.Area;
 import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Message;
 import dk.dma.msinm.service.MessageService;
@@ -615,6 +616,19 @@ public class TemplateService extends BaseService {
      */
     public MessageVo executeTemplate(MessageVo messageVo, TemplateVo template, List<ParameterDataVo> params) throws Exception {
         Message message = messageVo.toEntity();
+
+        // The field template may use the currently selected categories and area
+        // However these may have had the language descriptors stripped, except for the current language.
+        // Substitute the area and categories with persisted ones
+        if (message.getArea() != null) {
+            message.setArea(getByPrimaryKey(Area.class, message.getArea().getId()));
+        }
+        if (message.getCategories().size() > 0) {
+            List<Category> categories = new ArrayList<>();
+            message.getCategories().forEach(cat -> categories.add(getByPrimaryKey(Category.class, cat.getId())));
+            message.setCategories(categories);
+        }
+
 
         // Process the template
         template = processTemplate(message, template, params);

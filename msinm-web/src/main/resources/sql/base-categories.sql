@@ -93,8 +93,8 @@ INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-63,'da','Drivende 
 INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-62,'en','Drifting object',-61);
 INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-34,'da','Lystønde',-32);
 INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-33,'en','Light buoy',-32);
-INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-21,'da','Vraget',-19);
-INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-20,'en','The wreck',-19);
+INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-21,'da','Vrag',-19);
+INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-20,'en','Wreck',-19);
 INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-18,'da','Vrag og grunde',-16);
 INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-17,'en','Wreck and grounds',-16);
 INSERT INTO CategoryDesc (id, lang, name, entity_id) VALUES (-7,'da','Skydeøvelser',-7);
