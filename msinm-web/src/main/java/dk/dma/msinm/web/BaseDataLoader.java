@@ -23,8 +23,8 @@ import dk.dma.msinm.model.Category;
 import dk.dma.msinm.model.Chart;
 import dk.dma.msinm.service.AreaService;
 import dk.dma.msinm.service.CategoryService;
-import dk.dma.msinm.templates.model.CompositeParamType;
 import dk.dma.msinm.templates.model.ListParamType;
+import dk.dma.msinm.templates.service.TemplateService;
 import dk.dma.msinm.user.User;
 import org.slf4j.Logger;
 
@@ -54,6 +54,9 @@ public class BaseDataLoader extends BaseService {
     CategoryService categoryService;
 
     @Inject
+    TemplateService templateService;
+
+    @Inject
     SqlScriptService sqlScriptService;
 
     @Inject
@@ -73,12 +76,8 @@ public class BaseDataLoader extends BaseService {
     String chartsSql;
 
     @Inject
-    @Sql("/sql/base-listparamtype.sql")
-    String listParamTypeSql;
-
-    @Inject
-    @Sql("/sql/base-compositeparamtype.sql")
-    String compositeParamTypeSql;
+    @Sql("/sql/base-template-params.sql")
+    String baseTemplateParamsSql;
 
     /**
      * Checks whether to load base data or not
@@ -98,9 +97,9 @@ public class BaseDataLoader extends BaseService {
             categoryService.updateLineages();
         }
 
-        checkLoadBaseData(ListParamType.class, listParamTypeSql);
-
-        checkLoadBaseData(CompositeParamType.class, compositeParamTypeSql);
+        if (checkLoadBaseData(ListParamType.class, baseTemplateParamsSql)) {
+            templateService.loadBaseTemplateData("/sql/base-templates.json");
+        }
     }
 
     /**

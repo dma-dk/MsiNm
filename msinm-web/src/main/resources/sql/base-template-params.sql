@@ -1,6 +1,7 @@
 
 INSERT INTO ListParamType (id, name) VALUES (-45,'AtoN Bearing');
 INSERT INTO ListParamType (id, name) VALUES (-60,'AtoN Marker');
+INSERT INTO ListParamType (id, name) VALUES (-300,'Buoy Change');
 INSERT INTO ListParamType (id, name) VALUES (-146,'Buoy Function');
 INSERT INTO ListParamType (id, name) VALUES (-174,'Buoy Type');
 INSERT INTO ListParamType (id, name) VALUES (-202,'Floating AtoN Type');
@@ -90,6 +91,9 @@ INSERT INTO ListParamValue (id, sortKey, ListParamType_id) VALUES (-273,5,-260);
 INSERT INTO ListParamValue (id, sortKey, ListParamType_id) VALUES (-276,6,-260);
 INSERT INTO ListParamValue (id, sortKey, ListParamType_id) VALUES (-280,1,-279);
 INSERT INTO ListParamValue (id, sortKey, ListParamType_id) VALUES (-283,2,-279);
+INSERT INTO ListParamValue (id, sortKey, ListParamType_id) VALUES (-300,1,-300);
+INSERT INTO ListParamValue (id, sortKey, ListParamType_id) VALUES (-301,2,-300);
+INSERT INTO ListParamValue (id, sortKey, ListParamType_id) VALUES (-302,3,-300);
 
 
 INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-29,'da','','skib',-28);
@@ -250,3 +254,57 @@ INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALU
 INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-282,'da','er uregelmæssig','uregelmæssig',-280);
 INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-284,'en','is inoperative','inoperative',-283);
 INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-285,'da','er ude af drift','ude af drift',-283);
+INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-300,'en','is missing','missing',-300);
+INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-301,'da','er forsvundet','forsvundet',-300);
+INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-302,'en','is off station','off station',-301);
+INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-303,'da','er ikke på plads og i orden','ikke på plads',-301);
+INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-304,'en','is withdrawn','withdrawn',-302);
+INSERT INTO ListParamValueDesc (id, lang, longValue, shortValue, entity_id) VALUES (-305,'da','er permanent inddraget','inddraget',-302);
+
+INSERT INTO DictTerm (id, termKey) VALUES (-4149,'and');
+INSERT INTO DictTerm (id, termKey) VALUES (-4184,'between');
+INSERT INTO DictTerm (id, termKey) VALUES (-4156,'cancel_message');
+INSERT INTO DictTerm (id, termKey) VALUES (-4159,'cancel_this_message');
+INSERT INTO DictTerm (id, termKey) VALUES (-4451,'on');
+INSERT INTO DictTerm (id, termKey) VALUES (-4454,'pos');
+INSERT INTO DictTerm (id, termKey) VALUES (-4202,'position');
+
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4154,'da','og',-4149);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4155,'en','and',-4149);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4164,'da','Annuller notifikation {0}',-4156);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4165,'en','Cancel message {0}',-4156);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4166,'da','Annuller denne notifikation {0}',-4159);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4167,'en','Cancel this message {0}',-4159);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4185,'da','mellem',-4184);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4186,'en','between',-4184);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4203,'da','position',-4202);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4204,'en','position',-4202);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4452,'en','on',-4451);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4453,'da','på',-4451);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4455,'en','pos.',-4454);
+INSERT INTO DictTermDesc (id, lang, `value`, entity_id) VALUES (-4456,'da','pos.',-4454);
+
+
+INSERT INTO FmInclude (id, fmTemplate, name) VALUES (-4092,"<#assign now = .now>\\n<#assign line = 'dk.dma.msinm.common.templates.LineDirective'?new()>\\n<#assign formatPos = 'dk.dma.msinm.templates.LatLonDirective'?new()>\\n<#assign htmlToText = 'dk.dma.msinm.common.templates.HtmlToTextDirective'?new()>\\n\\n<#macro formatTitle msg>\\n<@line>\\n  <#list msg.categories as cat>\\n    ${cat.descs[0].name}<#if cat_has_next>. </#if>\\n   </#list>\\n</@line>\\n</#macro>\\n\\n<#macro areaLineage area>\\n<@line>\\n    <#if area.parent?? && area.parent.parent??>\\n        <@areaLineage area=area.parent /> -\\n    </#if>\\n    <#if area.descs?has_content>${area.descs[0].name}</#if>\\n</@line>\\n</#macro>\\n\\n<#macro formatCharts charts>\\n<@line>\\n    <#list charts as chart>\\n        ${chart.chartNumber}\\n        <#if chart.internationalNumber?has_content>(INT ${chart.internationalNumber?c})</#if>\\n        <#if chart_has_next>, </#if>\\n    </#list>\\n</@line>\\n</#macro>\\n\\n<#macro formatLocations locations format='dec' names=false>\\n<@line>\\n    <#if locations?size gt 1>${text('between')}<#elseif format != 'navtex'>${text('on')}</#if>\\n    <#if format == 'audio'>${text('position')}<#elseif format != 'navtex'>${text('pos')}</#if>\\n    <#list locations as loc>\\n        <#if names && loc.descs?has_content && loc.descs[0].description?has_content>\\n            ${loc.descs[0].description}.\\n        </#if>\\n        <#list loc.points as point>\\n            <@formatPos lat=point.lat lon=point.lon format=format/>\\n            <#if names && point.descs?has_content && point.descs[0].description?has_content> \\n                (${point.descs[0].description})\\n            </#if>\\n            <#if point_has_next> ${text('and')} </#if>\\n        </#list>\\n        <#if loc_has_next> ${text('and')} </#if>\\n     </#list>\\n</@line>\\n</#macro>",'Common Macros');
+INSERT INTO FmInclude (id, fmTemplate, name) VALUES (-4114,"<#macro navtexHeader msg>\\n<@line maxLength=40 case='upper'>\\n    ${navtexDateFormat.format(now)}\\n</@line>\\n\\n<@line maxLength=40 case='upper'>\\n    ${msg.type} ${msg.seriesIdentifier.fullId}\\n</@line>\\n\\n<@line maxLength=40 case='upper'>\\n    <#if msg.area??>\\n        <@areaLineage area=msg.area />\\n    </#if>\\n    <#if msg.descs?has_content && msg.descs[0].vicinity?has_content>\\n        - ${msg.descs[0].vicinity}\\n    </#if>\\n</@line>\\n</#macro>\\n\\n\\n<#macro navtexFooter msg>\\n<#if msg.references?has_content>\\n    <#list msg.references as ref>\\n        <#if ref.type == 'CANCELLATION'>\\n            <@line maxLength=40 case='upper'>\\n                ${text('cancel_message',ref.seriesIdentifier.fullId)}.\\n            </@line>\\n        </#if>\\n    </#list>\\n</#if>\\n\\n<#if msg.validTo?has_content>\\n    <@line maxLength=40 case='upper'>\\n        ${text('cancel_this_message',navtexDateFormat.format(msg.validTo))}.\\n    </@line>\\n</#if>\\n</#macro>",'Navtex Macros');
+
+
+INSERT INTO CompositeParamType (id, name) VALUES (-2167,'Vessel ID');
+INSERT INTO CompositeParamType (id, name) VALUES (-2173,'Wreck Marking');
+
+INSERT INTO TemplateParam (id,list,mandatory,name,sortKey,`type`) VALUES (-2168,0,1,'Vessel Name',1,'text');
+INSERT INTO TemplateParam (id,list,mandatory,name,sortKey,`type`) VALUES (-2169,0,0,'Vessel Call Sign',2,'text');
+INSERT INTO TemplateParam (id,list,mandatory,name,sortKey,`type`) VALUES (-2170,0,0,'VHF Channel',3,'number');
+INSERT INTO TemplateParam (id,list,mandatory,name,sortKey,`type`) VALUES (-2174,0,1,'AtoN type',1,'Floating AtoN Type');
+INSERT INTO TemplateParam (id,list,mandatory,name,sortKey,`type`) VALUES (-2175,0,0,'Light',2,'text');
+INSERT INTO TemplateParam (id,list,mandatory,name,sortKey,`type`) VALUES (-2176,0,0,'Distance',3,'text');
+INSERT INTO TemplateParam (id,list,mandatory,name,sortKey,`type`) VALUES (-2177,0,0,'Bearing',4,'AtoN Bearing');
+
+
+INSERT INTO CompositeParamType_TemplateParam (CompositeParamType_id,parameters_id) VALUES (-2167,-2168);
+INSERT INTO CompositeParamType_TemplateParam (CompositeParamType_id,parameters_id) VALUES (-2167,-2169);
+INSERT INTO CompositeParamType_TemplateParam (CompositeParamType_id,parameters_id) VALUES (-2167,-2170);
+INSERT INTO CompositeParamType_TemplateParam (CompositeParamType_id,parameters_id) VALUES (-2173,-2174);
+INSERT INTO CompositeParamType_TemplateParam (CompositeParamType_id,parameters_id) VALUES (-2173,-2175);
+INSERT INTO CompositeParamType_TemplateParam (CompositeParamType_id,parameters_id) VALUES (-2173,-2176);
+INSERT INTO CompositeParamType_TemplateParam (CompositeParamType_id,parameters_id) VALUES (-2173,-2177);

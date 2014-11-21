@@ -1,5 +1,6 @@
 package dk.dma.msinm.templates.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import dk.dma.msinm.common.MsiNmApp;
 import dk.dma.msinm.common.db.Sql;
 import dk.dma.msinm.common.light.LightFormatter;
@@ -37,6 +38,9 @@ import org.slf4j.Logger;
 
 import javax.ejb.Stateless;
 import javax.inject.Inject;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -759,5 +763,47 @@ public class TemplateService extends BaseService {
         Map<String, Object> result = new HashMap<>();
         ParameterDataVo.toFmParameterData(result, language, params);
         return result;
+    }
+
+    // *******************************************
+    // ** Base Data
+    // *******************************************
+
+    /**
+     * Loads template data from the given JSON resource.
+     * <br>
+     * NB: The JSON file can be generated using the following URL:
+     * http://localhost:8080/rest/templates/all?lang=en
+     *
+     * @param resourceName the path to the JSON containing a list of TemplateVo entities
+     */
+    public void loadBaseTemplateData(String resourceName) {
+        // Load the data
+        StringBuilder result = new StringBuilder();
+        try (BufferedReader r = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(resourceName), "UTF-8"))) {
+            String line;
+            while ((line = r.readLine()) != null) {
+                result.append(line).append(System.lineSeparator());
+            }
+        } catch (Exception ex) {
+            throw new IllegalArgumentException("Undefined resource " + resourceName, ex);
+        }
+
+        ObjectMapper jsonMapper = new ObjectMapper();
+        try {
+            // De-serialize the JSON
+            TemplateVo[] templates = jsonMapper.readValue(result.toString(), TemplateVo[].class);
+            for (TemplateVo template : templates) {
+                // Remove the ID so that we can create the template as a new entity
+                template.setId(null);
+
+                // Persist the template
+                createTemplate(template);
+            }
+
+            log.info("Created " + templates.length + " templates");
+        } catch (IOException e) {
+            log.error("Error reading base template data",e);
+        }
     }
 }
