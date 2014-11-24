@@ -6,11 +6,11 @@
         <groupId>dk.dma.msinm</groupId>
         <artifactId>msinm-parent</artifactId>
         <version>1.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
-    <artifactId>msinm-web-se</artifactId>
-    <name>Swedish MsiNm web application</name>
+    <artifactId>msinm-web-no</artifactId>
+    <name>Norwegian MsiNm web application</name>
     <packaging>war</packaging>
 
     <dependencies>
@@ -44,11 +44,6 @@
             <artifactId>msinm-reporting</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
-        <!--dependency>
-            <groupId>dk.dma.msinm</groupId>
-            <artifactId>msinm-cloud</artifactId>
-            <version>1.0-SNAPSHOT</version>
-        </dependency-->
         <dependency>
             <groupId>dk.dma.msinm</groupId>
             <artifactId>msinm-web</artifactId>
