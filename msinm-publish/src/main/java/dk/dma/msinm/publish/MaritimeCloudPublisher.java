@@ -34,10 +34,11 @@ import dma.msinm.MCMsiNmUpdatesBroadcast;
 import dma.msinm.MCSearchResult;
 import net.maritimecloud.core.id.MaritimeId;
 import net.maritimecloud.core.id.MmsiId;
-import net.maritimecloud.mms.MmsClient;
-import net.maritimecloud.mms.MmsClientConfiguration;
-import net.maritimecloud.mms.MmsConnection;
-import net.maritimecloud.mms.MmsConnectionClosingCode;
+import net.maritimecloud.net.MessageHeader;
+import net.maritimecloud.net.mms.MmsClient;
+import net.maritimecloud.net.mms.MmsClientConfiguration;
+import net.maritimecloud.net.mms.MmsConnection;
+import net.maritimecloud.net.mms.MmsConnectionClosingCode;
 import net.maritimecloud.util.Timestamp;
 import net.maritimecloud.util.geometry.Position;
 import net.maritimecloud.util.geometry.PositionReader;
@@ -69,7 +70,7 @@ public class MaritimeCloudPublisher extends Publisher {
     public static final String CLOUD_PUBLISHER_TYPE = "maritime cloud";
     public static final String CLOUD_SERVICE_NAME   = "MSI-NM";
 
-    private static final Setting CLOUD_HOST     = new DefaultSetting("cloudHost", "mms02.maritimecloud.net:43234");
+    private static final Setting CLOUD_HOST     = new DefaultSetting("cloudHost", "mms03.maritimecloud.net:43234");
     private static final Setting CLOUD_ID       = new DefaultSetting("cloudId", "999000007");
     private static final Setting CLOUD_POS      = new DefaultSetting("cloudLatLonPos", "55.6546523 12.5144583");
     private static final Setting CLOUD_DEBUG    = new DefaultSetting("cloudDebug", "false");
@@ -228,9 +229,9 @@ public class MaritimeCloudPublisher extends Publisher {
             }
 
             @Override
-            public void connected() {
+            public void connected(URI host) {
                 if (debug) {
-                    log.info("Connected");
+                    log.info("Connected to " + host);
                 }
             }
 
@@ -297,12 +298,12 @@ public class MaritimeCloudPublisher extends Publisher {
         try {
             mmsClient.endpointRegister(new AbstractMCMsiNmService() {
                 @Override
-                protected MCSearchResult activeMessages(Context context, String lang) {
+                protected MCSearchResult activeMessages(MessageHeader header, String lang) {
                     return getActiveMessages(lang);
                 }
 
                 @Override
-                protected MCSearchResult activeMessagesIfUpdates(Context context, String lang, Timestamp date) {
+                protected MCSearchResult activeMessagesIfUpdates(MessageHeader header, String lang, Timestamp date) {
                     return getActiveMessagesIfUpdates(lang, date);
                 }
             }).awaitRegistered(4, TimeUnit.SECONDS);
