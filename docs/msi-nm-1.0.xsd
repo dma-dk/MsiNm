@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<xs:schema version="1.0" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="message" type="message"></xs:element>
+
+  <!-- *********************** -->
+  <!-- ** Message           ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="message">
+    <xs:annotation>
+      <xs:documentation>message</xs:documentation>
+      <xs:documentation>Represents an MSI or NM T&amp;P message.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="seriesIdentifier" type="seriesIdentifier"/>
+      <xs:element name="type" type="type"/>
+      <xs:element name="status" type="status"/>
+      <xs:element name="area" type="area"/>
+      <xs:element name="categories" type="category" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="charts" type="chart" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="horizontalDatum" type="xs:string" minOccurs="0"/>
+      <xs:element name="validFrom" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="validTo" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="locations" type="location" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="descs" type="messageDesc" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="cancellationDate" type="xs:dateTime" minOccurs="0"/>
+      <xs:element name="references" type="reference" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="lightListNumbers" type="xs:string" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="originalInformation" type="xs:boolean" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="required"/>
+    <xs:attribute name="version" type="xs:int" use="required"/>
+    <xs:attribute name="created" type="xs:dateTime" use="required"/>
+    <xs:attribute name="updated" type="xs:dateTime"/>
+  </xs:complexType>
+
+  <xs:complexType name="messageDesc">
+    <xs:annotation>
+      <xs:documentation>Message Descriptor</xs:documentation>
+      <xs:documentation>Contains the language specific textual attributes of a message.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="lang" type="xs:string"/>
+      <xs:element name="title" type="xs:string" minOccurs="0"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+      <xs:element name="otherCategories" type="xs:string" minOccurs="0"/>
+      <xs:element name="time" type="xs:string" minOccurs="0"/>
+      <xs:element name="vicinity" type="xs:string" minOccurs="0"/>
+      <xs:element name="note" type="xs:string" minOccurs="0"/>
+      <xs:element name="publication" type="xs:string" minOccurs="0"/>
+      <xs:element name="source" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="type">
+    <xs:annotation>
+      <xs:documentation>Message Type</xs:documentation>
+      <xs:documentation>The type of a message, i.e. navarea, subarea, coastal or local MSI warnings, or
+          temporary, preliminary, permanent or miscellaneous NM notice.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="NAVAREA_WARNING"/>
+      <xs:enumeration value="SUBAREA_WARNING"/>
+      <xs:enumeration value="COASTAL_WARNING"/>
+      <xs:enumeration value="LOCAL_WARNING"/>
+      <xs:enumeration value="TEMPORARY_NOTICE"/>
+      <xs:enumeration value="PRELIMINARY_NOTICE"/>
+      <xs:enumeration value="PERMANENT_NOTICE"/>
+      <xs:enumeration value="MISCELLANEOUS_NOTICE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <xs:simpleType name="status">
+    <xs:annotation>
+      <xs:documentation>Message Status</xs:documentation>
+      <xs:documentation>The current status of the message, i.e. draft, published, expired, cancelled or deleted (draft).</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DRAFT"/>
+      <xs:enumeration value="PUBLISHED"/>
+      <xs:enumeration value="EXPIRED"/>
+      <xs:enumeration value="CANCELLED"/>
+      <xs:enumeration value="DELETED"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- *********************** -->
+  <!-- ** SeriesIdentifier  ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="seriesIdentifier">
+    <xs:annotation>
+      <xs:documentation>Message Series Identifier</xs:documentation>
+      <xs:documentation>A series identifier, which uniquely defines a message. The number will be undefined
+          until the message has been published.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="mainType" type="seriesIdType"/>
+      <xs:element name="authority" type="xs:string"/>
+      <xs:element name="number" type="xs:int" minOccurs="0"/>
+      <xs:element name="year" type="xs:int"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:simpleType name="seriesIdType">
+    <xs:annotation>
+      <xs:documentation>Message Series Identifier Type</xs:documentation>
+      <xs:documentation>The type of a message series identifier, i.e. msi or nm.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MSI"/>
+      <xs:enumeration value="NM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <!-- *********************** -->
+  <!-- ** Reference         ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="reference">
+    <xs:annotation>
+      <xs:documentation>Reference</xs:documentation>
+      <xs:documentation>A reference consists of a message series identifier
+          and a reference type.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="seriesIdentifier" type="seriesIdentifier"/>
+      <xs:element name="type" type="referenceType"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:simpleType name="referenceType">
+    <xs:annotation>
+      <xs:documentation>Reference Type</xs:documentation>
+      <xs:documentation>The type of a reference, i.e. reference, repetition, cancellation or update.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="REFERENCE"/>
+      <xs:enumeration value="REPETITION"/>
+      <xs:enumeration value="CANCELLATION"/>
+      <xs:enumeration value="UPDATE"/>
+    </xs:restriction>
+  </xs:simpleType>
+  
+  <!-- *********************** -->
+  <!-- ** Chart             ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="chart">
+    <xs:annotation>
+      <xs:documentation>Chart</xs:documentation>
+      <xs:documentation>Defines a chart via its national chart number and optionally an international number.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="chartNumber" type="xs:string"/>
+      <xs:element name="internationalNumber" type="xs:int" minOccurs="0"/>
+      <xs:element name="horizontalDatum" type="xs:string" minOccurs="0"/>
+      <xs:element name="scale" type="xs:int" minOccurs="0"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+      <xs:element name="lowerLeftLatitude" type="xs:double" minOccurs="0"/>
+      <xs:element name="lowerLeftLongitude" type="xs:double" minOccurs="0"/>      
+      <xs:element name="upperRightLatitude" type="xs:double" minOccurs="0"/>
+      <xs:element name="upperRightLongitude" type="xs:double" minOccurs="0"/>      
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="required"/>
+  </xs:complexType>
+  
+  <!-- *********************** -->
+  <!-- ** Category          ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="category">
+    <xs:annotation>
+      <xs:documentation>Category</xs:documentation>
+      <xs:documentation>Defines a category by its localized names and parent category.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="descs" type="categoryDesc" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="parent" type="category" minOccurs="0"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="categoryDesc">
+    <xs:annotation>
+      <xs:documentation>Category Descriptor</xs:documentation>
+      <xs:documentation>Contains the language specific name of a category.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="lang" type="xs:string"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <!-- *********************** -->
+  <!-- ** Area              ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="area">
+    <xs:annotation>
+      <xs:documentation>Area</xs:documentation>
+      <xs:documentation>Defines an area by its localized names, locations and parent area.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="descs" type="areaDesc" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="parent" type="area" minOccurs="0"/>
+      <xs:element name="locations" type="location" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+    <xs:attribute name="id" type="xs:int" use="required"/>
+  </xs:complexType>
+  
+  <xs:complexType name="areaDesc">
+    <xs:annotation>
+      <xs:documentation>Area Descriptor</xs:documentation>
+      <xs:documentation>Contains the language specific name of an area.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="lang" type="xs:string"/>
+      <xs:element name="name" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <!-- *********************** -->
+  <!-- ** Location          ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="location">
+    <xs:annotation>
+      <xs:documentation>Location</xs:documentation>
+      <xs:documentation>Defines a location by its localized descriptions, type, radius and list of points.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="type" type="locationType"/>
+      <xs:element name="points" type="point" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+      <xs:element name="radius" type="xs:int" minOccurs="0"/>
+      <xs:element name="descs" type="locationDesc" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="locationType">
+    <xs:annotation>
+      <xs:documentation>Location Type</xs:documentation>
+      <xs:documentation>The type of a location, i.e. point, circle, polygon or polyline.</xs:documentation>
+    </xs:annotation>
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="POINT"/>
+      <xs:enumeration value="CIRCLE"/>
+      <xs:enumeration value="POLYGON"/>
+      <xs:enumeration value="POLYLINE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:complexType name="locationDesc">
+    <xs:annotation>
+      <xs:documentation>Location Descriptor</xs:documentation>
+      <xs:documentation>Contains the language specific description of a location.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="lang" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <!-- *********************** -->
+  <!-- ** Point             ** -->
+  <!-- *********************** -->
+  
+  <xs:complexType name="point">
+    <xs:annotation>
+      <xs:documentation>Point</xs:documentation>
+      <xs:documentation>Defines a point by its position and localized descriptions.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="latitude" type="xs:double"/>
+      <xs:element name="longitude" type="xs:double"/>
+      <xs:element name="descs" type="pointDesc" nillable="true" minOccurs="0" maxOccurs="unbounded"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+  <xs:complexType name="pointDesc">
+    <xs:annotation>
+      <xs:documentation>Point Descriptor</xs:documentation>
+      <xs:documentation>Contains the language specific description of a Point.</xs:documentation>
+    </xs:annotation>
+    <xs:sequence>
+      <xs:element name="lang" type="xs:string"/>
+      <xs:element name="description" type="xs:string" minOccurs="0"/>
+    </xs:sequence>
+  </xs:complexType>
+  
+</xs:schema>
