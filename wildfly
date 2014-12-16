@@ -20,7 +20,7 @@
 # source local environment
 SCRIPT_DIR="$(dirname "$(readlink -f ${BASH_SOURCE[0]})")"
 
-export WILDFLY_HOME=$SCRIPT_DIR/wildfly-8.1.0.Final
+export WILDFLY_HOME=$SCRIPT_DIR/wildfly-8.2.0.Final
 
 #define the user under which jboss will run, or use 'RUNASIS' to run as the current user
 WILDFLY_USER=${WILDFLY_USER:-"enav"}

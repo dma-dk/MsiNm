@@ -10,8 +10,8 @@ import twitter4j.auth.AccessToken;
 import javax.annotation.PostConstruct;
 import javax.ejb.Lock;
 import javax.ejb.LockType;
+import javax.ejb.Singleton;
 import javax.inject.Inject;
-import javax.inject.Singleton;
 
 /**
  * Provides access to Twitter
