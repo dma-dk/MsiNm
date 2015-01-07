@@ -520,21 +520,21 @@ public class MessageSearchService extends AbstractLuceneIndex<Message> {
         // Sort the query
         if (MessageSearchParams.SortBy.DATE == param.getSortBy()) {
             if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
-                tupleQuery.orderBy(builder.asc(msgRoot.get("validFrom")));
+                tupleQuery.orderBy(builder.asc(msgRoot.get("validFrom")), builder.asc(msgRoot.get("id")));
             } else {
-                tupleQuery.orderBy(builder.desc(msgRoot.get("validFrom")));
+                tupleQuery.orderBy(builder.desc(msgRoot.get("validFrom")), builder.desc(msgRoot.get("id")));
             }
         } else if (MessageSearchParams.SortBy.ID == param.getSortBy()) {
             if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
-                tupleQuery.orderBy(builder.asc(msgId.get("year")), builder.asc(msgId.get("number")));
+                tupleQuery.orderBy(builder.asc(msgId.get("year")), builder.asc(msgId.get("number")), builder.asc(msgRoot.get("id")));
             } else {
-                tupleQuery.orderBy(builder.desc(msgId.get("year")), builder.desc(msgId.get("number")));
+                tupleQuery.orderBy(builder.desc(msgId.get("year")), builder.desc(msgId.get("number")), builder.desc(msgRoot.get("id")));
             }
         } else if (MessageSearchParams.SortBy.AREA == param.getSortBy()) {
             if (param.getSortOrder() == MessageSearchParams.SortOrder.ASC) {
-                tupleQuery.orderBy(builder.asc(areaRoot.get("treeSortOrder")));
+                tupleQuery.orderBy(builder.asc(areaRoot.get("treeSortOrder")), builder.asc(msgRoot.get("id")));
             } else {
-                tupleQuery.orderBy(builder.desc(areaRoot.get("treeSortOrder")));
+                tupleQuery.orderBy(builder.desc(areaRoot.get("treeSortOrder")), builder.desc(msgRoot.get("id")));
             }
         }
 
