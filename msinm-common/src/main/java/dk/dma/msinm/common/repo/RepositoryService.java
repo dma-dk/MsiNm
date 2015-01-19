@@ -366,6 +366,12 @@ public class RepositoryService {
                         vo.setName(f.getFileName().toString());
                         vo.setPath(WebUtils.encodeURI(path + "/" + f.getFileName().toString()));
                         vo.setDirectory(Files.isDirectory(f));
+                        try {
+                            vo.setUpdated(new Date(Files.getLastModifiedTime(f).toMillis()));
+                            vo.setSize(Files.size(f));
+                        } catch (Exception e) {
+                            log.trace("Error reading file attribute for " + f);
+                        }
                         result.add(vo);
                     });
         }
@@ -471,7 +477,7 @@ public class RepositoryService {
         RepoFileVo dir = new RepoFileVo();
         dir.setName(name);
         dir.setPath(WebUtils.encodeURI("temp/" + name));
-        dir.setDirectory(false);
+        dir.setDirectory(true);
         return dir;
     }
 
