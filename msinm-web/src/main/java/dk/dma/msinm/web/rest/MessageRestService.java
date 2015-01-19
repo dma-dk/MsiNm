@@ -438,12 +438,26 @@ public class MessageRestService {
     public MessageSearchResult searchPublished(
             @QueryParam("lang") String language,
             @QueryParam("sortBy") @DefaultValue("DATE") String sortBy,
-            @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder
+            @QueryParam("sortOrder") @DefaultValue("DESC") String sortOrder,
+            @QueryParam("attachments") @DefaultValue("false") boolean attachments
     ) throws Exception {
         long t0 = System.currentTimeMillis();
         MessageSearchParams params = MessageSearchParams.readParams(language, "", "PUBLISHED", "", "", "", "", "", "", "", 1000, 0, sortBy, sortOrder, false);
         MessageSearchResult searchResult =  messageSearchService.search(params);
-        log.info(String.format("Search [%s] returns %d of %d messages in %d ms", params.toString(), searchResult.getMessages().size(), searchResult.getTotal(), System.currentTimeMillis() - t0));
+        if (attachments) {
+            searchResult.getMessages().stream()
+                    .forEach(msg -> {
+                        try {
+                            List<RepoFileVo> repoFiles = messageService.getMessageAttacthments(msg.getId());
+                            if (repoFiles.size() > 0) {
+                                msg.setAttachments(repoFiles);
+                            }
+                        } catch (Exception e) {
+                            log.warn("Failed loading attachments for " + msg.getId());
+                        }
+                    });
+        }
+        log.trace(String.format("Search [%s] returns %d of %d messages in %d ms", params.toString(), searchResult.getMessages().size(), searchResult.getTotal(), System.currentTimeMillis() - t0));
         return searchResult;
     }
 
