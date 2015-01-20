@@ -360,20 +360,21 @@ public class RepositoryService {
                     !file.getFileName().toString().matches(".+_thumb_\\d{1,3}\\.\\w+") && // Thumbnails
                     !file.getFileName().toString().matches("map_\\d{1,3}\\.png"); // Map image
 
-            Files.newDirectoryStream(folder, filter)
-                    .forEach(f -> {
-                        RepoFileVo vo = new RepoFileVo();
-                        vo.setName(f.getFileName().toString());
-                        vo.setPath(WebUtils.encodeURI(path + "/" + f.getFileName().toString()));
-                        vo.setDirectory(Files.isDirectory(f));
-                        try {
-                            vo.setUpdated(new Date(Files.getLastModifiedTime(f).toMillis()));
-                            vo.setSize(Files.size(f));
-                        } catch (Exception e) {
-                            log.trace("Error reading file attribute for " + f);
-                        }
-                        result.add(vo);
-                    });
+            try (DirectoryStream<Path> stream = Files.newDirectoryStream(folder, filter)) {
+                stream.forEach(f -> {
+                    RepoFileVo vo = new RepoFileVo();
+                    vo.setName(f.getFileName().toString());
+                    vo.setPath(WebUtils.encodeURI(path + "/" + f.getFileName().toString()));
+                    vo.setDirectory(Files.isDirectory(f));
+                    try {
+                        vo.setUpdated(new Date(Files.getLastModifiedTime(f).toMillis()));
+                        vo.setSize(Files.size(f));
+                    } catch (Exception e) {
+                        log.trace("Error reading file attribute for " + f);
+                    }
+                    result.add(vo);
+                });
+            }
         }
         return result;
     }
