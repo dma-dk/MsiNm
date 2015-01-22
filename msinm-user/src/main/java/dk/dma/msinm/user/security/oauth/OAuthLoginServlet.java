@@ -1,11 +1,5 @@
 package dk.dma.msinm.user.security.oauth;
 
-import dk.dma.msinm.common.MsiNmApp;
-import org.scribe.builder.ServiceBuilder;
-import org.scribe.builder.api.GoogleApi;
-import org.scribe.model.OAuthConstants;
-import org.scribe.model.Token;
-import org.scribe.oauth.OAuthService;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -28,7 +22,7 @@ public class OAuthLoginServlet extends HttpServlet {
     Logger log;
 
     @Inject
-    MsiNmApp app;
+    OAuthProviders oAuthProviders;
 
     /**
      * Main GET method
@@ -38,23 +32,24 @@ public class OAuthLoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        log.info("Received login request from " + request.getPathInfo());
+        String providerId = request.getPathInfo().substring(1);
+        log.info("Received login request for " + providerId);
 
-        OAuthService service = new ServiceBuilder()
-                .provider(GoogleApiProvider.class)
-                .apiKey("959114872597-df018493b0c51j3ls0gbdlmcbp8hg6tp.apps.googleusercontent.com")
-                .apiSecret("UUNo-4Y7RxPLlHjiDlKLbF9B")
-                .scope("openid profile email")
-                .callback(app.getBaseUri() + "/oauth/callback/google")
-                .build();
+        AbstractOAuthProvider provider = oAuthProviders.getProvider(providerId);
+        if (provider == null) {
+            log.error("No provider exists for " + providerId);
+            response.sendRedirect("/");
+            return;
+        }
 
-        //Token requestToken = service.getRequestToken();
-        String authUrl = service.getAuthorizationUrl(OAuthConstants.EMPTY_TOKEN);
+        String authUrl = provider.getAuthorizationUrl();
+        if (authUrl == null) {
+            log.error("Provider " + providerId + " not configured properly");
+            response.sendRedirect("/");
+            return;
+        }
+
         log.info("Redirecting to " + authUrl);
-
-        // TODO: For now we just store the token in the session
-        //request.getSession().setAttribute("googleOauthRequestToken", requestToken);
-
         response.sendRedirect(authUrl);
     }
 
