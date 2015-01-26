@@ -19,15 +19,12 @@ function addBaseMapLayers(layers) {
         {type: google.maps.MapTypeId.HYBRID, numZoomLevels: 20}
     ));
 
-    // NB WMS layer gets proxied via "/wms/" to mask  out colors
+    // NB WMS layer gets proxied via "/wms/" to mask out colors and hide service-name, login and password
     // For direct access, substitute "/wms/" with: http://kortforsyningen.kms.dk/
     layers.push(new OpenLayers.Layer.WMS("WMS", "/wms/", {
             layers : 'cells',
-            servicename : 'soe_enc',
             transparent : 'true',
-            styles : 'default',
-            login : 'StatSofart',
-            password : '114karls'
+            styles : 'default'
         }, {
             isBaseLayer : false,
             visibility : false,

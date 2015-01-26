@@ -16,6 +16,8 @@
 package dk.dma.msinm.web.wms;
 
 import dk.dma.msinm.common.settings.annotation.Setting;
+import dk.dma.msinm.common.util.WebUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
 import javax.imageio.ImageIO;
@@ -24,29 +26,47 @@ import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.*;
+import java.awt.Color;
+import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
  * Proxy WMS data
+ *
+ * This servlet will mask out a couple of colours that makes the current Danish WMS service unusable...
  */
 @WebServlet(value = "/wms/*", asyncSupported = true)
 public class WmsProxyServlet extends HttpServlet {
 
     // The color we want transparent
-    final static Color[] MASKED_COLORS = { Color.WHITE, new Color(221, 241, 239) };
-    final static int COLOR_DIST = 20;
+    final static Color[]    MASKED_COLORS   = { Color.WHITE, new Color(221, 241, 239) };
+    final static int        COLOR_DIST      = 20;
+    final static int        CACHE_TIMEOUT   =  24 * 60 * 60; // 24 hours
+    static final String     BLANK_IMAGE     = "/img/blank.png";
 
     @Inject
     Logger log;
 
     @Inject
-    @Setting(value = "wmsProvider", defaultValue = "http://kortforsyningen.kms.dk/")
+    @Setting(value = "wmsProvider", defaultValue = "")
     String wmsProvider;
+
+    @Inject
+    @Setting(value = "wmsServiceName", defaultValue = "")
+    String wmsServiceName;
+
+    @Inject
+    @Setting(value = "wmsLogin", defaultValue = "")
+    String wmsLogin;
+
+    @Inject
+    @Setting(value = "wmsPassword", defaultValue = "")
+    String wmsPassword;
 
     /**
      * Main GET method
@@ -56,22 +76,45 @@ public class WmsProxyServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
-        String params = request.getParameterMap()
+        // Cache for a day
+        WebUtils.cache(response, CACHE_TIMEOUT);
+
+        // Check that the WMS provider has been defined using system properties
+        if (StringUtils.isBlank(wmsServiceName) || StringUtils.isBlank(wmsProvider) ||
+                StringUtils.isBlank(wmsLogin) || StringUtils.isBlank(wmsPassword)) {
+            response.sendRedirect(BLANK_IMAGE);
+            return;
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, String[]> paramMap = request.getParameterMap();
+        String params = paramMap
                 .entrySet()
                 .stream()
                 .map(p -> String.format("%s=%s", p.getKey(), p.getValue()[0]))
                 .collect(Collectors.joining("&"));
+        params += String.format("&SERVICENAME=%s&LOGIN=%s&PASSWORD=%s", wmsServiceName, wmsLogin, wmsPassword);
 
         String url = wmsProvider + "?" + params;
         log.trace("Loading image " + url);
 
-        BufferedImage image = ImageIO.read(new URL(url));
-        image = transformWhiteToTransparent(image);
+        try {
+            BufferedImage image = ImageIO.read(new URL(url));
+            if (image != null) {
+                image = transformWhiteToTransparent(image);
 
-        OutputStream out = response.getOutputStream();
-        ImageIO.write(image, "png", out);
-        image.flush();
-        out.close();
+                OutputStream out = response.getOutputStream();
+                ImageIO.write(image, "png", out);
+                image.flush();
+                out.close();
+                return;
+            }
+        } catch (Exception e) {
+            log.trace("Failed loading WMS image for URL " + url);
+        }
+
+        // Fall back to return a blank image
+        response.sendRedirect(BLANK_IMAGE);
     }
 
     /**
