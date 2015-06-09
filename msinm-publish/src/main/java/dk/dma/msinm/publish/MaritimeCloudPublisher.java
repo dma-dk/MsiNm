@@ -70,7 +70,7 @@ public class MaritimeCloudPublisher extends Publisher {
     public static final String CLOUD_PUBLISHER_TYPE = "maritime cloud";
     public static final String CLOUD_SERVICE_NAME   = "MSI-NM";
 
-    private static final Setting CLOUD_HOST     = new DefaultSetting("cloudHost", "mms03.maritimecloud.net:43234");
+    private static final Setting CLOUD_HOST     = new DefaultSetting("cloudHost", "mms.sandbox03.maritimecloud.net");
     private static final Setting CLOUD_ID       = new DefaultSetting("cloudId", "999000007");
     private static final Setting CLOUD_POS      = new DefaultSetting("cloudLatLonPos", "55.6546523 12.5144583");
     private static final Setting CLOUD_DEBUG    = new DefaultSetting("cloudDebug", "false");
@@ -190,7 +190,7 @@ public class MaritimeCloudPublisher extends Publisher {
         host = settings.get(CLOUD_HOST);
         maritimeId = new MmsiId((int)settings.getLong(CLOUD_ID));
         String[] latLon = settings.get(CLOUD_POS).split(" ");
-        position = PositionTime.create(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
+        position = Position.create(Double.valueOf(latLon[0]), Double.valueOf(latLon[1]));
 
         log.info(String.format("Read cloud settings: host=%s, id=%s, pos=%s", host, maritimeId, position));
     }
