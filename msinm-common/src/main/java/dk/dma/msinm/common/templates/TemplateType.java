@@ -7,7 +7,8 @@ public enum TemplateType {
     PDF("pdf"),
     MAIL("mail"),
     Light("light"),
-    MESSAGE("message");
+    MESSAGE("message"),
+    GML("gml");
 
     private String path;
 
