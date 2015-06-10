@@ -57,10 +57,11 @@
             </#list>
         </#if>
 
-        <#if msg.descs?has_content && msg.descs[0].description?has_content>
+        <#assign htmlToText = "dk.dma.msinm.common.templates.HtmlToTextDirective"?new()>
+        <#if msg.descs?has_content>
             <#list msg.descs as desc>
                 <information>
-                    <text>${desc.description}</text>
+                    <text><@htmlToText html=desc.description /></text>
                     <language>${desc.lang}</language>
                 </information>
             </#list>
