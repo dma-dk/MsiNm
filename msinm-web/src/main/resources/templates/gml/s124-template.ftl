@@ -4,45 +4,27 @@
              xmlns:s100="http://www.iho.int/s100gml"
              xmlns="http://jeppesen.com/KRSeaTrial"
              xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-             xsi:schemaLocation="http://jeppesen.com/KRSeaTrial MSI.xsd" gml:id="WA11301">
+             xsi:schemaLocation="http://msinm-test.e-navigation.net/s124/MSI2.xsd" gml:id="WA11301">
 
 
-    <DatasetMetadataProperty>
-        <DatasetMetadata>
-            <datasetIdentifier>${msg.id?c}</datasetIdentifier>
-            <issueDate>${msg.created?datetime}</issueDate>
-        </DatasetMetadata>
-    </DatasetMetadataProperty>
+    <#if msg.seriesIdentifier.mainType == 'MSI'>
+        <NavigationalWarning gml:id="NW${msg.id?c}_1">
+    <#else>
+        <NoticeToMariners gml:id="NM${msg.id?c}_1">
+    </#if>
 
-    <Notice gml:id="${msg.id?c}_1">
-
-        <noticeIdentifier>
-            <noticeNumber>${msg.seriesIdentifier.number?c}</noticeNumber>
-            <year>${msg.seriesIdentifier.year?c}</year>
-            <productionAgency>${msg.seriesIdentifier.authority}</productionAgency>
-            <mainType>${msg.seriesIdentifier.mainType?lower_case}</mainType>
-        </noticeIdentifier>
-
-        <sourceDate>${msg.created?datetime}</sourceDate>
-
-        <@noticeType msg=msg />
-
-        <#if msg.seriesIdentifier.mainType == 'MSI'>
-            <navigationalArea>Danish Nav Warn</navigationalArea>
-        <#elseif msg.originalInformation??>
-            <originalInformation>${msg.originalInformation}</originalInformation>
-        </#if>
+        <@seriesIdentifier id=msg.seriesIdentifier />
 
         <#if msg.area?? && msg.area.parent?? && msg.area.parent.descs?has_content>
             <generalArea>${msg.area.parent.descs[0].name}</generalArea>
+        <#else>
+            <generalArea></generalArea>
         </#if>
 
         <#if msg.area?? && msg.area.descs?has_content>
             <locality>${msg.area.descs[0].name}</locality>
-        </#if>
-
-        <#if msg.horizontalDatum??>
-            <horizontalDatum>${msg.horizontalDatum}</horizontalDatum>
+        <#else>
+            <locality></locality>
         </#if>
 
         <#if msg.descs?has_content && msg.descs[0].title?has_content>
@@ -51,32 +33,38 @@
 
         <@generalCategory msg=msg />
 
-        <#if msg.references?has_content>
-            <#list msg.references as ref>
-                <@noticeReference ref=ref />
-            </#list>
-        </#if>
+        <sourceDate>${msg.created?datetime?string("yyyy-MM-dd'T'HH:mm:ss")}</sourceDate>
 
         <#assign htmlToText = "dk.dma.msinm.common.templates.HtmlToTextDirective"?new()>
         <#if msg.descs?has_content>
             <#list msg.descs as desc>
                 <information>
                     <text><@htmlToText html=desc.description /></text>
-                    <language>${desc.lang}</language>
+                    <language><#if desc.lang == 'da'>dan<#elseif desc.lang = 'en'>eng<#elseif desc.lang = 'kr'>kor<#else>und</#if></language>
                 </information>
             </#list>
         </#if>
 
-        <duration>
-            <dateStart>${msg.validFrom?datetime}</dateStart>
+        <fixedDateRange>
+            <dateStart>${msg.validFrom?datetime?string("yyyy-MM-dd'T'HH:mm:ss")}</dateStart>
             <#if msg.validTo??>
-                <dateEnd>${msg.validTo?datetime}</dateEnd>
+                <dateEnd>${msg.validTo?datetime?string("yyyy-MM-dd'T'HH:mm:ss")}</dateEnd>
             </#if>
-        </duration>
+        </fixedDateRange>
 
         <#if msg.charts?has_content>
             <#list msg.charts as chart>
                 <@affectedChart chart=chart />
+            </#list>
+        </#if>
+
+        <#if msg.horizontalDatum??>
+            <horizontalDatum>${msg.horizontalDatum}</horizontalDatum>
+        </#if>
+
+        <#if msg.references?has_content>
+            <#list msg.references as ref>
+                <@noticeReference ref=ref indx=ref_index/>
             </#list>
         </#if>
 
@@ -88,7 +76,19 @@
             </#list>
         </#if>
 
-    </Notice>
+        <@noticeType msg=msg />
+
+        <#if msg.seriesIdentifier.mainType == 'MSI'>
+            <navigationalArea>Danish Nav Warn</navigationalArea>
+        <#elseif msg.originalInformation??>
+            <originalInformation>${msg.originalInformation}</originalInformation>
+        </#if>
+
+    <#if msg.seriesIdentifier.mainType == 'MSI'>
+        </NavigationalWarning>
+    <#else>
+        </NoticeToMariners>
+    </#if>
 
 
 </NoticeBatch>
@@ -99,10 +99,10 @@
     <#case 'SUBAREA_WARNING'><typeOfNotice>sub-area</typeOfNotice><#break>
     <#case 'NAVAREA_WARNING'><typeOfNotice>NAVAREA</typeOfNotice><#break>
     <#case 'LOCAL_WARNING'><typeOfNotice>local</typeOfNotice><#break>
-    <#case 'MISCELLANEOUS_NOTICE'><typeOfNoticeToMariner>miscellaneous</typeOfNoticeToMariner><#break>
-    <#case 'PRELIMINARY_NOTICE'><typeOfNoticeToMariner>preliminary</typeOfNoticeToMariner><#break>
-    <#case 'TEMPORARY_NOTICE'><typeOfNoticeToMariner>temporary</typeOfNoticeToMariner><#break>
-    <#case 'PERMANENT_NOTICE'><typeOfNoticeToMariner>permanent</typeOfNoticeToMariner><#break>
+    <#case 'MISCELLANEOUS_NOTICE'><typeOfNoticeToMariners>miscellaneous</typeOfNoticeToMariners><#break>
+    <#case 'PRELIMINARY_NOTICE'><typeOfNoticeToMariners>preliminary</typeOfNoticeToMariners><#break>
+    <#case 'TEMPORARY_NOTICE'><typeOfNoticeToMariners>temporary</typeOfNoticeToMariners><#break>
+    <#case 'PERMANENT_NOTICE'><typeOfNoticeToMariners>permanent</typeOfNoticeToMariners><#break>
     </#switch>
 </#macro>
 
@@ -127,25 +127,25 @@
     </#if>
 </#macro>
 
-<#macro noticeReference ref>
-  <noticeReferences>
+<#macro noticeReference ref indx>
+  <noticeReferences gml:id="reg_${indx}">
       <#switch ref.type>
           <#case 'REFERENCE'><referenceType>source reference</referenceType><#break>
           <#case 'REPETITION'><referenceType>repetition</referenceType><#break>
           <#case 'CANCELLATION'><referenceType>cancellation</referenceType><#break>
           <#case 'UPDATE'><referenceType>update</referenceType><#break>
       </#switch>
-      <noticeReference>${ref.seriesIdentifier.fullId}</noticeReference>
+      <@seriesIdentifier id=ref.seriesIdentifier />
   </noticeReferences>
 </#macro>
 
 <#macro affectedChart chart>
-    <affectedChart>
+    <affectedCharts>
         <chartAffected>${chart.chartNumber}</chartAffected>
         <#if chart.internationalNumber??>
             <internationalChartAffected>${chart.internationalNumber?c}</internationalChartAffected>
         </#if>
-    </affectedChart>
+    </affectedCharts>
 </#macro>
 
 <#macro location loc indx>
@@ -159,23 +159,27 @@
         </s100:pointProperty>
     <#elseif loc.type = 'POLYGON'>
         <s100:surfaceProperty>
-            <gml:Polygon gml:id="loc_${indx}" srsName="http://www.opengis.net/gml/srs/epsg.xml#4326">
-                <gml:exterior>
-                    <gml:LinearRing>
-                        <gml:posList><@locationPoints points=loc.points/></gml:posList>
-                    </gml:LinearRing>
-                </gml:exterior>
-            </gml:Polygon>
+            <s100:surface gml:id="loc_${indx}" srsName="http://www.opengis.net/def/crs/EPSG/0/4326">
+                <gml:patches>
+                    <gml:PolygonPatch>
+                        <gml:exterior>
+                            <gml:LinearRing>
+                                <gml:posList><@locationPoints points=loc.points/></gml:posList>
+                            </gml:LinearRing>
+                        </gml:exterior>
+                    </gml:PolygonPatch>
+                </gml:patches>
+            </s100:surface>
         </s100:surfaceProperty>
     <#elseif loc.type = 'POLYLINE'>
         <s100:curveProperty>
-            <gml:Curve gml:id="loc_${indx}" srsName="http://www.opengis.net/gml/srs/epsg.xml#4326">
+            <s100:curve gml:id="loc_${indx}" srsName="http://www.opengis.net/gml/srs/epsg.xml#4326">
                 <gml:segments>
                     <gml:LineStringSegment>
                         <gml:posList><@locationPoints points=loc.points/></gml:posList>
                     </gml:LineStringSegment>
                 </gml:segments>
-            </gml:Curve>
+            </s100:curve>
         </s100:curveProperty>
     </#if>
     <#setting locale="${saveLocale}">
@@ -185,4 +189,17 @@
     <#list points as point>
         ${point.lat} ${point.lon}
     </#list>
+</#macro>
+
+<#macro datetime date>
+    ${date?datetime?string("yyyy-MM-dd'T'HH:mm:ss")}
+</#macro>
+
+<#macro seriesIdentifier id>
+    <noticeIdentifier>
+        <noticeNumber>${id.number?c}</noticeNumber>
+        <year>${id.year?c}</year>
+        <producingAgency>${id.authority}</producingAgency>
+        <mainType>${id.mainType?lower_case}</mainType>
+    </noticeIdentifier>
 </#macro>

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:gml="http://www.opengis.net/gml/3.2" 
+    xmlns="http://www.iho.int/s100gml"
+    targetNamespace="http://www.iho.int/s100gml" elementFormDefault="qualified">
+    <xs:import namespace="http://www.opengis.net/gml/3.2" schemaLocation="./S100_gmlProfile.xsd"/>
+    <!-- to do: document import of gml 3.2.1 schemas instead by application schemas -->
+    <xs:simpleType name="AgencyCodeType">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="[a-zA-z0-9][a-zA-z0-9]">
+                
+            </xs:pattern>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="IdentificationNumberType">
+        <xs:restriction base="xs:positiveInteger">
+            <xs:maxInclusive value="4294967294"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:simpleType name="IdentificationSubdivisionType">
+        <xs:restriction base="xs:positiveInteger">
+            <xs:maxInclusive value="65534"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
+    <xs:complexType name="FeatureObjectIdentifier">
+        <xs:sequence>
+            <xs:element name="agency" type="AgencyCodeType"/>
+            <xs:element name="featureIdentificationNumber" type="IdentificationNumberType"/>
+            <xs:element name="featureIdentificationSubdivision" type="IdentificationSubdivisionType"/>
+        </xs:sequence>
+    </xs:complexType>
+    
+    <xs:complexType name="AbstractAttributeType" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="gml:AbstractGMLType"/>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="InformationPropertyType">
+        <xs:complexContent>
+            <xs:extension base="AbstractAttributeType">
+                <xs:attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:complexType name="InverseInformationAssociationType">
+        <xs:complexContent>
+            <xs:extension base="AbstractAttributeType">
+                <xs:attributeGroup ref="gml:AssociationAttributeGroup">
+                    
+                </xs:attributeGroup>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="FeaturePropertyType">
+        <xs:complexContent>
+            <xs:extension base="AbstractAttributeType">
+                <xs:attributeGroup ref="gml:AssociationAttributeGroup"/>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:element name="informationAssociation" type="InformationPropertyType"/>
+    
+    <xs:element name="invInformationAssociation" type="InverseInformationAssociationType"/>
+        
+    <xs:element name="featureAssociation" type="FeaturePropertyType"/>  
+    
+    <xs:element name="invFeatureAssociation" type="FeaturePropertyType"/>   
+    
+    <xs:complexType name="AbstractInformationType">
+        <xs:complexContent>
+            <xs:extension base="gml:AbstractGMLType">
+                <xs:sequence>
+                    <xs:element ref="informationAssociation" maxOccurs="unbounded" minOccurs="0"/>
+                    <xs:element ref="invInformationAssociation" maxOccurs="unbounded" minOccurs="0"/>
+                 </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="AbstractFeatureType">
+        <xs:complexContent>
+            <xs:extension base="gml:AbstractFeatureType">
+                <xs:sequence>
+                    <xs:element name="featureObjectIdentifier" type="FeatureObjectIdentifier" minOccurs="0"/>
+                    <xs:element  minOccurs="0" maxOccurs="unbounded" ref="informationAssociation"/>
+                    <xs:element  minOccurs="0" maxOccurs="unbounded" ref="featureAssociation"/>
+                    <xs:element  minOccurs="0" maxOccurs="unbounded" ref="invFeatureAssociation"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="PointType">
+        <xs:complexContent>
+            <xs:extension base="gml:PointType">
+                <xs:sequence>
+                    <xs:element ref="informationAssociation" maxOccurs="unbounded" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="point" type="PointType"/>
+        
+    
+    <xs:complexType name="PointPropertyType">
+        <xs:sequence>
+            <xs:element ref="point" minOccurs="0">
+                
+            </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="gml:AssociationAttributeGroup">
+            
+        </xs:attributeGroup>
+    </xs:complexType>
+    
+    <xs:element name="pointProperty" type="PointPropertyType"/>
+        
+    
+    
+    <xs:complexType name="MultiPointType">
+        <xs:complexContent>
+            <xs:extension base="gml:MultiPointType">
+                <xs:sequence>
+                    <xs:element ref="informationAssociation" maxOccurs="unbounded" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="multiPoint" type="MultiPointType"/>
+        
+    <xs:complexType name="MultiPointPropertyType">
+        <xs:sequence>
+            <xs:element ref="multiPoint" minOccurs="0">
+                
+            </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="gml:AssociationAttributeGroup">
+            
+        </xs:attributeGroup>
+    </xs:complexType>
+    
+    <xs:element name="multiPointProperty" type="MultiPointPropertyType"/>
+    
+    
+    <xs:complexType name="CurveType">
+        <xs:complexContent>
+            <xs:extension base="gml:CurveType">
+                <xs:sequence>
+                    <xs:element ref="informationAssociation" maxOccurs="unbounded" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="curve" type="CurveType"/>
+        
+    <xs:complexType name="CurvePropertyType">
+        <xs:sequence>
+            <xs:element ref="curve" minOccurs="0">
+                
+            </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="gml:AssociationAttributeGroup">
+            
+        </xs:attributeGroup>
+    </xs:complexType>
+    
+    <xs:element name="curveProperty" type="CurvePropertyType"/>
+    
+    
+    <xs:complexType name="CompositeCurveType">
+        <xs:complexContent>
+            <xs:extension base="gml:CompositeCurveType">
+                <xs:sequence>
+                    <xs:element ref="informationAssociation" maxOccurs="unbounded" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="compositeCurve" type="CompositeCurveType"/>
+        
+    <xs:complexType name="CompositeCurvePropertyType">
+        <xs:sequence>
+            <xs:element ref="compositeCurve" minOccurs="0">
+                
+            </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="gml:AssociationAttributeGroup">
+            
+        </xs:attributeGroup>
+    </xs:complexType>
+    
+    <xs:element name="compositeCurveProperty" type="CompositeCurvePropertyType"/>
+    
+    <xs:element name="orientableCurve" type="gml:OrientableCurveType"/>
+        
+        <xs:complexType name="OrientableCurvePropertyType">
+            <xs:sequence>
+                <xs:element ref="orientableCurve" minOccurs="0">
+                    
+                </xs:element>
+            </xs:sequence>
+            <xs:attributeGroup ref="gml:AssociationAttributeGroup">
+                
+            </xs:attributeGroup>
+        </xs:complexType>
+        
+        <xs:element name="orientableCurveProperty" type="OrientableCurvePropertyType"/>
+        
+        
+    <xs:group name="curves">
+        <xs:choice>
+            <xs:element ref="curve">
+                
+            </xs:element>
+            <xs:element ref="compositeCurve">
+                
+            </xs:element>
+            <xs:element ref="orientableCurve">
+                
+            </xs:element>
+        </xs:choice>
+    </xs:group>
+    <xs:group name="curveProperties">
+        <xs:choice>
+            <xs:element ref="curveProperty">
+                
+            </xs:element>
+            <xs:element ref="compositeCurveProperty">
+                
+            </xs:element>
+            <xs:element ref="orientableCurveProperty">
+                
+            </xs:element>
+        </xs:choice>
+    </xs:group>
+    
+    <xs:complexType name="SurfaceType">
+        <xs:complexContent>
+            <xs:extension base="gml:SurfaceType">
+                <xs:sequence>
+                    <xs:element ref="informationAssociation" maxOccurs="unbounded" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    <xs:element name="surface" type="SurfaceType">
+        
+    </xs:element>
+    
+    <xs:complexType name="SurfacePropertyType">
+        <xs:sequence>
+            <xs:element ref="surface" minOccurs="0">
+                
+            </xs:element>
+        </xs:sequence>
+        <xs:attributeGroup ref="gml:AssociationAttributeGroup">
+            
+        </xs:attributeGroup>
+    </xs:complexType>
+    <xs:element name="surfaceProperty" type="SurfacePropertyType">
+        
+    </xs:element>
+    
+    <xs:group name="Geometry">
+        <xs:choice>
+            <xs:element ref="point">
+                
+            </xs:element>
+            <xs:element ref="multiPoint">
+                
+            </xs:element>
+            <xs:group ref="curves">
+                
+            </xs:group>
+            <xs:element ref="surface">
+                
+            </xs:element>
+        </xs:choice>
+    </xs:group>
+    
+</xs:schema>

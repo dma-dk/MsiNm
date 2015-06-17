@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+    xmlns:s100="http://www.iho.int/s100gml"
+    xmlns:gml="http://www.opengis.net/gml/3.2" 
+    xmlns="http://jeppesen.com/KRSeaTrial"
+    targetNamespace="http://jeppesen.com/KRSeaTrial" elementFormDefault="qualified" version="0.2">
+    <xs:annotation>
+        <xs:documentation>GML application schema for S Korea sea trial MSI
+            January 2014    Initial Draft  Raphael Malyankar (Jeppesen)
+            February 2014   Metadata updated, uses S-101-style complex attributes for name, information, and textual description,
+                            extra node DatasetmetadataProperty removed
+            June 2015   	Model refactored according to KRISO-Jeppensen-DMA discussions. Metadata omitted for now...
+        </xs:documentation>
+    </xs:annotation>
+    <xs:import namespace="http://www.iho.int/s100gml" schemaLocation="S100GMLProfileTSMAD27/s100gmlbase.xsd"/><!-- change schemaLocation for local installation -->
+    <xs:import namespace="http://www.opengis.net/gml/3.2" schemaLocation="S100GMLProfileTSMAD27/S100_gmlProfile.xsd"/><!-- change schemaLocation for local installation -->
+
+    <!-- Abstract types for feature and information objects -->
+    <xs:complexType name="S100_FeatureType" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="s100:AbstractFeatureType">
+                <xs:sequence>
+                    <!-- no additional content -->
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+	
+    <xs:complexType name="S100_InformationType" abstract="true">
+        <xs:complexContent>
+            <xs:extension base="s100:AbstractInformationType">
+                <xs:sequence>
+                    <!-- no additional content -->
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+	
+    <xs:complexType name="AbstractNoticeType" abstract="true">
+        <xs:annotation><xs:documentation>Abstract type for feature notice (notices with associated geometry)</xs:documentation></xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="S100_FeatureType">
+                <xs:sequence>
+                    <xs:element name="noticeIdentifier" type="noticeIdentifierType"><xs:annotation><xs:documentation>Notice identifier - message series identifier, year, type, authority</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="generalArea" type="xs:string"><xs:annotation><xs:documentation>The general area</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="locality" type="xs:string"><xs:annotation><xs:documentation>The locality of the notice</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="restriction" type="restrictionType" minOccurs="0"><xs:annotation><xs:documentation>Type of restriction</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="keySubject" type="xs:string" minOccurs="0" maxOccurs="1"><xs:annotation><xs:documentation>The key subject of the notice</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="generalCategory" type="generalCategoryType" minOccurs="0"><xs:annotation><xs:documentation>category of notice</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="sourceDate" type="xs:dateTime"><xs:annotation><xs:documentation>date and time of notice</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="information" type="information" minOccurs="1" maxOccurs="unbounded"><xs:annotation><xs:documentation>Amplifying remarks or other text</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="graphic" type="graphicType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>Name and information about graphic files included in the notice, if any</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="fixedDateRange" type="fixedDateRangeType" minOccurs="0"><xs:annotation><xs:documentation>If known, the effective date/time, cancellation date/time, or effective period</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="periodicDateRange" type="periodicDateRangeType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>If known, the effective date/time, cancellation date/time, or effective period</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="affectedCharts" type="affectedChartType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>charts affected</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="horizontalDatum" type="xs:string" minOccurs="0"><xs:annotation><xs:documentation>horizontal datum</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="listOfLightNumbers" type="xs:string" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>List of affected lights</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="noticeReferences" type="ReferenceType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>Referenced notices</xs:documentation></xs:annotation></xs:element>
+                    <xs:choice>
+                        <xs:element ref="s100:pointProperty"><xs:annotation><xs:documentation>Point geometry</xs:documentation></xs:annotation></xs:element>
+                        <xs:element ref="s100:curveProperty"><xs:annotation><xs:documentation>Curve geometry</xs:documentation></xs:annotation></xs:element>
+                        <xs:element ref="s100:surfaceProperty"><xs:annotation><xs:documentation>Area geometry</xs:documentation></xs:annotation></xs:element>
+                        <!-- composite curves not needed for MSI -->
+                    </xs:choice>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+    
+    <xs:complexType name="AbstractinformationNoticeType" abstract="true">
+        <xs:annotation><xs:documentation>Abstract type for information notice classes</xs:documentation></xs:annotation>
+        <!-- Defined for consistency of schema structure with feature types; as of 01/2014 this type definition has only one concrete sub-type -->
+        <xs:complexContent>
+            <xs:extension base="S100_InformationType">
+                <xs:sequence>
+                    <xs:element name="noticeIdentifier" type="noticeIdentifierType"><xs:annotation><xs:documentation>Notice identifier - message series identifier, year, type, authority</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="generalArea" type="xs:string"><xs:annotation><xs:documentation>The general area</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="locality" type="xs:string"><xs:annotation><xs:documentation>The locality of the notice</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="keySubject" type="xs:string" minOccurs="0" maxOccurs="1"><xs:annotation><xs:documentation>The key subject of the notice</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="sourceDate" type="xs:dateTime"><xs:annotation><xs:documentation>date and time of notice</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="information" type="information" minOccurs="1" maxOccurs="unbounded"><xs:annotation><xs:documentation>Amplifying remarks or other text</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="graphic" type="graphicType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>Name and information about graphic files included in the notice, if any</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="fixedDateRange" type="fixedDateRangeType" minOccurs="0"><xs:annotation><xs:documentation>If known, the effective date/time, cancellation date/time, or effective period</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="periodicDateRange" type="periodicDateRangeType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>If known, the effective date/time, cancellation date/time, or effective period</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="noticeReferences" type="ReferenceType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>Referenced notices</xs:documentation></xs:annotation></xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+	
+    <!-- =============================== -->
+    <!-- Types for enumerated attributes -->
+    <!-- =============================== -->
+
+    <xs:simpleType name="mainType">
+        <xs:annotation><xs:documentation>The main notice type</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="nm"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="msi"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="typeOfNoticeType">
+        <xs:annotation><xs:documentation>The type of navigational warning</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="local"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="coastal"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="sub-area"><xs:annotation><xs:appinfo>3</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="NAVAREA"><xs:annotation><xs:appinfo>4</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="no warnings"><xs:annotation><xs:appinfo>5</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="typeOfNoticeToMarinersType">
+        <xs:annotation><xs:documentation>The type of notice to mariner</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="permanent"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="temporary"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="preliminary"><xs:annotation><xs:appinfo>3</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="miscellaneous"><xs:annotation><xs:appinfo>4</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="referenceType">
+        <xs:annotation><xs:documentation>The type of reference</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="cancellation"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="source reference"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="repetition"><xs:annotation><xs:appinfo>3</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="update"><xs:annotation><xs:appinfo>4</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- TODO: This should be an "open enumeration"... -->
+    <xs:simpleType name="generalCategoryType">
+        <xs:annotation><xs:documentation>The general category of MSI, from IHO S-53</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="aids to navigation"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="dangerous wreck"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="unwieldy tow"><xs:annotation><xs:appinfo>3</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="drifting hazard"><xs:annotation><xs:appinfo>4</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="SAR and anti pollution operations"><xs:annotation><xs:appinfo>5</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="newly discovered dangers"><xs:annotation><xs:appinfo>6</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="route alterations or suspensions"><xs:annotation><xs:appinfo>7</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="underwater operations"><xs:annotation><xs:appinfo>8</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="pipe or cable laying operations"><xs:annotation><xs:appinfo>9</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="seismic surveys"><xs:annotation><xs:appinfo>10</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="research or scientific operations"><xs:annotation><xs:appinfo>11</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="offshore structures"><xs:annotation><xs:appinfo>12</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="radio navigation services"><xs:annotation><xs:appinfo>13</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="special operations"><xs:annotation><xs:appinfo>14</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="operating anomalies identified within ECDIS including ENC issues"><xs:annotation><xs:appinfo>15</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="piracy"><xs:annotation><xs:appinfo>16</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="tsunamis and other natural phenomena"><xs:annotation><xs:appinfo>17</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="World Health Organization (WHO) health advisory information"><xs:annotation><xs:appinfo>18</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="security-related requirements"><xs:annotation><xs:appinfo>19</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="other"><xs:annotation><xs:appinfo>20</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="ISO-639-3">
+        <xs:annotation>
+            <xs:documentation>subset of ISO 639-3 language codes</xs:documentation>
+        </xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="kor"><xs:annotation><xs:documentation>Korean</xs:documentation></xs:annotation></xs:enumeration>
+            <xs:enumeration value="eng"><xs:annotation><xs:documentation>English</xs:documentation></xs:annotation></xs:enumeration>
+            <xs:enumeration value="dan"><xs:annotation><xs:documentation>Danish</xs:documentation></xs:annotation></xs:enumeration>
+            <xs:enumeration value="mis"><xs:annotation><xs:documentation>uncoded languages</xs:documentation></xs:annotation></xs:enumeration>
+            <xs:enumeration value="mul"><xs:annotation><xs:documentation>multiple languages</xs:documentation></xs:annotation></xs:enumeration>
+            <xs:enumeration value="und"><xs:annotation><xs:documentation>undetermined languages</xs:documentation></xs:annotation></xs:enumeration>
+            <xs:enumeration value="zxx"><xs:annotation><xs:documentation>no linguistic content/not applicable</xs:documentation></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="restrictionType">
+        <xs:annotation><xs:documentation>The type of restriction. May drive portrayal of boarder.</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="entry restricted"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="entry prohibited"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="area to be avoided"><xs:annotation><xs:appinfo>3</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="stopping prohibited"><xs:annotation><xs:appinfo>4</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="speed restricted"><xs:annotation><xs:appinfo>5</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="categoryOfAuthorityType">
+        <xs:annotation><xs:documentation>The category of authority used in source indication.</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="customs"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="border control"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="police"><xs:annotation><xs:appinfo>3</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="port"><xs:annotation><xs:appinfo>4</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="immigration"><xs:annotation><xs:appinfo>5</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="health"><xs:annotation><xs:appinfo>6</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="coast guard"><xs:annotation><xs:appinfo>7</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="agricultural"><xs:annotation><xs:appinfo>8</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="military"><xs:annotation><xs:appinfo>9</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="private company"><xs:annotation><xs:appinfo>10</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="maritime police"><xs:annotation><xs:appinfo>11</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="environmental"><xs:annotation><xs:appinfo>12</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="fishery"><xs:annotation><xs:appinfo>13</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="finance"><xs:annotation><xs:appinfo>14</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="maritime"><xs:annotation><xs:appinfo>15</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <xs:simpleType name="sourceType">
+        <xs:annotation><xs:documentation>The source type.</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="international law"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="publication issued by international organisation"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="national law or regulation"><xs:annotation><xs:appinfo>3</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="publication issued by a national administration"><xs:annotation><xs:appinfo>4</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="local law or regulation"><xs:annotation><xs:appinfo>5</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="publication issued by a local administration"><xs:annotation><xs:appinfo>6</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="mariner report, confirmed"><xs:annotation><xs:appinfo>7</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="mariner report, not confirmed"><xs:annotation><xs:appinfo>8</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="industry publication and reports"><xs:annotation><xs:appinfo>9</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="remotely sensed images"><xs:annotation><xs:appinfo>10</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="photographs"><xs:annotation><xs:appinfo>11</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="product issued by HO services"><xs:annotation><xs:appinfo>12</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="news media"><xs:annotation><xs:appinfo>13</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="traffic data"><xs:annotation><xs:appinfo>14</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- TODO: Should this be removed? -->
+    <xs:simpleType name="source">
+        <xs:annotation><xs:documentation>The type of source, from IHO S-53</xs:documentation></xs:annotation>
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="report"><xs:annotation><xs:appinfo>1</xs:appinfo></xs:annotation></xs:enumeration>
+            <xs:enumeration value="graphic"><xs:annotation><xs:appinfo>2</xs:appinfo></xs:annotation></xs:enumeration>
+        </xs:restriction>
+    </xs:simpleType>
+
+    <!-- =============================== -->
+    <!-- Types for Complex attribute     -->
+    <!-- =============================== -->
+
+    <xs:complexType name="noticeIdentifierType">
+        <xs:annotation><xs:documentation>Notice identifier</xs:documentation></xs:annotation>
+        <xs:sequence>
+            <xs:element name="noticeNumber" type="xs:positiveInteger"><xs:annotation><xs:documentation>Notice number</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="year" type="xs:positiveInteger"><xs:annotation><xs:documentation>year of notice</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="producingAgency" type="xs:string"><xs:annotation><xs:documentation>Agency producing notice</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="mainType" type="mainType"><xs:annotation><xs:documentation>Main type of notice, i.e. NM or MSI</xs:documentation></xs:annotation></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+	
+    <xs:complexType name="graphicType">
+        <xs:annotation><xs:documentation>Graphic attachments such as chart blocks, photographs, etc.</xs:documentation></xs:annotation>
+        <xs:sequence>
+            <xs:element name="pictorialRepresentation" type="xs:string"><xs:annotation><xs:documentation>name of graphic support file</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="pictureCaption" type="xs:string" minOccurs="0"><xs:annotation><xs:documentation>caption if any</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="sourceDate" type="xs:date" minOccurs="0"><xs:annotation><xs:documentation>date photograph taken, or graphic captured</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="pictureInformation" type="xs:string" minOccurs="0"><xs:annotation><xs:documentation>additional notes such as copyright</xs:documentation></xs:annotation></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+	
+    <xs:complexType name="sourceIndicationType">
+        <xs:annotation><xs:documentation>source indication</xs:documentation></xs:annotation>
+        <xs:sequence>
+            <xs:element name="categoryOfAuthority" type="categoryOfAuthorityType" minOccurs="0"><xs:annotation><xs:documentation>Type of authority</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="country" type="xs:string" minOccurs="0"><xs:annotation><xs:documentation>country</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="source" type="xs:string" minOccurs="0"><xs:annotation><xs:documentation>A firsthand document or primary reference work.</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="reportDate" type="xs:date" minOccurs="0"><xs:annotation><xs:documentation>Reported date</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="sourceType" type="sourceIndicationType" minOccurs="0"><xs:annotation><xs:documentation>Source type</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="featureName" type="featureNameType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>Feature names</xs:documentation></xs:annotation></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="featureNameType">
+        <xs:annotation> <xs:documentation>The individual name of an object and the language in which it is provided</xs:documentation> </xs:annotation>
+        <xs:sequence>
+            <xs:element name="displayName" type="xs:boolean" minOccurs="0"> <xs:annotation> <xs:documentation>1 = this is the preferred version of the name to display</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="language" type="ISO-639-3" minOccurs="0"><xs:annotation> <xs:documentation>ISO language codes</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="name" type="xs:string"><xs:annotation> <xs:documentation>the name in the corresponding language</xs:documentation> </xs:annotation></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="affectedChartType">
+        <xs:annotation><xs:documentation>Sea chart type</xs:documentation></xs:annotation>
+        <xs:sequence>
+            <xs:element name="chartAffected" type="xs:string" minOccurs="0"><xs:annotation><xs:documentation>The regional chart number</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="internationalChartAffected" type="xs:positiveInteger" minOccurs="0"><xs:annotation><xs:documentation>The international chart number</xs:documentation></xs:annotation></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="fixedDateRangeType">
+        <xs:annotation><xs:documentation>date/time information</xs:documentation></xs:annotation>
+        <xs:sequence>
+            <xs:element name="dateStart" type="xs:dateTime" minOccurs="0" maxOccurs="1"><xs:annotation><xs:documentation>start date</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="dateEnd" type="xs:dateTime" minOccurs="0" maxOccurs="1"><xs:annotation><xs:documentation>end date</xs:documentation></xs:annotation></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="periodicDateRangeType">
+        <xs:annotation><xs:documentation>date/time information</xs:documentation></xs:annotation>
+        <xs:sequence>
+            <xs:element name="dateStart" type="xs:dateTime" minOccurs="0" maxOccurs="1"><xs:annotation><xs:documentation>start date</xs:documentation></xs:annotation></xs:element>
+            <xs:element name="dateEnd" type="xs:dateTime" minOccurs="0" maxOccurs="1"><xs:annotation><xs:documentation>end date</xs:documentation></xs:annotation></xs:element>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:complexType name="information">
+        <xs:annotation> <xs:documentation>Inline text information about an object and the language in which it is written</xs:documentation> </xs:annotation>
+        <xs:sequence>
+            <xs:element name="text" type="xs:string"> <xs:annotation> <xs:appinfo/> <xs:documentation>information content</xs:documentation> </xs:annotation> </xs:element>
+            <xs:element name="language" type="ISO-639-3" minOccurs="0"> <xs:annotation> <xs:documentation>ISO language codes</xs:documentation> </xs:annotation> </xs:element>
+        </xs:sequence>
+    </xs:complexType>
+	
+    <!-- =============================== -->
+    <!-- Feature Types                   -->
+    <!-- =============================== -->
+
+    <xs:complexType name="NavigationalWarningType">
+        <xs:annotation><xs:documentation>Navigational Warning (MSI)</xs:documentation></xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="AbstractNoticeType">
+                <xs:sequence>
+                    <xs:element name="typeOfNotice" type="typeOfNoticeType"><xs:annotation><xs:documentation>type of navigational warning</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="navigationalArea" type="xs:string" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>The navigational area</xs:documentation></xs:annotation></xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+	
+    <xs:complexType name="PortMarineNoticeType">
+        <xs:annotation><xs:documentation>Port marine notices</xs:documentation></xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="NavigationalWarningType">
+                <xs:sequence>
+                    <xs:element name="berthName" type="xs:string" minOccurs="0" maxOccurs="1"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="NoticeToMarinersType">
+        <xs:annotation><xs:documentation>Notice to Mariners (NM)</xs:documentation></xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="AbstractNoticeType">
+                <xs:sequence>
+                    <xs:element name="typeOfNoticeToMariners" type="typeOfNoticeToMarinersType"><xs:annotation><xs:documentation>type of notice to mariners</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="originalInformation" type="xs:boolean" minOccurs="0"> <xs:annotation> <xs:documentation>1 = this is based on original information</xs:documentation></xs:annotation></xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <!-- =============================== -->
+    <!-- Information Types               -->
+    <!-- =============================== -->
+
+    <xs:complexType name="InformationNoticeType">
+        <xs:annotation><xs:documentation>Information notices are notices not associated with a specified geometry</xs:documentation></xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="AbstractinformationNoticeType">
+                <xs:sequence>
+                    <xs:element name="typeOfNotice" type="typeOfNoticeType"><xs:annotation><xs:documentation>type of navigational warning</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="navigationalArea" type="xs:string" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>The navigational area</xs:documentation></xs:annotation></xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+    <xs:complexType name="ReferenceType">
+        <xs:annotation><xs:documentation>A reference to another notice</xs:documentation></xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="S100_InformationType">
+                <xs:sequence>
+                    <xs:element name="referenceType" type="referenceType"><xs:annotation><xs:documentation>The type of reference</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="noticeIdentifier" type="noticeIdentifierType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>Notice identifier - message series identifier, year, type, agency</xs:documentation></xs:annotation></xs:element>
+                    <xs:element name="sourceIndication" type="sourceIndicationType" minOccurs="0" maxOccurs="unbounded"><xs:annotation><xs:documentation>Information about the source if any.</xs:documentation></xs:annotation></xs:element>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+
+
+    <!-- =============================== -->
+    <!-- Feature and Information elements -->
+    <!-- =============================== -->
+
+    <xs:element name="NavigationalWarning" type="NavigationalWarningType"><xs:annotation><xs:documentation>Navigational warning</xs:documentation></xs:annotation></xs:element>
+	
+    <xs:element name="PortMarineNotice" type="PortMarineNoticeType"><xs:annotation><xs:documentation>Port marine Notice element</xs:documentation></xs:annotation></xs:element>
+
+    <xs:element name="NoticeToMariners" type="NoticeToMarinersType"><xs:annotation><xs:documentation>Notice to mariners</xs:documentation></xs:annotation></xs:element>
+
+    <xs:element name="InformationNotice" type="InformationNoticeType"><xs:annotation><xs:documentation>Information Notice element</xs:documentation></xs:annotation></xs:element>
+
+    <!-- =============================== -->
+    <!-- Dataset structure               -->
+    <!-- =============================== -->
+
+    <xs:group name="InformationTypes">
+        <xs:choice>
+            <xs:element ref="InformationNotice">
+            </xs:element>
+        </xs:choice>
+    </xs:group>
+    
+    <xs:group name="Features">
+        <xs:choice>
+            <xs:element ref="NavigationalWarning"/>
+            <xs:element ref="PortMarineNotice"/>
+            <xs:element ref="NoticeToMariners"/>
+        </xs:choice>
+    </xs:group>
+    
+    <xs:complexType name="NoticeBatchType">
+        <xs:annotation><xs:documentation>A collection of notices, equivalent to an S-57 of S-101 base data set. A dataset has a dataset metadata element, information notices, and notice features. Separate spatial objects are not allowed, geometry (coordinates) must be encoded inline in the notice.</xs:documentation></xs:annotation>
+        <xs:complexContent>
+            <xs:extension base="gml:AbstractFeatureType">
+                <xs:sequence>
+                    <xs:group ref="InformationTypes" maxOccurs="unbounded" minOccurs="0"/>
+                    <xs:group ref="Features" maxOccurs="unbounded" minOccurs="0"/>
+                </xs:sequence>
+            </xs:extension>
+        </xs:complexContent>
+    </xs:complexType>
+	
+    <xs:element name="NoticeBatch" type="NoticeBatchType">
+        <xs:annotation><xs:documentation>A set of notices. Analogous to the notion of a dataset as a collection of features.</xs:documentation></xs:annotation>
+    </xs:element>
+
+</xs:schema>
