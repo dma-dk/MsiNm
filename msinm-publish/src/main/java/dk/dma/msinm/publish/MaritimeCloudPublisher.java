@@ -139,7 +139,7 @@ public class MaritimeCloudPublisher extends Publisher {
     public void closeConnection() {
         try {
             if (connected()) {
-                mmsClient.close();
+                mmsClient.shutdown();
                 mmsClient.awaitTermination(2, TimeUnit.SECONDS);
                 mmsClient = null;
                 log.info("Closed cloud mmsClient");

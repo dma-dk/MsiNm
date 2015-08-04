@@ -1,5 +1,5 @@
 target/
-wildfly-*
+wildfly-9*
 .settings
 .project
 .classpath

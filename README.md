@@ -5,7 +5,7 @@ A demonstration site for managing and publishing MSI and NM messages.
 ## Prerequisites
 * Java JDK 1.8
 * Maven 3.x
-* JBoss Wildfly 8.1.0.Final or later
+* JBoss Wildfly 9.0.1.Final or later
 * MySQL
 
 ## Initial setup
@@ -20,12 +20,11 @@ Alternatively, in the root of MsiNm, run:
 ### JBoss Wildfly
 Install and configure the Wildfly application server by running:
 
-    ./install-widlfly.sh
-    ./configure-widlfly.sh
+    ./wildfly-conf/install-widlfly.sh
 
 You can now run the Wildfly app server using:
 
-    ./wildfly-8.1.0.Final/bin/standalone.sh
+    ./wildfly-9.0.1.Final/bin/standalone.sh
 
 
 ## Deploying to Wildfly
@@ -42,11 +41,11 @@ You can now access the web application on: http://localhost:8080/
 
 Configure management user
 
-    ./wildfly-8.1.0.Final/bin/add-user.sh 
+    ./wildfly-9.0.1.Final/bin/add-user.sh 
     
 Make wildfly listen on public interfaces
 
-    ./wildfly-8.1.0.Final/bin/standalone.sh -b=0.0.0.0 -bmanagement=0.0.0.0
+    ./wildfly-9.0.1.Final/bin/standalone.sh -b=0.0.0.0 -bmanagement=0.0.0.0
     
 To deploy
 

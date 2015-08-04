@@ -20,7 +20,7 @@ import javax.inject.Inject;
 public class MsiNmTileCache extends BaseCache {
 
     final static long LIFESPAN = 6 * 60 * 60 * 1000;    // 6 hours
-    final static int MAX_ENTRIES = 100000;              // at most 100.000 URL's
+    final static long MAX_ENTRIES = 100000;              // at most 100.000 URL's
 
     final static String CACHE_ID = "msiNmTileCache";
 

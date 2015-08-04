@@ -1,0 +1,84 @@
+# Use the Wildfly CLI to update the configuration.
+# Please refer to:
+# https://docs.jboss.org/author/display/AS71/CLI+Recipes
+
+# Start offline server
+embed-server --std-out=echo
+
+# Add mysql module
+module add \
+  --name=com.mysql \
+  --resources=mysql-connector-java-5.1.36-bin.jar \
+  --dependencies=javax.api,javax.transaction.api
+
+# Add mysql driver
+/subsystem=datasources/jdbc-driver=mysql:add(driver-name=mysql,driver-module-name=com.mysql,driver-class-name=com.mysql.jdbc.Driver)
+
+# Add data source
+data-source add \
+  --name=msiDS \
+  --jndi-name=java:jboss/datasources/msiDS \
+  --driver-name=mysql \
+  --connection-url=jdbc:mysql://localhost:3306/msi \
+  --user-name=msi \
+  --password=msi \
+  --transaction-isolation=TRANSACTION_READ_COMMITTED \
+  --min-pool-size=10 \
+  --max-pool-size=200 \
+  --prepared-statements-cache-size=100 \
+  --share-prepared-statements=true
+
+# Set-up mail
+# See http://www.nailedtothex.org/roller/kyle/entry/articles-wildfly-javamail
+/socket-binding-group=standard-sockets/remote-destination-outbound-socket-binding=MyMailSMTP:add(host=homer.e-navigation.net, port=25)
+/subsystem=mail/mail-session=MyMail:add(jndi-name="java:jboss/mail/MsiNm", from="msinm.dma@gmail.com", debug=false)
+/subsystem=mail/mail-session=MyMail/server=smtp:add(outbound-socket-binding-ref=MyMailSMTP)
+
+# Configure login-module
+/subsystem=security/security-domain=msinm-policy/:add(cache-type=default)
+/subsystem=security/security-domain=msinm-policy/authentication=classic:add(login-modules=[{"code"=>"dk.dma.msinm.user.security.JbossLoginModule", "flag"=>"required" }])
+
+# Add JMS sub-system support
+# See http://stackoverflow.com/questions/24921640/how-to-set-up-messaging-subsystem-using-cli-in-wildfly
+/extension=org.jboss.as.messaging:add()
+batch
+/subsystem=messaging:add
+/subsystem=messaging/hornetq-server=default:add
+/subsystem=messaging/hornetq-server=default/:write-attribute(name=journal-file-size, value=102400L)
+/subsystem=messaging/hornetq-server=default/address-setting=#:add(address-full-policy="PAGE", \
+    dead-letter-address="jms.queue.DLQ", expiry-address="jms.queue.ExpiryQueue", expiry-delay=-1L, \
+    last-value-queue=false, max-delivery-attempts=10, max-size-bytes=10485760L, message-counter-history-day-limit=10, \
+    page-max-cache-size=5, page-size-bytes=2097152L, redelivery-delay=0L, redistribution-delay=-1L, send-to-dla-on-no-route=false)
+
+/subsystem=messaging/hornetq-server=default/in-vm-connector=in-vm:add(server-id=0)
+/subsystem=messaging/hornetq-server=default/in-vm-acceptor=in-vm:add(server-id=0)
+
+/subsystem=messaging/hornetq-server=default/http-connector=http-connector:add(socket-binding="http", param={http-upgrade-endpoint="http-acceptor"})
+/subsystem=messaging/hornetq-server=default/http-connector=http-connector-throughput:add(socket-binding="http", param={http-upgrade-endpoint="http-acceptor-throughput", batch-delay=50})
+/subsystem=messaging/hornetq-server=default/http-acceptor=http-acceptor:add(http-listener="default")
+/subsystem=messaging/hornetq-server=default/http-acceptor=http-acceptor-throughput:add(http-listener="default", param={batch-delay=50, direct-deliver=false})
+
+/subsystem=messaging/hornetq-server=default/connection-factory=InVmConnectionFactory:add(connector={"in-vm"=>undefined}, entries = ["java:/ConnectionFactory"])
+/subsystem=messaging/hornetq-server=default/connection-factory=RemoteConnectionFactory:add(connector={"http-connector"=>undefined}, entries = ["java:jboss/exported/jms/RemoteConnectionFactory"])
+
+/subsystem=messaging/hornetq-server=default/pooled-connection-factory=hornetq-ra:add(connector={"in-vm"=>undefined}, entries=["java:/JmsXA","java:jboss/DefaultJMSConnectionFactory"])
+/subsystem=messaging/hornetq-server=default/security-setting=#:add()
+/subsystem=messaging/hornetq-server=default/security-setting=#/role=guest:add(consume=true, create-durable-queue=false, create-non-durable-queue=true, delete-durable-queue=false, delete-non-durable-queue=true, manage=false, send=true)
+
+jms-queue add --queue-address=ExpiryQueue --durable=true --entries=["java:/jms/queue/ExpiryQueue"]
+jms-queue add --queue-address=DLQ --durable=true --entries=["java:/jms/queue/DLQ"]
+run-batch
+
+# Add MSI-NM specific queues and topics
+jms-queue add --queue-address=mailQueue --entries=queue/mail
+jms-topic add --topic-address=cacheTopic --entries=topic/cache
+jms-topic add --topic-address=messageTopic --entries=java:/jms/topic/messageTopic
+
+# Add the mdb resource adapter
+/subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
+/subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="${ejb.resource-adapter-name:hornetq-ra.rar}")
+
+
+# Reload and stop offline server
+reload --admin-only=false
+stop-embedded-server

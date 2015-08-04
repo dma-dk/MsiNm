@@ -16,7 +16,6 @@
 package dk.dma.msinm.user.security;
 
 import dk.dma.msinm.common.cache.BaseCache;
-import dk.dma.msinm.common.cache.CacheElement;
 import org.infinispan.Cache;
 import org.infinispan.configuration.cache.CacheMode;
 import org.infinispan.configuration.cache.Configuration;

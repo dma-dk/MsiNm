@@ -18,8 +18,8 @@ package dk.dma.msinm.common.cache;
 import org.infinispan.configuration.cache.Configuration;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.GlobalConfigurationBuilder;
-import org.infinispan.manager.CacheContainer;
 import org.infinispan.manager.DefaultCacheManager;
+import org.infinispan.manager.EmbeddedCacheManager;
 import org.slf4j.Logger;
 
 import javax.annotation.PostConstruct;
@@ -34,7 +34,7 @@ public abstract class BaseCache {
     @Inject
     private Logger log;
 
-    protected CacheContainer cacheContainer;
+    protected EmbeddedCacheManager cacheContainer;
 
     /**
      * Starts the cache container
@@ -44,6 +44,7 @@ public abstract class BaseCache {
         if (cacheContainer == null) {
             GlobalConfiguration globalConfiguration = new GlobalConfigurationBuilder()
                     .nonClusteredDefault() //Helper method that gets you a default constructed GlobalConfiguration, preconfigured for use in LOCAL mode
+                    .globalJmxStatistics().allowDuplicateDomains(true)
                     .build(); //Builds  the GlobalConfiguration object
             Configuration localConfiguration = createCacheConfiguration();
             cacheContainer = new DefaultCacheManager(globalConfiguration, localConfiguration, true);
