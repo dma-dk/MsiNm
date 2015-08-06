@@ -1,0 +1,16 @@
+
+# Customized version of the adapter-install.cli script that is part of the keycloak installation.
+# This version works on the embedded server, and so, does not require wildfly to be running
+
+# Start offline server
+embed-server --std-out=echo
+
+/subsystem=security/security-domain=keycloak/:add
+/subsystem=security/security-domain=keycloak/authentication=classic/:add(login-modules=[{ "code" => "org.keycloak.adapters.jboss.KeycloakLoginModule","flag" => "required"}])
+/extension=org.keycloak.keycloak-adapter-subsystem/:add(module=org.keycloak.keycloak-adapter-subsystem)
+/subsystem=keycloak:add
+
+# Reload and stop offline server
+reload --admin-only=false
+stop-embedded-server
+

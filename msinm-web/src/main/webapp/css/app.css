@@ -159,6 +159,10 @@ input.ng-invalid-messageId {
     background-color: #eeeeee!important;
 }
 
+.oauth-btn {
+    margin-right: 5px;
+}
+
 .btn-file {
     position: relative;
     overflow: hidden;

@@ -69,6 +69,10 @@ angular.module('msinm.user')
                 });
         };
 
+        $scope.oauthNavigate = function (path) {
+            window.location.href = path;
+        };
+
         $scope.registerDlg = function() {
             // Require IE 11 or newer
             if (isIE() < 11) {

@@ -26,4 +26,8 @@ chmod +x $WILDFLY_PATH/bin/*.sh
 $WILDFLY_PATH/bin/jboss-cli.sh --file=configure-wildfly.txt
 $WILDFLY_PATH/bin/add-user.sh ci "$PWD" --silent
 
+echo "Install and configure keycloak adapter"
+unzip keycloak-wf9-adapter-dist-1.4.0.Final.zip -d $WILDFLY_PATH
+$WILDFLY_PATH/bin/jboss-cli.sh --file=keycloak-adapter-install.txt
+
 popd > /dev/null

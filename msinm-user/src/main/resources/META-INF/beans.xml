@@ -7,5 +7,6 @@
         bean-discovery-mode="all">
     <scan>
         <exclude name="org.slf4j.helpers.**" />
+        <exclude name="org.keycloak.**" />
     </scan>
 </beans>
