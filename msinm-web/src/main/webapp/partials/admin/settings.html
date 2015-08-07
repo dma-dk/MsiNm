@@ -29,7 +29,7 @@
                         </tr>
                         <tr ng-repeat="setting in settings">
                             <td>{{setting.key}}</td>
-                            <td>{{setting.value}}</td>
+                            <td>{{setting.value | truncate: 80}}</td>
                             <td><a href ng-click="editSetting(setting);" title="Edit Setting"><i class="glyphicon glyphicon-pencil"></i></a></td>
                         </tr>
                     </table>
