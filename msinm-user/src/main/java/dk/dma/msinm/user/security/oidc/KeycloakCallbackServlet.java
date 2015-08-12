@@ -23,10 +23,6 @@ import dk.dma.msinm.user.security.AuthCache;
 import dk.dma.msinm.user.security.JWTService;
 import dk.dma.msinm.user.security.JWTToken;
 import org.apache.commons.lang.StringUtils;
-import org.keycloak.OAuth2Constants;
-import org.keycloak.RSATokenVerifier;
-import org.keycloak.representations.AccessToken;
-import org.keycloak.representations.AccessTokenResponse;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -74,17 +70,21 @@ public class KeycloakCallbackServlet extends HttpServlet {
         Map<String, String[]> reqParams = request.getParameterMap();
 
         // Handle successful authentication
-        if (reqParams.containsKey(OAuth2Constants.CODE)) {
+        if (reqParams.containsKey("code")) {
             try {
+
+                AccessTokenData accessTokenData = keycloakService.getBearerToken(request, WebUtils.getWebAppUrl(request, "/oidc-callback"));
+                log.info("Extracted access token " + accessTokenData);
+
                 // Extract the access token
-                AccessTokenResponse accessTokenResponse = keycloakService.getKeycloakClient().getBearerToken(request);
-                AccessToken accessToken = RSATokenVerifier.verifyToken(
-                        accessTokenResponse.getToken(),
-                        keycloakService.getKeycloakDeployment().getRealmKey(),
-                        keycloakService.getKeycloakDeployment().getRealmInfoUrl());
+                //AccessTokenResponse accessTokenResponse = keycloakService.getKeycloakClient().getBearerToken(request);
+                //AccessToken accessToken = RSATokenVerifier.verifyToken(
+                //        accessTokenResponse.getToken(),
+                //        keycloakService.getKeycloakDeployment().getRealmKey(),
+                //        keycloakService.getKeycloakDeployment().getRealmInfoUrl());
 
                 // Look up or create the authenticated user
-                User user = authenticateUser(accessToken);
+                User user = authenticateUser(accessTokenData);
 
                 // Create a new JWT token
                 JWTToken jwt = jwtService.createSignedJWT(getJwtIssuer(request), user);
@@ -102,9 +102,9 @@ public class KeycloakCallbackServlet extends HttpServlet {
                 throw new ServletException(e);
             }
 
-        } else if (reqParams.containsKey(OAuth2Constants.ERROR)) {
+        } else if (reqParams.containsKey("error")) {
             // Handle errors
-            String oauthError = reqParams.get(OAuth2Constants.ERROR)[0];
+            String oauthError = reqParams.get("error")[0];
             log.error("Failed Keycloak authentication: " + oauthError);
         }
 
@@ -118,14 +118,14 @@ public class KeycloakCallbackServlet extends HttpServlet {
      * @return the user
      * @throws Exception in case of an error
      */
-    private User authenticateUser(AccessToken accessToken) throws Exception {
+    private User authenticateUser(AccessTokenData accessToken) throws Exception {
         if (StringUtils.isBlank(accessToken.getEmail())) {
             throw new Exception("No email found in OAuth token");
         }
 
-        Set<String> roles = accessToken.getResourceAccess(accessToken.getIssuedFor()) != null
-                ? accessToken.getResourceAccess(accessToken.getIssuedFor()).getRoles()
-                : accessToken.getRealmAccess().getRoles();
+        Set<String> roles = accessToken.getResourceRoles().size() > 0
+                ? accessToken.getResourceRoles()
+                : accessToken.getRealmRoles();
         log.info("Logged in user " + accessToken.getEmail() + " with roles " + roles);
 
         // Look up or create the user

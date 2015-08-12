@@ -2,8 +2,10 @@
     <deployment>
         <dependencies>
             <module name="org.infinispan"/>
+            <!--
             <module name="org.apache.httpcomponents"/>
             <module name="org.keycloak.keycloak-servlet-oauth-client"/>
+            -->
         </dependencies>
     </deployment>
 </jboss-deployment-structure>

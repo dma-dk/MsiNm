@@ -15,6 +15,7 @@
  */
 package dk.dma.msinm.user.security.oidc;
 
+import dk.dma.msinm.common.util.WebUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
@@ -45,11 +46,12 @@ public class KeycloakLoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-        if (!keycloakService.isStated()) {
+        if (!keycloakService.isEnabled()) {
             throw new ServletException("Keycloak OpenID Connect service not properly configured");
         }
 
-        log.info("Keycloak login - redirecting to " + keycloakService.getKeycloakClient().getAuthUrl());
-        keycloakService.getKeycloakClient().redirectRelative("/oidc-callback", request, response);
+        //log.info("Keycloak login - redirecting to " + keycloakService.getKeycloakClient().getAuthUrl());
+        //keycloakService.getKeycloakClient().redirectRelative("/oidc-callback", request, response);
+        keycloakService.redirect(response, WebUtils.getWebAppUrl(request, "/oidc-callback"));
     }
 }
