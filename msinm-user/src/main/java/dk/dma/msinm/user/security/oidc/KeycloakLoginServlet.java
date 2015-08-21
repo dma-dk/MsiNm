@@ -55,7 +55,7 @@ public class KeycloakLoginServlet extends HttpServlet {
 
         log.info("OpenID Connect login called");
         OIDCUtils.nocache(response);
-        String callbackUrl = OIDCUtils.getUrl(request, "/oidc-callback");
+        String callbackUrl = keycloakService.getUrl(request, "/oidc-callback");
         keycloakService.getOidcClient().redirectToAuthServer(response, callbackUrl);
     }
 }

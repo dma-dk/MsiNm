@@ -29,6 +29,7 @@ import javax.ejb.Schedule;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
 import java.io.Reader;
 import java.io.StringReader;
 
@@ -42,6 +43,8 @@ import java.io.StringReader;
 @Startup
 @Lock(LockType.READ)
 public class KeycloakService {
+
+    private static final String HEADER_ORIGINAL_SCHEME = "originalScheme";
 
     private static final Setting KEYCLOAK_JSON = new DefaultSetting("keycloakJson", "");
 
@@ -102,4 +105,41 @@ public class KeycloakService {
         return oidcClient;
     }
 
+    /**
+     * Returns the base URL of the request
+     * <p/>
+     * When running HTTPS behind, say, an Apache web server which handles the SSL decoding,
+     * then request.getScheme() may still return "http".
+     * <p/>
+     * If, however, the port-443 VirtualHost is configured to set the header originalScheme=https,
+     * then function will ensure that https is used in relative redirects.
+     *
+     * <p>Example configuration:</p>
+     * <pre>
+     *     Header add originalScheme "https"
+     *     RequestHeader set originalScheme "https"
+     * </pre>
+     *
+     * @param request the request
+     * @param appends list of URI components to append
+     * @return the base URL + optional appends
+     */
+    public String getUrl(HttpServletRequest request, String... appends) {
+        String scheme = request.getScheme();
+
+        if ("https".equalsIgnoreCase(request.getHeader(HEADER_ORIGINAL_SCHEME))) {
+            scheme = "https";
+        }
+
+        String result = String.format(
+                "%s://%s%s%s",
+                scheme,
+                request.getServerName(),
+                request.getServerPort() == 80 || request.getServerPort() == 443 ? "" : ":" + request.getServerPort(),
+                request.getContextPath());
+        for (String a : appends) {
+            result = result + a;
+        }
+        return result;
+    }
 }
