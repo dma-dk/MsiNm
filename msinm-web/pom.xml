@@ -71,6 +71,18 @@
             <scope>provided</scope>
         </dependency>
 
+        <!-- OpenID Connect dependencies -->
+        <dependency>
+            <groupId>org.apache.httpcomponents</groupId>
+            <artifactId>httpclient</artifactId>
+            <version>4.5</version>
+        </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.5.1</version>
+        </dependency>
+
         <!-- Only used for executing jpa-ql in Intellij! -->
         <dependency>
             <groupId>org.hibernate</groupId>

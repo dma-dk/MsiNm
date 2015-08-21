@@ -8,7 +8,7 @@ angular.module('msinm.conf')
     .run(['$rootScope', '$translate', '$window', function ($rootScope, $translate, $window) {
 
         $rootScope.LEGACY_ADMIN_PAGE = true;
-        $rootScope.OAUTH_LOGINS = [ { url: '/oidc-login', name: 'Maritime ID', icon: 'fa fa-anchor' }, { url: '/oauth/login/google', name: 'Google', icon: 'fa fa-google' } ];
+        $rootScope.OAUTH_LOGINS = [ { url: '/oidc-login', name: 'Maritime ID', icon: 'fa fa-anchor' } ];
 
         // Map settings
         $rootScope.DEFAULT_ZOOM_LEVEL = 6;

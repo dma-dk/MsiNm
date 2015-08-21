@@ -15,6 +15,7 @@
     <properties>
         <lucene.version>4.7.2</lucene.version>
         <keycloak.version>1.4.0.Final</keycloak.version>
+        <version.mc-idreg>0.1-SNAPSHOT</version.mc-idreg>
     </properties>
 
     <dependencies>
@@ -31,38 +32,19 @@
             <scope>provided</scope>
         </dependency>
 
-        <!-- OAuth and JWT support -->
+        <!-- JWT support -->
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
             <version>2.25</version>
         </dependency>
-        <dependency>
-            <groupId>org.scribe</groupId>
-            <artifactId>scribe</artifactId>
-            <version>1.3.5</version>
-        </dependency>
 
-        <!--
+        <!-- OpenID Connect Support -->
         <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-core</artifactId>
-            <version>${keycloak.version}</version>
-            <scope>provided</scope>
+            <groupId>net.maritimecloud.idreg</groupId>
+            <artifactId>mc-idreg-client</artifactId>
+            <version>${version.mc-idreg}</version>
         </dependency>
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-adapter-core</artifactId>
-            <version>${keycloak.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.keycloak</groupId>
-            <artifactId>keycloak-servlet-oauth-client</artifactId>
-            <version>${keycloak.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        -->
 
         <!-- test -->
         <dependency>

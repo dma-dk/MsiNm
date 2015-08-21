@@ -22,6 +22,9 @@ import dk.dma.msinm.user.UserService;
 import dk.dma.msinm.user.security.AuthCache;
 import dk.dma.msinm.user.security.JWTService;
 import dk.dma.msinm.user.security.JWTToken;
+import net.maritimecloud.idreg.client.AccessTokenData;
+import net.maritimecloud.idreg.client.AuthErrorException;
+import net.maritimecloud.idreg.client.OIDCUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 
@@ -32,7 +35,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -67,47 +69,40 @@ public class KeycloakCallbackServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-        Map<String, String[]> reqParams = request.getParameterMap();
-
-        // Handle successful authentication
-        if (reqParams.containsKey("code")) {
-            try {
-
-                AccessTokenData accessTokenData = keycloakService.getBearerToken(request, WebUtils.getWebAppUrl(request, "/oidc-callback"));
-                log.info("Extracted access token " + accessTokenData);
-
-                // Extract the access token
-                //AccessTokenResponse accessTokenResponse = keycloakService.getKeycloakClient().getBearerToken(request);
-                //AccessToken accessToken = RSATokenVerifier.verifyToken(
-                //        accessTokenResponse.getToken(),
-                //        keycloakService.getKeycloakDeployment().getRealmKey(),
-                //        keycloakService.getKeycloakDeployment().getRealmInfoUrl());
-
-                // Look up or create the authenticated user
-                User user = authenticateUser(accessTokenData);
-
-                // Create a new JWT token
-                JWTToken jwt = jwtService.createSignedJWT(getJwtIssuer(request), user);
-                String token = jwtService.createTempJwtPwdToken(AuthCache.AUTH_TOKEN_PREFIX);
-
-                // Cache it for at most 1 minute in the auth cache
-                authCache.getCache().put(token, jwt);
-                log.info("Setting auth token " + token + " to jwt token " + jwt);
-
-                // Redirect to the auth token landing page, which will use the token to authenticate
-                WebUtils.nocache(response).sendRedirect("/index.html#/auth/" + token);
-                return;
-
-            } catch (Exception e) {
-                throw new ServletException(e);
-            }
-
-        } else if (reqParams.containsKey("error")) {
-            // Handle errors
-            String oauthError = reqParams.get("error")[0];
-            log.error("Failed Keycloak authentication: " + oauthError);
+        // Check if the service is enabled
+        if (!keycloakService.isEnabled()) {
+            log.warn("The OpenID Connect service is not enabled");
+            response.sendRedirect("/");
+            return;
         }
 
+        log.info("OpenID Connect callback called");
+        try {
+            OIDCUtils.nocache(response);
+            String callbackUrl = OIDCUtils.getUrl(request, "/oidc-callback");
+            AccessTokenData accessTokenData = keycloakService.getOidcClient().handleAuthServerCallback(request, callbackUrl);
+            log.info("OpenID Connect authentication success: " + accessTokenData);
+
+            // Look up or create the authenticated user
+            User user = authenticateUser(accessTokenData);
+
+            // Create a new JWT token
+            JWTToken jwt = jwtService.createSignedJWT(getJwtIssuer(request), user);
+            String token = jwtService.createTempJwtPwdToken(AuthCache.AUTH_TOKEN_PREFIX);
+
+            // Cache it for at most 1 minute in the auth cache
+            authCache.getCache().put(token, jwt);
+            log.info("Setting auth token " + token + " to jwt token " + jwt);
+
+            // Redirect to the auth token landing page, which will use the token to authenticate
+            WebUtils.nocache(response).sendRedirect("/index.html#/auth/" + token);
+            return;
+
+        } catch (AuthErrorException e) {
+            log.error("OpenID Connect authentication error", e);
+        } catch (Exception e) {
+            log.error("Error logging in user", e);
+        }
         response.sendRedirect("/");
     }
 
