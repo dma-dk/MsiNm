@@ -78,6 +78,8 @@ jms-topic add --topic-address=messageTopic --entries=java:/jms/topic/messageTopi
 /subsystem=ejb3:write-attribute(name="default-mdb-instance-pool", value="mdb-strict-max-pool")
 /subsystem=ejb3:write-attribute(name="default-resource-adapter-name", value="${ejb.resource-adapter-name:hornetq-ra.rar}")
 
+# Add a default EE JMS connection factory
+/subsystem=ee/service=default-bindings:write-attribute(name="jms-connection-factory", value="java:jboss/DefaultJMSConnectionFactory")
 
 # Reload and stop offline server
 reload --admin-only=false
