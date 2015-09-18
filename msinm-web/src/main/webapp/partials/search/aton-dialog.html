@@ -1,0 +1,44 @@
+
+<div>
+    <div class="modal-header">
+        <button type="button" class="close" ng-click="$dismiss('aborted')">x</button>
+        <h2>Aid to Navigation</h2>
+    </div>
+
+    <div class="modal-body">
+
+        <form name="execute_form">
+
+            <div class="form-controls">
+
+                <dl class="dl-horizontal">
+                    <dt>ID</dt>
+                    <dd>{{aton.atonUid}}</dd>
+
+                    <dt>Name</dt>
+                    <dd>{{aton.name}}</dd>
+
+                    <dt>Description</dt>
+                    <dd>{{aton.description}}</dd>
+
+                    <dt>Code</dt>
+                    <dd>{{aton.code}}</dd>
+
+                    <dt>Position</dt>
+                    <dd>{{aton | lonlat}}</dd>
+                </dl>
+
+
+            </div>
+
+            <div class="form-group">
+                <div style="margin-top: 24px">
+                    <button class="btn btn-sm" ng-click="$dismiss('aborted')">Close</button>
+                    <button class="btn btn-primary btn-sm"
+                            style="float: right;" ng-click="$close(aton)">Add as location</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+

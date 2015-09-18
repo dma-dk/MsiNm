@@ -39,39 +39,6 @@ angular.module('msinm.map')
                 return messages;
             }
 
-            // OpenLayers will ensure that left < right, but then left may be less than -180
-            // and right > 180. The back-end spatial4j API cannot handle this.
-            // Furthermore, if left < 0 and right > 0, there can be problems.
-            // So, the bbox is sliced up to avoid problems...
-            function addBBoxToLocations(locations, b) {
-                if (b.left < -180) {
-                    addBBox(locations, { top: b.top, left: 360 + b.left, bottom: b.bottom, right: 180 });
-                    addBBox(locations, { top: b.top, left: -180, bottom: b.bottom, right: b.right });
-                } else if (b.right > 180) {
-                    addBBox(locations, { top: b.top, left: b.left, bottom: b.bottom, right: 180 });
-                    addBBox(locations, { top: b.top, left: -180, bottom: b.bottom, right: b.right - 360 });
-                } else {
-                    addBBox(locations, b);
-                }
-            }
-
-            // Add the bounds as a location polygon to the list of locations
-            // Cater with shortcomings of the back-end spatial4j API, which
-            // at times fails if left < 0 and right > 0 (takes the bounds from right to left instead)
-            function addBBox(locations, b) {
-                if (b.left < -0.00001 && b.right > 0.00001) {
-                    addBBox(locations, { top: b.top, left: b.left, bottom: b.bottom, right: 0 });
-                    addBBox(locations, { top: b.top, left: 0, bottom: b.bottom, right: b.right });
-                } else {
-                    var loc = { type: 'POLYGON', points: [], descs:[] };
-                    loc.points.push({ lat: b.top, lon: b.left, index: 1 });
-                    loc.points.push({ lat: b.top, lon: b.right, index: 2 });
-                    loc.points.push({ lat: b.bottom, lon: b.right, index: 3 });
-                    loc.points.push({ lat: b.bottom, lon: b.left, index: 4 });
-                    locations.push(loc);
-                }
-            }
-
             /*********************************/
             /* Layers                        */
             /*********************************/
@@ -138,8 +105,7 @@ angular.module('msinm.map')
                         update: function(options) {
                             if (options && this.getMapBounds() && scope.searchLocations) {
                                 var b = this.getMapBounds().transform(projmerc, proj4326);
-                                var locations = [];
-                                addBBoxToLocations(locations, b);
+                                var locations = MapService.addBBoxToLocations(b);
                                 scope.searchLocations({ locations: locations });
                             }
                         }

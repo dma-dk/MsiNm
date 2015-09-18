@@ -18,7 +18,8 @@ angular.module('msinm.map')
                 locations: '=locations',
                 visible: '=visible',
                 editDescs: '@editDescs',
-                languages: '=languages'
+                languages: '=languages',
+                atonSelected: '&atonSelected'
             },
 
             link: function (scope, element, attrs) {
@@ -35,9 +36,11 @@ angular.module('msinm.map')
                 var proj4326 = new OpenLayers.Projection("EPSG:4326");
                 var projmerc = new OpenLayers.Projection("EPSG:900913");
 
+
                 /*********************************/
                 /* Layers                        */
                 /*********************************/
+
                 var locLayer = new OpenLayers.Layer.Vector("Location", {
                     displayInLayerSwitcher: false,
                     styleMap: new OpenLayers.StyleMap({
@@ -52,16 +55,57 @@ angular.module('msinm.map')
                     })
                 });
 
+                var atonContext = {
+                    graphicSize: function(feature) {
+                        return 7;
+                    },
+                    graphicOffset: function(feature) {
+                        return -atonContext.graphicSize() / 2;
+                    },
+                    icon: function(feature) {
+                        return feature.data.icon;
+                    }
+                };
+
+                var atonLayer = new OpenLayers.Layer.Vector("AtoN", {
+                    displayInLayerSwitcher: true,
+                    styleMap: new OpenLayers.StyleMap({
+                        "default": new OpenLayers.Style({
+                            externalGraphic : "${icon}",
+                            graphicWidth : "${graphicSize}",
+                            graphicHeight : "${graphicSize}",
+                            graphicYOffset : "${graphicOffset}",
+                            graphicXOffset : "${graphicOffset}"
+                        }, { context: atonContext })
+                    }),
+                    strategies: [
+                        new OpenLayers.Strategy.BBOX({
+                            resFactor: 1,
+                            update: function(options) {
+                                if (options && this.getMapBounds()) {
+                                    var b = this.getMapBounds().transform(projmerc, proj4326);
+                                    reloadAtoNs(b);
+                                }
+                            }
+                        })
+                    ]
+
+                });
+                atonLayer.setVisibility(false);
+
                 // Build the array of layers to include
                 var layers = [];
                 // addBaseMapLayers() will add the base layers configured in conf/base-layers.js
                 addBaseMapLayers(layers);
                 // Add the mandatory layers
+                layers.push(atonLayer);
                 layers.push(locLayer);
+
 
                 /*********************************/
                 /* Map                           */
                 /*********************************/
+
                 var map = new OpenLayers.Map({
                     div: angular.element(element.children()[0])[0],
                     theme: null,
@@ -76,9 +120,11 @@ angular.module('msinm.map')
                     'div' : OpenLayers.Util.getElement('location-layerswitcher')
                 }));
 
+
                 /*********************************/
                 /* Mouse location label          */
                 /*********************************/
+
                 map.events.register("mousemove", map, function (e) {
                     var point = map.getLonLatFromPixel(this.events.getMousePosition(e));
                     var pos = new OpenLayers.LonLat(point.lon, point.lat).transform(projmerc, proj4326);
@@ -87,9 +133,11 @@ angular.module('msinm.map')
                     })
                 });
 
+
                 /*********************************/
                 /* Draw controls                 */
                 /*********************************/
+
                 var drawControls = {
                     point: new OpenLayers.Control.DrawFeature(locLayer,
                         OpenLayers.Handler.Point),
@@ -124,9 +172,11 @@ angular.module('msinm.map')
                     }
                 };
 
+
                 /*********************************/
                 /* Handle feature events         */
                 /*********************************/
+
                 locLayer.events.on({
                     "featureclick": function (evt) {
                         // TODO: Can we change modify options for circles to only support drag?
@@ -251,6 +301,7 @@ angular.module('msinm.map')
                     quiescent = false;
                 }, true);
 
+
                 /*********************************/
                 /* Handle changed visibility     */
                 /*********************************/
@@ -272,6 +323,7 @@ angular.module('msinm.map')
                         }
                     }, true);
                 }
+
 
                 /*********************************/
                 /* I18N Support                  */
@@ -321,6 +373,7 @@ angular.module('msinm.map')
                     return elm;
                 }
 
+
                 /*********************************/
                 /* Location actions              */
                 /*********************************/
@@ -353,6 +406,7 @@ angular.module('msinm.map')
                     loc.points.push(angular.copy(pt));
                     loc.newPt = initDescs({ lat: undefined, lon: undefined, descs:[] });
                 };
+
 
                 /*********************************/
                 /* Button panel actions          */
@@ -487,6 +541,118 @@ angular.module('msinm.map')
                         scope.modalInstance = undefined;
                     });
                 };
+
+
+                /*********************************/
+                /* AtoN Layer Handling           */
+                /*********************************/
+
+                // AtoN Tooltip Control
+                var atonHoverControl = new OpenLayers.Control.SelectFeature(
+                    [ locLayer, atonLayer ], {
+                        hover: true,
+                        onBeforeSelect: function(feature) {
+                            if (feature.data.type != 'aton' || feature.popup) {
+                                return;
+                            }
+
+                            var b = feature.geometry.getBounds();
+                            var html =
+                                '<div class="location-editor-aton-tooltip">' +
+                                '<div><strong>' + feature.data.id + '</strong></div>' +
+                                '<div><small>' + feature.data.description + '</small></div>' +
+                                '</div>';
+
+                            // add code to create tooltip/popup
+                            feature.popup = new OpenLayers.Popup.Anchored(
+                                "tooltip",
+                                new OpenLayers.LonLat(b.left, b.bottom),
+                                new OpenLayers.Size(140, 30),
+                                html,
+                                {'size': new OpenLayers.Size(0,0), 'offset': new OpenLayers.Pixel(70, 12)},
+                                false,
+                                null);
+
+                            feature.popup.backgroundColor = '#eeeeee';
+                            feature.popup.calculateRelativePosition = function () {
+                                return 'bl';
+                            };
+
+                            map.addPopup(feature.popup);
+                            return true;
+                        },
+                        onUnselect: function(feature) {
+                            // remove tooltip
+                            if (feature.popup) {
+                                map.removePopup(feature.popup);
+                                feature.popup.destroy();
+                                feature.popup=null;
+                            }
+                        }
+                    });
+
+                map.addControl(atonHoverControl);
+                atonHoverControl.activate();
+
+                // AtoN Click Handler
+                var atonSelect = new OpenLayers.Handler.Click(
+                    atonHoverControl, {
+                        click: function (evt) {
+                            var feature = this.layer.getFeatureFromEvent(evt);
+                            if (feature && feature.data.type == 'aton' && scope.atonSelected) {
+                                scope.atonSelected({ aton: feature.data.aton });
+                            }
+                        }
+                    }, {
+                        single: true,
+                        double : false
+                    });
+                atonSelect.activate();
+
+
+                // Load the AtoNs for the given bounds
+                function reloadAtoNs(b) {
+                    if (!atonLayer.visibility) {
+                        createAtoNFeatures(undefined);
+                        return;
+                    }
+
+                    var locations = MapService.addBBoxToLocations(b);
+                    MapService.containedAtoNs(
+                        locations,
+                        function (data) {
+                            createAtoNFeatures(data);
+                        },
+                        function (data) {
+                            console.error("Error loading AtoNs " + data);
+                        }
+                    );
+                }
+
+                function createAtoNFeatures(atons) {
+                    atonLayer.removeAllFeatures();
+
+                    // Show at most 1000 AtoNs
+                    if (!atons || atons.length > 1000) {
+                        return;
+                    }
+
+                    if (atons) {
+                        var features = [];
+                        for (var i in atons) {
+
+                            var aton = atons[i];
+                            try {
+                                var attr = { id : aton.atonUid, description: aton.name, type : 'aton', aton: aton, icon: 'img/aton/aton.png'  };
+
+                                features.push(new OpenLayers.Feature.Vector(MapService.createPt(aton.lon, aton.lat), attr));
+                            } catch (ex) {
+                                console.error("Error: " + ex);
+                            }
+                        }
+                        atonLayer.addFeatures(features);
+                    }
+                }
             }
         }
     }]);

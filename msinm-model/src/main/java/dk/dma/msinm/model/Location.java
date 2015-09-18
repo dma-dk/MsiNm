@@ -117,6 +117,18 @@ public class Location extends BaseEntity<Integer> implements ILocalizable<Locati
     }
 
     /**
+     * Creates a WKT shape from the location withing the given spatial context
+     * @return the spatial4j shape
+     */
+    public Shape toWktOrNull() {
+        try {
+            return toWkt();
+        } catch (ParseException e) {
+            return null;
+        }
+    }
+
+    /**
      * Creates a Json representation of this entity
      * @return the Json representation
      */

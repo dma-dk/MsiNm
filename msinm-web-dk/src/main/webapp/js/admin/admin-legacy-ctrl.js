@@ -93,6 +93,25 @@ angular.module('msinm.admin')
             };
 
 
+
+            // Open modal dialog for uploading and importing AotNs.
+            $scope.legacyAtoNImportDlg = function() {
+
+                console.log("IMPORTING AtoN");
+                $scope.modalInstance = $modal.open({
+                    templateUrl : "/partials/admin/legacy-aton-import.html",
+                    controller: function ($scope) {
+                        $scope.xlsFileUploaded = function(result) {
+                            $scope.importResult = result;
+                            if(!$scope.$$phase) {
+                                $scope.$apply();
+                            }
+                        };
+                    }
+                });
+            };
+
+
         }]);
 
 

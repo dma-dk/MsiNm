@@ -609,6 +609,33 @@ angular.module('msinm.search')
                     }
                 });
                 return modalInstance;
+            };
+
+            // Called when an AtoN is clicked in the map
+            $scope.atonSelected = function (aton) {
+                $scope.updateMessageFromUI(false);
+                $modal.open({
+                    templateUrl: '/partials/search/aton-dialog.html',
+                    controller: function ($scope, $modalInstance, aton) {
+                        $scope.aton = aton;
+                        $scope.ok = function (file) { $modalInstance.close(file); };
+                        $scope.cancel = function () { $modalInstance.dismiss('cancel'); };
+                    },
+                    resolve: {
+                        aton: function () { return aton; }
+                    }
+                }).result.then(function (data) {
+                    $scope.addAtoNLocation(data);
+                });
+            };
+
+            // Adds the given AtoN as a location
+            $scope.addAtoNLocation = function (aton) {
+                var loc = { type: 'POINT', points: [ { lat: aton.lat, lon: aton.lon, index: 1 } ] };
+                LangService.checkDescs(loc, function(desc) {
+                       desc.description = aton.name;
+                    }, undefined, $scope.languages);
+                $scope.msg.locations.push(loc);
             }
 
         }])
