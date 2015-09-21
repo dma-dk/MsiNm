@@ -158,10 +158,12 @@ angular.module('msinm.map')
                     })
                 };
 
-                for (var key in drawControls) {
-                    map.addControl(drawControls[key]);
-                }
-                drawControls.modify.activate();
+                // Important: The draw controls are added to the map AFTER the AtoN controls, because otherwise,
+                // the modify control does not work properly
+                //for (var key in drawControls) {
+                //    map.addControl(drawControls[key]);
+                //}
+                //drawControls.modify.activate();
 
                 scope.deactivateDrawControls = function(modify) {
                     for(var key in drawControls) {
@@ -653,6 +655,16 @@ angular.module('msinm.map')
                         atonLayer.addFeatures(features);
                     }
                 }
+
+
+                // Important: The draw controls must be added to the map AFTER the AtoN controls
+                // Otherwise, the modify control will not work because the atonHoverControl somehow
+                // takes precedence.
+                for (var key in drawControls) {
+                    map.addControl(drawControls[key]);
+                }
+                drawControls.modify.activate();
+
             }
         }
     }]);
