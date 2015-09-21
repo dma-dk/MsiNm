@@ -40,6 +40,7 @@ public abstract class ParameterDataVo<V> implements JsonSerializable {
      * @param lang the language
      * @param params the parameter data
      */
+    @SuppressWarnings("unchecked")
     public static void toFmParameterData(Map<String, Object> fmData, String lang, List<ParameterDataVo> params) {
         params.stream()
                 .filter(param -> param.getValues() != null && param.getValues().size() > 0)

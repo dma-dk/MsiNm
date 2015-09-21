@@ -30,7 +30,9 @@ import javax.ejb.Stateless;
 import javax.inject.Inject;
 import java.security.Principal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -289,6 +291,34 @@ public class UserService extends BaseService {
             sendEmail(data, "user-activation.ftl", "user.registration.subject", user);
         }
 
+        return user;
+    }
+
+    /**
+     * Checks if the user has the given roles, and updates the user if not.
+     * Use with care
+     * @param user the user to check
+     * @param roles the roles
+     */
+    public User checkUpdateRoles(User user, String... roles) {
+        user = findByEmail(user.getEmail());
+        boolean changed = user.getRoles().size() != roles.length;
+        if (!changed) {
+            Set<String> roleLookup = new HashSet<>(Arrays.asList(roles));
+            changed = user.getRoles().stream()
+                    .map(Role::getName)
+                    .filter(roleLookup::contains)
+                    .count() != roles.length;
+        }
+        if (changed) {
+            user.getRoles().clear();
+            for (String role : roles) {
+                user.getRoles().add(findRoleByName(role));
+            }
+
+            // Persist the user
+            user = saveEntity(user);
+        }
         return user;
     }
 

@@ -35,7 +35,7 @@ import javax.inject.Inject;
 public class MessageCache extends BaseCache {
 
     final static long LIFESPAN = 30 * 60 * 1000;   // 30 minutes
-    final static int MAX_ENTRIES = 20000;          // at most 20.000 messages
+    final static long MAX_ENTRIES = 20000;          // at most 20.000 messages
 
     final static String CACHE_ID = "messageCache";
 

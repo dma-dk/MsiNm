@@ -29,7 +29,7 @@
                         </tr>
                         <tr ng-repeat="setting in settings">
                             <td>{{setting.key}}</td>
-                            <td>{{setting.value}}</td>
+                            <td>{{setting.value | truncate: 80}}</td>
                             <td><a href ng-click="editSetting(setting);" title="Edit Setting"><i class="glyphicon glyphicon-pencil"></i></a></td>
                         </tr>
                     </table>
@@ -59,9 +59,10 @@
 
             <div class="form-group">
                 <label for="value">Value</label>
-                <input type="text" id="value" name="value" class="form-control input-sm"
+                <textarea id="value" name="value" class="form-control input-sm"
+                          style="font-size: 11px; width: 100%"
                        ng-model="modalOptions.setting.value" focus="focusMe"
-                       autocapitalize="off" autocorrect="off" autocomplete="off"/>
+                       autocapitalize="off" autocorrect="off" autocomplete="off"></textarea>
             </div>
         </div>
     </form>

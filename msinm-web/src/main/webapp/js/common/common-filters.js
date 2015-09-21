@@ -23,6 +23,29 @@ angular.module('msinm.common')
         };
     })
 
+    .filter('truncate', function () {
+        return function (text, chars) {
+            var truncated = false;
+            text = (text || "") + "";
+            // only first line
+            if (text.indexOf('\n') != -1) {
+                text = text.substr(0, text.indexOf('\n'));
+                truncated = true;
+            }
+
+            // Limit chars
+            if (chars && text.length > chars) {
+                text = text.substr(0, chars);
+                truncated = true;
+            }
+
+            if (truncated) {
+                text = text + "\u2026";
+            }
+            return text;
+        };
+    })
+
     .filter('formatJson', function () {
         return function (text) {
             try {

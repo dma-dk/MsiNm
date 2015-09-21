@@ -16,7 +16,7 @@
                 <p ng-if="OAUTH_LOGINS">
                     Alternatively, log in using your account at
                 <span ng-repeat="oauth in OAUTH_LOGINS">
-                    <a class="{{oauth.icon}}" href="/oauth/login/{{oauth.id}}"> {{oauth.name}}</a>
+                    <a class="{{oauth.icon}}" href="{{oauth.url}}"> {{oauth.name}}</a>
                 </span>
                 </p>
             </div>

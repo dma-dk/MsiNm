@@ -18,21 +18,21 @@
     </filter-mapping>
 
     <servlet>
-        <servlet-name>OAuthLogin</servlet-name>
-        <servlet-class>dk.dma.msinm.user.security.oauth.OAuthLoginServlet</servlet-class>
+        <servlet-name>KeycloakLogin</servlet-name>
+        <servlet-class>dk.dma.msinm.user.security.oidc.KeycloakLoginServlet</servlet-class>
     </servlet>
     <servlet>
-        <servlet-name>OAuthCallback</servlet-name>
-        <servlet-class>dk.dma.msinm.user.security.oauth.OAuthCallbackServlet</servlet-class>
+        <servlet-name>KeycloakCallback</servlet-name>
+        <servlet-class>dk.dma.msinm.user.security.oidc.KeycloakCallbackServlet</servlet-class>
     </servlet>
 
     <servlet-mapping>
-        <servlet-name>OAuthLogin</servlet-name>
-        <url-pattern>/oauth/login/*</url-pattern>
+        <servlet-name>KeycloakLogin</servlet-name>
+        <url-pattern>/oidc-login</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
-        <servlet-name>OAuthCallback</servlet-name>
-        <url-pattern>/oauth/callback/*</url-pattern>
+        <servlet-name>KeycloakCallback</servlet-name>
+        <url-pattern>/oidc-callback</url-pattern>
     </servlet-mapping>
 
 

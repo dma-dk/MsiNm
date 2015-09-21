@@ -13,11 +13,13 @@
  * You should have received a copy of the GNU General Public License
  * along with this library.  If not, see <http://www.gnu.org/licenses/>.
  */
-package dk.dma.msinm.user.security.oauth;
+package dk.dma.msinm.user.security.oidc;
 
+import net.maritimecloud.idreg.client.OIDCUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
+import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -25,19 +27,16 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Redirects the requested oauth service, such as Google, Facebook, Linkedin
- *
- * Check: https://github.com/haklop/myqapp/blob/b005df2e100f8aff7c1529097b651b1fd7ce6a4c/src/main/java/com/infoq/myqapp/controller/GoogleController.java
- *
+ * Use the Keycloak OpenID Connect service to log the user in
  */
-@WebServlet(value = "/oauth/login/*", asyncSupported = true)
-public class OAuthLoginServlet extends HttpServlet {
+@WebServlet(value = "/oidc-login", asyncSupported = true)
+public class KeycloakLoginServlet extends HttpServlet {
 
     @Inject
     Logger log;
 
     @Inject
-    OAuthProviders oAuthProviders;
+    KeycloakService keycloakService;
 
     /**
      * Main GET method
@@ -45,27 +44,18 @@ public class OAuthLoginServlet extends HttpServlet {
      * @param response servlet response
      */
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-        String providerId = request.getPathInfo().substring(1);
-        log.info("Received login request for " + providerId);
-
-        AbstractOAuthProvider provider = oAuthProviders.getProvider(providerId);
-        if (provider == null) {
-            log.error("No provider exists for " + providerId);
+        // Check if the service is enabled
+        if (!keycloakService.isEnabled()) {
+            log.warn("The OpenID Connect service is not enabled");
             response.sendRedirect("/");
             return;
         }
 
-        String authUrl = provider.getAuthorizationUrl();
-        if (authUrl == null) {
-            log.error("Provider " + providerId + " not configured properly");
-            response.sendRedirect("/");
-            return;
-        }
-
-        log.info("Redirecting to " + authUrl);
-        response.sendRedirect(authUrl);
+        log.info("OpenID Connect login called");
+        OIDCUtils.nocache(response);
+        String callbackUrl = keycloakService.getUrl(request, "/oidc-callback");
+        keycloakService.getOidcClient().redirectToAuthServer(response, callbackUrl);
     }
-
 }
