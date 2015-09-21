@@ -122,6 +122,8 @@ public class LegacyAtonImportRestService {
         updateColumnIndex(headerRow, colIndex, "BESKRIVELSE");
         updateColumnIndex(headerRow, colIndex, "LATTITUDE");
         updateColumnIndex(headerRow, colIndex, "LONGITUDE");
+        updateColumnIndex(headerRow, colIndex, "KARAKNR");
+        updateColumnIndex(headerRow, colIndex, "EJER");
 
         // Extract the AtoNs
         while (rowIterator.hasNext()) {
@@ -132,8 +134,18 @@ public class LegacyAtonImportRestService {
             aton.setName(row.getCell(colIndex.get("AFM_NAVN")).getStringCellValue());
             aton.setCode(row.getCell(colIndex.get("AFUFORKORTELSE")).getStringCellValue());
             aton.setDescription(row.getCell(colIndex.get("BESKRIVELSE")).getStringCellValue());
+            aton.setOwner(row.getCell(colIndex.get("EJER")).getStringCellValue());
             aton.setLat(row.getCell(colIndex.get("LATTITUDE")).getNumericCellValue());
             aton.setLon(row.getCell(colIndex.get("LONGITUDE")).getNumericCellValue());
+
+            String karaknr = String.valueOf(Math.round(row.getCell(colIndex.get("KARAKNR")).getNumericCellValue()));
+            if (karaknr.contains("5")) {
+                aton.setType(2);
+            } else if (karaknr.contains("6") || karaknr.contains("7")) {
+                aton.setType(3);
+            } else {
+                aton.setType(1);
+            }
 
             atons.add(aton);
         }

@@ -28,7 +28,7 @@ import javax.validation.constraints.NotNull;
  * Represents an AtoN (aid to navigation)
  * <p/>
  * TODO:
- * 1) Properly model description and code
+ * 1) Properly model description, type and code
  * 2) Move name to AtoNDesc
  * 3) Create Lucene index for fast searching
  */
@@ -44,6 +44,9 @@ public class AtoN extends BaseEntity<Integer> {
     String atonUid;
 
     @NotNull
+    int type;
+
+    @NotNull
     String name;
 
     @NotNull
@@ -51,6 +54,8 @@ public class AtoN extends BaseEntity<Integer> {
 
     @NotNull
     String code;
+
+    String owner;
 
     @NotNull
     private Double lat;
@@ -72,6 +77,14 @@ public class AtoN extends BaseEntity<Integer> {
 
     public void setAtonUid(String atonUid) {
         this.atonUid = atonUid;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
     }
 
     public String getName() {
@@ -96,6 +109,14 @@ public class AtoN extends BaseEntity<Integer> {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public String getOwner() {
+        return owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
     }
 
     public Double getLat() {

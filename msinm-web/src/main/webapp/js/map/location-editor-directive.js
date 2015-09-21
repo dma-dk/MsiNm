@@ -645,7 +645,11 @@ angular.module('msinm.map')
 
                             var aton = atons[i];
                             try {
-                                var attr = { id : aton.atonUid, description: aton.name, type : 'aton', aton: aton, icon: 'img/aton/aton.png'  };
+                                var attr = { id : aton.atonUid,
+                                    description: aton.name,
+                                    type : 'aton',
+                                    aton: aton,
+                                    icon: 'img/aton/aton' + aton.type + '.png'  };
 
                                 features.push(new OpenLayers.Feature.Vector(MapService.createPt(aton.lon, aton.lat), attr));
                             } catch (ex) {
