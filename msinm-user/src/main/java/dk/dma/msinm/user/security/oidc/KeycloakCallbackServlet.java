@@ -22,9 +22,9 @@ import dk.dma.msinm.user.UserService;
 import dk.dma.msinm.user.security.AuthCache;
 import dk.dma.msinm.user.security.JWTService;
 import dk.dma.msinm.user.security.JWTToken;
-import net.maritimecloud.idreg.client.AccessTokenData;
-import net.maritimecloud.idreg.client.AuthErrorException;
-import net.maritimecloud.idreg.client.OIDCUtils;
+import net.e2.bw.idreg.client.AccessTokenData;
+import net.e2.bw.idreg.client.AuthErrorException;
+import net.e2.bw.idreg.client.OIDCUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 

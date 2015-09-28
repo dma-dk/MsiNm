@@ -15,8 +15,21 @@
     <properties>
         <lucene.version>4.7.2</lucene.version>
         <keycloak.version>1.4.0.Final</keycloak.version>
-        <version.mc-idreg>0.1-SNAPSHOT</version.mc-idreg>
+        <bw-idreg-client.version>0.1-SNAPSHOT</bw-idreg-client.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>dma-releases</id>
+            <name>Dma Release Repository</name>
+            <url>http://repository-dma.forge.cloudbees.com/release/</url>
+        </repository>
+        <repository>
+            <id>dma-snapshots</id>
+            <name>Dma Snapshot Repository</name>
+            <url>http://repository-dma.forge.cloudbees.com/snapshot/</url>
+        </repository>
+    </repositories>
 
     <dependencies>
         <dependency>
@@ -41,9 +54,9 @@
 
         <!-- OpenID Connect Support -->
         <dependency>
-            <groupId>net.maritimecloud.idreg</groupId>
-            <artifactId>mc-idreg-client</artifactId>
-            <version>${version.mc-idreg}</version>
+            <groupId>net.e2.bw.idreg</groupId>
+            <artifactId>bw-idreg-client</artifactId>
+            <version>${bw-idreg-client.version}</version>
         </dependency>
 
         <!-- test -->

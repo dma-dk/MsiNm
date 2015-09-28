@@ -18,7 +18,7 @@ package dk.dma.msinm.user.security.oidc;
 import dk.dma.msinm.common.settings.DefaultSetting;
 import dk.dma.msinm.common.settings.Setting;
 import dk.dma.msinm.common.settings.Settings;
-import net.maritimecloud.idreg.client.OIDCClient;
+import net.e2.bw.idreg.client.OIDCClient;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 

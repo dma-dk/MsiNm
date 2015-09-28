@@ -15,7 +15,7 @@
  */
 package dk.dma.msinm.user.security.oidc;
 
-import net.maritimecloud.idreg.client.OIDCUtils;
+import net.e2.bw.idreg.client.OIDCUtils;
 import org.slf4j.Logger;
 
 import javax.inject.Inject;
