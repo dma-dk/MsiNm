@@ -13,7 +13,7 @@
         <maven.min.version>3.0.0</maven.min.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <version.jboss.bom>8.2.0.Final</version.jboss.bom>
-        <jackson.version>2.3.2</jackson.version>
+        <jackson.version>2.12.6.1</jackson.version>
     </properties>
 
     <dependencyManagement>
